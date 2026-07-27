@@ -1,5 +1,7 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { FaRocket, FaArrowRight } from "react-icons/fa";
 import "../styles/cta.css";
 
 export default function CTA() {
@@ -24,19 +26,25 @@ export default function CTA() {
   };
 
   return (
-    <section className="cta">
+    <section className="ctaSection">
+      <div className="ctaBanner">
+        <div className="ctaLeftGroup">
+          <div className="ctaRocketCircle">
+            <FaRocket />
+          </div>
+          <div className="ctaTextContent">
+            <h2>Ready to Transform Learning & Workforce Management?</h2>
+            <p>
+              Empower students, educators, employees, and organizations with one intelligent platform
+              for learning, collaboration, and productivity.
+            </p>
+          </div>
+        </div>
 
-      <h2>Ready to Transform Learning & Workforce Management?</h2>
-
-      <p>
-        Empower students, educators, employees, and organizations with one intelligent platform
-        for learning, collaboration, and productivity.
-      </p>
-
-      <div className="ctaButtons">
-        <button className="ctaBtn" onClick={handleGetStarted}>Get Started</button>
+        <button className="ctaBtnWhite" onClick={handleGetStarted}>
+          Get Started Now <FaArrowRight />
+        </button>
       </div>
-
     </section>
   );
 }

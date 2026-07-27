@@ -153,7 +153,7 @@ const initialWorkforceData = [
 export function AdminProvider({ children }) {
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-  const [courses, setCourses] = useState([]);
+  const [courses, setCourses] = useState(initialCoursesData);
   const [users, setUsers] = useState([]);
   const [workforce, setWorkforce] = useState([]);
   
@@ -161,9 +161,8 @@ export function AdminProvider({ children }) {
     return localStorage.getItem('admin_session') === 'true';
   });
 
-  const fetchData = async () => {
+  const fetchCourses = async () => {
     try {
-      // 1. Fetch Courses
       const coursesRes = await fetch(`${API_URL}/api/admin/courses`);
       if (coursesRes.ok) {
         const coursesData = await coursesRes.json();
@@ -171,6 +170,15 @@ export function AdminProvider({ children }) {
           setCourses(coursesData.courses || []);
         }
       }
+    } catch (err) {
+      console.error("Failed to fetch courses:", err);
+    }
+  };
+
+  const fetchData = async () => {
+    try {
+      // 1. Fetch Courses
+      await fetchCourses();
 
       // 2. Fetch Users
       const usersRes = await fetch(`${API_URL}/api/admin/users`);
@@ -204,6 +212,10 @@ export function AdminProvider({ children }) {
       console.error("Failed to fetch admin data:", err);
     }
   };
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
 
   useEffect(() => {
     if (isAdminAuth) {

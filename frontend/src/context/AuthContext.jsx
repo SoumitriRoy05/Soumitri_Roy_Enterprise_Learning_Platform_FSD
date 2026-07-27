@@ -47,12 +47,19 @@ const THEME_VARS = {
   }
 };
 
-function applyGlobalTheme(accent) {
-  const vars = THEME_VARS.dark;
+function applyGlobalTheme(mode = 'dark', accent) {
+  const vars = THEME_VARS[mode] || THEME_VARS.dark;
   const root = document.documentElement;
   Object.entries(vars).forEach(([k, v]) => root.style.setProperty(k, v));
   root.style.setProperty('--accent', accent || '#00e5ff');
-  root.setAttribute('data-theme', 'dark');
+  root.setAttribute('data-theme', mode);
+  if (mode === 'light') {
+    root.classList.add('light-theme');
+    root.classList.remove('dark-theme');
+  } else {
+    root.classList.add('dark-theme');
+    root.classList.remove('light-theme');
+  }
 }
 
 export function AuthProvider({ children }) {
@@ -64,8 +71,9 @@ export function AuthProvider({ children }) {
   const navigate = useNavigate();
 
   // ─── Theme state ──────────────────────────────────────────────────────
-  // Landing and Student pages are strictly kept in Dark theme
-  const themeMode = 'dark';
+  const [themeMode, setThemeMode] = useState(() =>
+    localStorage.getItem('skillsphere_theme_mode') || 'dark'
+  );
   const [themeAccent, setThemeAccent] = useState(() =>
     localStorage.getItem('skillsphere_theme_accent') || '#00e5ff'
   );
@@ -75,11 +83,16 @@ export function AuthProvider({ children }) {
     localStorage.getItem('skillsphere_wf_theme') || 'dark'
   );
 
-  // Always enforce dark theme globally for Landing & Student pages
+  const toggleTheme = () => {
+    setThemeMode(prev => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
+  // Re-apply theme CSS vars whenever themeMode or themeAccent changes
   useEffect(() => {
-    applyGlobalTheme(themeAccent);
+    applyGlobalTheme(themeMode, themeAccent);
+    localStorage.setItem('skillsphere_theme_mode', themeMode);
     localStorage.setItem('skillsphere_theme_accent', themeAccent);
-  }, [themeAccent]);
+  }, [themeMode, themeAccent]);
 
   const updateWorkforceTheme = (mode) => {
     setWorkforceTheme(mode);
@@ -87,7 +100,7 @@ export function AuthProvider({ children }) {
   };
 
   const updateTheme = ({ mode, accent }) => {
-    if (mode !== undefined) updateWorkforceTheme(mode);
+    if (mode !== undefined) setThemeMode(mode);
     if (accent !== undefined) setThemeAccent(accent);
   };
 
@@ -345,7 +358,7 @@ export function AuthProvider({ children }) {
       console.error('Logout error:', err);
     } finally {
       clearSession();
-      navigate('/login');
+      navigate('/');
     }
   };
 
@@ -404,7 +417,7 @@ export function AuthProvider({ children }) {
     enrolledCourses, enrollCourse,
     updateUserProfile,
     unlockBadge,
-    themeMode, themeAccent, updateTheme,
+    themeMode, themeAccent, toggleTheme, setThemeMode, updateTheme,
     workforceTheme, updateWorkforceTheme,
   };
 

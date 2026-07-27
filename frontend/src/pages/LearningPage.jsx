@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import StudentFooter from "../components/StudentFooter";
 import Background from "../components/Background";
 import DashboardSidebar from "../components/DashboardSidebar";
 import "../styles/learningPage.css";
@@ -1577,7 +1577,7 @@ public class SecurityConfig {
 
       </main>
 
-      <Footer />
+      <StudentFooter />
     </div>
   );
 }

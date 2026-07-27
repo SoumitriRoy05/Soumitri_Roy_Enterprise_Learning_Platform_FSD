@@ -1,477 +1,915 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import Navbar from "../components/Navbar";
 import Background from "../components/Background";
-import Footer from "../components/Footer";
-import DashboardSidebar from "../components/DashboardSidebar";
-import "../styles/dashboard.css";
+import PaperPlaneCursor from "../components/PaperPlaneCursor";
+import StudentFooter from "../components/StudentFooter";
+import FloatingChatbot from "../components/FloatingChatbot";
+
+import {
+  FaHome,
+  FaBook,
+  FaCodeBranch,
+  FaFileAlt,
+  FaComments,
+  FaAward,
+  FaCertificate,
+  FaChartLine,
+  FaFileInvoice,
+  FaCode,
+  FaBolt,
+  FaCog,
+  FaSearch,
+  FaBell,
+  FaRobot,
+  FaRocket,
+  FaSun,
+  FaMoon,
+  FaArrowLeft,
+  FaPlus,
+  FaTimes,
+  FaRegCommentDots,
+  FaEye,
+  FaEllipsisV,
+  FaThumbsUp,
+  FaCheck,
+  FaCalendarAlt,
+  FaChevronLeft,
+  FaChevronRight,
+  FaShieldAlt,
+  FaExternalLinkAlt,
+  FaSignOutAlt
+} from "react-icons/fa";
+
+import "../styles/studentDashboard.css";
+import "../styles/discussionsPage.css";
 
 export default function DiscussionsPage() {
-  const { user, authenticatedFetch } = useAuth();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [searchTerm, setSearchTerm] = useState("");
+  const { user, xp, logout, themeMode, toggleTheme } = useAuth();
+  const navigate = useNavigate();
+  const isDarkMode = themeMode === "dark";
+  const [activeSubTab, setActiveSubTab] = useState("all"); // "all" | "following" | "unanswered" | "my"
+  const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const [selectedSort, setSelectedSort] = useState("Latest");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [toastMessage, setToastMessage] = useState("");
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-  const [posts, setPosts] = useState([]);
-
-  const fetchDiscussions = async () => {
+  const handleLogout = async () => {
     try {
-      const response = await authenticatedFetch(`${API_URL}/api/discussions`);
-      const data = await response.json();
-      if (response.ok && data.success) {
-        setPosts(data.posts);
-      }
+      await logout();
     } catch (err) {
-      console.error("Failed to fetch discussions:", err);
+      console.error(err);
+    } finally {
+      navigate("/");
     }
   };
 
-  useEffect(() => {
-    fetchDiscussions();
-  }, []);
+  // Modals & Drawers state
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedThread, setSelectedThread] = useState(null);
 
-  // New Post Form State
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  // New Thread Form state
   const [newTitle, setNewTitle] = useState("");
-  const [newCategory, setNewCategory] = useState("React & Frontend");
+  const [newCategoryTag, setNewCategoryTag] = useState("JavaScript");
   const [newContent, setNewContent] = useState("");
 
-  // Add new comment state per post
-  const [commentInputs, setCommentInputs] = useState({});
+  // New Reply Input in Detail Modal
+  const [newReplyText, setNewReplyText] = useState("");
 
-  const handleToggleUpvote = async (postId) => {
-    // Optimistic UI update
-    setPosts(prev => prev.map(p => {
-      if (p.id === postId) {
-        return {
-          ...p,
-          upvotes: p.isUpvoted ? Math.max(0, p.upvotes - 1) : p.upvotes + 1,
-          isUpvoted: !p.isUpvoted
-        };
-      }
-      return p;
-    }));
+  const currentXp = xp ?? 0;
+  const userName = user?.full_name || user?.username || "Learner";
 
-    try {
-      const response = await authenticatedFetch(`${API_URL}/api/discussions/${postId}/upvote`, {
-        method: "POST"
-      });
-      const data = await response.json();
-      if (response.ok && data.success) {
-        setPosts(prev => prev.map(p => {
-          if (p.id === postId) {
-            return {
-              ...p,
-              upvotes: data.upvotes,
-              isUpvoted: data.isUpvoted
-            };
-          }
-          return p;
-        }));
-      }
-    } catch (err) {
-      console.error("Failed to toggle upvote:", err);
+  const navItems = [
+    { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
+    { id: "courses", label: "Courses", icon: <FaBook /> },
+    { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
+    { id: "assignments", label: "Assignments", icon: <FaFileAlt /> },
+    { id: "discussions", label: "Discussions", icon: <FaComments /> },
+    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
+    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
+    { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
+    { id: "badges", label: "Badges", icon: <FaAward /> },
+    { id: "certificates", label: "Certificates", icon: <FaCertificate /> },
+    { id: "progress", label: "Progress", icon: <FaChartLine /> },
+    { id: "resume", label: "Resume Builder", icon: <FaFileInvoice /> },
+    { id: "code-arena", label: "CodeArena", icon: <FaCode />, isNew: true },
+    { id: "settings", label: "Settings", icon: <FaCog /> }
+  ];
+
+  // 1-to-1 Discussions Initial State matching Reference Image
+  const [discussionsList, setDiscussionsList] = useState([
+    {
+      id: 1,
+      initials: "JS",
+      avatarBg: "#E0E7FF",
+      avatarColor: "#4338CA",
+      title: "How does JavaScript event loop work?",
+      category: "JavaScript",
+      author: "John Smith",
+      time: "2 hours ago",
+      repliesCount: 12,
+      viewsCount: 125,
+      upvotes: 24,
+      isUpvoted: false,
+      isFollowing: false,
+      content:
+        "Can someone explain how the call stack, microtask queue, and macrotask queue interact in JavaScript V8 engine? Code examples would be greatly appreciated!",
+      comments: [
+        { id: 101, author: "Sneha Priya", time: "1 hour ago", text: "The event loop checks if the call stack is empty. If it is, it pushes tasks from microtask queue first (Promises) then macrotask queue (setTimeout)." },
+        { id: 102, author: "Tushar Roy", time: "30 mins ago", text: "Great video reference: Philip Roberts' 'What the heck is the event loop anyway?' from JSConf!" }
+      ]
+    },
+    {
+      id: 2,
+      initials: "AP",
+      avatarBg: "#DCFCE7",
+      avatarColor: "#15803D",
+      title: "Best resources to learn React in 2024?",
+      category: "React",
+      author: "Ananya Patel",
+      time: "5 hours ago",
+      repliesCount: 8,
+      viewsCount: 98,
+      upvotes: 18,
+      isUpvoted: false,
+      isFollowing: true,
+      content:
+        "I want to master React 18, Server Components, and Next.js 14. What documentation or interactive courses do you recommend for beginners to advanced developers?",
+      comments: [
+        { id: 103, author: "Rohit Kumar", time: "4 hours ago", text: "Official react.dev docs are top tier! Also recommend Frontend Masters & SkillSphere React path." }
+      ]
+    },
+    {
+      id: 3,
+      initials: "RK",
+      avatarBg: "#FEF3C7",
+      avatarColor: "#B45309",
+      title: "Time complexity of HashMap operations",
+      category: "Data Structures",
+      author: "Rohit Kumar",
+      time: "1 day ago",
+      repliesCount: 15,
+      viewsCount: 210,
+      upvotes: 35,
+      isUpvoted: false,
+      isFollowing: false,
+      content:
+        "Why is HashMap get/put O(1) on average, but O(n) in worst case? How do collision handling mechanisms like Chaining vs Red-Black trees impact performance?",
+      comments: [
+        { id: 104, author: "Alex Morgan", time: "18 hours ago", text: "In Java 8+, if bucket size exceeds 8 items, linked list converts to Red-Black tree making worst case O(log N)!" }
+      ]
+    },
+    {
+      id: 4,
+      initials: "SP",
+      avatarBg: "#FCE7F3",
+      avatarColor: "#BE185D",
+      title: "Tips for cracking coding interviews",
+      category: "Career",
+      author: "Sneha Priya",
+      time: "1 day ago",
+      repliesCount: 23,
+      viewsCount: 312,
+      upvotes: 52,
+      isUpvoted: false,
+      isFollowing: true,
+      content:
+        "Here are my top 5 learnings after giving 15+ interviews at top tech companies: 1. Communicate your thought process 2. Master Array/String patterns 3. Dry run edge cases 4. Optimize space/time complexity 5. Stay calm and positive!",
+      comments: [
+        { id: 105, author: "Mayank Grover", time: "1 day ago", text: "Solid advice! Point #1 is what interviewers care about most." }
+      ]
+    },
+    {
+      id: 5,
+      initials: "MG",
+      avatarBg: "#F3E8FF",
+      avatarColor: "#7E22CE",
+      title: "Docker vs Kubernetes: When to use what?",
+      category: "DevOps",
+      author: "Mayank Grover",
+      time: "2 days ago",
+      repliesCount: 6,
+      viewsCount: 87,
+      upvotes: 14,
+      isUpvoted: false,
+      isFollowing: false,
+      content:
+        "When should a startup transition from simple Docker Compose container setups to a full Kubernetes (K8s) cluster management system?",
+      comments: [
+        { id: 106, author: "Vanshika R", time: "1 day ago", text: "Stick to Docker Compose until you need automated scaling, self-healing nodes, and multi-cloud deployments!" }
+      ]
+    },
+    {
+      id: 6,
+      initials: "NK",
+      avatarBg: "#E0F2FE",
+      avatarColor: "#0369A1",
+      title: "How to optimize SQL queries?",
+      category: "Database",
+      author: "Nikhil Kumar",
+      time: "2 days ago",
+      repliesCount: 10,
+      viewsCount: 132,
+      upvotes: 29,
+      isUpvoted: false,
+      isFollowing: false,
+      content:
+        "What are the best practices for indexing, avoiding SELECT *, and utilizing EXPLAIN ANALYZE to boost relational database query speeds?",
+      comments: [
+        { id: 107, author: "Arpita Jain", time: "2 days ago", text: "Index your foreign keys and frequently searched WHERE columns!" }
+      ]
+    },
+    {
+      id: 7,
+      initials: "VR",
+      avatarBg: "#CCFBF1",
+      avatarColor: "#0F766E",
+      title: "Machine Learning roadmap for beginners",
+      category: "Machine Learning",
+      author: "Vanshika R",
+      time: "3 days ago",
+      repliesCount: 18,
+      viewsCount: 245,
+      upvotes: 41,
+      isUpvoted: false,
+      isFollowing: false,
+      content:
+        "Step-by-step roadmap for ML: Python -> NumPy & Pandas -> Math (Linear Algebra & Calculus) -> Scikit-learn -> Deep Learning (PyTorch). What projects should beginners start with?",
+      comments: [
+        { id: 108, author: "Tushar Roy", time: "3 days ago", text: "Start with House Price Prediction (Regression) and Iris Flower classification!" }
+      ]
     }
-  };
+  ]);
 
-  const handleAddComment = async (postId) => {
-    const text = commentInputs[postId];
-    if (!text || !text.trim()) return;
+  // Upcoming Discussions Widgets Data
+  const upcomingDiscussions = [
+    { id: 1, title: "Generative AI: The Future", speaker: "With Prof. Sharma", date: "25 May 2025 • 7:00 PM", icon: "🤖", iconBg: "#F3E8FF" },
+    { id: 2, title: "DSA Problem Solving Session", speaker: "With Tushar Roy", date: "27 May 2025 • 6:00 PM", icon: "</>", iconBg: "#DCFCE7" },
+    { id: 3, title: "System Design Basics", speaker: "With Arpita Jain", date: "30 May 2025 • 8:00 PM", icon: "📖", iconBg: "#FEF3C7" }
+  ];
 
-    // Optimistic UI update
-    const tempCommentId = Date.now();
-    const newCommentObj = {
-      id: tempCommentId,
-      author: user?.full_name || user?.username || "SkillSphere Learner",
-      time: "Just now",
-      text: text.trim()
-    };
+  // Top Contributors Widgets Data
+  const topContributors = [
+    { id: 1, name: "Tushar Roy", level: "Level 18", xp: "2,450 XP", avatar: "👨‍💻" },
+    { id: 2, name: "Arpita Jain", level: "Level 16", xp: "1,980 XP", avatar: "👩‍💻" },
+    { id: 3, name: "Rohit Kumar", level: "Level 14", xp: "1,650 XP", avatar: "👨‍🎓" },
+    { id: 4, name: "Sneha Priya", level: "Level 13", xp: "1,240 XP", avatar: "👩‍🎓" },
+    { id: 5, name: "Vanshika R", level: "Level 12", xp: "980 XP", avatar: "👩‍🔬" }
+  ];
 
-    setPosts(prev => prev.map(p => {
-      if (p.id === postId) {
-        return {
-          ...p,
-          comments: [...p.comments, newCommentObj]
-        };
-      }
-      return p;
-    }));
-    setCommentInputs(prev => ({ ...prev, [postId]: "" }));
+  // Filtered Threads Calculation
+  const filteredDiscussions = discussionsList.filter((item) => {
+    // Search query filter
+    const matchesSearch =
+      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.author.toLowerCase().includes(searchQuery.toLowerCase());
 
-    try {
-      const response = await authenticatedFetch(`${API_URL}/api/discussions/${postId}/comment`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: text.trim() })
-      });
-      const data = await response.json();
-      if (response.ok && data.success) {
-        fetchDiscussions();
-      }
-    } catch (err) {
-      console.error("Failed to add comment:", err);
-    }
-  };
+    // Category filter
+    const matchesCategory =
+      selectedCategory === "All Categories" || item.category.toLowerCase() === selectedCategory.toLowerCase();
 
-  const handleCreatePost = async (e) => {
+    // Sub-tab filter
+    if (activeSubTab === "following") return matchesSearch && matchesCategory && item.isFollowing;
+    if (activeSubTab === "unanswered") return matchesSearch && matchesCategory && item.repliesCount === 0;
+    if (activeSubTab === "my") return matchesSearch && matchesCategory && item.author === userName;
+
+    return matchesSearch && matchesCategory;
+  });
+
+  // Handler to Create a New Discussion Thread
+  const handleCreateThread = (e) => {
     e.preventDefault();
     if (!newTitle.trim() || !newContent.trim()) return;
 
-    const authorName = user?.full_name || user?.username || "SkillSphere Learner";
-    const tempPostId = Date.now();
-    const newPostObj = {
-      id: tempPostId,
-      author: authorName,
-      avatar: authorName.charAt(0).toUpperCase(),
-      role: user?.role || "Student",
-      time: "Just now",
-      category: newCategory,
+    const initials = userName
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .substring(0, 2)
+      .toUpperCase();
+
+    const newThread = {
+      id: Date.now(),
+      initials: initials || "AM",
+      avatarBg: "#FFF0EB",
+      avatarColor: "#F9572A",
       title: newTitle.trim(),
+      category: newCategoryTag,
+      author: userName,
+      time: "Just now",
+      repliesCount: 0,
+      viewsCount: 1,
+      upvotes: 1,
+      isUpvoted: true,
+      isFollowing: true,
       content: newContent.trim(),
-      upvotes: 0,
-      isUpvoted: false,
       comments: []
     };
 
-    setPosts([newPostObj, ...posts]);
+    setDiscussionsList([newThread, ...discussionsList]);
     setNewTitle("");
     setNewContent("");
-    setShowCreateModal(false);
+    setIsCreateModalOpen(false);
 
-    try {
-      const response = await authenticatedFetch(`${API_URL}/api/discussions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: newTitle.trim(),
-          content: newContent.trim(),
-          category: newCategory
-        })
-      });
-      const data = await response.json();
-      if (response.ok && data.success) {
-        fetchDiscussions();
-      }
-    } catch (err) {
-      console.error("Failed to create post:", err);
+    setToastMessage("🚀 Your discussion thread has been published successfully!");
+    setTimeout(() => setToastMessage(""), 4000);
+  };
+
+  // Upvote Thread Handler
+  const handleUpvoteThread = (threadId) => {
+    setDiscussionsList((prev) =>
+      prev.map((t) => {
+        if (t.id === threadId) {
+          const updatedUpvoted = !t.isUpvoted;
+          return {
+            ...t,
+            isUpvoted: updatedUpvoted,
+            upvotes: updatedUpvoted ? t.upvotes + 1 : t.upvotes - 1
+          };
+        }
+        return t;
+      })
+    );
+
+    if (selectedThread && selectedThread.id === threadId) {
+      setSelectedThread((prev) => ({
+        ...prev,
+        isUpvoted: !prev.isUpvoted,
+        upvotes: !prev.isUpvoted ? prev.upvotes + 1 : prev.upvotes - 1
+      }));
     }
   };
 
-  const filteredPosts = posts.filter(p => {
-    const matchesCat = activeCategory === "All" || p.category === activeCategory;
-    const matchesSearch = p.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          p.content.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCat && matchesSearch;
-  });
+  // Add Comment/Reply in Thread Detail Modal
+  const handlePostReply = (e) => {
+    e.preventDefault();
+    if (!newReplyText.trim() || !selectedThread) return;
+
+    const newCommentObj = {
+      id: Date.now(),
+      author: userName,
+      time: "Just now",
+      text: newReplyText.trim()
+    };
+
+    setDiscussionsList((prev) =>
+      prev.map((t) => {
+        if (t.id === selectedThread.id) {
+          return {
+            ...t,
+            repliesCount: t.repliesCount + 1,
+            comments: [...t.comments, newCommentObj]
+          };
+        }
+        return t;
+      })
+    );
+
+    setSelectedThread((prev) => ({
+      ...prev,
+      repliesCount: prev.repliesCount + 1,
+      comments: [...prev.comments, newCommentObj]
+    }));
+
+    setNewReplyText("");
+    setToastMessage("💬 Reply posted successfully!");
+    setTimeout(() => setToastMessage(""), 4000);
+  };
 
   return (
-    <div className="dashboard-page" style={{ minHeight: '100vh', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+    <div className={`dpWrapper ${isDarkMode ? "dark-theme" : ""}`}>
       <Background />
-      <Navbar showSidebarToggle={true} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} isSidebarOpen={isSidebarOpen} />
-      <DashboardSidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+      <PaperPlaneCursor />
 
-      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '110px 24px 60px 24px' }}>
+      {/* Main Grid Container */}
+      <div className="dpMainContainer">
         
-        {/* Header Section */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', marginBottom: '35px' }}>
+        {/* ── LEFT SIDEBAR ── */}
+        <aside className="sdLeftSidebar">
           <div>
-            <h1 style={{ fontFamily: 'Orbitron, sans-serif', fontSize: '36px', color: '#00e5ff', margin: '0 0 8px 0' }}>
-              💬 Community Discussions
-            </h1>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '16px', margin: 0 }}>
-              Ask technical questions, share code architecture insights, and learn with fellow SkillSphere developers!
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowCreateModal(true)}
-            style={{
-              background: 'linear-gradient(90deg, #00e5ff, #8a2eff)',
-              color: 'var(--text-primary)',
-              border: 'none',
-              padding: '14px 28px',
-              borderRadius: '30px',
-              fontSize: '15px',
-              fontWeight: '700',
-              cursor: 'pointer',
-              boxShadow: '0 0 20px rgba(0, 229, 255, 0.4)'
-            }}
-          >
-            + Start New Discussion
-          </button>
-        </div>
+            <Link to="/" className="sdBrandLogo">
+              <span className="logoHex">⬢</span>
+              <span>SkillSphere</span>
+            </Link>
 
-        {/* Filter Bar & Search */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px', marginBottom: '30px' }}>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            {["All", "React & Frontend", "Java & Backend", "System Design", "Generative AI"].map(cat => (
+            <div className="sdSidebarHomeArchHeader">
+              <div className="sdArchLine" />
               <button
-                key={cat}
-                type="button"
-                onClick={() => setActiveCategory(cat)}
-                style={{
-                  background: activeCategory === cat ? 'linear-gradient(90deg, rgba(0,229,255,0.2), rgba(138,46,255,0.2))' : 'rgba(15, 23, 42, 0.7)',
-                  border: activeCategory === cat ? '1px solid #00e5ff' : '1px solid rgba(255, 255, 255, 0.1)',
-                  color: activeCategory === cat ? '#00e5ff' : 'var(--text-secondary)',
-                  padding: '8px 18px',
-                  borderRadius: '20px',
-                  fontSize: '13px',
-                  fontWeight: '700',
-                  cursor: 'pointer'
-                }}
+                className="sdHomeCircularBtn active"
+                onClick={() => navigate("/student-home")}
+                title="Dashboard Overview"
               >
-                {cat}
+                <FaHome />
               </button>
-            ))}
+            </div>
+
+            <ul className="sdNavList">
+              {navItems.map((item) => (
+                <li key={item.id}>
+                  <button
+                    className={`sdNavItem ${item.id === "discussions" ? "active" : ""}`}
+                    onClick={() => {
+                      if (item.id === "dashboard") navigate("/student-home");
+                      else if (item.id === "courses") navigate("/courses");
+                      else if (item.id === "learning-paths") navigate("/learning-paths");
+                      else if (item.id === "assignments") navigate("/assignments");
+                      else if (item.id === "discussions") navigate("/discussions");
+                      else if (item.id === "ai-buddy") navigate("/ai-buddy");
+                      else if (item.id === "opportunity-feed") navigate("/opportunity-feed");
+                      else if (item.id === "daily-quests") navigate("/daily-quests");
+                      else if (item.id === "badges") navigate("/badges");
+                      else if (item.id === "certificates") navigate("/certificate");
+                      else if (item.id === "progress") navigate("/progress");
+                      else if (item.id === "resume") navigate("/resume");
+                      else if (item.id === "code-arena") navigate("/code-arena");
+                      else if (item.id === "settings") navigate("/settings");
+                      else navigate("/student-home");
+                    }}
+                  >
+                    <span className="navIcon">{item.icon}</span>
+                    <span className="navLabel">{item.label}</span>
+                    {item.isNew && <span className="navNewBadge">New</span>}
+                  </button>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          <input
-            type="text"
-            placeholder="🔍 Search discussions..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              background: 'rgba(15, 23, 42, 0.8)',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-              color: 'var(--text-primary)',
-              padding: '10px 18px',
-              borderRadius: '20px',
-              fontSize: '14px',
-              width: '260px'
-            }}
-          />
-        </div>
-
-        {/* Discussions Posts Feed */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
-          {filteredPosts.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '50px 20px', background: 'rgba(15, 23, 42, 0.5)', borderRadius: '16px' }}>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '16px' }}>No discussions found for "{searchTerm}". Be the first to start a topic!</p>
+          {/* Bottom Sidebar Container: Rocket Graphic + Theme Controls */}
+          <div className="sdSidebarBottomSection">
+            <div className="sdRocketIllustrationBox">
+              <span className="sdRocketEmoji">🚀</span>
+              <div className="sdCloudDeco"></div>
             </div>
-          ) : (
-            filteredPosts.map(post => (
-              <article 
-                key={post.id}
-                style={{
-                  background: 'rgba(15, 23, 42, 0.85)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '16px',
-                  padding: '24px',
-                  boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
-                  backdropFilter: 'blur(10px)'
-                }}
-              >
-                {/* Author Meta Row */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{
-                      width: '40px', height: '40px', borderRadius: '50%',
-                      background: 'linear-gradient(135deg, #00e5ff, #8a2eff)',
-                      color: 'var(--text-primary)', fontWeight: '800', display: 'flex',
-                      alignItems: 'center', justifyContent: 'center', fontSize: '16px'
-                    }}>
-                      {post.avatar}
-                    </div>
-                    <div>
-                      <strong style={{ color: '#f8fafc', fontSize: '15px', display: 'block' }}>{post.author}</strong>
-                      <span style={{ color: '#64748b', fontSize: '12px' }}>{post.role} • {post.time}</span>
-                    </div>
-                  </div>
-                  <span style={{
-                    background: 'rgba(0, 229, 255, 0.12)',
-                    color: '#00e5ff',
-                    border: '1px solid rgba(0, 229, 255, 0.3)',
-                    padding: '4px 12px',
-                    borderRadius: '14px',
-                    fontSize: '12px',
-                    fontWeight: '700',
-                    fontFamily: 'Orbitron, sans-serif'
-                  }}>
-                    {post.category}
-                  </span>
-                </div>
 
-                {/* Title & Body */}
-                <h3 style={{ fontFamily: 'Orbitron, sans-serif', fontSize: '20px', color: 'var(--text-primary)', marginBottom: '10px', lineHeight: '1.4' }}>
-                  {post.title}
-                </h3>
-                <p style={{ color: '#cbd5e1', fontSize: '15px', lineHeight: '1.6', marginBottom: '20px' }}>
-                  {post.content}
-                </p>
+            <div className="sdSidebarFooterControls">
+              <button className="sdThemeToggleBtn" onClick={toggleTheme} title={`Switch to ${isDarkMode ? "Light" : "Dark"} Mode`}>
+                {isDarkMode ? <FaSun /> : <FaMoon />}
+              </button>
+              <span className="sdControlDivider">|</span>
+              <button className="sdCollapseBtn" title="Collapse Menu">
+                <FaArrowLeft />
+              </button>
+            </div>
+          </div>
+        </aside>
 
-                {/* Action Buttons Row */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '15px' }}>
-                  <button
-                    type="button"
-                    onClick={() => handleToggleUpvote(post.id)}
-                    style={{
-                      background: post.isUpvoted ? 'rgba(0, 229, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-                      border: post.isUpvoted ? '1px solid #00e5ff' : '1px solid rgba(255, 255, 255, 0.1)',
-                      color: post.isUpvoted ? '#00e5ff' : 'var(--text-secondary)',
-                      padding: '6px 14px',
-                      borderRadius: '16px',
-                      fontSize: '13px',
-                      fontWeight: '700',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}
-                  >
-                    <span>▲ Upvote ({post.upvotes})</span>
-                  </button>
+        {/* ── RIGHT MAIN BODY AREA ── */}
+        <div className="dpRightBodyArea">
+          
+          {/* Top Header Bar */}
+          <header className="sdTopHeaderBar">
+            <div className="sdSearchWrapper">
+              <FaSearch className="sdSearchIcon" />
+              <input
+                type="text"
+                className="sdSearchInput"
+                placeholder="Search for courses, skills, discussions..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
 
-                  <span style={{ color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '600' }}>
-                    💬 {post.comments.length} Comments
-                  </span>
-                </div>
+            <div className="sdHeaderActionsRow">
+              <div className="sdXpBadgePill">
+                <FaBolt color="#F9572A" /> <span>{currentXp} XP</span>
+              </div>
 
-                {/* Comments List */}
-                {post.comments.length > 0 && (
-                  <div style={{ marginTop: '20px', paddingLeft: '15px', borderLeft: '2px solid rgba(0, 229, 255, 0.3)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {post.comments.map(c => (
-                      <div key={c.id} style={{ background: 'rgba(0, 0, 0, 0.3)', padding: '10px 14px', borderRadius: '8px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                          <strong style={{ color: '#00e5ff', fontSize: '13px' }}>{c.author}</strong>
-                          <span style={{ color: '#64748b', fontSize: '11px' }}>{c.time}</span>
-                        </div>
-                        <p style={{ color: '#e2e8f0', fontSize: '13px', margin: 0, lineHeight: '1.4' }}>{c.text}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Add Comment Input */}
-                <div style={{ marginTop: '16px', display: 'flex', gap: '10px' }}>
-                  <input
-                    type="text"
-                    placeholder="Write a comment..."
-                    value={commentInputs[post.id] || ""}
-                    onChange={(e) => setCommentInputs({ ...commentInputs, [post.id]: e.target.value })}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleAddComment(post.id);
-                    }}
-                    style={{
-                      flex: 1,
-                      background: 'rgba(0, 0, 0, 0.4)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      color: 'var(--text-primary)',
-                      padding: '8px 14px',
-                      borderRadius: '16px',
-                      fontSize: '13px'
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleAddComment(post.id)}
-                    style={{
-                      background: 'rgba(0, 229, 255, 0.15)',
-                      border: '1px solid rgba(0, 229, 255, 0.4)',
-                      color: '#00e5ff',
-                      padding: '8px 16px',
-                      borderRadius: '16px',
-                      fontSize: '13px',
-                      fontWeight: '700',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Reply
-                  </button>
-                </div>
-              </article>
-            ))
-          )}
-        </div>
-
-        {/* Create Post Modal */}
-        {showCreateModal && (
-          <div style={{
-            position: 'fixed',
-            top: 0, left: 0, right: 0, bottom: 0,
-            background: 'rgba(0, 0, 0, 0.85)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            zIndex: 9999, padding: '20px', backdropFilter: 'blur(8px)'
-          }}>
-            <form onSubmit={handleCreatePost} style={{
-              background: 'rgba(15, 23, 42, 0.95)',
-              border: '2px solid #00e5ff',
-              borderRadius: '24px',
-              padding: '35px 30px',
-              maxWidth: '560px',
-              width: '100%',
-              boxShadow: '0 0 50px rgba(0, 229, 255, 0.3)'
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h3 style={{ fontFamily: 'Orbitron, sans-serif', color: '#00e5ff', fontSize: '22px', margin: 0 }}>
-                  Start New Technical Discussion
-                </h3>
-                <button type="button" onClick={() => setShowCreateModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '20px', cursor: 'pointer' }}>
-                  ✖
+              <div className="sdNotificationBtnWrapper">
+                <button className="sdNotificationBtn">
+                  <FaBell />
+                  <span className="sdNotifBadge">5</span>
                 </button>
               </div>
 
-              <div style={{ marginBottom: '18px' }}>
-                <label style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '13px', marginBottom: '6px', fontWeight: '700' }}>Topic Title:</label>
+              {/* Header Bar Logout Button beside Notification Bell */}
+              <button
+                className="sdLogoutHeaderBtn"
+                onClick={handleLogout}
+                title="Logout to Landing Page"
+              >
+                <FaSignOutAlt /> <span>Logout</span>
+              </button>
+
+              {/* User Profile Pill with Dropdown */}
+              <div className="sdUserProfilePillWrapper">
+                <div className="sdUserProfilePill" onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}>
+                  <div className="sdUserAvatarImg">🧑‍🎓</div>
+                  <div className="sdUserInfoText">
+                    <strong>{userName}</strong>
+                    <span>Student</span>
+                  </div>
+                  <span className="dropdownArrow">▾</span>
+                </div>
+
+                {isUserMenuOpen && (
+                  <div className="sdUserMenuDropdown">
+                    <div className="dropdownHeader">
+                      <strong>{userName}</strong>
+                      <span>Student Account</span>
+                    </div>
+                    <div className="dropdownItem" onClick={() => { setIsUserMenuOpen(false); navigate("/settings"); }}>
+                      👤 Profile Settings
+                    </div>
+                    <div className="dropdownItem" onClick={() => { setIsUserMenuOpen(false); navigate("/certificate"); }}>
+                      📜 My Certificates
+                    </div>
+                    <div className="dropdownItem logout" onClick={handleLogout}>
+                      🚪 Logout
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </header>
+
+          {/* Toast Notification Alert */}
+          {toastMessage && (
+            <div className="dpToastAlert">
+              <span>{toastMessage}</span>
+            </div>
+          )}
+
+          {/* Page Heading Banner */}
+          <div className="dpPageHeaderRow">
+            <div className="dpPageHeading">
+              <h1>💬 Discussions</h1>
+              <p>Ask questions, share knowledge, and learn with the community.</p>
+            </div>
+          </div>
+
+          {/* Search, Filter & Controls Bar */}
+          <div className="dpControlsBar">
+            <div className="dpSearchBox">
+              <FaSearch className="searchIcon" />
+              <input
+                type="text"
+                placeholder="Search discussions..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+
+            <div className="dpDropdownsGroup">
+              <select
+                className="dpSelect"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+              >
+                <option value="All Categories">All Categories ▾</option>
+                <option value="JavaScript">JavaScript</option>
+                <option value="React">React</option>
+                <option value="Data Structures">Data Structures</option>
+                <option value="Career">Career</option>
+                <option value="DevOps">DevOps</option>
+                <option value="Database">Database</option>
+                <option value="Machine Learning">Machine Learning</option>
+              </select>
+
+              <select
+                className="dpSelect"
+                value={selectedSort}
+                onChange={(e) => setSelectedSort(e.target.value)}
+              >
+                <option value="Latest">Latest ▾</option>
+                <option value="Most Popular">Most Popular</option>
+                <option value="Unanswered">Unanswered</option>
+                <option value="Top Voted">Top Voted</option>
+              </select>
+
+              <button className="btnStartDiscussion" onClick={() => setIsCreateModalOpen(true)}>
+                + Start Discussion
+              </button>
+            </div>
+          </div>
+
+          {/* ── TWO-COLUMN MAIN CONTENT WORKSPACE ── */}
+          <div className="dpWorkspaceGrid">
+            
+            {/* LEFT COLUMN: SUB-TABS & THREAD CARDS STACK */}
+            <div className="dpLeftContentCol">
+              
+              {/* Sub-Tabs Row */}
+              <div className="dpSubTabsRow">
+                <button
+                  className={`dpSubTab ${activeSubTab === "all" ? "active" : ""}`}
+                  onClick={() => setActiveSubTab("all")}
+                >
+                  All Discussions
+                </button>
+                <button
+                  className={`dpSubTab ${activeSubTab === "following" ? "active" : ""}`}
+                  onClick={() => setActiveSubTab("following")}
+                >
+                  Following
+                </button>
+                <button
+                  className={`dpSubTab ${activeSubTab === "unanswered" ? "active" : ""}`}
+                  onClick={() => setActiveSubTab("unanswered")}
+                >
+                  Unanswered
+                </button>
+                <button
+                  className={`dpSubTab ${activeSubTab === "my" ? "active" : ""}`}
+                  onClick={() => setActiveSubTab("my")}
+                >
+                  My Discussions
+                </button>
+              </div>
+
+              {/* Discussions List Stack (1-to-1 Match) */}
+              <div className="dpThreadsStack">
+                {filteredDiscussions.length === 0 ? (
+                  <div className="dpEmptyStateCard">
+                    <span>💬 No discussion threads found matching your filters.</span>
+                    <button className="btnResetFilter" onClick={() => { setSearchQuery(""); setSelectedCategory("All Categories"); setActiveSubTab("all"); }}>Reset Filters</button>
+                  </div>
+                ) : (
+                  filteredDiscussions.map((item) => (
+                    <div
+                      key={item.id}
+                      className="dpThreadCard"
+                      onClick={() => setSelectedThread(item)}
+                    >
+                      {/* Left Initials Avatar */}
+                      <div
+                        className="dpInitialsAvatar"
+                        style={{ background: item.avatarBg, color: item.avatarColor }}
+                      >
+                        {item.initials}
+                      </div>
+
+                      {/* Middle Thread Info */}
+                      <div className="dpThreadMainInfo">
+                        <h3 className="dpThreadTitle">{item.title}</h3>
+
+                        <div className="dpThreadMetaRow">
+                          <span className={`dpCategoryChip ${item.category.toLowerCase().replace(/\s+/g, "")}`}>
+                            {item.category}
+                          </span>
+                          <span className="dpAuthorTimeText">
+                            {item.author} • {item.time}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Right Metrics & Options */}
+                      <div className="dpThreadMetricsGroup" onClick={(e) => e.stopPropagation()}>
+                        <div className="metricItem">
+                          <FaRegCommentDots className="mIcon" />
+                          <div className="mVal">
+                            <strong>{item.repliesCount}</strong>
+                            <span>Replies</span>
+                          </div>
+                        </div>
+
+                        <div className="metricItem">
+                          <FaEye className="mIcon" />
+                          <div className="mVal">
+                            <strong>{item.viewsCount}</strong>
+                            <span>Views</span>
+                          </div>
+                        </div>
+
+                        <button
+                          className="btnMoreOptions"
+                          onClick={() => handleUpvoteThread(item.id)}
+                          title="Upvote Thread"
+                        >
+                          <FaThumbsUp color={item.isUpvoted ? "#F9572A" : "#94A3B8"} />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Pagination Controls */}
+              <div className="dpPaginationBar">
+                <button className="pageArrowBtn"><FaChevronLeft /></button>
+                <button className="pagePill active">1</button>
+                <button className="pagePill">2</button>
+                <button className="pagePill">3</button>
+                <span className="pageDots">...</span>
+                <button className="pagePill">15</button>
+                <button className="pageArrowBtn"><FaChevronRight /></button>
+              </div>
+
+            </div>
+
+            {/* RIGHT COLUMN: 3 WIDGET CARDS */}
+            <aside className="dpRightWidgetsCol">
+              
+              {/* Card 1: Upcoming Discussions */}
+              <div className="dpWidgetCard">
+                <div className="widgetHeaderRow">
+                  <h4>📅 Upcoming Discussions</h4>
+                  <span className="viewAllLink">View All</span>
+                </div>
+
+                <div className="upcomingList">
+                  {upcomingDiscussions.map((ud) => (
+                    <div key={ud.id} className="upcomingItemRow">
+                      <div className="udIconBox" style={{ background: ud.iconBg }}>
+                        {ud.icon}
+                      </div>
+                      <div className="udInfo">
+                        <strong>{ud.title}</strong>
+                        <span>{ud.speaker}</span>
+                        <small>⏰ {ud.date}</small>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Card 2: Top Contributors */}
+              <div className="dpWidgetCard">
+                <div className="widgetHeaderRow">
+                  <h4>🏆 Top Contributors</h4>
+                  <span className="viewAllLink">View All</span>
+                </div>
+
+                <div className="contributorsList">
+                  {topContributors.map((c) => (
+                    <div key={c.id} className="contributorRow">
+                      <div className="cAvatar">{c.avatar}</div>
+                      <div className="cInfo">
+                        <strong>{c.name}</strong>
+                      </div>
+                      <span className="cLevelPill">{c.level}</span>
+                      <span className="cXpText">{c.xp}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Card 3: Discussion Guidelines */}
+              <div className="dpWidgetCard guidelines">
+                <div className="widgetHeaderRow">
+                  <h4>🛡️ Discussion Guidelines</h4>
+                </div>
+
+                <ul className="guidelinesList">
+                  <li><FaCheck color="#10B981" /> Be respectful and inclusive</li>
+                  <li><FaCheck color="#10B981" /> Stay on topic</li>
+                  <li><FaCheck color="#10B981" /> Search before posting</li>
+                  <li><FaCheck color="#10B981" /> No spam or self-promotion</li>
+                  <li><FaCheck color="#10B981" /> Give credit to original sources</li>
+                </ul>
+
+                <a href="#guidelines" className="readGuidelinesLink">
+                  Read full guidelines →
+                </a>
+              </div>
+
+            </aside>
+
+          </div>
+
+        </div>
+      </div>
+
+      {/* START DISCUSSION MODAL */}
+      {isCreateModalOpen && (
+        <div className="dpModalOverlay">
+          <div className="dpModalContent">
+            <div className="modalHeaderRow">
+              <h3>🚀 Start a New Discussion</h3>
+              <button className="btnCloseModal" onClick={() => setIsCreateModalOpen(false)}>
+                <FaTimes />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateThread} className="createThreadForm">
+              <div className="inputGroup">
+                <label>Discussion Title</label>
                 <input
                   type="text"
-                  required
-                  placeholder="e.g. How to optimize React re-renders with useMemo?"
+                  placeholder="e.g. How does JavaScript event loop work?"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  style={{ width: '100%', background: 'rgba(0, 0, 0, 0.5)', border: '1px solid rgba(255, 255, 255, 0.15)', color: 'var(--text-primary)', padding: '10px 14px', borderRadius: '10px', fontSize: '14px' }}
+                  required
                 />
               </div>
 
-              <div style={{ marginBottom: '18px' }}>
-                <label style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '13px', marginBottom: '6px', fontWeight: '700' }}>Category:</label>
+              <div className="inputGroup">
+                <label>Category Tag</label>
                 <select
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value)}
-                  style={{ width: '100%', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255, 255, 255, 0.15)', color: 'var(--text-primary)', padding: '10px 14px', borderRadius: '10px', fontSize: '14px' }}
+                  value={newCategoryTag}
+                  onChange={(e) => setNewCategoryTag(e.target.value)}
                 >
-                  <option value="React & Frontend">React & Frontend</option>
-                  <option value="Java & Backend">Java & Backend</option>
-                  <option value="System Design">System Design</option>
-                  <option value="Generative AI">Generative AI</option>
+                  <option value="JavaScript">JavaScript</option>
+                  <option value="React">React</option>
+                  <option value="Data Structures">Data Structures</option>
+                  <option value="Career">Career</option>
+                  <option value="DevOps">DevOps</option>
+                  <option value="Database">Database</option>
+                  <option value="Machine Learning">Machine Learning</option>
                 </select>
               </div>
 
-              <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '13px', marginBottom: '6px', fontWeight: '700' }}>Discussion Content:</label>
+              <div className="inputGroup">
+                <label>Question or Discussion Content</label>
                 <textarea
-                  required
-                  rows={5}
-                  placeholder="Describe your question or code architecture scenario in detail..."
+                  rows="5"
+                  placeholder="Provide context, code snippets, or details to help the community understand your post..."
                   value={newContent}
                   onChange={(e) => setNewContent(e.target.value)}
-                  style={{ width: '100%', background: 'rgba(0, 0, 0, 0.5)', border: '1px solid rgba(255, 255, 255, 0.15)', color: 'var(--text-primary)', padding: '10px 14px', borderRadius: '10px', fontSize: '14px', resize: 'vertical' }}
+                  required
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  style={{ background: 'rgba(255, 255, 255, 0.1)', color: 'var(--text-primary)', border: 'none', padding: '10px 20px', borderRadius: '20px', fontSize: '14px', cursor: 'pointer' }}
-                >
+              <div className="modalFooterRow">
+                <button type="button" className="btnCancel" onClick={() => setIsCreateModalOpen(false)}>
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  style={{ background: 'linear-gradient(90deg, #00e5ff, #8a2eff)', color: 'var(--text-primary)', border: 'none', padding: '10px 26px', borderRadius: '20px', fontSize: '14px', fontWeight: '700', cursor: 'pointer' }}
-                >
-                  Publish Post 🚀
+                <button type="submit" className="btnSubmit">
+                  Publish Discussion
                 </button>
               </div>
             </form>
           </div>
-        )}
+        </div>
+      )}
 
-      </main>
+      {/* THREAD DETAIL DRAWER / MODAL */}
+      {selectedThread && (
+        <div className="dpModalOverlay">
+          <div className="dpModalContent threadDetail">
+            <div className="modalHeaderRow">
+              <span className={`dpCategoryChip ${selectedThread.category.toLowerCase().replace(/\s+/g, "")}`}>
+                {selectedThread.category}
+              </span>
+              <button className="btnCloseModal" onClick={() => setSelectedThread(null)}>
+                <FaTimes />
+              </button>
+            </div>
 
-      <Footer />
+            <div className="threadDetailBody">
+              <h2 className="detailTitle">{selectedThread.title}</h2>
+              <div className="detailMetaRow">
+                <div className="authorInfo">
+                  <div className="dpInitialsAvatar small" style={{ background: selectedThread.avatarBg, color: selectedThread.avatarColor }}>
+                    {selectedThread.initials}
+                  </div>
+                  <div>
+                    <strong>{selectedThread.author}</strong>
+                    <span>Posted {selectedThread.time}</span>
+                  </div>
+                </div>
+
+                <button
+                  className={`btnUpvote ${selectedThread.isUpvoted ? "active" : ""}`}
+                  onClick={() => handleUpvoteThread(selectedThread.id)}
+                >
+                  <FaThumbsUp /> <span>{selectedThread.upvotes} Upvotes</span>
+                </button>
+              </div>
+
+              <div className="detailContentBox">
+                <p>{selectedThread.content}</p>
+              </div>
+
+              {/* Comments Section */}
+              <div className="commentsSection">
+                <h4>💬 Replies & Community Answers ({selectedThread.comments.length})</h4>
+
+                <div className="commentsList">
+                  {selectedThread.comments.map((c) => (
+                    <div key={c.id} className="commentItem">
+                      <div className="cAuthorRow">
+                        <strong>{c.author}</strong>
+                        <span>{c.time}</span>
+                      </div>
+                      <p>{c.text}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Add Reply Input */}
+                <form onSubmit={handlePostReply} className="addReplyForm">
+                  <textarea
+                    rows="3"
+                    placeholder="Write a reply or answer..."
+                    value={newReplyText}
+                    onChange={(e) => setNewReplyText(e.target.value)}
+                    required
+                  />
+                  <button type="submit" className="btnPostReply">
+                    Post Reply
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <FloatingChatbot />
+      <StudentFooter />
     </div>
   );
 }

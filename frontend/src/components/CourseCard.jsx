@@ -37,7 +37,7 @@ export default function CourseCard({ course, onEnroll, onContinue }) {
             if (isEnrolled && onContinue) onContinue(id);
             else if (onEnroll) onEnroll(id);
           }}
-          style={{ cursor: 'pointer', color: 'var(--text-primary)', transition: 'color 0.2s' }}
+          style={{ cursor: 'pointer' }}
         >
           {title}
         </h3>
@@ -56,7 +56,7 @@ export default function CourseCard({ course, onEnroll, onContinue }) {
           </span>
           
           <span className="course-meta-item">
-            <FiStar className="course-meta-icon rating-star" fill="#f1c40f" /> 
+            <FiStar className="course-meta-icon rating-star" /> 
             {rating} ({reviews} Reviews)
           </span>
 
@@ -83,23 +83,18 @@ export default function CourseCard({ course, onEnroll, onContinue }) {
                   if (onContinue) onContinue(id);
                 }}
                 style={{
-                  marginTop: '12px',
-                  background: 'linear-gradient(90deg, #00e5ff, #8a2be2)',
-                  color: 'var(--text-primary)',
-                  border: 'none',
-                  padding: '10px 18px',
-                  borderRadius: '20px',
-                  fontWeight: '700',
+                  marginTop: '14px',
+                  width: '100%',
+                  padding: '11px 18px',
+                  borderRadius: '99px',
+                  fontWeight: '800',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '8px',
                   fontSize: '13px',
-                  boxShadow: '0 4px 15px rgba(0, 229, 255, 0.3)',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  position: 'relative',
-                  zIndex: 20
+                  fontFamily: "'Plus Jakarta Sans', sans-serif"
                 }}
               >
                 <span>Continue Learning</span> <FiArrowRight />
@@ -111,18 +106,6 @@ export default function CourseCard({ course, onEnroll, onContinue }) {
               onClick={(e) => {
                 e.stopPropagation();
                 if (onEnroll) onEnroll(id);
-              }}
-              style={{
-                position: 'relative',
-                zIndex: 20,
-                cursor: 'pointer',
-                background: isPremium ? 'linear-gradient(90deg, #ff00c8, #8a2eff)' : undefined,
-                color: 'var(--text-primary)',
-                border: isPremium ? 'none' : undefined,
-                padding: '10px 20px',
-                borderRadius: '20px',
-                fontWeight: 'bold',
-                boxShadow: isPremium ? '0 4px 15px rgba(255, 0, 200, 0.3)' : undefined
               }}
             >
               {isPremium ? `Buy Now - ₹${price}` : 'Enroll Now'}

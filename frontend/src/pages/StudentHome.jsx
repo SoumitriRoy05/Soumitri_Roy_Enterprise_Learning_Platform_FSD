@@ -1,1010 +1,724 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import Navbar from "../components/Navbar";
 import Background from "../components/Background";
-import Footer from "../components/Footer";
-import DashboardSidebar from "../components/DashboardSidebar";
-import "../styles/dashboard.css";
+import PaperPlaneCursor from "../components/PaperPlaneCursor";
+import StudentFooter from "../components/StudentFooter";
+import FloatingChatbot from "../components/FloatingChatbot";
+
+import AIStudyBuddy from "../components/AIStudyBuddy";
+import OpportunityFeed from "../components/OpportunityFeed";
+import StreakHeatmap from "../components/StreakHeatmap";
+
+import {
+  FaHome,
+  FaBook,
+  FaCodeBranch,
+  FaFileAlt,
+  FaComments,
+  FaAward,
+  FaCertificate,
+  FaChartLine,
+  FaFileInvoice,
+  FaBolt,
+  FaTrophy,
+  FaCog,
+  FaSearch,
+  FaBell,
+  FaFire,
+  FaRobot,
+  FaRocket,
+  FaMapMarkedAlt,
+  FaQuestionCircle,
+  FaLaptopCode,
+  FaUpload,
+  FaQuoteLeft,
+  FaChevronRight,
+  FaCheckCircle,
+  FaFlag,
+  FaBookOpen,
+  FaCode,
+  FaBullseye,
+  FaGift,
+  FaPaperPlane,
+  FaBriefcase,
+  FaSun,
+  FaMoon,
+  FaArrowLeft,
+  FaEllipsisH,
+  FaCalendarAlt,
+  FaSignOutAlt
+} from "react-icons/fa";
+
+import studentHeroImg from "../assets/student_dashboard_hero_illustration.png";
+import darkStudentHeroImg from "../assets/dark_student_dashboard_hero_illustration.png";
+import "../styles/studentDashboard.css";
 
 export default function StudentHome() {
-  const { user, xp, earnXp, completedTopics, completeTopic } = useAuth();
+  const { user, xp, logout, themeMode, toggleTheme, enrolledCourses, completedTopics } = useAuth();
   const navigate = useNavigate();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const isDarkMode = themeMode === "dark";
+  const [widgetChatInput, setWidgetChatInput] = useState("");
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
-  const reactCompleted = completedTopics ? completedTopics.filter(id => id.startsWith('react_')).length : 0;
-  const javaCompleted = completedTopics ? completedTopics.filter(id => id.startsWith('java_')).length : 0;
-  const springbootCompleted = completedTopics ? completedTopics.filter(id => id.startsWith('springboot_')).length : 0;
-
-  const completedModulesCount =
-    (reactCompleted >= 6 ? 1 : 0) +
-    (javaCompleted >= 6 ? 1 : 0) +
-    (springbootCompleted >= 6 ? 1 : 0);
-  const level = completedModulesCount;
-
-  const xpNeededForNextLevel = 2000;
-  const currentLevelProgress = xp % 2000;
-
-  const courses = [
-    { id: "react", title: "React Development", category: "Frontend Dev", progress: Math.round((reactCompleted / 6) * 100), color: "#00e5ff" },
-    { id: "java", title: "Java OOPs", category: "Core Java", progress: Math.round((javaCompleted / 6) * 100), color: "#f97316" },
-    { id: "springboot", title: "Spring Boot Microservices", category: "Backend Dev", progress: Math.round((springbootCompleted / 6) * 100), color: "#22c55e" }
-  ];
-
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-  const [quests, setQuests] = useState([]);
-  const [leaderboard, setLeaderboard] = useState([]);
-  const [certificatesList, setCertificatesList] = useState([]);
-  const [previewedCert, setPreviewedCert] = useState(null);
-
-  const fetchDashboardData = async () => {
+  const handleLogout = async () => {
     try {
-      const token = localStorage.getItem("accessToken");
-      if (!token) return;
-
-      // 1. Fetch Leaderboard
-      const leaderboardRes = await fetch(`${API_URL}/api/leaderboard`, {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      const leaderboardData = await leaderboardRes.json();
-      if (leaderboardData.success) {
-        setLeaderboard(leaderboardData.leaderboard);
-      }
-
-      // 2. Fetch Quests
-      const questsRes = await fetch(`${API_URL}/api/quests`, {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      const questsData = await questsRes.json();
-      if (questsData.success) {
-        setQuests(questsData.quests);
-      }
-
-      // 3. Fetch Certificates
-      const certsRes = await fetch(`${API_URL}/api/certificates`, {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      const certsData = await certsRes.json();
-      if (certsData.success) {
-        setCertificatesList(certsData.certificates);
-      }
+      await logout();
     } catch (err) {
-      console.error("Error fetching dashboard data:", err);
-    }
-  };
-
-  useEffect(() => {
-    fetchDashboardData();
-  }, [xp, completedTopics]);
-
-  const handleDownloadCertificate = (cert) => {
-    const canvas = document.createElement("canvas");
-    canvas.width = 1000;
-    canvas.height = 700;
-    const ctx = canvas.getContext("2d");
-
-    const grad = ctx.createLinearGradient(0, 0, 1000, 700);
-    grad.addColorStop(0, "var(--bg-secondary)");
-    grad.addColorStop(1, "var(--bg-primary)");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, 1000, 700);
-
-    const radGrad1 = ctx.createRadialGradient(100, 100, 50, 100, 100, 300);
-    radGrad1.addColorStop(0, "rgba(0, 229, 255, 0.15)");
-    radGrad1.addColorStop(1, "rgba(0, 229, 255, 0)");
-    ctx.fillStyle = radGrad1;
-    ctx.fillRect(0, 0, 1000, 700);
-
-    const radGrad2 = ctx.createRadialGradient(900, 600, 50, 900, 600, 300);
-    radGrad2.addColorStop(0, "rgba(255, 0, 200, 0.15)");
-    radGrad2.addColorStop(1, "rgba(255, 0, 200, 0)");
-    ctx.fillStyle = radGrad2;
-    ctx.fillRect(0, 0, 1000, 700);
-
-    ctx.strokeStyle = "#00e5ff";
-    ctx.lineWidth = 4;
-    ctx.strokeRect(20, 20, 960, 660);
-
-    ctx.strokeStyle = "rgba(0, 229, 255, 0.4)";
-    ctx.lineWidth = 2;
-    ctx.setLineDash([10, 10]);
-    ctx.strokeRect(40, 40, 920, 620);
-    ctx.setLineDash([]);
-
-    ctx.fillStyle = "#00e5ff";
-    ctx.font = "bold 32px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("⬢", 500, 100);
-
-    ctx.fillStyle = "var(--text-primary)";
-    ctx.font = "bold 24px sans-serif";
-    ctx.fillText("SkillSphere", 500, 145);
-
-    ctx.fillStyle = "#00e5ff";
-    ctx.font = "bold 36px sans-serif";
-    ctx.fillText("CERTIFICATE OF COMPLETION", 500, 215);
-
-    ctx.fillStyle = "var(--text-secondary)";
-    ctx.font = "bold 14px sans-serif";
-    ctx.fillText("THIS IS PROUDLY PRESENTED TO", 500, 265);
-
-    ctx.fillStyle = "var(--text-primary)";
-    ctx.font = "bold 44px sans-serif";
-    const name = user?.full_name || user?.username || "SkillSphere Graduate";
-    ctx.fillText(name, 500, 335);
-
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(300, 355);
-    ctx.lineTo(700, 355);
-    ctx.stroke();
-
-    ctx.fillStyle = "#cbd5e1";
-    ctx.font = "18px sans-serif";
-    ctx.fillText("for successfully mastering the core modules, study tracks, and final checkpoints for", 500, 400);
-
-    ctx.fillStyle = "#00e5ff";
-    ctx.font = "bold 22px sans-serif";
-    ctx.fillText(cert.title, 500, 440);
-
-    ctx.fillStyle = "var(--text-secondary)";
-    ctx.font = "12px sans-serif";
-    ctx.textAlign = "left";
-    ctx.fillText("DATE OF ISSUE", 100, 535);
-    ctx.fillStyle = "var(--text-primary)";
-    ctx.font = "bold 16px sans-serif";
-    ctx.fillText(cert.date, 100, 565);
-
-    ctx.fillStyle = "var(--text-secondary)";
-    ctx.font = "12px sans-serif";
-    ctx.textAlign = "right";
-    ctx.fillText("VERIFICATION ID", 900, 535);
-    ctx.fillStyle = "var(--text-primary)";
-    ctx.font = "bold 16px monospace";
-    ctx.fillText(cert.id, 900, 565);
-
-    ctx.fillStyle = "#00e5ff";
-    ctx.font = "40px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("🏆", 500, 555);
-
-    const dataUrl = canvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.download = `SkillSphere_Certificate_${cert.id}.png`;
-    link.href = dataUrl;
-    link.click();
-  };
-
-  const languageTemplates = {
-    python: `# Python 3 execution sandbox\ndef greet(name):\n    return f"Hello, {name}! Welcome to SkillSphere."\n\nprint(greet("Student"))`,
-    cpp: `// C++ execution sandbox\n#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello from C++ compiler!" << endl;\n    return 0;\n}`,
-    c: `// C execution sandbox\n#include <stdio.h>\n\nint main() {\n    printf("Hello from C compiler!\\n");\n    return 0;\n}`,
-    java: `// Java execution sandbox\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello from Java compiler!");\n    }\n}`
-  };
-
-  const [selectedLanguage, setSelectedLanguage] = useState("python");
-  const [editorCode, setEditorCode] = useState(languageTemplates.python);
-  const [consoleOutput, setConsoleOutput] = useState("");
-  const [isRunning, setIsRunning] = useState(false);
-
-  const handleLanguageChange = (lang) => {
-    setSelectedLanguage(lang);
-    setEditorCode(languageTemplates[lang]);
-  };
-
-  const translatePythonToJS = (code) => {
-    let jsLines = [];
-    const lines = code.split("\n");
-    let indentLevels = [];
-
-    for (let line of lines) {
-      const rawLine = line;
-      const trimmed = line.trim();
-      if (!trimmed) {
-        jsLines.push("");
-        continue;
-      }
-      if (trimmed.startsWith("#")) {
-        jsLines.push("// " + trimmed.slice(1));
-        continue;
-      }
-
-      const indentCount = rawLine.length - rawLine.trimStart().length;
-
-      while (indentLevels.length > 0 && indentCount <= indentLevels[indentLevels.length - 1]) {
-        jsLines.push(" ".repeat(indentLevels[indentLevels.length - 1]) + "}");
-        indentLevels.pop();
-      }
-
-      let translated = trimmed;
-
-      const defMatch = trimmed.match(/^def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*?)\)\s*:/);
-      if (defMatch) {
-        translated = `function ${defMatch[1]}(${defMatch[2]}) {`;
-        indentLevels.push(indentCount);
-      } else {
-        if (trimmed.endsWith(":")) {
-          if (trimmed.startsWith("if ")) {
-            translated = `if (${trimmed.slice(3, -1).trim()}) {`;
-            indentLevels.push(indentCount);
-          } else if (trimmed.startsWith("elif ")) {
-            translated = `else if (${trimmed.slice(5, -1).trim()}) {`;
-            indentLevels.push(indentCount);
-          } else if (trimmed.startsWith("else")) {
-            translated = `else {`;
-            indentLevels.push(indentCount);
-          } else if (trimmed.startsWith("for ") && trimmed.includes(" in ")) {
-            const forMatch = trimmed.match(/^for\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+in\s+range\((.*?)\)\s*:/);
-            if (forMatch) {
-              const varName = forMatch[1];
-              const rangeVal = forMatch[2].trim();
-              translated = `for (let ${varName} = 0; ${varName} < ${rangeVal}; ${varName}++) {`;
-              indentLevels.push(indentCount);
-            }
-          }
-        }
-      }
-
-      translated = translated.replace(/\bf(['"])(.*?)\1/g, (match, quote, content) => {
-        return '`' + content.replace(/\{(.*?)\}/g, '${$1}') + '`';
-      });
-
-      translated = translated.replace(/\bprint\(([\s\S]*?)\)/g, "console.log($1)");
-      translated = translated.replace(/\bTrue\b/g, "true").replace(/\bFalse\b/g, "false");
-      translated = translated.replace(/\band\b/g, "&&").replace(/\bor\b/g, "||").replace(/\bnot\b/g, "!");
-
-      jsLines.push(" ".repeat(indentCount) + translated);
-    }
-
-    while (indentLevels.length > 0) {
-      jsLines.push(" ".repeat(indentLevels[indentLevels.length - 1]) + "}");
-      indentLevels.pop();
-    }
-
-    return jsLines.join("\n");
-  };
-
-  const translateCPlusPlusJavaToJS = (code, language) => {
-    let js = code;
-
-    js = js.replace(/\/\*[\s\S]*?\*\//g, ""); // multi-line comments
-    js = js.replace(/\/\/.*/g, ""); // single-line comments
-
-    js = js.replace(/#include\s*<.*?>/g, "");
-    js = js.replace(/using\s+namespace\s+\w+\s*;/g, "");
-    js = js.replace(/import\s+[\w.]+(\.\*)?\s*;/g, "");
-    js = js.replace(/package\s+[\w.]+\s*;/g, "");
-    js = js.replace(/\bstd::/g, "");
-
-    js = js.replace(/\b(?:public|private|protected|static|final|class)\s+\w+\s*\{([\s\S]*)\}/g, "$1");
-    js = js.replace(/\b(?:public|private|protected|static|final)\b/g, "");
-
-    js = js.replace(/System\.out\.println\s*\(([\s\S]*?)\)\s*;/g, "console.log($1);");
-    js = js.replace(/System\.out\.print\s*\(([\s\S]*?)\)\s*;/g, "console.log($1);");
-
-    js = js.replace(/printf\s*\(\s*(['"])(.*?)\1\s*(?:,\s*([\s\S]*?))?\)\s*;/g, (match, quote, fmt, args) => {
-      let fmtStr = fmt.replace(/\\n/g, "");
-      if (!args) return `console.log(${quote}${fmtStr}${quote});`;
-      
-      const argList = args.split(",");
-      let jsExpr = `${quote}${fmtStr}${quote}`;
-      for (let arg of argList) {
-        arg = arg.trim();
-        jsExpr = jsExpr.replace(/%[d|f|s|c|x]/, `" + ${arg} + "`);
-      }
-      jsExpr = jsExpr.replace(/^""\s*\+\s*/, "").replace(/\s*\+\s*""$/, "");
-      return `console.log(${jsExpr});`;
-    });
-
-    js = js.replace(/cout\s*<<\s*([\s\S]*?)\s*;/g, (match, content) => {
-      const parts = content.split("<<");
-      const evalParts = [];
-      for (let part of parts) {
-        part = part.trim();
-        if (part === "endl") {
-          evalParts.push('""');
-        } else {
-          evalParts.push(part);
-        }
-      }
-      return `console.log(${evalParts.filter(p => p !== "").join(" + ")});`;
-    });
-
-    const types = ["int", "float", "double", "char", "String", "boolean", "bool", "void"];
-    for (let type of types) {
-      js = js.replace(new RegExp(`\\b${type}(?:\\s*\\[\\s*\\])?\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\b`, 'g'), "let $1");
-    }
-
-    js = js.replace(/let\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(([\s\S]*?)\)\s*\{/g, "function $1($2) {");
-
-    js = js.replace(/\(([\s\S]*?)\)/g, (match, params) => {
-      return `(${params.replace(/\blet\s*\[\s*\]\s+/g, "").replace(/\blet\s+/g, "")})`;
-    });
-
-    js += "\nif (typeof main === 'function') { main(); }";
-
-    return js;
-  };
-
-  const handleRunCode = () => {
-    setIsRunning(true);
-    setConsoleOutput("Compiling and executing code...");
-
-    setTimeout(() => {
-      const code = editorCode;
-      const logLines = [];
-      const originalLog = console.log;
-      console.log = (...args) => {
-        logLines.push(args.join(" "));
-      };
-
-      try {
-        if (selectedLanguage === "python") {
-          const translatedJs = translatePythonToJS(code);
-          Function(`"use strict"; ${translatedJs}`)();
-        } else {
-          const translatedJs = translateCPlusPlusJavaToJS(code, selectedLanguage);
-          Function(`"use strict"; ${translatedJs}`)();
-        }
-        const output = logLines.join("\n");
-        setConsoleOutput(output || "Process exited with code 0.");
-      } catch (err) {
-        setConsoleOutput("Runtime Error: " + err.message);
-      } finally {
-        console.log = originalLog;
-        setIsRunning(false);
-      }
-    }, 1000);
-  };
-
-  // AI Mentor state
-  const [chatMessages, setChatMessages] = useState([
-    { sender: "assistant", text: "Greetings! I am SphereAI, your learning assistant. Ask me anything about course requirements, career guidance, or how to unlock achievements." }
-  ]);
-  const [chatInput, setChatInput] = useState("");
-  const [isChatLoading, setIsChatLoading] = useState(false);
-  const chatEndRef = useRef(null);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatMessages, isChatLoading]);
-
-  const handleStudy = async (courseId) => {
-    const trackTopics = {
-      react: ["react_intro", "react_jsx", "react_components", "react_props_state", "react_hooks", "react_lifecycle"],
-      java: ["java_intro", "java_datatypes", "java_oops", "java_exceptions", "java_collections", "java_multithreading"],
-      springboot: ["springboot_intro", "springboot_mvc", "springboot_di", "springboot_jpa", "springboot_rest", "springboot_security"]
-    };
-
-    const topics = trackTopics[courseId];
-    if (topics && completeTopic && completedTopics) {
-      const nextUncompleted = topics.find(t => !completedTopics.includes(t));
-      if (nextUncompleted) {
-        try {
-          await completeTopic(nextUncompleted, 100);
-        } catch (err) {
-          console.error("Failed to update progress on study click:", err);
-        }
-      }
-    }
-    navigate(`/learning?track=${courseId}`);
-  };
-
-  const handleClaimReward = async (questId, reward) => {
-    try {
-      const token = localStorage.getItem("accessToken");
-      if (!token) return;
-
-      const response = await fetch(`${API_URL}/api/quests/claim`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ questId })
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        earnXp(reward);
-        fetchDashboardData();
-      } else {
-        alert(data.message || "Failed to claim reward");
-      }
-    } catch (err) {
-      console.error("Error claiming reward:", err);
-    }
-  };
-
-  const handleSendChat = async (text) => {
-    if (!text.trim() || isChatLoading) return;
-
-    const updatedMessages = [...chatMessages, { sender: "user", text }];
-    setChatMessages(updatedMessages);
-    setChatInput("");
-    setIsChatLoading(true);
-
-    const systemPrompt = `You are SphereAI, the virtual learning mentor and programming expert for this student. You are highly knowledgeable in Python, C++, C, Java, React, Spring Boot, Cybersecurity, Machine Learning, and general science/career topics. The student is currently at Level: ${level}, XP: ${xp}, Streak: 7 Days. Feel free to provide comprehensive explanations, structural code snippets, and complete step-by-step guides when they ask technical or learning questions. Always maintain a supportive, encouraging, and expert cyber-mentor tone.`;
-
-    try {
-      const response = await fetch("https://text.pollinations.ai/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [
-            { role: "system", content: systemPrompt },
-            ...chatMessages.slice(-6).map(m => ({
-              role: m.sender === "user" ? "user" : "assistant",
-              content: m.text
-            })),
-            { role: "user", content: text }
-          ],
-          model: "openai"
-        })
-      });
-
-      if (!response.ok) throw new Error("API failed");
-      const replyText = await response.text();
-      setChatMessages(prev => [...prev, { sender: "assistant", text: replyText.trim() }]);
-    } catch (err) {
-      console.warn("AI Chat API error, falling back to local responses:", err);
-      setTimeout(() => {
-        let reply = "I am here to guide you! Feel free to ask about any coding concept in React, Java, Spring Boot, Python, C, C++, or dashboard achievements.";
-        const cleanText = text.toLowerCase();
-
-        if (cleanText.includes("xp") || cleanText.includes("level")) {
-          reply = "You can earn XP by studying courses (click 'Study' to progress +5%) and completing daily challenges under the 'Quests' panel. Completing an entire course module advances you to the next Level!";
-        } else if (cleanText.includes("badge") || cleanText.includes("streak")) {
-          reply = "Achievements represent milestones. Unlock master badges by scoring 85%+ on final track challenges, or log in daily to maintain your study streak!";
-        } else if (cleanText.includes("cert")) {
-          reply = "Upon completing any course track, a secure verification hash is generated. You can copy the certificate ID from the 'Certificates' tab to share on your resume.";
-        } else if (cleanText.includes("react")) {
-          reply = "React is a component-based UI library. It utilizes a Virtual DOM for fast, dynamic updates.";
-        } else if (cleanText.includes("spring boot") || cleanText.includes("springboot")) {
-          reply = "Spring Boot makes it easy to create stand-alone, production-grade Spring applications with auto-configuration.";
-        } else if (cleanText.includes("java")) {
-          reply = "Java is a popular, robust, class-based object-oriented language perfect for enterprise backend systems.";
-        } else if (cleanText.includes("python")) {
-          reply = "Python is a clean, interpreted language optimized for readability — popular for automation, scripting, and machine learning.";
-        } else if (cleanText.includes("career") || cleanText.includes("recommend")) {
-          reply = "Based on your active progress, I highly recommend completing the 'React Development' track first, followed by 'Spring Boot' to build a solid full-stack foundation!";
-        }
-        setChatMessages(prev => [...prev, { sender: "assistant", text: reply }]);
-      }, 600);
+      console.error(err);
     } finally {
-      setIsChatLoading(false);
+      navigate("/");
     }
   };
 
-  const quickPrompts = [
-    "How do I level up fast?",
-    "Tell me about certificates.",
-    "Recommend my next course."
+  const userName = user?.full_name || user?.username || "Learner";
+  const currentXp = xp ?? 0;
+  const userEnrolledCount = (enrolledCourses || []).length;
+  const userCompletedTopicsCount = (completedTopics || []).length;
+  const level = Math.floor(currentXp / 2000) + 1;
+  const xpInCurrentLevel = currentXp % 2000;
+  const xpToNext = 2000 - xpInCurrentLevel;
+  const progressPct = Math.min(100, Math.round((xpInCurrentLevel / 2000) * 100));
+  const earnedCertsCount = Math.floor(userCompletedTopicsCount / 6);
+  const earnedBadgesCount = Array.isArray(user?.badges)
+    ? user.badges.filter(Boolean).length
+    : typeof user?.badges === "string"
+    ? user.badges.split(",").filter(Boolean).length
+    : 0;
+
+
+  // Exact 1-to-1 Sidebar Items matching screenshot
+  const navItems = [
+    { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
+    { id: "courses", label: "Courses", icon: <FaBook /> },
+    { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
+    { id: "assignments", label: "Assignments", icon: <FaFileAlt /> },
+    { id: "discussions", label: "Discussions", icon: <FaComments /> },
+    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
+    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
+    { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
+    { id: "badges", label: "Badges", icon: <FaAward /> },
+    { id: "certificates", label: "Certificates", icon: <FaCertificate /> },
+    { id: "progress", label: "Progress", icon: <FaChartLine /> },
+    { id: "resume", label: "Resume Builder", icon: <FaFileInvoice /> },
+    { id: "code-arena", label: "CodeArena", icon: <FaCode />, isNew: true },
+    { id: "settings", label: "Settings", icon: <FaCog /> }
   ];
-
-  const isReactBadgeUnlocked = user && (user.badges?.includes("react_badge") || localStorage.getItem(`badge_react_badge_${user.email || user.username}`) === "true");
-  const isJavaBadgeUnlocked = user && (user.badges?.includes("java_badge") || localStorage.getItem(`badge_java_badge_${user.email || user.username}`) === "true");
-  const isSpringBootBadgeUnlocked = user && (user.badges?.includes("springboot_badge") || localStorage.getItem(`badge_springboot_badge_${user.email || user.username}`) === "true");
-  const isAiBadgeUnlocked = user && (user.badges?.includes("ai_badge") || localStorage.getItem(`badge_ai_badge_${user.email || user.username}`) === "true");
-  const isDsaBadgeUnlocked = user && (user.badges?.includes("dsa_badge") || localStorage.getItem(`badge_dsa_badge_${user.email || user.username}`) === "true");
-  const isPythonBadgeUnlocked = user && (user.badges?.includes("python_badge") || localStorage.getItem(`badge_python_badge_${user.email || user.username}`) === "true");
-  const isWebDevBadgeUnlocked = user && (user.badges?.includes("webdev_badge") || localStorage.getItem(`badge_webdev_badge_${user.email || user.username}`) === "true");
-  const isCyberBadgeUnlocked = user && (user.badges?.includes("cyber_badge") || localStorage.getItem(`badge_cyber_badge_${user.email || user.username}`) === "true");
-  const isCloudBadgeUnlocked = user && (user.badges?.includes("cloud_badge") || localStorage.getItem(`badge_cloud_badge_${user.email || user.username}`) === "true");
-  const isDbmsBadgeUnlocked = user && (user.badges?.includes("dbms_badge") || localStorage.getItem(`badge_dbms_badge_${user.email || user.username}`) === "true");
-
-  const badgesList = [
-    { name: "🔥 Daily Streak", desc: "Logged in 5 days straight", unlocked: true, icon: "🔥" },
-    { name: "⚛️ React Master", desc: "Scored 85%+ on React Quiz Challenge", unlocked: !!isReactBadgeUnlocked, icon: "⚛️" },
-    { name: "☕ Java Master", desc: "Scored 85%+ on Java Quiz Challenge", unlocked: !!isJavaBadgeUnlocked, icon: "☕" },
-    { name: "🍃 Spring Boot Master", desc: "Scored 85%+ on Spring Boot Quiz Challenge", unlocked: !!isSpringBootBadgeUnlocked, icon: "🍃" },
-    { name: "🤖 AI Master", desc: "Scored 85%+ on AI & ML Quiz Challenge", unlocked: !!isAiBadgeUnlocked, icon: "🤖" },
-    { name: "📊 DSA Master", desc: "Scored 85%+ on DSA Quiz Challenge", unlocked: !!isDsaBadgeUnlocked, icon: "📊" },
-    { name: "🐍 Python Master", desc: "Scored 85%+ on Python Quiz Challenge", unlocked: !!isPythonBadgeUnlocked, icon: "🐍" },
-    { name: "🌐 Web Dev Master", desc: "Scored 85%+ on Web Dev Quiz Challenge", unlocked: !!isWebDevBadgeUnlocked, icon: "🌐" },
-    { name: "🛡️ Cyber Master", desc: "Scored 85%+ on Cyber Security Quiz Challenge", unlocked: !!isCyberBadgeUnlocked, icon: "🛡️" },
-    { name: "☁️ Cloud Master", desc: "Scored 85%+ on Cloud Computing Quiz Challenge", unlocked: !!isCloudBadgeUnlocked, icon: "☁️" },
-    { name: "🗄️ DBMS Master", desc: "Scored 85%+ on DBMS Quiz Challenge", unlocked: !!isDbmsBadgeUnlocked, icon: "🗄️" },
-    { name: "🚀 Fast Learner", desc: "Completed a course in 3 days", unlocked: true, icon: "🚀" },
-    { name: "🏆 Top Performer", desc: "Ranked Top 5 in leaderboard", unlocked: true, icon: "🏆" },
-    { name: "💻 Code Ninja", desc: "Logged over 10 hours of active code study", unlocked: true, icon: "💻" },
-    { name: "🧠 AI Conversationalist", desc: "Interacted with SphereAI 10+ times", unlocked: false, icon: "🧠" },
-    { name: "💎 Elite Coder", desc: "Reached Level 10 or above in learning tracks", unlocked: false, icon: "💎" },
-    { name: "🌟 Perfect Quizzer", desc: "Scored 100% on any final track assessment", unlocked: false, icon: "🌟" }
-  ];
-
-  // Loaded dynamically from certificatesList state
 
   return (
-    <div className={`dashboard-page ${isSidebarOpen ? 'with-sidebar' : ''}`}>
+    <div className={`sdDashboardWrapper ${isDarkMode ? "dark-theme" : ""}`}>
       <Background />
-      <Navbar
-        toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-        isSidebarOpen={isSidebarOpen}
-        showSidebarToggle={true}
-      />
-      <DashboardSidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+      <PaperPlaneCursor />
 
-      <main className="dashboard-content-wrapper">
+      {/* Main Grid Layout Container */}
+      <div className="sdMainContainer">
+        
+        {/* ── LEFT SIDEBAR COLUMN (MATCHING SCREENSHOT) ── */}
+        <aside className="sdLeftSidebar">
+          <div>
+            <Link to="/" className="sdBrandLogo">
+              <span className="logoHex">⬢</span>
+              <span>SkillSphere</span>
+            </Link>
 
-        {/* Welcome Section */}
-        <section className="welcome-card">
-          <div className="welcome-info">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
-              <div>
-                <h1>Welcome back, {user?.full_name || user?.username || "Student"}!</h1>
-                <p>Ready to unlock your potentials and level up your skills today?</p>
-              </div>
+            {/* Connected Arch Line & Orange Circular Home Button Header */}
+            <div className="sdSidebarHomeArchHeader">
+              <div className="sdArchLine" />
               <button
-                onClick={() => navigate('/settings')}
-                style={{
-                  background: 'linear-gradient(90deg, #00e5ff, #8a2eff)',
-                  color: 'var(--text-primary)',
-                  border: 'none',
-                  padding: '10px 20px',
-                  borderRadius: '24px',
-                  fontSize: '13px',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  boxShadow: '0 0 15px rgba(0, 229, 255, 0.4)',
-                  height: 'fit-content'
-                }}
+                className={`sdHomeCircularBtn ${activeTab === "dashboard" ? "active" : ""}`}
+                onClick={() => setActiveTab("dashboard")}
+                title="Dashboard Overview"
               >
-                ⚙️ Edit Profile Settings
+                <FaHome />
               </button>
             </div>
-          </div>
 
-          <div className="xp-tracker">
-            <div className="xp-header">
-              <span className="level-badge">LEVEL {level}</span>
-              <span className="xp-numbers">{currentLevelProgress} / {xpNeededForNextLevel} XP</span>
-            </div>
-            <div className="xp-bar-bg">
-              <div
-                className="xp-bar-fill"
-                style={{ width: `${(currentLevelProgress / xpNeededForNextLevel) * 100}%` }}
-              ></div>
-            </div>
-            <span className="xp-to-next">{xpNeededForNextLevel - currentLevelProgress} XP to Level {level + 1}</span>
-          </div>
-        </section>
-
-        {/* Quick Stats Grid */}
-        <section className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-icon" style={{ background: "rgba(0, 229, 255, 0.1)", color: "#00e5ff" }}>⚡</div>
-            <div className="stat-info">
-              <h3>Total Experience</h3>
-              <div className="stat-value">{xp} XP</div>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon" style={{ background: "rgba(255, 0, 200, 0.1)", color: "#ff00c8" }}>🏆</div>
-            <div className="stat-info">
-              <h3>Badges Earned</h3>
-              <div className="stat-value">{badgesList.filter(b => b.unlocked).length}</div>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon" style={{ background: "rgba(57, 255, 20, 0.1)", color: "#39ff14" }}>🎓</div>
-            <div className="stat-info">
-              <h3>Certificates</h3>
-              <div className="stat-value">{certificatesList.length} Verified</div>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon" style={{ background: "rgba(138, 46, 255, 0.1)", color: "#8a2eff" }}>🔥</div>
-            <div className="stat-info">
-              <h3>Daily Streak</h3>
-              <div className="stat-value">{user?.streak !== undefined ? user.streak : 1} Days</div>
-            </div>
-          </div>
-        </section>
-
-        {/* Dashboard 2 Column Layout */}
-        <div className="dashboard-layout">
-
-          {/* Main Content Column */}
-          <div className="main-column">
-
-            {/* Courses Progress Panel */}
-            <div className="dashboard-panel">
-              <div className="section-title-wrapper">
-                <h2 className="section-title">Courses in Progress</h2>
-              </div>
-              <div className="courses-list">
-                {courses.map(course => (
-                  <div key={course.id} className="course-card-compact">
-                    <div className="course-details">
-                      <span className="course-category">{course.category}</span>
-                      <h4>{course.title}</h4>
-                      <div className="course-progress-container">
-                        <div className="course-progress-bg">
-                          <div
-                            className="course-progress-fill"
-                            style={{
-                              width: `${course.progress}%`,
-                              backgroundColor: course.color,
-                              boxShadow: `0 0 8px ${course.color}`
-                            }}
-                          ></div>
-                        </div>
-                        <span className="course-pct">{course.progress}%</span>
-                      </div>
-                    </div>
-                    <button
-                      className="course-action-btn"
-                      onClick={() => handleStudy(course.id)}
-                      disabled={course.progress >= 100}
-                      style={course.progress >= 100 ? { background: "rgba(255,255,255,0.05)", color: "#64748b", border: "1px solid var(--border-color)", boxShadow: "none", cursor: "not-allowed" } : {}}
-                    >
-                      {course.progress >= 100 ? "Completed" : "Study +5%"}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Online Coding Compiler Section */}
-            <div className="dashboard-panel coding-compiler-panel">
-              <div className="section-title-wrapper" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h2 className="section-title">Online Code Sandbox</h2>
-                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                  <label htmlFor="lang-select" style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Language:</label>
-                  <select
-                    id="lang-select"
-                    value={selectedLanguage}
-                    onChange={(e) => handleLanguageChange(e.target.value)}
-                    style={{
-                      background: 'rgba(18, 18, 30, 0.75)',
-                      border: '1px solid rgba(0, 229, 255, 0.2)',
-                      borderRadius: '8px',
-                      color: 'var(--text-primary)',
-                      padding: '6px 12px',
-                      fontFamily: 'Orbitron, sans-serif',
-                      cursor: 'pointer',
-                      outline: 'none'
-                    }}
-                  >
-                    <option value="python">Python 3</option>
-                    <option value="cpp">C++</option>
-                    <option value="c">C</option>
-                    <option value="java">Java</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="compiler-layout" style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '15px' }}>
-                <div style={{ position: 'relative', width: '100%' }}>
-                  <textarea
-                    value={editorCode}
-                    onChange={(e) => setEditorCode(e.target.value)}
-                    placeholder="Write your code here..."
-                    style={{
-                      width: '100%',
-                      height: '220px',
-                      background: 'var(--bg-secondary)',
-                      border: "1px solid var(--border-color)",
-                      borderRadius: '12px',
-                      padding: '15px',
-                      color: '#39ff14',
-                      fontFamily: 'Courier New, Courier, monospace',
-                      fontSize: '14px',
-                      lineHeight: '1.6',
-                      resize: 'vertical',
-                      outline: 'none',
-                      boxShadow: 'inset 0 0 10px rgba(0,0,0,0.8)'
-                    }}
-                  />
-                  <div style={{ position: 'absolute', bottom: '15px', right: '15px', display: 'flex', gap: '10px' }}>
-                    <button
-                      onClick={() => setEditorCode(languageTemplates[selectedLanguage])}
-                      style={{
-                        background: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        borderRadius: '6px',
-                        color: 'var(--text-secondary)',
-                        padding: '6px 12px',
-                        fontSize: '12px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Reset Code
-                    </button>
-                    <button
-                      onClick={handleRunCode}
-                      disabled={isRunning}
-                      style={{
-                        background: isRunning ? 'rgba(57, 255, 20, 0.3)' : 'rgba(57, 255, 20, 0.1)',
-                        border: '1px solid #39ff14',
-                        boxShadow: '0 0 8px rgba(57, 255, 20, 0.2)',
-                        borderRadius: '6px',
-                        color: '#39ff14',
-                        padding: '6px 16px',
-                        fontSize: '12px',
-                        fontWeight: '700',
-                        fontFamily: 'Orbitron, sans-serif',
-                        cursor: isRunning ? 'not-allowed' : 'pointer'
-                      }}
-                    >
-                      {isRunning ? 'Running...' : 'Run Code 🚀'}
-                    </button>
-                  </div>
-                </div>
-
-                <div style={{
-                  background: 'var(--bg-secondary)',
-                  border: '1px solid rgba(0, 229, 255, 0.1)',
-                  borderRadius: '12px',
-                  padding: '15px',
-                  position: 'relative'
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    borderBottom: '1px solid rgba(255,255,255,0.05)',
-                    paddingBottom: '8px',
-                    marginBottom: '10px'
-                  }}>
-                    <span style={{ fontFamily: 'Orbitron', fontSize: '11px', color: '#00e5ff', textTransform: 'uppercase', letterSpacing: '1px' }}>Console Output</span>
-                    <button
-                      onClick={() => setConsoleOutput("")}
-                      style={{ background: 'transparent', border: 'none', color: '#64748b', fontSize: '11px', cursor: 'pointer', padding: 0 }}
-                    >
-                      Clear Console
-                    </button>
-                  </div>
-                  <pre style={{
-                    margin: 0,
-                    minHeight: '80px',
-                    color: consoleOutput.includes('Error') ? '#ef4444' : '#e2e8f0',
-                    fontFamily: 'Courier New, Courier, monospace',
-                    fontSize: '13px',
-                    lineHeight: '1.5',
-                    whiteSpace: 'pre-wrap',
-                    wordBreak: 'break-all'
-                  }}>
-                    {consoleOutput || 'Click "Run Code" to view execution output...'}
-                  </pre>
-                </div>
-              </div>
-            </div>
-
-            {/* Badges Section */}
-            <div className="dashboard-panel">
-              <div className="section-title-wrapper">
-                <h2 className="section-title">Achievements & Badges</h2>
-              </div>
-              <div className="badges-container">
-                {badgesList.map((badge, idx) => (
-                  <div key={idx} className={`badge-item-card ${badge.unlocked ? 'unlocked' : 'locked'}`}>
-                    <div className="badge-visual">
-                      {badge.icon}
-                      {!badge.unlocked && (
-                        <div className="lock-overlay">🔒</div>
-                      )}
-                    </div>
-                    <h5>{badge.name}</h5>
-                    <p>{badge.desc}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-
-          </div>
-
-          {/* Sidebar Column */}
-          <div className="sidebar-column">
-
-            {/* Daily Quests Widget */}
-            <div className="dashboard-panel">
-              <div className="section-title-wrapper">
-                <h2 className="section-title">Daily Quests</h2>
-              </div>
-              <div className="quests-list">
-                {quests.map(quest => (
-                  <div key={quest.id} className="quest-item">
-                    <div className="quest-info">
-                      <div className="quest-title">{quest.title}</div>
-                      <div className="quest-xp">+{quest.xpReward} XP</div>
-                    </div>
-                    {quest.status === "COMPLETED" ? (
-                      <span className="quest-status completed">Done</span>
-                    ) : quest.status === "CLAIMABLE" ? (
-                      <button
-                        className="quest-btn-claim"
-                        onClick={() => handleClaimReward(quest.id, quest.xpReward)}
-                      >
-                        Claim
-                      </button>
-                    ) : (
-                      <button
-                        className="quest-btn-claim"
-                        style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--text-secondary)" }}
-                        onClick={() => handleStudy("react")}
-                      >
-                        Start
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Leaderboard Standings */}
-            <div className="dashboard-panel">
-              <div className="section-title-wrapper">
-                <h2 className="section-title">Leaderboard</h2>
-              </div>
-              <div className="leaderboard-widget">
-                <div className="leaderboard-table">
-                  {leaderboard.map(member => (
-                    <div
-                      key={member.rank}
-                      className={`leaderboard-row ${member.isSelf ? 'current-user' : ''}`}
-                    >
-                      <div className={`rank-cell ${member.rank <= 3 ? 'top-3' : ''}`}>
-                        {member.rank === 1 ? "🥇" : member.rank === 2 ? "🥈" : member.rank === 3 ? "🥉" : member.rank}
-                      </div>
-                      <div className="user-cell">
-                        <div className="user-avatar-sm" style={{ background: member.isSelf ? "#00e5ff" : "rgba(255,255,255,0.1)" }}>
-                          {(member.isSelf && user) ? (user.full_name ? user.full_name.charAt(0) : user.username.charAt(0)).toUpperCase() : member.username.charAt(0).toUpperCase()}
-                        </div>
-                        <span>
-                          {member.isSelf ? (user?.full_name || user?.username || "You") : member.username}
-                        </span>
-                      </div>
-                      <div className="xp-cell">{member.xp} XP</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* AI Mentor Chatbot */}
-            <div className="dashboard-panel">
-              <div className="section-title-wrapper">
-                <h2 className="section-title">AI Mentor</h2>
-              </div>
-              <div className="ai-mentor-panel">
-                <div className="ai-chat-messages">
-                  {chatMessages.map((msg, i) => (
-                    <div key={i} className={`chat-bubble ${msg.sender}`}>
-                      {msg.text}
-                    </div>
-                  ))}
-                  {isChatLoading && (
-                    <div className="chat-bubble assistant" style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(138, 46, 255, 0.08)' }}>
-                      <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>SphereAI is thinking...</span>
-                    </div>
-                  )}
-                  <div ref={chatEndRef}></div>
-                </div>
-
-                <div className="chat-hints">
-                  {quickPrompts.map((hint, i) => (
-                    <span
-                      key={i}
-                      className="chat-hint-tag"
-                      onClick={() => handleSendChat(hint)}
-                      style={isChatLoading ? { pointerEvents: 'none', opacity: 0.5 } : {}}
-                    >
-                      {hint}
-                    </span>
-                  ))}
-                </div>
-
-                <div className="chat-input-wrapper">
-                  <input
-                    type="text"
-                    className="chat-input"
-                    placeholder="Ask SphereAI..."
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleSendChat(chatInput);
-                    }}
-                    disabled={isChatLoading}
-                  />
+            {/* Sidebar Navigation Items */}
+            <ul className="sdNavList">
+              {navItems.map((item) => (
+                <li key={item.id}>
                   <button
-                    className="chat-send-btn"
-                    onClick={() => handleSendChat(chatInput)}
-                    disabled={isChatLoading || !chatInput.trim()}
-                    style={isChatLoading ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                    className={`sdNavItem ${activeTab === item.id ? "active" : ""}`}
+                    onClick={() => {
+                      if (item.id === "settings") navigate("/settings");
+                      else if (item.id === "courses") navigate("/courses");
+                      else if (item.id === "learning-paths") navigate("/learning-paths");
+                      else if (item.id === "assignments") navigate("/assignments");
+                      else if (item.id === "ai-buddy") navigate("/ai-buddy");
+                      else if (item.id === "opportunity-feed") navigate("/opportunity-feed");
+                      else if (item.id === "badges") navigate("/badges");
+                      else if (item.id === "discussions") navigate("/discussions");
+                      else if (item.id === "certificates") navigate("/certificate");
+                      else if (item.id === "progress") navigate("/progress");
+                      else if (item.id === "daily-quests") navigate("/daily-quests");
+                      else if (item.id === "resume") navigate("/resume");
+                      else if (item.id === "code-arena") navigate("/code-arena");
+                      else setActiveTab(item.id);
+                    }}
                   >
-                    🚀
+                    <span className="navIcon">{item.icon}</span>
+                    <span className="navLabel">{item.label}</span>
+                    {item.isNew && <span className="navNewBadge">New</span>}
                   </button>
-                </div>
-              </div>
-            </div>
-
+                </li>
+              ))}
+            </ul>
           </div>
 
-        </div>
-
-      </main>
-
-      {/* Certificate Modal */}
-      {previewedCert && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0, 0, 0, 0.85)', backdropFilter: 'blur(10px)',
-          zIndex: 1000, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px'
-        }}>
-          <div style={{
-            width: '100%', maxWidth: '800px',
-            background: 'linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%)',
-            border: '2px solid #00e5ff', borderRadius: '28px',
-            boxShadow: '0 0 50px rgba(0, 229, 255, 0.3)',
-            padding: '40px', position: 'relative', textAlign: 'center', overflow: 'hidden'
-          }}>
-            <div style={{ position: 'absolute', top: '-150px', left: '-150px', width: '300px', height: '300px', borderRadius: '50%', background: 'rgba(0, 229, 255, 0.15)', filter: 'blur(80px)', pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', bottom: '-150px', right: '-150px', width: '300px', height: '300px', borderRadius: '50%', background: 'rgba(255, 0, 200, 0.15)', filter: 'blur(80px)', pointerEvents: 'none' }} />
-
-            <div style={{ border: '1px dashed rgba(0, 229, 255, 0.3)', borderRadius: '20px', padding: '40px 20px', position: 'relative' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '30px' }}>
-                <div style={{ fontSize: '28px', color: '#00e5ff', textShadow: '0 0 10px rgba(0, 229, 255, 0.5)' }}>⬢</div>
-                <span style={{ fontFamily: 'Orbitron, sans-serif', fontSize: '22px', fontWeight: '800', color: 'var(--text-primary)', letterSpacing: '1px' }}>
-                  <span>Skill</span><span style={{ color: '#ff00c8' }}>Sphere</span>
-                </span>
-              </div>
-
-              <h2 style={{ fontFamily: 'Orbitron, sans-serif', fontSize: '28px', fontWeight: '800', color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '3px', marginBottom: '20px', background: 'linear-gradient(90deg, #00e5ff, #8a2eff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                Certificate of Completion
-              </h2>
-
-              <p style={{ fontSize: '16px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '25px' }}>
-                This is proudly presented to
-              </p>
-
-              <h1 style={{ fontFamily: 'Orbitron, sans-serif', fontSize: '42px', fontWeight: '800', color: 'var(--text-primary)', textShadow: '0 0 20px rgba(0, 229, 255, 0.4)', margin: '10px 0 25px 0', borderBottom: '2px solid rgba(255, 255, 255, 0.1)', display: 'inline-block', paddingBottom: '10px', paddingLeft: '30px', paddingRight: '30px' }}>
-                {user?.full_name || user?.username || "SkillSphere Graduate"}
-              </h1>
-
-              <p style={{ fontSize: '18px', color: '#cbd5e1', maxWidth: '600px', margin: '0 auto 35px auto', lineHeight: '1.6' }}>
-                for successfully mastering the core modules, study tracks, and final checkpoints for
-                <br />
-                <strong style={{ color: '#00e5ff', fontSize: '20px' }}>{previewedCert.title}</strong>
-              </p>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '650px', margin: '0 auto', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '25px', fontSize: '14px', color: 'var(--text-secondary)' }}>
-                <div>
-                  <span style={{ display: 'block', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '1px' }}>Date of Issue</span>
-                  <strong style={{ color: 'var(--text-primary)' }}>{previewedCert.date}</strong>
-                </div>
-                <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(0, 229, 255, 0.08)', border: '2px solid #00e5ff', boxShadow: '0 0 15px rgba(0, 229, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', color: '#00e5ff' }}>
-                  🏆
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <span style={{ display: 'block', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '1px' }}>Verification ID</span>
-                  <strong style={{ color: 'var(--text-primary)', fontFamily: 'monospace' }}>{previewedCert.id}</strong>
-                </div>
-              </div>
+          {/* Bottom Sidebar Container: Rocket Graphic + Theme Controls */}
+          <div className="sdSidebarBottomSection">
+            <div className="sdRocketIllustrationBox">
+              <span className="sdRocketEmoji">🚀</span>
+              <div className="sdCloudDeco"></div>
             </div>
 
-            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', marginTop: '30px' }}>
-              <button
-                onClick={() => handleDownloadCertificate(previewedCert)}
-                style={{ padding: '12px 35px', borderRadius: '12px', border: 'none', background: 'linear-gradient(90deg, #00e5ff, #8a2eff)', color: 'var(--text-primary)', fontFamily: 'Orbitron', fontWeight: '700', fontSize: '14px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(0, 229, 255, 0.2)' }}
-              >
-                Download Certificate
+            <div className="sdSidebarFooterControls">
+              <button className="sdThemeToggleBtn" onClick={toggleTheme} title={`Switch to ${isDarkMode ? "Light" : "Dark"} Mode`}>
+                {isDarkMode ? <FaSun /> : <FaMoon />}
               </button>
-              <button
-                onClick={() => setPreviewedCert(null)}
-                style={{ padding: '12px 35px', borderRadius: '12px', border: '2px solid rgba(255, 255, 255, 0.2)', background: 'transparent', color: 'var(--text-primary)', fontFamily: 'Orbitron', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}
-              >
-                Close Preview
+              <span className="sdControlDivider">|</span>
+              <button className="sdCollapseBtn" title="Collapse Menu">
+                <FaArrowLeft />
               </button>
             </div>
           </div>
-        </div>
-      )}
+        </aside>
 
-      <Footer />
+        {/* ── RIGHT MAIN BODY AREA ── */}
+        <div className="sdRightBodyArea">
+          
+          {/* Top Header Bar matching Screenshot */}
+          <header className="sdTopHeaderBar">
+            <div className="sdSearchWrapper">
+              <FaSearch className="sdSearchIcon" />
+              <input
+                type="text"
+                className="sdSearchInput"
+                placeholder="Search for courses, skills, discussions..."
+              />
+            </div>
+
+            <div className="sdHeaderActionsRow">
+              <div className="sdXpBadgePill">
+                <FaBolt color="#F9572A" /> <span>{currentXp} XP</span>
+              </div>
+
+              <div className="sdNotificationBtnWrapper">
+                <button className="sdNotificationBtn">
+                  <FaBell />
+                  <span className="sdNotifBadge">3</span>
+                </button>
+              </div>
+
+              {/* Header Bar Logout Button beside Notification Bell */}
+              <button
+                className="sdLogoutHeaderBtn"
+                onClick={handleLogout}
+                title="Logout to Landing Page"
+              >
+                <FaSignOutAlt /> <span>Logout</span>
+              </button>
+
+              {/* User Profile Pill with Dropdown */}
+              <div className="sdUserProfilePillWrapper">
+                <div className="sdUserProfilePill" onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}>
+                  <div className="sdUserAvatarImg">🧑‍🎓</div>
+                  <div className="sdUserInfoText">
+                    <strong>{userName}</strong>
+                    <span>Student</span>
+                  </div>
+                  <span className="dropdownArrow">▾</span>
+                </div>
+
+                {isUserMenuOpen && (
+                  <div className="sdUserMenuDropdown">
+                    <div className="dropdownHeader">
+                      <strong>{userName}</strong>
+                      <span>Student Account</span>
+                    </div>
+                    <div className="dropdownItem" onClick={() => { setIsUserMenuOpen(false); navigate("/settings"); }}>
+                      👤 Profile Settings
+                    </div>
+                    <div className="dropdownItem" onClick={() => { setIsUserMenuOpen(false); navigate("/certificate"); }}>
+                      📜 My Certificates
+                    </div>
+                    <div className="dropdownItem logout" onClick={handleLogout}>
+                      🚪 Logout
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </header>
+
+          {/* DYNAMIC TAB VIEW ROUTING */}
+          {activeTab === "ai-buddy" ? (
+            <AIStudyBuddy />
+          ) : activeTab === "opportunity-feed" ? (
+            <OpportunityFeed />
+          ) : activeTab === "streak-heatmap" ? (
+            <StreakHeatmap />
+          ) : (
+            /* ── DASHBOARD OVERVIEW (EXACT 1-TO-1 MATCH OF SCREENSHOT) ── */
+            <>
+              {/* Greeting Header */}
+              <div className="sdGreetingHeader">
+                <h1>Welcome back, {userName}! 👋</h1>
+                <p>Keep learning, keep growing. You're doing great!</p>
+              </div>
+
+              {/* 2-Column Main Dashboard Grid */}
+              <div className="sdDashboardContentGrid">
+                
+                {/* ── CENTER COLUMN ── */}
+                <div className="sdCenterMainCol">
+                  
+                  {/* Your Progress Hero Card */}
+                  <div className="sdProgressHeroCard">
+                    <div className="sdProgressLeftInfo">
+                      <span className="sdLevelTagPill">Level {level}</span>
+                      <div className="sdProgressTitle">Your Progress</div>
+                      <div className="sdXpNumbersHeading">
+                        {xpInCurrentLevel} / 2000 XP
+                      </div>
+
+                      <div className="sdXpProgressBarTrack">
+                        <div
+                          className="sdXpProgressBarFill"
+                          style={{ width: `${progressPct}%` }}
+                        ></div>
+                      </div>
+                      <span className="sdXpToNextLevelText">{xpToNext} XP to Level {level + 1}</span>
+                    </div>
+
+                    <div className="sdHeroIllustrationBox">
+                      <img
+                        src={isDarkMode ? darkStudentHeroImg : studentHeroImg}
+                        alt="Students Studying Illustration"
+                        className="sdHeroIllustrationImg"
+                      />
+                    </div>
+                  </div>
+
+                  {/* 4 Stat Cards Row */}
+                  <div className="sdStatCardsRow">
+                    <div className="sdMiniStatCard">
+                      <div className="sdStatIconBox orangeBox">
+                        <FaBook />
+                      </div>
+                      <div className="sdStatValueText">
+                        <span className="statLabel">Courses Enrolled</span>
+                        <strong>{userEnrolledCount}</strong>
+                        <span className="sdStatSublink orange">Active Courses</span>
+                      </div>
+                    </div>
+
+                    <div className="sdMiniStatCard">
+                      <div className="sdStatIconBox purpleBox">
+                        <FaCertificate />
+                      </div>
+                      <div className="sdStatValueText">
+                        <span className="statLabel">Certificates Earned</span>
+                        <strong>{earnedCertsCount}</strong>
+                        <span className="sdStatSublink orange" onClick={() => navigate("/certificate")}>View All</span>
+                      </div>
+                    </div>
+
+                    <div className="sdMiniStatCard">
+                      <div className="sdStatIconBox yellowBox">
+                        <FaTrophy />
+                      </div>
+                      <div className="sdStatValueText">
+                        <span className="statLabel">Badges Earned</span>
+                        <strong>{earnedBadgesCount}</strong>
+                        <span className="sdStatSublink orange" onClick={() => setActiveTab("badges")}>View All</span>
+                      </div>
+                    </div>
+
+                    <div className="sdMiniStatCard">
+                      <div className="sdStatIconBox orangeBox">
+                        <FaBolt />
+                      </div>
+                      <div className="sdStatValueText">
+                        <span className="statLabel">Total XP</span>
+                        <strong>{currentXp}</strong>
+                        <span className="sdStatSublink orange">Keep Learning!</span>
+                      </div>
+                    </div>
+                  </div>
+
+
+                  {/* Daily Quests Widget */}
+                  <div className="sdWhitePanelCard" style={{ marginTop: "24px" }}>
+                    <div className="sdPanelHeaderRow">
+                      <h3>Daily Quests</h3>
+                      <span className="sdTimerText">Resets in 12:34:56</span>
+                    </div>
+
+                    <div className="sdQuestsList">
+                      <div className="sdQuestRow">
+                        <div className="questRowLeft">
+                          <div className="questIconBox orange"><FaFileAlt /></div>
+                          <span>Complete 1 Lesson</span>
+                        </div>
+                        <div className="questRowRight">
+                          <span className="questFraction">0 / 1</span>
+                          <span className="questRewardPill">+20 XP 🎁</span>
+                        </div>
+                      </div>
+
+                      <div className="sdQuestRow">
+                        <div className="questRowLeft">
+                          <div className="questIconBox cyan"><FaCode /></div>
+                          <div className="questTitleWithProgress">
+                            <span>Solve 3 Coding Problems</span>
+                            <div className="miniTrack">
+                              <div className="miniFill" style={{ width: "33%" }}></div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="questRowRight">
+                          <span className="questFraction">1 / 3</span>
+                          <span className="questRewardPill">+30 XP 🎁</span>
+                        </div>
+                      </div>
+
+                      <div className="sdQuestRow">
+                        <div className="questRowLeft">
+                          <div className="questIconBox yellow"><FaComments /></div>
+                          <span>Participate in Discussion</span>
+                        </div>
+                        <div className="questRowRight">
+                          <span className="questFraction">0 / 1</span>
+                          <span className="questRewardPill">+10 XP 🎁</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button className="btnSolidOrangeClaim">
+                      🎁 Claim All Rewards
+                    </button>
+                  </div>
+
+                  {/* Continue Learning Cards Grid */}
+                  <div className="sdWhitePanelCard" style={{ marginTop: "24px" }}>
+                    <div className="sdPanelHeaderRow">
+                      <h3>Continue Learning</h3>
+                      <span className="sdViewAllLink" onClick={() => navigate("/courses")}>View All</span>
+                    </div>
+
+                    <div className="sdContinueLearningGrid">
+                      <div className="sdCourseCardBox">
+                        <div className="sdCourseHeaderRow">
+                          <div className="sdCourseIconBadge yellowBg">JS</div>
+                          <FaEllipsisH className="moreDots" />
+                        </div>
+                        <h4>JavaScript Fundamentals</h4>
+                        <div className="sdCourseProgressBar">
+                          <div className="sdCourseProgressFill" style={{ width: "60%" }}></div>
+                        </div>
+                        <div className="sdCourseFooterRow">
+                          <span className="sdCoursePctText">60% Complete</span>
+                          <button className="btnContinueCourse" onClick={() => navigate("/learning")}>Continue</button>
+                        </div>
+                      </div>
+
+                      <div className="sdCourseCardBox">
+                        <div className="sdCourseHeaderRow">
+                          <div className="sdCourseIconBadge blueBg">⚛️</div>
+                          <FaEllipsisH className="moreDots" />
+                        </div>
+                        <h4>React.js Development</h4>
+                        <div className="sdCourseProgressBar">
+                          <div className="sdCourseProgressFill" style={{ width: "40%" }}></div>
+                        </div>
+                        <div className="sdCourseFooterRow">
+                          <span className="sdCoursePctText">40% Complete</span>
+                          <button className="btnContinueCourse" onClick={() => navigate("/learning")}>Continue</button>
+                        </div>
+                      </div>
+
+                      <div className="sdCourseCardBox">
+                        <div className="sdCourseHeaderRow">
+                          <div className="sdCourseIconBadge pyYellowBg">🐍</div>
+                          <FaEllipsisH className="moreDots" />
+                        </div>
+                        <h4>Python for Beginners</h4>
+                        <div className="sdCourseProgressBar">
+                          <div className="sdCourseProgressFill" style={{ width: "75%" }}></div>
+                        </div>
+                        <div className="sdCourseFooterRow">
+                          <span className="sdCoursePctText">75% Complete</span>
+                          <button className="btnContinueCourse" onClick={() => navigate("/learning")}>Continue</button>
+                        </div>
+                      </div>
+
+                      <div className="sdCourseCardBox">
+                        <div className="sdCourseHeaderRow">
+                          <div className="sdCourseIconBadge pinkBg">🎨</div>
+                          <FaEllipsisH className="moreDots" />
+                        </div>
+                        <h4>UI/UX Design Essentials</h4>
+                        <div className="sdCourseProgressBar">
+                          <div className="sdCourseProgressFill" style={{ width: "30%" }}></div>
+                        </div>
+                        <div className="sdCourseFooterRow">
+                          <span className="sdCoursePctText">30% Complete</span>
+                          <button className="btnContinueCourse" onClick={() => navigate("/learning")}>Continue</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Build Your Career Ready Profile Promotional Card */}
+                  <div className="sdCareerProfileCard">
+                    <div className="careerCardLeft">
+                      <h3>Build Your Career Ready Profile</h3>
+                      <p>Create a professional resume, showcase your skills and stand out to top recruiters.</p>
+                      <button className="btnCreateResume" onClick={() => navigate("/settings")}>
+                        Create Resume
+                      </button>
+                    </div>
+                    <div className="careerCardRight">
+                      <div className="clipboardGraphic">
+                        📋 🪴
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Motivational Quote Footer Banner */}
+                  <div className="sdQuoteBanner">
+                    <FaQuoteLeft className="quoteIcon" />
+                    <span>"The beautiful thing about learning is nobody can take it away from you."</span>
+                    <strong className="quoteAuthor">— B.B. King</strong>
+                  </div>
+
+                </div>
+
+                {/* ── RIGHT COLUMN SIDEBAR WIDGETS (EXACT SCREENSHOT) ── */}
+                <div className="sdRightColumnSidebar">
+                  
+                  {/* Learning Streak Card */}
+                  <div className="sdRightWidgetCard">
+                    <div className="sdStreakHeaderRow">
+                      <span className="widgetTitle">Learning Streak 🔥</span>
+                    </div>
+                    <div className="sdStreakBigVal">1 Day</div>
+                    <div className="sdStreakSub">Keep it up!</div>
+
+                    <div className="sdDaysRow">
+                      <div className="dayCol active">
+                        <span>S</span>
+                        <div className="dayCircle flame"><FaFire /></div>
+                      </div>
+                      <div className="dayCol"><span>M</span><div className="dayCircle"></div></div>
+                      <div className="dayCol"><span>T</span><div className="dayCircle"></div></div>
+                      <div className="dayCol"><span>W</span><div className="dayCircle"></div></div>
+                      <div className="dayCol"><span>T</span><div className="dayCircle"></div></div>
+                      <div className="dayCol"><span>F</span><div className="dayCircle"></div></div>
+                      <div className="dayCol"><span>S</span><div className="dayCircle"></div></div>
+                    </div>
+                  </div>
+
+                  {/* Learning Streak Heatmap Widget */}
+                  <div className="sdRightWidgetCard">
+                    <div className="widgetTitleRow">
+                      <h4>Learning Streak Heatmap</h4>
+                    </div>
+
+                    <div className="miniHeatmapWrapper">
+                      <div className="heatmapHeaderDays">
+                        <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+                      </div>
+
+                      <div className="heatmapRowItem">
+                        <span className="rowLabel">This Week</span>
+                        <div className="squaresRow">
+                          <span className="sq l0"></span><span className="sq l0"></span><span className="sq l0"></span><span className="sq l0"></span><span className="sq l2"></span><span className="sq l3"></span><span className="sq l4"></span>
+                        </div>
+                      </div>
+
+                      <div className="heatmapRowItem">
+                        <span className="rowLabel">Last Week</span>
+                        <div className="squaresRow">
+                          <span className="sq l1"></span><span className="sq l0"></span><span className="sq l0"></span><span className="sq l2"></span><span className="sq l3"></span><span className="sq l4"></span><span className="sq l1"></span>
+                        </div>
+                      </div>
+
+                      <div className="heatmapRowItem">
+                        <span className="rowLabel">May 12 – 18</span>
+                        <div className="squaresRow">
+                          <span className="sq l0"></span><span className="sq l0"></span><span className="sq l2"></span><span className="sq l3"></span><span className="sq l4"></span><span className="sq l1"></span><span className="sq l0"></span>
+                        </div>
+                      </div>
+
+                      <div className="heatmapRowItem">
+                        <span className="rowLabel">May 5 – 11</span>
+                        <div className="squaresRow">
+                          <span className="sq l1"></span><span className="sq l2"></span><span className="sq l3"></span><span className="sq l2"></span><span className="sq l1"></span><span className="sq l0"></span><span className="sq l1"></span>
+                        </div>
+                      </div>
+
+                      <div className="heatmapLegendFooter">
+                        <span>Less</span>
+                        <span className="legendBox sq l0"></span>
+                        <span className="legendBox sq l1"></span>
+                        <span className="legendBox sq l2"></span>
+                        <span className="legendBox sq l3"></span>
+                        <span className="legendBox sq l4"></span>
+                        <span>More</span>
+                        <span className="greatPill">Great! 🔥</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* AI Study Buddy Interactive Chat Widget */}
+                  <div className="sdRightWidgetCard">
+                    <div className="widgetTitleRow">
+                      <h4>AI Study Buddy</h4>
+                    </div>
+
+                    <div className="miniAiBuddyBox">
+                      <div className="aiBotGreeting">
+                        <div className="botAvatar">🤖</div>
+                        <div className="botBubble">
+                          Hi {userName}! 👋 How can I help you today?
+                        </div>
+                      </div>
+
+                      <div className="aiQuickChips">
+                        <button onClick={() => setWidgetChatInput("Explain a topic")}>Explain a topic</button>
+                        <button onClick={() => setWidgetChatInput("Quiz me")}>Quiz me</button>
+                        <button onClick={() => setWidgetChatInput("Suggest resources")}>Suggest resources</button>
+                      </div>
+
+                      <div className="aiWidgetInputRow">
+                        <input
+                          type="text"
+                          placeholder="Ask me anything..."
+                          value={widgetChatInput}
+                          onChange={(e) => setWidgetChatInput(e.target.value)}
+                        />
+                        <button
+                          className="btnWidgetSend"
+                          onClick={() => {
+                            if (widgetChatInput.trim()) {
+                              setActiveTab("ai-buddy");
+                            }
+                          }}
+                        >
+                          <FaPaperPlane />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Opportunity Feed Widget */}
+                  <div className="sdRightWidgetCard">
+                    <div className="sdPanelHeaderRow">
+                      <h4>Opportunity Feed</h4>
+                      <span className="sdViewAllLink" onClick={() => setActiveTab("opportunity-feed")}>View All</span>
+                    </div>
+
+                    <div className="miniOppFeedList">
+                      <div className="oppFeedItem">
+                        <div className="oppIconBox blue"><FaBriefcase /></div>
+                        <div className="oppItemDetails">
+                          <h5>Web Dev Internship</h5>
+                          <span>Acme Corp • Internship</span>
+                        </div>
+                        <div className="oppItemMeta">
+                          <span className="badgeNew">New</span>
+                          <span className="timeAgo">2h ago</span>
+                        </div>
+                      </div>
+
+                      <div className="oppFeedItem">
+                        <div className="oppIconBox purple"><FaCode /></div>
+                        <div className="oppItemDetails">
+                          <h5>React Developer (Fresher)</h5>
+                          <span>TechNova • Full-time</span>
+                        </div>
+                        <div className="oppItemMeta">
+                          <span className="badgeNew">New</span>
+                          <span className="timeAgo">5h ago</span>
+                        </div>
+                      </div>
+
+                      <div className="oppFeedItem">
+                        <div className="oppIconBox green"><FaLaptopCode /></div>
+                        <div className="oppItemDetails">
+                          <h5>UI/UX Design Challenge</h5>
+                          <span>DesignVerse • Competition</span>
+                        </div>
+                        <div className="oppItemMeta">
+                          <span className="badgeNew">New</span>
+                          <span className="timeAgo">1d ago</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="exploreOppLink" onClick={() => setActiveTab("opportunity-feed")}>
+                      Explore More Opportunities →
+                    </div>
+                  </div>
+
+                  {/* Quick Actions 3x2 Grid */}
+                  <div className="sdRightWidgetCard">
+                    <div className="widgetTitleRow">
+                      <h4>Quick Actions</h4>
+                    </div>
+
+                    <div className="sdQuickActionsGrid">
+                      <div className="sdQuickActionItem" onClick={() => navigate("/courses")}>
+                        <div className="sdQuickActionIcon"><FaBook /></div>
+                        <span>Browse Courses</span>
+                      </div>
+
+                      <div className="sdQuickActionItem" onClick={() => navigate("/discussions")}>
+                        <div className="sdQuickActionIcon"><FaComments /></div>
+                        <span>Join Discussion</span>
+                      </div>
+
+                      <div className="sdQuickActionItem" onClick={() => navigate("/settings")}>
+                        <div className="sdQuickActionIcon"><FaFileInvoice /></div>
+                        <span>Resume Builder</span>
+                      </div>
+
+                      <div className="sdQuickActionItem" onClick={() => setActiveTab("ai-buddy")}>
+                        <div className="sdQuickActionIcon"><FaQuestionCircle /></div>
+                        <span>Take Quiz</span>
+                      </div>
+
+                      <div className="sdQuickActionItem">
+                        <div className="sdQuickActionIcon"><FaUpload /></div>
+                        <span>Upload Assignment</span>
+                      </div>
+
+                      <div className="sdQuickActionItem" onClick={() => navigate("/certificate")}>
+                        <div className="sdQuickActionIcon"><FaAward /></div>
+                        <span>Certificate Center</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom Right Illustration Decor: Books & Plant */}
+                  <div className="sdBottomPlantBooksDecor">
+                    🪴 📚
+                  </div>
+
+                </div>
+
+              </div>
+            </>
+          )}
+
+        </div>
+      </div>
+
+      <FloatingChatbot />
+      <StudentFooter />
     </div>
   );
 }

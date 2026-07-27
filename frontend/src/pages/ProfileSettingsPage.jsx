@@ -1,772 +1,946 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import Navbar from "../components/Navbar";
 import Background from "../components/Background";
-import Footer from "../components/Footer";
-import DashboardSidebar from "../components/DashboardSidebar";
-import { FiSave, FiUser, FiGlobe, FiBriefcase, FiCheck, FiSun, FiMoon } from "react-icons/fi";
+import PaperPlaneCursor from "../components/PaperPlaneCursor";
+import StudentFooter from "../components/StudentFooter";
+import FloatingChatbot from "../components/FloatingChatbot";
 
-// ─── Accent palette ────────────────────────────────────────────────────────
-const ACCENTS = [
-  { label: "Cyber Cyan",      color: "#00e5ff" },
-  { label: "Electric Purple", color: "#8a2eff" },
-  { label: "Neon Pink",       color: "#ff00c8" },
-  { label: "Neon Green",      color: "#22c55e" },
-  { label: "Gold Amber",      color: "#facc15" },
-  { label: "Fire Orange",     color: "#f97316" },
-  { label: "Ice Blue",        color: "#38bdf8" },
-  { label: "Rose Red",        color: "#f43f5e" },
-];
+import {
+  FaHome,
+  FaBook,
+  FaCodeBranch,
+  FaFileAlt,
+  FaComments,
+  FaAward,
+  FaCertificate,
+  FaChartLine,
+  FaFileInvoice,
+  FaCode,
+  FaBolt,
+  FaTrophy,
+  FaCog,
+  FaSearch,
+  FaBell,
+  FaRobot,
+  FaRocket,
+  FaCheckCircle,
+  FaSun,
+  FaMoon,
+  FaArrowLeft,
+  FaCalendarAlt,
+  FaCamera,
+  FaUser,
+  FaLock,
+  FaLink,
+  FaLinkedin,
+  FaGithub,
+  FaGlobe,
+  FaShieldAlt,
+  FaLaptop,
+  FaMobileAlt,
+  FaKey,
+  FaHeadset,
+  FaTimes,
+  FaExclamationTriangle,
+  FaExternalLinkAlt,
+  FaCheck,
+  FaArrowRight,
+  FaDownload,
+  FaQuestionCircle
+} from "react-icons/fa";
+
+import "../styles/studentDashboard.css";
+import "../styles/profileSettings.css";
 
 export default function ProfileSettingsPage() {
-  const { user, updateUserProfile, themeMode, themeAccent, updateTheme, completedTopics } = useAuth();
+  const { user, xp, themeMode, toggleTheme } = useAuth();
+  const navigate = useNavigate();
+  const isDarkMode = themeMode === "dark";
+  const [activeTab, setActiveTab] = useState("profile"); // "profile" | "account" | "apps"
+  const [toastMessage, setToastMessage] = useState("");
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeTab, setActiveTab]         = useState("profile");
-  const [toastMsg, setToastMsg]           = useState("");
-  const [toastType, setToastType]         = useState("success");
+  // Modals state
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
 
-  // ── Profile fields ─────────────────────────────────────────────────────
-  const [fullName,  setFullName]   = useState("");
-  const [title,     setTitle]      = useState("");
-  const [bio,       setBio]        = useState("");
-  const [email,     setEmail]      = useState("");
-  const [phone,     setPhone]      = useState("");
-  const [location,  setLocation]   = useState("");
-  const [github,    setGithub]     = useState("");
-  const [linkedin,  setLinkedin]   = useState("");
-  const [portfolio, setPortfolio]  = useState("");
-  const [skills,    setSkills]     = useState("");
+  // Profile Form State (Anonymous Generic Data)
+  const [profileData, setProfileData] = useState({
+    fullName: user?.full_name || "Alex Morgan",
+    username: user?.username || "alex_student",
+    email: user?.email || "alex.morgan@skillsphere.edu",
+    phone: "+1 (555) 019-2834",
+    bio: "Passionate Computer Science student learning Fullstack Web Development & AI engineering.",
+    location: "San Francisco, CA",
+    dob: "2003-05-15",
+    college: "Global Institute of Technology",
+    branch: "Computer Science & Engineering",
+    linkedin: "https://linkedin.com/in/alexmorgan",
+    github: "https://github.com/alexmorgan",
+    website: "https://alexmorgan.dev"
+  });
 
-  // ── Theme selections (LOCAL — only committed on Save) ──────────────────
-  const [selectedMode,   setSelectedMode]   = useState(themeMode   || "dark");
-  const [selectedAccent, setSelectedAccent] = useState(themeAccent || "#00e5ff");
+  // Account Preferences State
+  const [accountPrefs, setAccountPrefs] = useState({
+    language: "English",
+    timezone: "(GMT+05:30) Asia/Kolkata",
+    country: "India",
+    dateFormat: "DD MMM YYYY",
+    enable2FA: false
+  });
 
-  // Load profile from user context once
-  useEffect(() => {
-    if (!user) return;
-    setFullName(user.full_name || "");
-    setTitle(user.title || (user.role === "EMPLOYEE" ? "Workforce Manager" : "Software Engineering Student"));
-    setBio(user.bio || "");
-    setEmail(user.contact_email || user.email || "");
-    setPhone(user.phone || "");
-    setLocation(user.location || "");
-    setGithub(user.github || "");
-    setLinkedin(user.linkedin || "");
-    setPortfolio(user.portfolio || "");
-    setSkills(user.skills || "React, JavaScript, Java");
-  }, [user?.email]); // only run when the user identity changes
+  // Connected Apps State
+  const [connectedApps, setConnectedApps] = useState([]);
 
-  // Sync theme selectors if theme changes externally
-  useEffect(() => {
-    setSelectedMode(themeMode);
-    setSelectedAccent(themeAccent);
-  }, [themeMode, themeAccent]);
+  // Popular Apps List
+  const popularApps = [
+    { id: "github", name: "GitHub", desc: "Sync your repositories and track your coding progress.", icon: "🐙" },
+    { id: "linkedin", name: "LinkedIn", desc: "Import your profile and showcase your achievements.", icon: "💼" },
+    { id: "gdrive", name: "Google Drive", desc: "Access and save your documents and files.", icon: "📁" },
+    { id: "notion", name: "Notion", desc: "Sync your notes and learning resources.", icon: "📝" },
+    { id: "discord", name: "Discord", desc: "Join study groups and get notifications.", icon: "💬" },
+    { id: "figma", name: "Figma", desc: "Share and collaborate on your design projects.", icon: "🎨" },
+    { id: "leetcode", name: "LeetCode", desc: "Track your coding practice and problem-solving stats.", icon: "⚡" },
+    { id: "gcal", name: "Google Calendar", desc: "Sync your schedule and never miss a deadline.", icon: "📅" },
+    { id: "slack", name: "Slack", desc: "Get updates and collaborate with your team.", icon: "💬" }
+  ];
 
-  // Cleanup theme preview on unmount to prevent unsaved previews from sticking
-  useEffect(() => {
-    return () => {
-      const root = document.documentElement;
-      root.setAttribute("data-theme", themeMode);
-      const vars = themeMode === "light" ? {
-        "--bg-primary":     "#f0f4f8",
-        "--bg-secondary":   "#e2e8f0",
-        "--bg-panel":       "rgba(255,255,255,0.95)",
-        "--bg-card":        "rgba(248,250,252,0.98)",
-        "--text-primary":   "#0f172a",
-        "--text-secondary": "#475569",
-        "--text-muted":     "#94a3b8",
-        "--border-color":   "rgba(0,0,0,0.12)",
-        "--border-subtle":  "rgba(0,0,0,0.05)",
-        "--navbar-bg":      "rgba(240,244,248,0.92)",
-        "--input-bg":       "rgba(255,255,255,0.9)",
-        "--shadow-panel":   "0 10px 35px rgba(0,0,0,0.12)",
-      } : {
-        "--bg-primary":     "#05060b",
-        "--bg-secondary":   "#0a0e1e",
-        "--bg-panel":       "rgba(15,23,42,0.85)",
-        "--bg-card":        "rgba(10,14,30,0.9)",
-        "--text-primary":   "#ffffff",
-        "--text-secondary": "#94a3b8",
-        "--text-muted":     "#475569",
-        "--border-color":   "rgba(255,255,255,0.08)",
-        "--border-subtle":  "rgba(255,255,255,0.04)",
-        "--navbar-bg":      "rgba(12,12,16,0.75)",
-        "--input-bg":       "rgba(0,0,0,0.5)",
-        "--shadow-panel":   "0 10px 35px rgba(0,0,0,0.5)",
-      };
-      Object.entries(vars).forEach(([k, v]) => root.style.setProperty(k, v));
-      root.style.setProperty("--accent", themeAccent);
-    };
-  }, [themeMode, themeAccent]);
+  const currentXp = xp ?? 0;
 
-  // Toast helper
-  const showToast = useCallback((msg, type = "success") => {
-    setToastMsg(msg);
-    setToastType(type);
-    setTimeout(() => setToastMsg(""), 4000);
-  }, []);
+  const navItems = [
+    { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
+    { id: "courses", label: "Courses", icon: <FaBook /> },
+    { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
+    { id: "assignments", label: "Assignments", icon: <FaFileAlt /> },
+    { id: "discussions", label: "Discussions", icon: <FaComments /> },
+    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
+    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
+    { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
+    { id: "badges", label: "Badges", icon: <FaAward /> },
+    { id: "certificates", label: "Certificates", icon: <FaCertificate /> },
+    { id: "progress", label: "Progress", icon: <FaChartLine /> },
+    { id: "resume", label: "Resume Builder", icon: <FaFileInvoice /> },
+    { id: "code-arena", label: "CodeArena", icon: <FaCode />, isNew: true },
+    { id: "settings", label: "Settings", icon: <FaCog /> }
+  ];
 
-  // ── Save profile ────────────────────────────────────────────────────────
-  const handleSaveProfile = (e) => {
-    e.preventDefault();
-    if (!fullName.trim()) {
-      showToast("⚠️ Full Name cannot be empty!", "error");
-      return;
+  // Save Profile Handler
+  const handleSaveProfile = () => {
+    setToastMessage("💾 Profile settings saved successfully!");
+    setTimeout(() => setToastMessage(""), 4000);
+  };
+
+  // Save Account Prefs Handler
+  const handleSaveAccount = () => {
+    setToastMessage("🔒 Account settings and security preferences saved!");
+    setTimeout(() => setToastMessage(""), 4000);
+  };
+
+  // Connect/Disconnect App Handler
+  const toggleAppConnection = (app) => {
+    if (connectedApps.some((a) => a.id === app.id)) {
+      setConnectedApps(connectedApps.filter((a) => a.id !== app.id));
+      setToastMessage(`🔌 Disconnected from ${app.name}.`);
+    } else {
+      setConnectedApps([...connectedApps, app]);
+      setToastMessage(`⚡ Successfully connected ${app.name} to your SkillSphere account!`);
     }
-    updateUserProfile({
-      full_name:     fullName.trim(),
-      title:         title.trim(),
-      bio:           bio.trim(),
-      contact_email: email.trim(),
-      phone:         phone.trim(),
-      location:      location.trim(),
-      github:        github.trim(),
-      linkedin:      linkedin.trim(),
-      portfolio:     portfolio.trim(),
-      skills:        skills.trim(),
-    });
-    showToast("✅ Profile updated successfully!");
-  };
-
-  // ── Save theme (commit to context + localStorage) ───────────────────────
-  const handleSaveTheme = () => {
-    updateTheme({ mode: selectedMode, accent: selectedAccent });
-    showToast("🎨 Theme applied and saved!");
-  };
-
-  // ── Preview theme live (without committing to context) ──────────────────
-  // Apply directly to document.documentElement for instant preview
-  const previewTheme = (mode, accent) => {
-    const vars = mode === "light" ? {
-      "--bg-primary":     "#f0f4f8",
-      "--bg-secondary":   "#e2e8f0",
-      "--bg-panel":       "rgba(255,255,255,0.95)",
-      "--bg-card":        "rgba(248,250,252,0.98)",
-      "--text-primary":   "#0f172a",
-      "--text-secondary": "#475569",
-      "--text-muted":     "#94a3b8",
-      "--border-color":   "rgba(0,0,0,0.12)",
-      "--border-subtle":  "rgba(0,0,0,0.05)",
-      "--navbar-bg":      "rgba(240,244,248,0.92)",
-      "--input-bg":       "rgba(255,255,255,0.9)",
-      "--shadow-panel":   "0 10px 35px rgba(0,0,0,0.12)",
-    } : {
-      "--bg-primary":     "#05060b",
-      "--bg-secondary":   "#0a0e1e",
-      "--bg-panel":       "rgba(15,23,42,0.85)",
-      "--bg-card":        "rgba(10,14,30,0.9)",
-      "--text-primary":   "#ffffff",
-      "--text-secondary": "#94a3b8",
-      "--text-muted":     "#475569",
-      "--border-color":   "rgba(255,255,255,0.08)",
-      "--border-subtle":  "rgba(255,255,255,0.04)",
-      "--navbar-bg":      "rgba(12,12,16,0.75)",
-      "--input-bg":       "rgba(0,0,0,0.5)",
-      "--shadow-panel":   "0 10px 35px rgba(0,0,0,0.5)",
-    };
-    const root = document.documentElement;
-    Object.entries(vars).forEach(([k, v]) => root.style.setProperty(k, v));
-    root.style.setProperty("--accent", accent);
-    root.setAttribute("data-theme", mode);
-  };
-
-  const handleModeChange = (mode) => {
-    setSelectedMode(mode);
-    previewTheme(mode, selectedAccent);
-  };
-
-  const handleAccentChange = (accent) => {
-    setSelectedAccent(accent);
-    previewTheme(selectedMode, accent);
-  };
-
-  // ── Derived values ──────────────────────────────────────────────────────
-  const isDark    = selectedMode === "dark";
-  const isStudent = user?.role === "STUDENT";
-  const accent    = selectedAccent;
-
-  const panel = {
-    background: "var(--bg-panel)",
-    border:     `1px solid ${"var(--border-color)"}`,
-    color:      "var(--text-primary)",
-    boxShadow:  isDark ? "0 10px 35px rgba(0,0,0,0.5)" : "0 10px 35px rgba(0,0,0,0.1)",
-  };
-
-  const inputStyle = {
-    width:        "100%",
-    background:   "var(--input-bg)",
-    border:       `1px solid ${"var(--border-color)"}`,
-    color:        "var(--text-primary)",
-    padding:      "10px 14px",
-    borderRadius: "8px",
-    fontSize:     "14px",
-    outline:      "none",
-    fontFamily:   "inherit",
-    boxSizing:    "border-box",
-  };
-
-  const labelStyle = {
-    display:      "block",
-    color:        "var(--text-secondary)",
-    fontSize:     "13px",
-    marginBottom: "6px",
-    fontWeight:   "700",
-  };
-
-  const sectionHeadStyle = {
-    display:       "flex",
-    alignItems:    "center",
-    gap:           "10px",
-    marginBottom:  "22px",
-    paddingBottom: "14px",
-    borderBottom:  `1px solid ${"var(--border-subtle)"}`,
+    setTimeout(() => setToastMessage(""), 4000);
   };
 
   return (
-    <div
-      className={`dashboard-page ${isSidebarOpen && isStudent ? "with-sidebar" : ""}`}
-      style={{ minHeight: "100vh", color: "var(--text-primary)", transition: "background 0.3s, color 0.3s" }}
-    >
+    <div className={`psWrapper ${isDarkMode ? "dark-theme" : ""}`}>
       <Background />
-      <Navbar
-        toggleSidebar={() => setIsSidebarOpen(s => !s)}
-        isSidebarOpen={isSidebarOpen}
-        showSidebarToggle={isStudent}
-      />
-      {isStudent && (
-        <DashboardSidebar
-          isOpen={isSidebarOpen}
-          toggleSidebar={() => setIsSidebarOpen(s => !s)}
-        />
-      )}
+      <PaperPlaneCursor />
 
-      {/* ── Toast notification ────────────────────────────────────────── */}
-      {toastMsg && (
-        <div style={{
-          position:     "fixed",
-          top:          "92px",
-          right:        "25px",
-          zIndex:       99999,
-          background:   toastType === "error"
-                          ? "linear-gradient(135deg,#ef4444,#dc2626)"
-                          : `linear-gradient(135deg,${accent},#8a2eff)`,
-          color:        "var(--text-primary)",
-          padding:      "14px 24px",
-          borderRadius: "14px",
-          boxShadow:    `0 10px 30px ${accent}50`,
-          fontWeight:   "700",
-          fontSize:     "15px",
-          animation:    "fadeIn 0.3s ease",
-        }}>
-          {toastMsg}
-        </div>
-      )}
+      {/* Main Grid Container */}
+      <div className="psMainContainer">
+        
+        {/* ── LEFT SIDEBAR ── */}
+        <aside className="psLeftSidebar">
+          <div>
+            <Link to="/" className="sdBrandLogo">
+              <span className="logoHex">⬢</span>
+              <span>SkillSphere</span>
+            </Link>
 
-      <main style={{ maxWidth: "1100px", margin: "0 auto", padding: "110px 24px 60px", position: "relative", zIndex: 10 }}>
+            <div className="sdSidebarHomeArchHeader">
+              <div className="sdArchLine" />
+              <button
+                className="sdHomeCircularBtn active"
+                onClick={() => navigate("/student-home")}
+                title="Dashboard Overview"
+              >
+                <FaHome />
+              </button>
+            </div>
 
-        {/* ── Page header ───────────────────────────────────────────────── */}
-        <div style={{ marginBottom: "28px" }}>
-          <h1 style={{
-            fontFamily:            "Orbitron, sans-serif",
-            fontSize:              "28px",
-            background:            `linear-gradient(90deg, ${accent}, #8a2eff)`,
-            WebkitBackgroundClip:  "text",
-            WebkitTextFillColor:   "transparent",
-            marginBottom:          "6px",
-          }}>
-            ⚙️ Profile Settings
-          </h1>
-          <p style={{ color: "var(--text-muted)", fontSize: "14px", margin: 0 }}>
-            Manage your personal info, social links, and skills.
-          </p>
-        </div>
+            <ul className="sdNavList">
+              {navItems.map((item) => (
+                <li key={item.id}>
+                  <button
+                    className={`sdNavItem ${item.id === "settings" ? "active" : ""}`}
+                    onClick={() => {
+                      if (item.id === "dashboard") navigate("/student-home");
+                      else if (item.id === "courses") navigate("/courses");
+                      else if (item.id === "learning-paths") navigate("/learning-paths");
+                      else if (item.id === "assignments") navigate("/assignments");
+                      else if (item.id === "discussions") navigate("/discussions");
+                      else if (item.id === "ai-buddy") navigate("/ai-buddy");
+                      else if (item.id === "opportunity-feed") navigate("/opportunity-feed");
+                      else if (item.id === "badges") navigate("/badges");
+                      else if (item.id === "certificates") navigate("/certificate");
+                      else if (item.id === "progress") navigate("/progress");
+                      else if (item.id === "daily-quests") navigate("/daily-quests");
+                      else if (item.id === "resume") navigate("/resume");
+                      else if (item.id === "code-arena") navigate("/code-arena");
+                      else if (item.id === "settings") navigate("/settings");
+                      else navigate("/student-home");
+                    }}
+                  >
+                    <span className="navIcon">{item.icon}</span>
+                    <span className="navLabel">{item.label}</span>
+                    {item.isNew && <span className="navNewBadge">New</span>}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        {/* ── Tab bar ───────────────────────────────────────────────────── */}
-        <div style={{
-          display:       "flex",
-          gap:           "4px",
-          marginBottom:  "28px",
-          borderBottom:  `2px solid ${"var(--border-subtle)"}`,
-        }}>
-          {[
-            { id: "profile", label: "👤 Profile Info" },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                padding:      "11px 22px",
-                background:   "transparent",
-                border:       "none",
-                borderBottom: activeTab === tab.id ? `3px solid ${accent}` : "3px solid transparent",
-                color:        activeTab === tab.id ? accent : ("var(--text-muted)"),
-                fontWeight:   "700",
-                fontSize:     "14px",
-                cursor:       "pointer",
-                fontFamily:   "Orbitron, sans-serif",
-                transition:   "all 0.2s",
-                marginBottom: "-2px",
-                letterSpacing: "0.3px",
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+          {/* Bottom Sidebar Container: Rocket Graphic + Theme Controls */}
+          <div className="sdSidebarBottomSection">
+            <div className="sdRocketIllustrationBox">
+              <span className="sdRocketEmoji">🚀</span>
+              <div className="sdCloudDeco"></div>
+            </div>
 
-        {/* ════════════════════ PROFILE TAB ════════════════════════════ */}
-        {activeTab === "profile" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: "24px", alignItems: "start" }}>
+            <div className="sdSidebarFooterControls">
+              <button className="sdThemeToggleBtn" onClick={toggleTheme} title={`Switch to ${isDarkMode ? "Light" : "Dark"} Mode`}>
+                {isDarkMode ? <FaSun /> : <FaMoon />}
+              </button>
+              <span className="sdControlDivider">|</span>
+              <button className="sdCollapseBtn" title="Collapse Menu">
+                <FaArrowLeft />
+              </button>
+            </div>
+          </div>
+        </aside>
 
-            {/* Left — edit form */}
-            <form onSubmit={handleSaveProfile} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+        {/* ── RIGHT MAIN BODY AREA ── */}
+        <div className="psRightBodyArea">
+          
+          {/* Top Header Bar */}
+          <header className="sdTopHeaderBar">
+            <div className="sdSearchWrapper">
+              <FaSearch className="sdSearchIcon" />
+              <input
+                type="text"
+                className="sdSearchInput"
+                placeholder="Search for courses, skills, discussions..."
+              />
+            </div>
 
-              {/* Personal Info */}
-              <div style={{ ...panel, borderRadius: "16px", padding: "26px" }}>
-                <div style={sectionHeadStyle}>
-                  <FiUser size={18} style={{ color: accent }} />
-                  <h3 style={{ fontFamily: "Orbitron, sans-serif", fontSize: "15px", color: "var(--text-primary)", margin: 0 }}>
-                    Personal Info
-                  </h3>
+            <div className="sdHeaderActionsRow">
+              <div className="sdXpBadgePill">
+                <FaBolt color="#F9572A" /> <span>{currentXp} XP</span>
+              </div>
+
+              <div className="sdNotificationBtnWrapper">
+                <button className="sdNotificationBtn">
+                  <FaBell />
+                  <span className="sdNotifBadge">5</span>
+                </button>
+              </div>
+
+              <div className="sdUserProfilePill" onClick={() => navigate("/settings")}>
+                <div className="sdUserAvatarImg">🧑‍🎓</div>
+                <div className="sdUserInfoText">
+                  <strong>{profileData.fullName}</strong>
+                  <span>Student</span>
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
-                  <div>
-                    <label style={labelStyle}>Full Name *</label>
-                    <input required value={fullName} onChange={e => setFullName(e.target.value)} style={inputStyle} placeholder="Your full name" />
+                <span className="dropdownArrow">▾</span>
+              </div>
+            </div>
+          </header>
+
+          {/* Page Heading Row */}
+          <div className="psPageHeaderRow">
+            <div className="psPageHeader">
+              <h1>Settings ⚙️</h1>
+              <p>Manage your account preferences and settings</p>
+            </div>
+          </div>
+
+          {/* Toast Notification Alert */}
+          {toastMessage && (
+            <div className="psToastAlert">
+              <span>{toastMessage}</span>
+            </div>
+          )}
+
+          {/* SUB-TABS BAR (ONLY 3 TABS AS REQUESTED) */}
+          <div className="psSubTabsRow">
+            <button
+              className={`psTab ${activeTab === "profile" ? "active" : ""}`}
+              onClick={() => setActiveTab("profile")}
+            >
+              <FaUser /> Profile Settings
+            </button>
+
+            <button
+              className={`psTab ${activeTab === "account" ? "active" : ""}`}
+              onClick={() => setActiveTab("account")}
+            >
+              <FaLock /> Account Settings
+            </button>
+
+            <button
+              className={`psTab ${activeTab === "apps" ? "active" : ""}`}
+              onClick={() => setActiveTab("apps")}
+            >
+              <FaLink /> Connected Apps
+            </button>
+          </div>
+
+          {/* ── TAB 1: PROFILE SETTINGS (IMAGE 1) ── */}
+          {activeTab === "profile" && (
+            <div className="psWorkspaceGrid">
+              
+              {/* Left Form Block */}
+              <div className="psFormBlock">
+                <h3>Profile Settings</h3>
+                <p className="subText">Update your personal information and how others see you on SkillSphere.</p>
+
+                {/* Avatar Photo Section */}
+                <div className="avatarSectionRow">
+                  <div className="avatarCircleBox">
+                    <div className="avatarPlaceholder">🧑‍🎓</div>
+                    <button className="cameraBtn" title="Upload Photo">
+                      <FaCamera />
+                    </button>
                   </div>
-                  <div>
-                    <label style={labelStyle}>Job Title / Headline</label>
-                    <input value={title} onChange={e => setTitle(e.target.value)} style={inputStyle} placeholder="e.g. Full Stack Developer" />
+                  <span className="photoSub">JPG, PNG or WEBP. Max size 2MB</span>
+                </div>
+
+                {/* Form Fields */}
+                <div className="psForm2Col">
+                  <div className="inputGroup">
+                    <label>Full Name</label>
+                    <input
+                      type="text"
+                      value={profileData.fullName}
+                      onChange={(e) => setProfileData({ ...profileData, fullName: e.target.value })}
+                    />
                   </div>
-                  <div>
-                    <label style={labelStyle}>Contact Email</label>
-                    <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} placeholder="your@email.com" />
-                  </div>
-                  <div>
-                    <label style={labelStyle}>Phone Number</label>
-                    <input value={phone} onChange={e => setPhone(e.target.value)} style={inputStyle} placeholder="+91 XXXXX XXXXX" />
-                  </div>
-                  <div style={{ gridColumn: "1 / -1" }}>
-                    <label style={labelStyle}>Location</label>
-                    <input value={location} onChange={e => setLocation(e.target.value)} style={inputStyle} placeholder="City, Country" />
-                  </div>
-                  <div style={{ gridColumn: "1 / -1" }}>
-                    <label style={labelStyle}>Bio / About Me</label>
-                    <textarea
-                      rows={4}
-                      value={bio}
-                      onChange={e => setBio(e.target.value)}
-                      style={{ ...inputStyle, resize: "vertical" }}
-                      placeholder="Write a short description about yourself..."
+
+                  <div className="inputGroup">
+                    <label>Username</label>
+                    <input
+                      type="text"
+                      value={profileData.username}
+                      onChange={(e) => setProfileData({ ...profileData, username: e.target.value })}
                     />
                   </div>
                 </div>
+
+                <div className="psForm2Col">
+                  <div className="inputGroup">
+                    <label>Email Address</label>
+                    <input
+                      type="email"
+                      value={profileData.email}
+                      onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="inputGroup">
+                    <label>Phone Number</label>
+                    <input
+                      type="text"
+                      value={profileData.phone}
+                      onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="inputGroup">
+                  <label>Bio</label>
+                  <textarea
+                    rows="3"
+                    maxLength="150"
+                    value={profileData.bio}
+                    onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
+                  />
+                  <span className="charCounter">{profileData.bio.length}/150</span>
+                </div>
+
+                <div className="psForm2Col">
+                  <div className="inputGroup">
+                    <label>Location</label>
+                    <select
+                      value={profileData.location}
+                      onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
+                    >
+                      <option value="Bhubaneswar, Odisha">Bhubaneswar, Odisha</option>
+                      <option value="Bangalore, Karnataka">Bangalore, Karnataka</option>
+                      <option value="Hyderabad, Telangana">Hyderabad, Telangana</option>
+                      <option value="Delhi, NCR">Delhi, NCR</option>
+                    </select>
+                  </div>
+
+                  <div className="inputGroup">
+                    <label>Date of Birth</label>
+                    <input
+                      type="date"
+                      value={profileData.dob}
+                      onChange={(e) => setProfileData({ ...profileData, dob: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="psForm2Col">
+                  <div className="inputGroup">
+                    <label>College / University</label>
+                    <input
+                      type="text"
+                      value={profileData.college}
+                      onChange={(e) => setProfileData({ ...profileData, college: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="inputGroup">
+                    <label>Branch / Field of Study</label>
+                    <input
+                      type="text"
+                      value={profileData.branch}
+                      onChange={(e) => setProfileData({ ...profileData, branch: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                {/* Social Links */}
+                <div className="socialLinksSection">
+                  <label>Social Links</label>
+                  <div className="social3Row">
+                    <div className="socialInputGroup">
+                      <FaLinkedin className="sIcon" />
+                      <input
+                        type="text"
+                        placeholder="LinkedIn URL"
+                        value={profileData.linkedin}
+                        onChange={(e) => setProfileData({ ...profileData, linkedin: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="socialInputGroup">
+                      <FaGithub className="sIcon" />
+                      <input
+                        type="text"
+                        placeholder="GitHub URL"
+                        value={profileData.github}
+                        onChange={(e) => setProfileData({ ...profileData, github: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="socialInputGroup">
+                      <FaGlobe className="sIcon" />
+                      <input
+                        type="text"
+                        placeholder="Website URL"
+                        value={profileData.website}
+                        onChange={(e) => setProfileData({ ...profileData, website: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="btnFormRow">
+                  <button className="btnSavePrimary" onClick={handleSaveProfile}>Save Changes</button>
+                  <button className="btnCancelOutline" onClick={() => navigate("/student-home")}>Cancel</button>
+                </div>
               </div>
 
-              {/* Social Links */}
-              <div style={{ ...panel, borderRadius: "16px", padding: "26px" }}>
-                <div style={sectionHeadStyle}>
-                  <FiGlobe size={18} style={{ color: accent }} />
-                  <h3 style={{ fontFamily: "Orbitron, sans-serif", fontSize: "15px", color: "var(--text-primary)", margin: 0 }}>
-                    Social & Links
-                  </h3>
+              {/* Right Sidebar Widgets */}
+              <div className="psRightSidebarCol">
+                
+                {/* Profile Preview Widget */}
+                <div className="psWidgetCard">
+                  <h4>Profile Preview</h4>
+
+                  <div className="profilePreviewCard">
+                    <div className="gradientBanner"></div>
+                    <div className="avatarPreviewCircle">🧑‍🎓</div>
+
+                    <div className="lvlBadgeText">Level 12 • Code Explorer</div>
+
+                    <div className="stats3Grid">
+                      <div><strong>18</strong><span>Badges</span></div>
+                      <div><strong>6,450</strong><span>XP Points</span></div>
+                      <div><strong>12</strong><span>Courses</span></div>
+                    </div>
+                  </div>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-                  <div>
-                    <label style={labelStyle}>🔗 GitHub URL</label>
-                    <input type="url" value={github} onChange={e => setGithub(e.target.value)} style={inputStyle} placeholder="https://github.com/username" />
+
+                {/* Profile Completion Widget */}
+                <div className="psWidgetCard">
+                  <div className="widgetTitleRow">
+                    <h4>Profile Completion</h4>
+                    <span className="pctGreen">80% Completed</span>
                   </div>
-                  <div>
-                    <label style={labelStyle}>🔗 LinkedIn URL</label>
-                    <input type="url" value={linkedin} onChange={e => setLinkedin(e.target.value)} style={inputStyle} placeholder="https://linkedin.com/in/username" />
+                  <div className="pTrack"><div className="pFill" style={{ width: "80%" }}></div></div>
+
+                  <ul className="completionChecklist">
+                    <li><FaCheckCircle color="#10B981" /> <span>Profile Picture</span> <strong className="cmp">Completed</strong></li>
+                    <li><FaCheckCircle color="#10B981" /> <span>Full Name</span> <strong className="cmp">Completed</strong></li>
+                    <li><FaCheckCircle color="#10B981" /> <span>Bio</span> <strong className="cmp">Completed</strong></li>
+                    <li><FaCheckCircle color="#10B981" /> <span>Location</span> <strong className="cmp">Completed</strong></li>
+                    <li><FaCheckCircle color="#10B981" /> <span>Social Links</span> <strong className="cmp">Completed</strong></li>
+                    <li><FaCheckCircle color="#10B981" /> <span>Date of Birth</span> <strong className="cmp">Completed</strong></li>
+                    <li><FaExclamationTriangle color="#F59E0B" /> <span>Add a cover photo</span> <strong className="pnd">Pending</strong></li>
+                  </ul>
+                </div>
+
+                {/* Quick Actions Widget */}
+                <div className="psWidgetCard">
+                  <h4>Quick Actions</h4>
+                  <div className="quickActionsList">
+                    <button onClick={() => navigate("/student-home")}>
+                      <FaUser /> <span>View My Profile</span> <FaArrowRight />
+                    </button>
+                    <button onClick={() => navigate("/badges")}>
+                      <FaAward /> <span>Manage My Badges</span> <FaArrowRight />
+                    </button>
+                    <button onClick={handleSaveProfile}>
+                      <FaDownload /> <span>Download My Data</span> <FaArrowRight />
+                    </button>
                   </div>
+                </div>
+
+                {/* Profile Tips Card Box */}
+                <div className="profileTipsBox">
+                  <FaShieldAlt className="shieldIcon" />
                   <div>
-                    <label style={labelStyle}>🌐 Portfolio / Website</label>
-                    <input type="url" value={portfolio} onChange={e => setPortfolio(e.target.value)} style={inputStyle} placeholder="https://yourportfolio.dev" />
+                    <h5>Profile Tips</h5>
+                    <p>A complete profile helps your peers know you better and improves your visibility in discussions and opportunities.</p>
                   </div>
+                  <button className="btnViewProfileOutline" onClick={() => navigate("/student-home")}>View Profile</button>
+                </div>
+
+              </div>
+
+            </div>
+          )}
+
+          {/* ── TAB 2: ACCOUNT SETTINGS (IMAGE 2) ── */}
+          {activeTab === "account" && (
+            <div className="psWorkspaceGrid">
+              
+              {/* Left Form Block */}
+              <div className="psFormBlock">
+                <h3>Account Settings</h3>
+                <p className="subText">Manage your account information and preferences.</p>
+
+                {/* Account Information Group */}
+                <div className="formGroupBlock">
+                  <h4>Account Information</h4>
+
+                  <div className="psForm2Col">
+                    <div className="inputGroup">
+                      <label>Full Name</label>
+                      <input type="text" value={profileData.fullName} readOnly />
+                    </div>
+
+                    <div className="inputGroup">
+                      <label>Username</label>
+                      <input type="text" value={profileData.username} readOnly />
+                    </div>
+                  </div>
+
+                  <div className="psForm2Col">
+                    <div className="inputGroup">
+                      <label>Email Address</label>
+                      <input type="email" value={profileData.email} readOnly />
+                    </div>
+
+                    <div className="inputGroup">
+                      <label>Phone Number</label>
+                      <input type="text" value={profileData.phone} readOnly />
+                    </div>
+                  </div>
+
+                  <div className="inputGroup">
+                    <label>Password</label>
+                    <div className="pwdInputRow">
+                      <input type="password" value="••••••••••••" readOnly />
+                      <button className="btnChangePwd" onClick={() => setIsPasswordModalOpen(true)}>
+                        <FaLock /> Change Password
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Account Preferences Group */}
+                <div className="formGroupBlock">
+                  <h4>Account Preferences</h4>
+
+                  <div className="psForm2Col">
+                    <div className="inputGroup">
+                      <label>Preferred Language</label>
+                      <select
+                        value={accountPrefs.language}
+                        onChange={(e) => setAccountPrefs({ ...accountPrefs, language: e.target.value })}
+                      >
+                        <option value="English">English</option>
+                        <option value="Hindi">Hindi</option>
+                        <option value="Spanish">Spanish</option>
+                      </select>
+                    </div>
+
+                    <div className="inputGroup">
+                      <label>Timezone</label>
+                      <select
+                        value={accountPrefs.timezone}
+                        onChange={(e) => setAccountPrefs({ ...accountPrefs, timezone: e.target.value })}
+                      >
+                        <option value="(GMT+05:30) Asia/Kolkata">(GMT+05:30) Asia/Kolkata</option>
+                        <option value="(GMT+00:00) UTC">(GMT+00:00) UTC</option>
+                        <option value="(GMT-05:00) Eastern Time">(GMT-05:00) Eastern Time</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="psForm2Col">
+                    <div className="inputGroup">
+                      <label>Country</label>
+                      <select
+                        value={accountPrefs.country}
+                        onChange={(e) => setAccountPrefs({ ...accountPrefs, country: e.target.value })}
+                      >
+                        <option value="India">India</option>
+                        <option value="United States">United States</option>
+                        <option value="United Kingdom">United Kingdom</option>
+                      </select>
+                    </div>
+
+                    <div className="inputGroup">
+                      <label>Date Format</label>
+                      <select
+                        value={accountPrefs.dateFormat}
+                        onChange={(e) => setAccountPrefs({ ...accountPrefs, dateFormat: e.target.value })}
+                      >
+                        <option value="DD MMM YYYY">DD MMM YYYY</option>
+                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="checkboxGroup">
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={accountPrefs.enable2FA}
+                        onChange={(e) => setAccountPrefs({ ...accountPrefs, enable2FA: e.target.checked })}
+                      />
+                      <span><strong>Enable two-factor authentication (2FA)</strong></span>
+                    </label>
+                    <small>Add an extra layer of security to your account</small>
+                  </div>
+                </div>
+
+                {/* Deactivate Account */}
+                <div className="deactivateBlock">
+                  <div>
+                    <h4>Deactivate Account</h4>
+                    <p>Temporarily deactivate your account. You can reactivate it anytime by logging in.</p>
+                  </div>
+                  <button className="btnDeactivate" onClick={() => setIsDeactivateModalOpen(true)}>
+                    Deactivate Account
+                  </button>
+                </div>
+
+                <div className="btnFormRow">
+                  <button className="btnSavePrimary" onClick={handleSaveAccount}>Save Changes</button>
                 </div>
               </div>
 
-              {/* Skills */}
-              <div style={{ ...panel, borderRadius: "16px", padding: "26px" }}>
-                <div style={sectionHeadStyle}>
-                  <FiBriefcase size={18} style={{ color: accent }} />
-                  <h3 style={{ fontFamily: "Orbitron, sans-serif", fontSize: "15px", color: "var(--text-primary)", margin: 0 }}>
-                    Technical Skills
-                  </h3>
-                </div>
-                <label style={labelStyle}>Skills (comma separated)</label>
-                <input
-                  value={skills}
-                  onChange={e => setSkills(e.target.value)}
-                  style={inputStyle}
-                  placeholder="React, Java, Spring Boot, MySQL, Docker"
-                />
-                {skills && (
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "12px" }}>
-                    {skills.split(",").map((s, i) => s.trim() && (
-                      <span key={i} style={{
-                        background:   `${accent}18`,
-                        border:       `1px solid ${accent}40`,
-                        color:        accent,
-                        padding:      "4px 12px",
-                        borderRadius: "20px",
-                        fontSize:     "12px",
-                        fontWeight:   "700",
-                      }}>
-                        {s.trim()}
-                      </span>
-                    ))}
+              {/* Right Sidebar Widgets */}
+              <div className="psRightSidebarCol">
+                
+                {/* Security Overview */}
+                <div className="psWidgetCard">
+                  <h4>Security Overview</h4>
+
+                  <div className="securityOverviewCard">
+                    <div className="secShieldIcon">🛡️</div>
+                    <div>
+                      <span>Your account security status is</span>
+                      <strong className="secGoodText">Good</strong>
+                    </div>
                   </div>
-                )}
+
+                  <ul className="secChecklist">
+                    <li><FaCheckCircle color="#10B981" /> Password is strong</li>
+                    <li><FaCheckCircle color="#10B981" /> Two-factor authentication is {accountPrefs.enable2FA ? "ON" : "OFF"}</li>
+                    <li><FaCheckCircle color="#10B981" /> No suspicious activity detected</li>
+                  </ul>
+
+                  <button className="btnGoSecurityOutline" onClick={() => setIsPasswordModalOpen(true)}>
+                    Go to Security Settings
+                  </button>
+                </div>
+
+                {/* Recent Account Activity */}
+                <div className="psWidgetCard">
+                  <div className="widgetTitleRow">
+                    <h4>Recent Account Activity</h4>
+                  </div>
+
+                  <div className="activityList">
+                    <div className="actItem">
+                      <FaLaptop className="aIcon" />
+                      <div>
+                        <h5>Logged in from Web</h5>
+                        <span>Kolkata, India • Today, 10:30 AM</span>
+                      </div>
+                    </div>
+
+                    <div className="actItem">
+                      <FaMobileAlt className="aIcon" />
+                      <div>
+                        <h5>Logged in from Mobile</h5>
+                        <span>Kolkata, India • Yesterday, 9:15 PM</span>
+                      </div>
+                    </div>
+
+                    <div className="actItem">
+                      <FaKey className="aIcon" />
+                      <div>
+                        <h5>Password changed</h5>
+                        <span>Kolkata, India • 3 days ago</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <span className="viewAllActivityLink">View All Activity →</span>
+                </div>
+
+                {/* Need Help? Widget */}
+                <div className="helpCenterBox">
+                  <FaHeadset className="headsetIcon" />
+                  <div>
+                    <h5>Need Help?</h5>
+                    <p>Visit our Help Center for guides and support articles.</p>
+                  </div>
+                  <button className="btnGoHelpCenter" onClick={() => navigate("/discussions")}>
+                    Go to Help Center
+                  </button>
+                </div>
+
               </div>
 
-              {/* Save */}
-              <button
-                type="submit"
-                style={{
-                  background:    `linear-gradient(90deg, ${accent}, #8a2eff)`,
-                  color:         "var(--text-primary)",
-                  border:        "none",
-                  padding:       "14px 30px",
-                  borderRadius:  "12px",
-                  fontSize:      "15px",
-                  fontWeight:    "700",
-                  cursor:        "pointer",
-                  fontFamily:    "Orbitron, sans-serif",
-                  boxShadow:     `0 0 20px ${accent}40`,
-                  display:       "flex",
-                  alignItems:    "center",
-                  justifyContent: "center",
-                  gap:           "8px",
-                  letterSpacing: "0.4px",
-                }}
-              >
-                <FiSave size={17} />
-                Save Profile Changes
-              </button>
-            </form>
+            </div>
+          )}
 
-            {/* Right — live preview card */}
-            <div style={{
-              ...panel,
-              borderRadius:  "20px",
-              padding:       "28px",
-              textAlign:     "center",
-              position:      "sticky",
-              top:           "110px",
-              border:        `2px solid ${accent}50`,
-              boxShadow:     `0 0 30px ${accent}20`,
-              overflow:      "hidden",
-            }}>
-              {/* Banner gradient */}
-              <div style={{
-                position:   "absolute",
-                top: 0, left: 0, right: 0,
-                height:     "80px",
-                background: `linear-gradient(135deg, ${accent}30, transparent)`,
-              }} />
+          {/* ── TAB 3: CONNECTED APPS (IMAGE 3) ── */}
+          {activeTab === "apps" && (
+            <div className="psWorkspaceGrid">
+              
+              {/* Left Workspace Block */}
+              <div className="psFormBlock">
+                <h3>Connected Apps</h3>
+                <p className="subText">Manage third-party apps and services connected to your SkillSphere account.</p>
 
-              <div style={{ position: "relative", zIndex: 2, marginTop: "10px" }}>
-                {/* Avatar */}
-                <div style={{
-                  width:         "82px",
-                  height:        "82px",
-                  borderRadius:  "50%",
-                  background:    `linear-gradient(135deg, ${accent}, #8a2eff)`,
-                  color:         "var(--text-primary)",
-                  fontSize:      "28px",
-                  fontWeight:    "800",
-                  display:       "flex",
-                  alignItems:    "center",
-                  justifyContent:"center",
-                  margin:        "0 auto 14px",
-                  boxShadow:     `0 0 22px ${accent}60`,
-                  border:        `3px solid ${"var(--bg-primary)"}`,
-                }}>
-                  {(fullName || user?.username || "U").charAt(0).toUpperCase()}
-                </div>
+                {/* Connected Apps List */}
+                <div className="connectedSection">
+                  <h4>Connected Apps ({connectedApps.length})</h4>
 
-                <h3 style={{ fontFamily: "Orbitron, sans-serif", fontSize: "18px", color: "var(--text-primary)", margin: "0 0 4px" }}>
-                  {fullName || "Your Name"}
-                </h3>
-                <div style={{ fontSize: "11px", color: accent, fontWeight: "700", textTransform: "uppercase", letterSpacing: "1px", fontFamily: "Orbitron, sans-serif", marginBottom: "4px" }}>
-                  {user?.role || "ROLE"}
-                </div>
-                <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "8px" }}>
-                  {title || "Your title here"}
-                </div>
-                {location && (
-                  <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "8px" }}>
-                    📍 {location}
-                  </div>
-                )}
-                <p style={{ color: "var(--text-secondary)", fontSize: "13px", lineHeight: "1.6", margin: "10px 0", minHeight: "44px" }}>
-                  {bio || "Your bio will appear here..."}
-                </p>
-
-                {/* Skill tags */}
-                {skills && (
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", justifyContent: "center", margin: "10px 0" }}>
-                    {skills.split(",").slice(0, 5).map((s, i) => s.trim() && (
-                      <span key={i} style={{
-                        background:   "var(--bg-secondary)",
-                        border:       `1px solid ${"var(--border-color)"}`,
-                        color:        "var(--text-secondary)",
-                        padding:      "3px 9px",
-                        borderRadius: "12px",
-                        fontSize:     "11px",
-                        fontWeight:   "600",
-                      }}>
-                        {s.trim()}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Social links */}
-                <div style={{
-                  display:       "flex",
-                  gap:           "12px",
-                  justifyContent:"center",
-                  borderTop:     `1px solid ${"var(--border-subtle)"}`,
-                  paddingTop:    "12px",
-                  marginTop:     "12px",
-                  flexWrap:      "wrap",
-                }}>
-                  {github    && <a href={github}    target="_blank" rel="noreferrer" style={{ color: accent, textDecoration: "none", fontSize: "12px", fontWeight: "700" }}>GitHub ↗</a>}
-                  {linkedin  && <a href={linkedin}  target="_blank" rel="noreferrer" style={{ color: accent, textDecoration: "none", fontSize: "12px", fontWeight: "700" }}>LinkedIn ↗</a>}
-                  {portfolio && <a href={portfolio} target="_blank" rel="noreferrer" style={{ color: accent, textDecoration: "none", fontSize: "12px", fontWeight: "700" }}>Portfolio ↗</a>}
-                  {!github && !linkedin && !portfolio && (
-                    <span style={{ color: isDark ? "#334155" : "var(--text-secondary)", fontSize: "12px" }}>No social links yet</span>
+                  {connectedApps.length === 0 ? (
+                    <div className="emptyAppsBox">
+                      <div className="emptyLinkIcon">🔗</div>
+                      <h5>No apps connected yet</h5>
+                      <p>Connect your favorite tools and platforms to enhance your learning experience.</p>
+                      <button className="btnExploreApps" onClick={() => setToastMessage("Choose a tool below to connect!")}>
+                        Explore Apps
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="connectedAppsGrid">
+                      {connectedApps.map((app) => (
+                        <div key={app.id} className="activeConnectedCard">
+                          <span className="appIcon">{app.icon}</span>
+                          <div>
+                            <h5>{app.name}</h5>
+                            <span className="statusConnected">✓ Connected</span>
+                          </div>
+                          <button className="btnDisconnect" onClick={() => toggleAppConnection(app)}>
+                            Disconnect
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
-              </div>
-            </div>
 
-          </div>
-        )}
+                {/* Popular Apps Grid */}
+                <div className="popularAppsSection">
+                  <h4>Popular Apps</h4>
+                  <p className="subText">Connect with tools you already use</p>
 
-        {/* certificates tab removed */}
-        {activeTab === "__removed__" && (() => {
-          const CERTS = [
-            { id: "CERT-REACT-8942",  title: "React Web Architecture & Masterclass",    courseName: "React Developer",      trackKey: "react",      color: "#00e5ff", date: "2026-07-15", topics: ["Hooks","Context","Routing","State Mgmt","Performance","Testing"] },
-            { id: "CERT-JAVA-3310",   title: "Core Java OOPs & Enterprise Systems",      courseName: "Java Master",           trackKey: "java",       color: "#f97316", date: "2026-07-18", topics: ["OOP","Collections","Streams","Generics","Concurrency","JVM"] },
-            { id: "CERT-SPRING-7721", title: "Spring Boot Microservices & Security",      courseName: "Spring Boot Pro",       trackKey: "springboot", color: "#22c55e", date: "2026-07-20", topics: ["REST APIs","JPA","Security","Microservices","Docker","Testing"] },
-            { id: "CERT-DSA-4401",   title: "Data Structures & Algorithms Pro",          courseName: "DSA Expert",            trackKey: "dsa",        color: "#8a2eff", date: "2026-07-21", topics: ["Arrays","Trees","Graphs","DP","Sorting","Greedy"] },
-            { id: "CERT-JS-5541",    title: "Modern JavaScript Ninja & ES6+",           courseName: "JavaScript",            trackKey: "javascript", color: "#facc15", date: "2026-07-21", topics: ["Closures","Promises","Async","DOM","Modules","TypeScript"] },
-            { id: "CERT-GENAI-9901", title: "Generative AI & Prompt Engineering",        courseName: "GenAI",                 trackKey: "genai",      color: "#ff00c8", date: "2026-07-22", topics: ["LLMs","Prompting","RAG","Fine-tuning","Agents","Ethics"] },
-          ];
-
-          const earnedCount = CERTS.filter(c =>
-            (completedTopics || []).filter(id => id.startsWith(`${c.trackKey}_`)).length >= 6
-          ).length;
-
-          return (
-            <div>
-              {/* Header stats bar */}
-              <div style={{
-                ...panel,
-                borderRadius:   "16px",
-                padding:        "20px 28px",
-                marginBottom:   "24px",
-                display:        "flex",
-                alignItems:     "center",
-                justifyContent: "space-between",
-                flexWrap:       "wrap",
-                gap:            "16px",
-                border:         `1px solid ${accent}30`,
-                boxShadow:      `0 0 24px ${accent}15`,
-              }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-                  <div style={{
-                    width: "48px", height: "48px", borderRadius: "50%",
-                    background: `linear-gradient(135deg, ${accent}, #8a2eff)`,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    fontSize: "22px", boxShadow: `0 0 16px ${accent}50`,
-                  }}>🏆</div>
-                  <div>
-                    <div style={{ fontFamily: "Orbitron, sans-serif", fontSize: "18px", color: "var(--text-primary)", fontWeight: "800" }}>
-                      {earnedCount} / {CERTS.length} Certificates Earned
-                    </div>
-                    <div style={{ fontSize: "13px", color: "var(--text-muted)", marginTop: "2px" }}>
-                      Complete all 6 modules in a course to unlock its certificate
-                    </div>
-                  </div>
-                </div>
-                {/* Progress bar */}
-                <div style={{ minWidth: "200px", flex: 1, maxWidth: "300px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-                    <span style={{ fontSize: "11px", color: "var(--text-muted)", fontFamily: "Orbitron, sans-serif" }}>PROGRESS</span>
-                    <span style={{ fontSize: "11px", color: accent, fontFamily: "Orbitron, sans-serif", fontWeight: "700" }}>{Math.round((earnedCount / CERTS.length) * 100)}%</span>
-                  </div>
-                  <div style={{ height: "8px", background: "var(--border-color)", borderRadius: "4px", overflow: "hidden" }}>
-                    <div style={{ height: "100%", width: `${(earnedCount / CERTS.length) * 100}%`, background: `linear-gradient(90deg, ${accent}, #8a2eff)`, borderRadius: "4px", transition: "width 0.6s ease", boxShadow: `0 0 8px ${accent}60` }} />
-                  </div>
-                </div>
-              </div>
-
-              {/* Certificate cards grid */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: "20px" }}>
-                {CERTS.map(cert => {
-                  const done = (completedTopics || []).filter(id => id.startsWith(`${cert.trackKey}_`)).length;
-                  const isEarned = done >= 6;
-                  const dateFormatted = new Date(cert.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
-
-                  return (
-                    <div key={cert.id} style={{
-                      ...panel,
-                      borderRadius:  "16px",
-                      padding:       "0",
-                      border:        isEarned ? `1px solid ${cert.color}50` : `1px solid ${"var(--border-subtle)"}`,
-                      overflow:      "hidden",
-                      opacity:       isEarned ? 1 : 0.65,
-                      transition:    "all 0.3s",
-                      boxShadow:     isEarned ? `0 0 24px ${cert.color}20` : "none",
-                      position:      "relative",
-                    }}>
-
-                      {/* Colored top banner */}
-                      <div style={{
-                        background:  isEarned
-                          ? `linear-gradient(135deg, ${cert.color}30 0%, ${isDark ? "var(--bg-secondary)" : "#e2e8f0"} 100%)`
-                          : ("var(--bg-secondary)"),
-                        padding:     "18px 20px 14px",
-                        borderBottom:`1px solid ${isEarned ? cert.color + "20" : ("var(--bg-secondary)")}`,
-                        display:     "flex",
-                        alignItems:  "center",
-                        gap:         "14px",
-                      }}>
-                        {/* Icon */}
-                        <div style={{
-                          width: "48px", height: "48px", borderRadius: "12px", flexShrink: 0,
-                          background: isEarned ? `linear-gradient(135deg, ${cert.color}30, ${cert.color}10)` : ("var(--bg-secondary)"),
-                          border: `2px solid ${isEarned ? cert.color + "60" : ("var(--border-color)")}`,
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          fontSize: "22px",
-                          boxShadow: isEarned ? `0 0 12px ${cert.color}40` : "none",
-                        }}>
-                          {isEarned ? "🎓" : "🔒"}
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: "14px", fontWeight: "700", color: (isEarned ? "var(--text-primary)" : "var(--text-muted)"), lineHeight: "1.4", marginBottom: "4px" }}>
-                            {cert.title}
-                          </div>
-                          <div style={{ fontSize: "11px", color: isEarned ? cert.color : ("var(--text-muted)"), fontFamily: "Orbitron, sans-serif", fontWeight: "700" }}>
-                            {cert.courseName}
-                          </div>
-                        </div>
-                        {/* VALID / LOCKED badge */}
-                        {isEarned ? (
-                          <div style={{
-                            background: cert.color, color: "var(--bg-primary)",
-                            fontSize: "9px", fontWeight: "900",
-                            padding: "4px 10px", borderRadius: "20px",
-                            fontFamily: "Orbitron, sans-serif", letterSpacing: "1px",
-                            boxShadow: `0 0 10px ${cert.color}80`, flexShrink: 0,
-                          }}>✓ VALID</div>
-                        ) : (
-                          <div style={{
-                            background: "var(--border-color)",
-                            color: "var(--text-muted)",
-                            fontSize: "9px", fontWeight: "900",
-                            padding: "4px 10px", borderRadius: "20px",
-                            fontFamily: "Orbitron, sans-serif", letterSpacing: "1px", flexShrink: 0,
-                          }}>🔒 LOCKED</div>
-                        )}
-                      </div>
-
-                      {/* Card body */}
-                      <div style={{ padding: "16px 20px" }}>
-                        {isEarned ? (
-                          <>
-                            {/* Issue date */}
-                            <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "6px" }}>
-                              📅 Issued: <strong style={{ color: "var(--text-secondary)" }}>{dateFormatted}</strong>
+                  <div className="popularAppsGrid">
+                    {popularApps.map((app) => {
+                      const isConnected = connectedApps.some((a) => a.id === app.id);
+                      return (
+                        <div key={app.id} className="appCard">
+                          <div className="appHeaderRow">
+                            <span className="appLogoIcon">{app.icon}</span>
+                            <div>
+                              <h5>{app.name}</h5>
+                              <p>{app.desc}</p>
                             </div>
-                            {/* Verification ID */}
-                            <div style={{
-                              fontSize: "11px", fontFamily: "Orbitron, sans-serif",
-                              color: cert.color, fontWeight: "700", letterSpacing: "1px",
-                              marginBottom: "14px",
-                            }}>
-                              VERIFICATION: {cert.id}
-                            </div>
-                            {/* Module topics */}
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "16px" }}>
-                              {cert.topics.map(t => (
-                                <span key={t} style={{
-                                  background: `${cert.color}15`, border: `1px solid ${cert.color}30`,
-                                  color: cert.color, padding: "3px 9px",
-                                  borderRadius: "20px", fontSize: "11px", fontWeight: "700",
-                                }}>{t}</span>
-                              ))}
-                            </div>
-                            {/* View Certificate button */}
                             <button
-                              type="button"
-                              onClick={() => window.location.href = "/certificate"}
-                              style={{
-                                width: "100%",
-                                background: `linear-gradient(90deg, ${cert.color}20, ${cert.color}08)`,
-                                border: `1px solid ${cert.color}`,
-                                color: cert.color,
-                                padding: "9px 16px",
-                                borderRadius: "10px",
-                                fontSize: "13px",
-                                fontWeight: "700",
-                                cursor: "pointer",
-                                fontFamily: "Orbitron, sans-serif",
-                                letterSpacing: "0.5px",
-                                boxShadow: `0 0 10px ${cert.color}30`,
-                                transition: "all 0.2s",
-                              }}
+                              className={`btnConnectApp ${isConnected ? "connected" : ""}`}
+                              onClick={() => toggleAppConnection(app)}
                             >
-                              View Certificate →
+                              {isConnected ? "Connected" : "Connect"}
                             </button>
-                          </>
-                        ) : (
-                          <>
-                            {/* Progress bar */}
-                            <div style={{ marginBottom: "10px" }}>
-                              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-                                <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>Modules Completed</span>
-                                <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontWeight: "700" }}>{done} / 6</span>
-                              </div>
-                              <div style={{ height: "6px", background: "var(--border-color)", borderRadius: "3px", overflow: "hidden" }}>
-                                <div style={{ height: "100%", width: `${(done / 6) * 100}%`, background: cert.color, borderRadius: "3px", transition: "width 0.5s" }} />
-                              </div>
-                            </div>
-                            <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "14px" }}>
-                              Complete {6 - done} more module{6 - done !== 1 ? "s" : ""} to unlock this certificate
-                            </div>
-                            {/* Module topics */}
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                              {cert.topics.map((t, i) => (
-                                <span key={t} style={{
-                                  background: i < done ? `${cert.color}15` : (isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)"),
-                                  border: i < done ? `1px solid ${cert.color}30` : `1px solid ${"var(--border-subtle)"}`,
-                                  color: i < done ? cert.color : (isDark ? "#334155" : "var(--text-secondary)"),
-                                  padding: "3px 9px",
-                                  borderRadius: "20px", fontSize: "11px", fontWeight: "700",
-                                  textDecoration: i < done ? "none" : "none",
-                                }}>{i < done ? "✓" : ""} {t}</span>
-                              ))}
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })()}
-      </main>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
 
-      <Footer />
+                  <div className="showMoreRow">
+                    <button className="btnShowMore">Show More Apps ▾</button>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Right Sidebar Widgets */}
+              <div className="psRightSidebarCol">
+                
+                {/* About Connected Apps Widget */}
+                <div className="psWidgetCard">
+                  <h4>About Connected Apps</h4>
+
+                  <div className="aboutAppsBox">
+                    <div className="appShieldIcon">📲</div>
+                    <p>Connected apps help you streamline your workflow, track progress, and access your important data all in one place.</p>
+                  </div>
+
+                  <ul className="secChecklist">
+                    <li><FaCheckCircle color="#10B981" /> Secure and encrypted connections</li>
+                    <li><FaCheckCircle color="#10B981" /> Control what data is shared</li>
+                    <li><FaCheckCircle color="#10B981" /> Disconnect anytime you want</li>
+                  </ul>
+                </div>
+
+                {/* Connection Security Widget */}
+                <div className="psWidgetCard">
+                  <div className="widgetTitleRow">
+                    <h4><FaLock color="#F59E0B" /> Connection Security</h4>
+                  </div>
+                  <p className="secSubtext">Your data is safe with us. We never share your data with third-party apps without your permission.</p>
+                  <span className="learnSecurityLink">Learn more about security</span>
+                </div>
+
+                {/* Need Help? Widget */}
+                <div className="helpCenterBox">
+                  <FaHeadset className="headsetIcon" />
+                  <div>
+                    <h5>Need Help?</h5>
+                    <p>Having trouble connecting an app? Visit our Help Center for step-by-step guides and support.</p>
+                  </div>
+                  <button className="btnGoHelpCenter" onClick={() => navigate("/discussions")}>
+                    Go to Help Center
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+          )}
+
+        </div>
+      </div>
+
+      {/* CHANGE PASSWORD MODAL */}
+      {isPasswordModalOpen && (
+        <div className="psModalOverlay" onClick={() => setIsPasswordModalOpen(false)}>
+          <div className="psModalContent" onClick={(e) => e.stopPropagation()}>
+            <button className="btnCloseModal" onClick={() => setIsPasswordModalOpen(false)}>
+              <FaTimes />
+            </button>
+
+            <h3>🔒 Change Password</h3>
+            <p className="modalSub">Enter your current password and a new secure password.</p>
+
+            <div className="inputGroup">
+              <label>Current Password</label>
+              <input type="password" placeholder="Enter current password" />
+            </div>
+
+            <div className="inputGroup">
+              <label>New Password</label>
+              <input type="password" placeholder="Enter new password" />
+            </div>
+
+            <div className="inputGroup">
+              <label>Confirm New Password</label>
+              <input type="password" placeholder="Confirm new password" />
+            </div>
+
+            <div className="modalBtnRow">
+              <button
+                className="btnSavePrimary"
+                onClick={() => {
+                  setIsPasswordModalOpen(false);
+                  setToastMessage("🔑 Password changed successfully!");
+                  setTimeout(() => setToastMessage(""), 4000);
+                }}
+              >
+                Update Password
+              </button>
+              <button className="btnCancelOutline" onClick={() => setIsPasswordModalOpen(false)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DEACTIVATE ACCOUNT MODAL */}
+      {isDeactivateModalOpen && (
+        <div className="psModalOverlay" onClick={() => setIsDeactivateModalOpen(false)}>
+          <div className="psModalContent" onClick={(e) => e.stopPropagation()}>
+            <button className="btnCloseModal" onClick={() => setIsDeactivateModalOpen(false)}>
+              <FaTimes />
+            </button>
+
+            <h3 style={{ color: "#EF4444" }}>⚠️ Deactivate Account</h3>
+            <p className="modalSub">Are you sure you want to deactivate your SkillSphere account? You will be logged out immediately.</p>
+
+            <div className="modalBtnRow">
+              <button
+                className="btnDeactivate"
+                onClick={() => {
+                  setIsDeactivateModalOpen(false);
+                  navigate("/login");
+                }}
+              >
+                Confirm Deactivation
+              </button>
+              <button className="btnCancelOutline" onClick={() => setIsDeactivateModalOpen(false)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <FloatingChatbot />
+      <StudentFooter />
     </div>
   );
 }

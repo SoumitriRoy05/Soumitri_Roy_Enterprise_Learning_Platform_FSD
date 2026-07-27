@@ -1,249 +1,418 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import Background from "../components/Background";
-import DashboardSidebar from "../components/DashboardSidebar";
-import "../styles/studentFeatures.css";
+import PaperPlaneCursor from "../components/PaperPlaneCursor";
+
+import {
+  FaGraduationCap,
+  FaChartLine,
+  FaAward,
+  FaBookOpen,
+  FaTrophy,
+  FaRobot,
+  FaFolder,
+  FaUsers,
+  FaCheckCircle,
+  FaArrowRight,
+  FaGem,
+  FaFacebookF,
+  FaTwitter,
+  FaLinkedinIn,
+  FaInstagram,
+  FaYoutube
+} from "react-icons/fa";
+
+import studentGirlImg from "../assets/student_hub_girl_illustration.png";
+import darkStudentGirlImg from "../assets/dark_student_hub_girl_illustration.png";
+import "../styles/studentHubPage.css";
+import "../styles/footer.css";
+
+const toolsList = [
+  {
+    icon: <FaBookOpen />,
+    title: "Interactive Courses",
+    description: "Engaging lessons with quizzes, hands-on exercises & real-world projects.",
+    actionText: "Browse Courses →",
+    link: "/courses"
+  },
+  {
+    icon: <FaChartLine />,
+    title: "Track Progress",
+    description: "Monitor your progress, strengths, and areas to improve.",
+    actionText: "View Progress →",
+    link: "/progress"
+  },
+  {
+    icon: <FaTrophy />,
+    title: "Achievements",
+    description: "Earn XP, badges, and certificates as you learn and grow.",
+    actionText: "See Achievements →",
+    link: "/student-home"
+  },
+  {
+    icon: <FaRobot />,
+    title: "AI Study Assistant",
+    description: "Get instant help, explanations, and recommendations from our AI assistant.",
+    actionText: "Ask AI Assistant →",
+    link: "/student-home"
+  },
+  {
+    icon: <FaFolder />,
+    title: "Study Resources",
+    description: "Access notes, cheat sheets, eBooks, and curated study materials.",
+    actionText: "Explore Resources →",
+    link: "/learning"
+  },
+  {
+    icon: <FaUsers />,
+    title: "Community",
+    description: "Connect with peers, join discussions, and share knowledge.",
+    actionText: "Join Community →",
+    link: "/discussions"
+  }
+];
 
 export default function StudentFeatures() {
   const navigate = useNavigate();
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const { user, themeMode } = useAuth();
+  const isDarkMode = themeMode === "dark";
 
-  const badgesList = [
-    { name: "🔥 Daily Streak", desc: "Logged in 5 days straight to build momentum", icon: "🔥" },
-    { name: "⚛️ React Master", desc: "Scored 85%+ on the final React Quiz Challenge", icon: "⚛️" },
-    { name: "☕ Java Master", desc: "Scored 85%+ on the final Java OOPs Quiz Challenge", icon: "☕" },
-    { name: "🍃 Spring Boot Master", desc: "Scored 85%+ on the final Spring Boot Quiz Challenge", icon: "🍃" },
-    { name: "🚀 Fast Learner", desc: "Successfully completed any study track in under 3 days", icon: "🚀" },
-    { name: "🏆 Top Performer", desc: "Secured a top 5 rank on the global XP leaderboard", icon: "🏆" },
-    { name: "💻 Code Ninja", desc: "Logged over 10 hours of active code study within modules", icon: "💻" },
-    { name: "🧠 AI Conversationalist", desc: "Asked SphereAI 10+ questions for study support", icon: "🧠" },
-    { name: "🛡️ Security Specialist", desc: "Successfully finished the Spring Boot security segment", icon: "🛡️" },
-    { name: "💎 Elite Coder", desc: "Reached Level 10 or higher in course tracks", icon: "💎" },
-    { name: "🌟 Perfect Quizzer", desc: "Scored 100% on any final track assessment", icon: "🌟" }
-  ];
+  const handleScrollTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
-  const features = [
-    {
-      icon: "🎓",
-      title: "Interactive Study Hub",
-      desc: "Practice core development skills through guided modules in React, Spring Boot, Cybersecurity, and Machine Learning.",
-      bullets: [
-        "Interactive study actions",
-        "Visual completion status indicators",
-        "Granular progress logs"
-      ]
-    },
-    {
-      icon: "⚡",
-      title: "Gamification & XP Matrix",
-      desc: "Earn XP points by completing study blocks, passing checkpoints, and logging in daily to maintain active learning streaks.",
-      bullets: [
-        "Streaks track learning activity",
-        "Level progression multipliers",
-        "Unlock badges as you learn"
-      ]
-    },
-    {
-      icon: "🏆",
-      title: "Live Leaderboards",
-      desc: "Compete with other learners in real-time. Standings re-sort instantly when anyone earns XP points.",
-      bullets: [
-        "Live score sorting standings",
-        "Highlighted active user positions",
-        "Top-3 podium achievements"
-      ]
-    },
-    {
-      icon: "📜",
-      title: "Blockchain Certifications",
-      desc: "Secure, cryptographically signed certifications generated automatically upon completing any course track.",
-      bullets: [
-        "Unique certificate hash keys",
-        "Fast copy-validation controls",
-        "Resume-ready integrations"
-      ]
-    },
-    {
-      icon: "🤖",
-      title: "SphereAI Mentor Chatbot",
-      desc: "An intelligent query console available on every page to answer general questions, recommend paths, or explain topics.",
-      bullets: [
-        "Multi-turn conversation history",
-        "CORS-safe GET endpoint requests",
-        "Topic recommendation chips"
-      ]
-    }
-  ];
+  const studentName = user ? (user.full_name || user.username) : "Priya Sharma";
 
   return (
-    <div className={`sf-features-page ${isSidebarOpen ? 'with-sidebar' : ''}`}>
+    <div className="studentHubPage">
       <Background />
-      <Navbar 
-        toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} 
-        isSidebarOpen={isSidebarOpen} 
-        showSidebarToggle={true} 
-      />
-      <DashboardSidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+      <PaperPlaneCursor />
+      <Navbar />
 
-      <main className="sf-features-content">
-        
-        {/* Page Header */}
-        <section className="sf-features-header">
-          <h1>Student Features Portal</h1>
-          <p>Explore the tools designed to gamify your learning, verify your accomplishments on the blockchain, and help you master technical skills.</p>
+      <main className="studentHubContainer">
+        {/* ── HERO SECTION (3-COLUMN LAYOUT) ── */}
+        <section className="shHeroSection">
+          {/* Left Column */}
+          <div className="shHeroLeft">
+            <div className="shBadge">
+              ★ STUDENT HUB
+            </div>
+
+            <h1>
+              Your Learning Journey <br />
+              <span>Starts Here 🚀</span>
+            </h1>
+
+            <p>
+              Access interactive courses, track your progress, earn rewards,
+              and become industry-ready with SkillSphere.
+            </p>
+
+            <div className="shHeroButtons">
+              <button className="shBtnPrimary" onClick={() => navigate(user ? '/student-home' : '/register')}>
+                Start Learning <FaArrowRight />
+              </button>
+
+              <button className="shBtnSecondary" onClick={() => navigate('/courses')}>
+                Explore Courses
+              </button>
+            </div>
+
+            <div className="shHeroMicroPills">
+              <div className="shMicroPill">
+                <div className="shPillIcon"><FaGraduationCap /></div>
+                <div className="shPillText">
+                  <h5>Learn</h5>
+                  <span>With interactive modules</span>
+                </div>
+              </div>
+
+              <div className="shMicroPill">
+                <div className="shPillIcon"><FaChartLine /></div>
+                <div className="shPillText">
+                  <h5>Track</h5>
+                  <span>Your progress in real-time</span>
+                </div>
+              </div>
+
+              <div className="shMicroPill">
+                <div className="shPillIcon"><FaAward /></div>
+                <div className="shPillText">
+                  <h5>Earn</h5>
+                  <span>Badges & rewards</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Center Column: Female Student Graphic */}
+          <div className="shHeroCenter">
+            <div className="shHeroGraphicWrapper">
+              <img
+                src={isDarkMode ? darkStudentGirlImg : studentGirlImg}
+                alt="Female Student Hub Illustration"
+                className="shHeroGirlImg"
+              />
+            </div>
+          </div>
+
+          {/* Right Column: Student Progress Widget */}
+          <div className="shHeroRight">
+            <div className="studentWelcomeWidget">
+              <div className="welcomeHeader">
+                <h4>Welcome back,</h4>
+                <h3>{studentName} 👋</h3>
+                <p>Keep up the great work!</p>
+              </div>
+
+              <div className="levelProgressBox">
+                <div className="levelLabelRow">
+                  <span className="levelVal">Current Level: Level 21</span>
+                  <span className="pctVal">82%</span>
+                </div>
+
+                <div className="shProgressBarTrack">
+                  <div className="shProgressBarFill"></div>
+                </div>
+
+                <span className="xpMetaText">XP: 4,120 / 5,000</span>
+              </div>
+            </div>
+
+            <div className="miniStatsCardsRow">
+              <div className="shMiniStatCard">
+                <span>Current Streak</span>
+                <strong>27 Days 🔥</strong>
+              </div>
+
+              <div className="shMiniStatCard">
+                <span>Badges Earned</span>
+                <strong>18 🎖️</strong>
+              </div>
+            </div>
+          </div>
         </section>
 
-        {/* Feature Grid */}
-        <div className="sf-features-grid">
-          {features.map((feat, i) => (
-            <div key={i} className="sf-feature-card">
-              <span className="sf-feature-icon">{feat.icon}</span>
-              <h3>{feat.title}</h3>
-              <p>{feat.desc}</p>
-              <ul className="sf-feature-bullets">
-                {feat.bullets.map((b, idx) => (
-                  <li key={idx}>{b}</li>
-                ))}
-              </ul>
+        {/* ── STATS BAR (5 METRICS) ── */}
+        <section className="shStatsBarContainer">
+          <div className="shStatItem">
+            <div className="shStatIconCircle"><FaBookOpen /></div>
+            <div className="shStatText">
+              <strong>14</strong>
+              <span>Courses Enrolled</span>
             </div>
-          ))}
-        </div>
+          </div>
 
-        {/* Badge Progression Sequence Section */}
-        <section className="sf-badge-sequence-section" style={{
-          marginTop: '60px',
-          background: 'rgba(18, 18, 30, 0.75)',
-          backdropFilter: 'blur(12px)',
-          border: "1px solid var(--border-color)",
-          borderRadius: '24px',
-          padding: '40px 30px',
-          boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)'
-        }}>
-          <h2 style={{
-            fontFamily: 'Orbitron, sans-serif',
-            fontSize: '28px',
-            textAlign: 'center',
-            marginBottom: '10px',
-            background: 'linear-gradient(90deg, #00e5ff, #8a2eff)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
-          }}>
-            Badge Achievement Sequence
-          </h2>
-          <p style={{
-            color: 'var(--text-secondary)',
-            fontSize: '16px',
-            textAlign: 'center',
-            marginBottom: '40px',
-            maxWidth: '600px',
-            margin: '0 auto 40px auto'
-          }}>
-            Earn and unlock these cyber-badges sequentially as you progress through study milestones, daily quests, and final track assessments.
-          </p>
+          <div className="shStatItem">
+            <div className="shStatIconCircle"><FaCheckCircle /></div>
+            <div className="shStatText">
+              <strong>6</strong>
+              <span>Courses Completed</span>
+            </div>
+          </div>
 
-          <div className="badge-sequence-timeline" style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '24px',
-            maxWidth: '800px',
-            margin: '0 auto',
-            position: 'relative',
-            paddingLeft: '15px'
-          }}>
-            {/* Timeline stem vertical connector */}
-            <div style={{
-              position: 'absolute',
-              left: '34px',
-              top: '20px',
-              bottom: '20px',
-              width: '2px',
-              background: 'linear-gradient(180deg, #00e5ff 0%, #8a2eff 50%, #ff00c8 100%)',
-              boxShadow: '0 0 10px rgba(0, 229, 255, 0.5)',
-              zIndex: 1
-            }} />
+          <div className="shStatItem">
+            <div className="shStatIconCircle"><FaAward /></div>
+            <div className="shStatText">
+              <strong>9</strong>
+              <span>Certifications Earned</span>
+            </div>
+          </div>
 
-            {badgesList.map((badge, idx) => (
-              <div 
-                key={idx} 
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '20px',
-                  background: 'rgba(18, 18, 28, 0.8)',
-                  backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(0, 229, 255, 0.1)',
-                  borderRadius: '20px',
-                  padding: '24px',
-                  position: 'relative',
-                  zIndex: 2,
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
-                  transition: 'all 0.3s ease',
-                  cursor: 'default'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(0, 229, 255, 0.4)';
-                  e.currentTarget.style.boxShadow = '0 0 15px rgba(0, 229, 255, 0.2)';
-                  e.currentTarget.style.transform = 'translateX(8px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(0, 229, 255, 0.1)';
-                  e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.2)';
-                  e.currentTarget.style.transform = 'none';
-                }}
-              >
-                <div style={{
-                  background: 'rgba(0, 229, 255, 0.12)',
-                  border: '1px solid rgba(0, 229, 255, 0.3)',
-                  color: '#00e5ff',
-                  borderRadius: '50%',
-                  width: '40px',
-                  height: '40px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontFamily: 'Orbitron',
-                  fontWeight: '800',
-                  fontSize: '14px',
-                  flexShrink: 0,
-                  boxShadow: '0 0 10px rgba(0, 229, 255, 0.1)'
-                }}>
-                  {idx + 1}
-                </div>
-                <span style={{ fontSize: '32px', flexShrink: 0 }}>{badge.icon}</span>
+          <div className="shStatItem">
+            <div className="shStatIconCircle"><FaTrophy /></div>
+            <div className="shStatText">
+              <strong>12,450</strong>
+              <span>Total XP</span>
+            </div>
+          </div>
+
+          <div className="shStatItem">
+            <div className="shStatIconCircle"><FaGem /></div>
+            <div className="shStatText">
+              <strong>Diamond</strong>
+              <span>Your Rank</span>
+            </div>
+          </div>
+        </section>
+
+        {/* ── POWERFUL TOOLS FOR SMART LEARNERS (6 CARDS - 3x2) ── */}
+        <section className="toolsSection">
+          <div className="toolsTag">EVERYTHING YOU NEED TO SUCCEED</div>
+          <h2>Powerful Tools for Smart Learners</h2>
+          <div className="titleUnderline"></div>
+
+          <div className="toolsGrid3x2">
+            {toolsList.map((item, index) => (
+              <div className="toolCard" key={index}>
                 <div>
-                  <h4 style={{
-                    fontFamily: "'Orbitron', sans-serif",
-                    fontSize: '18px',
-                    color: 'var(--text-primary)',
-                    margin: '0 0 4px 0'
-                  }}>{badge.name}</h4>
-                  <p style={{
-                    color: 'var(--text-secondary)',
-                    fontFamily: "'Rajdhani', sans-serif",
-                    fontSize: '15px',
-                    fontWeight: '500',
-                    margin: 0
-                  }}>{badge.desc}</p>
+                  <div className="toolIconCircle">
+                    {item.icon}
+                  </div>
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
                 </div>
+
+                <span
+                  className="toolActionLink"
+                  onClick={() => navigate(item.link)}
+                >
+                  {item.actionText}
+                </span>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Call to action */}
-        <section className="sf-features-cta">
-          <h4>Ready to resume your study path?</h4>
-          <p>Navigate straight back to your workspace console to log new XP points and check your active quest list.</p>
-          <button className="sf-cta-btn" onClick={() => navigate('/student-home')}>
-            Go to Student Home
-          </button>
+        {/* ── YOUR PATH TO SUCCESS (4 STEP BANNER IN SOFT PURPLE) ── */}
+        <section className="pathSection">
+          <div className="pathContainerCard">
+            <div className="pathTag">YOUR PATH TO SUCCESS</div>
+            <h2>Learn. Practice. Achieve. Repeat.</h2>
+
+            <div className="pathStepsGrid">
+              <div className="pathStepItem">
+                <div className="pathIconCircle">
+                  <FaBookOpen />
+                </div>
+                <h4>1. Learn</h4>
+                <p>Explore courses and build your knowledge.</p>
+              </div>
+
+              <div className="pathStepItem">
+                <div className="pathIconCircle">
+                  <FaCheckCircle />
+                </div>
+                <h4>2. Practice</h4>
+                <p>Solve exercises, quizzes & real-world problems.</p>
+              </div>
+
+              <div className="pathStepItem">
+                <div className="pathIconCircle">
+                  <FaChartLine />
+                </div>
+                <h4>3. Track</h4>
+                <p>Monitor your progress and improve consistently.</p>
+              </div>
+
+              <div className="pathStepItem">
+                <div className="pathIconCircle">
+                  <FaAward />
+                </div>
+                <h4>4. Achieve</h4>
+                <p>Earn certificates, badges and become industry-ready.</p>
+              </div>
+            </div>
+          </div>
         </section>
 
+        {/* ── DARK NAVY CTA BANNER ── */}
+        <section className="shCtaSection">
+          <div className="shCtaBanner">
+            <div className="shCtaLeft">
+              <div className="gradCapIllustrationBox">
+                🎓
+              </div>
+              <div className="shCtaText">
+                <h2>Ready to take your learning to the next level?</h2>
+                <p>
+                  Join thousands of learners and start your journey with SkillSphere today!
+                </p>
+              </div>
+            </div>
+
+            <div className="shCtaButtons">
+              <button
+                className="shBtnStartNow"
+                onClick={() => navigate(user ? '/student-home' : '/register')}
+              >
+                Start Learning Now <FaArrowRight />
+              </button>
+
+              <button
+                className="shBtnGoogleCta"
+                onClick={() => navigate('/login')}
+              >
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+                  alt="Google logo"
+                />
+                Continue with Google
+              </button>
+            </div>
+          </div>
+        </section>
       </main>
 
-      <Footer />
+      {/* ── FOOTER MATCHING MOCKUP ── */}
+      <footer className="footerSection">
+        <div className="footerContainer">
+          <div className="footerTopGrid" style={{ gridTemplateColumns: '2fr 1fr 1.2fr 1.2fr' }}>
+            {/* Col 1: Brand */}
+            <div className="footerBrandCol">
+              <Link to="/" className="footerLogo" onClick={handleScrollTop}>
+                <span className="logoIcon">⬢</span>
+                <span>SkillSphere</span>
+              </Link>
+              <p className="footerBrandDesc">
+                Empowering students through smart learning, real-time analytics, and future-ready skills.
+              </p>
+              <div className="socialIconsRow">
+                <a href="#facebook" className="socialIconBtn" aria-label="Facebook"><FaFacebookF /></a>
+                <a href="#twitter" className="socialIconBtn" aria-label="Twitter"><FaTwitter /></a>
+                <a href="#linkedin" className="socialIconBtn" aria-label="LinkedIn"><FaLinkedinIn /></a>
+                <a href="#instagram" className="socialIconBtn" aria-label="Instagram"><FaInstagram /></a>
+                <a href="#youtube" className="socialIconBtn" aria-label="YouTube"><FaYoutube /></a>
+              </div>
+            </div>
+
+            {/* Col 2: Quick Links */}
+            <div>
+              <h4 className="footerColTitle">Quick Links</h4>
+              <ul className="footerLinkList">
+                <li><Link to="/" onClick={handleScrollTop}>Home</Link></li>
+                <li><Link to="/features" onClick={handleScrollTop}>Features</Link></li>
+                <li><Link to="/student-features" onClick={handleScrollTop} style={{ color: '#F9572A', fontWeight: '700' }}>Students Hub</Link></li>
+                <li><Link to="/courses" onClick={handleScrollTop}>Work Hub</Link></li>
+                <li><Link to="/sandbox" onClick={handleScrollTop}>Sandbox</Link></li>
+                <li><Link to="/admin-login" onClick={handleScrollTop}>Admin Portal</Link></li>
+              </ul>
+            </div>
+
+            {/* Col 3: For Students */}
+            <div>
+              <h4 className="footerColTitle">For Students</h4>
+              <ul className="footerLinkList">
+                <li><Link to="/courses" onClick={handleScrollTop}>Courses</Link></li>
+                <li><Link to="/progress" onClick={handleScrollTop}>Track Progress</Link></li>
+                <li><Link to="/student-home" onClick={handleScrollTop}>Leaderboard</Link></li>
+                <li><Link to="/certificate" onClick={handleScrollTop}>Certificates</Link></li>
+                <li><Link to="/student-home" onClick={handleScrollTop}>AI Assistant</Link></li>
+              </ul>
+            </div>
+
+            {/* Col 4: Support */}
+            <div>
+              <h4 className="footerColTitle">Support</h4>
+              <ul className="footerLinkList">
+                <li><Link to="/" onClick={handleScrollTop}>Help Center</Link></li>
+                <li><Link to="/" onClick={handleScrollTop}>FAQs</Link></li>
+                <li><Link to="/" onClick={handleScrollTop}>Contact Support</Link></li>
+                <li><Link to="/" onClick={handleScrollTop}>Privacy Policy</Link></li>
+                <li><Link to="/" onClick={handleScrollTop}>Terms of Service</Link></li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Footer Bottom */}
+          <div className="footerBottomRow">
+            <div>© 2025 SkillSphere. All rights reserved.</div>
+            <div>Made with ❤️ for learners</div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

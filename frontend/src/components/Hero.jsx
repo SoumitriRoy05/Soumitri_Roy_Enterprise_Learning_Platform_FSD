@@ -1,90 +1,18 @@
-// import HeroCard from "./HeroCard";
-// import "../styles/hero.css";
-//
-// export default function Hero() {
-//   return (
-//     <section className="hero">
-//
-//       <div className="heroLeft">
-//
-//         <div className="badge">
-//           🎮 NEW SEASON LIVE • EARN DOUBLE XP
-//         </div>
-//
-//         <h1>
-//           Turn Learning
-//           <br />
-//           Into
-//           <br />
-//           <span>An Epic Quest</span>
-//         </h1>
-//
-//         <p>
-//           Complete assignments, earn XP, unlock achievements and
-//           climb the leaderboard with SkillSphere.
-//         </p>
-//
-//         <div className="heroButtons">
-//
-//           <button className="primaryBtn">
-//             Existing User
-//           </button>
-//
-//           <button className="secondaryBtn">
-//             New User
-//           </button>
-//
-//         </div>
-//
-//         <button className="googleBtn">
-//
-//           <img
-//             src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
-//             alt="Google"
-//           />
-//
-//           Continue with Google
-//
-//         </button>
-//
-//         <div className="stats">
-//
-//           <div>
-//             <h2>12K+</h2>
-//             <span>Students</span>
-//           </div>
-//
-//           <div>
-//             <h2>94%</h2>
-//             <span>Retention</span>
-//           </div>
-//
-//           <div>
-//             <h2>500+</h2>
-//             <span>Schools</span>
-//           </div>
-//
-//         </div>
-//
-//       </div>
-//
-//       <HeroCard />
-//
-//     </section>
-//   );
-// }
-
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import HeroCard from "./HeroCard";
+import { FiArrowRight } from "react-icons/fi";
+import heroIllustration from "../assets/hero_illustration.png";
+import darkHeroIllustration from "../assets/dark_hero_illustration.png";
 import "../styles/hero.css";
 
 export default function Hero() {
-  const { loginWithGoogle } = useAuth();
+  const { loginWithGoogle, themeMode } = useAuth();
   const navigate = useNavigate();
   const [showDevBypass, setShowDevBypass] = useState(false);
   const googleBtnRef = useRef(null);
+  const heroRef = useRef(null);
+  const heroCardRef = useRef(null);
 
   useEffect(() => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -112,7 +40,7 @@ export default function Hero() {
           if (googleBtnRef.current) {
             window.google.accounts.id.renderButton(
               googleBtnRef.current,
-              { theme: 'filled_blue', size: 'large', width: '280' }
+              { theme: 'filled_blue', size: 'large', width: '360' }
             );
           }
         } catch (err) {
@@ -127,6 +55,32 @@ export default function Hero() {
     initGoogleSignIn();
   }, [loginWithGoogle, navigate]);
 
+  // Cursor Parallax Movement for Hero Graphics
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!heroRef.current || !heroCardRef.current) return;
+      const rect = heroRef.current.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+
+      const rotX = (-y / rect.height) * 12;
+      const rotY = (x / rect.width) * 12;
+
+      heroCardRef.current.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) translate3d(${x * 0.03}px, ${y * 0.03}px, 0)`;
+    };
+
+    const section = heroRef.current;
+    if (section) {
+      section.addEventListener("mousemove", handleMouseMove);
+    }
+
+    return () => {
+      if (section) {
+        section.removeEventListener("mousemove", handleMouseMove);
+      }
+    };
+  }, []);
+
   const handleDevBypassClick = async () => {
     const email = window.prompt("⚠️ Running in Mock Dev Mode. Enter email to bypass Google auth:", "student@skillsphere.com");
     if (email) {
@@ -140,123 +94,113 @@ export default function Hero() {
   };
 
   return (
+    <section className="hero" ref={heroRef}>
+      <div className="heroLeft">
+        {/* Badge */}
+        <div className="heroBadge">
+          ★ One Platform. Endless Possibilities.
+        </div>
 
-<section className="hero">
+        {/* Title */}
+        <h1>
+          Learn Today.
+          <span>Lead Tomorrow.</span>
+        </h1>
 
-<div className="heroLeft">
+        {/* Subtitle */}
+        <p>
+          A unified learning platform for students and professionals to gain skills, earn certifications, and accelerate their careers with industry-relevant learning.
+        </p>
 
-<div className="badge">
-🚀 AI Powered Learning & Workforce Platform
-</div>
+        {/* Action Buttons */}
+        <div className="heroButtons">
+          <button className="primaryHeroBtn" onClick={() => navigate('/courses')}>
+            Explore Courses <FiArrowRight />
+          </button>
 
-<h1>
+          <button className="secondaryHeroBtn" onClick={() => navigate('/workforce')}>
+            For Organizations 🏛
+          </button>
+        </div>
 
-Level Up
+        {/* Google Authentication Divider & Button */}
+        <div className="orDivider">
+          <span>OR CONTINUE WITH</span>
+        </div>
 
-<br/>
+        {showDevBypass ? (
+          <button className="googleBtn" onClick={handleDevBypassClick}>
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+              alt="Google logo"
+            />
+            Continue with Google
+          </button>
+        ) : (
+          <div style={{ position: 'relative', display: 'inline-block', width: '100%', maxWidth: '360px' }}>
+            <button className="googleBtn" type="button" style={{ margin: 0, width: '100%' }}>
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+                alt="Google logo"
+              />
+              Continue with Google
+            </button>
+            <div
+              ref={googleBtnRef}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                opacity: 0,
+                overflow: 'hidden',
+                zIndex: 2,
+                cursor: 'pointer'
+              }}
+            ></div>
+          </div>
+        )}
 
-Learning &
+        {/* Social Proof Avatars */}
+        <div className="socialProofRow">
+          <div className="avatarStack">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Learner 1" />
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80" alt="Learner 2" />
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80" alt="Learner 3" />
+            <div className="plusAvatar">+</div>
+          </div>
+          <div className="socialProofText">
+            Join <strong>50,000+</strong> learners from <strong>500+</strong> organizations
+          </div>
+        </div>
+      </div>
 
-<br/>
+      {/* Right Side Moving Illustration with Mouse Parallax Reaction */}
+      <div className="heroRight">
+        <div className="heroIllustrationContainer" ref={heroCardRef} style={{ transition: 'transform 0.15s ease-out' }}>
+          <div className="floatingHeroBadge badgeTopLeft">
+            <span className="badgeIcon">🔥</span>
+            <span>14-Day Streak</span>
+          </div>
 
-<span>Workforce Management</span>
+          <div className="floatingHeroBadge badgeMidRight">
+            <span className="badgeIcon">⚡</span>
+            <span>+500 XP Earned</span>
+          </div>
 
-</h1>
+          <div className="floatingHeroBadge badgeBottomRight">
+            <span className="badgeIcon">🎓</span>
+            <span>Certified Scholar</span>
+          </div>
 
-<p>
-
-One intelligent platform for students,
-professionals, managers and organizations.
-
-Track learning, manage teams,
-earn achievements and monitor performance —
-all in one futuristic workspace.
-
-</p>
-
-<div className="heroButtons">
-
-<button className="primaryBtn" onClick={() => navigate('/register', { state: { role: 'STUDENT', step: 2 } })}>
-
-Student Login
-
-</button>
-
-<button className="secondaryBtn" onClick={() => navigate('/register', { state: { role: 'EMPLOYEE', step: 2 } })}>
-
-Workforce Login
-
-</button>
-
-</div>
-
-{showDevBypass ? (
-  <button className="googleBtn" onClick={handleDevBypassClick}>
-    <img
-      src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
-      alt="google"
-    />
-    Continue with Google
-  </button>
-) : (
-  <div style={{ position: 'relative', display: 'inline-block', marginTop: '25px' }}>
-    <button className="googleBtn" type="button" style={{ margin: 0 }}>
-      <img
-        src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
-        alt="google"
-      />
-      Continue with Google
-    </button>
-    <div
-      ref={googleBtnRef}
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        opacity: 0,
-        overflow: 'hidden',
-        zIndex: 2,
-        cursor: 'pointer'
-      }}
-    ></div>
-  </div>
-)}
-
-<div className="stats">
-
-<div>
-
-<h2>25K+</h2>
-
-<span>Active Learners</span>
-
-</div>
-
-<div>
-
-<h2>98%</h2>
-
-<span>Course Completion</span>
-
-</div>
-
-<div>
-
-<h2>700+</h2>
-
-<span>Organizations</span>
-
-</div>
-
-</div>
-
-</div>
-
-<HeroCard/>
-
-</section>
-
+          <img
+            src={themeMode === "dark" ? darkHeroIllustration : heroIllustration}
+            alt="SkillSphere Learning Platform"
+            className="heroIllustrationImg"
+          />
+        </div>
+      </div>
+    </section>
   );
 }

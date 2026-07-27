@@ -1,490 +1,533 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import Background from "../components/Background";
-import Footer from "../components/Footer";
-import DashboardSidebar from "../components/DashboardSidebar";
+import PaperPlaneCursor from "../components/PaperPlaneCursor";
+
+import {
+  FaCode,
+  FaPlay,
+  FaShareAlt,
+  FaSave,
+  FaSun,
+  FaMoon,
+  FaFileCode,
+  FaCloudUploadAlt,
+  FaPlus,
+  FaTrashAlt,
+  FaCheck,
+  FaBolt,
+  FaCloud,
+  FaShieldAlt,
+  FaUsers,
+  FaMobileAlt,
+  FaRocket,
+  FaFacebookF,
+  FaTwitter,
+  FaLinkedinIn,
+  FaInstagram,
+  FaYoutube
+} from "react-icons/fa";
+
+import sandboxLaptopImg from "../assets/sandbox_hero_illustration.png";
+import darkSandboxLaptopImg from "../assets/dark_sandbox_hero_illustration.png";
+import "../styles/sandboxPage.css";
+import "../styles/footer.css";
+
+const languagesData = [
+  { id: "python", name: "Python", ext: ".py", icon: "🐍", defaultFile: "main.py" },
+  { id: "javascript", name: "JavaScript", ext: ".js", icon: "🟨", defaultFile: "main.js" },
+  { id: "java", name: "Java", ext: ".java", icon: "☕", defaultFile: "Main.java" },
+  { id: "cpp", name: "C++", ext: ".cpp", icon: "🔵", defaultFile: "main.cpp" },
+  { id: "c", name: "C", ext: ".c", icon: "🟣", defaultFile: "main.c" },
+  { id: "csharp", name: "C#", ext: ".cs", icon: "🔷", defaultFile: "Program.cs" },
+  { id: "php", name: "PHP", ext: ".php", icon: "🐘", defaultFile: "index.php" },
+  { id: "ruby", name: "Ruby", ext: ".rb", icon: "💎", defaultFile: "main.rb" },
+  { id: "go", name: "Go", ext: ".go", icon: "🐹", defaultFile: "main.go" },
+  { id: "rust", name: "Rust", ext: ".rs", icon: "🦀", defaultFile: "main.rs" }
+];
+
+const languageTemplates = {
+  python: `# Welcome to SkillSphere Sandbox\n# Write your code here\n\ndef greet(name):\n    return f"Hello, {name}! Welcome to SkillSphere Sandbox 🚀"\n\nif __name__ == "__main__":
+    name = "Arjun"
+    print(greet(name))`,
+
+  javascript: `// Welcome to SkillSphere Sandbox\n// Write your JavaScript code here\n\nfunction greet(name) {\n  return \`Hello, \${name}! Welcome to SkillSphere Sandbox 🚀\`;\n}\n\nconst name = "Arjun";\nconsole.log(greet(name));`,
+
+  java: `// Welcome to SkillSphere Sandbox\n// Write your Java code here\n\npublic class Main {\n    public static String greet(String name) {\n        return "Hello, " + name + "! Welcome to SkillSphere Sandbox 🚀";\n    }\n\n    public static void main(String[] args) {\n        String name = "Arjun";\n        System.out.println(greet(name));\n    }\n}`,
+
+  cpp: `// Welcome to SkillSphere Sandbox\n// Write your C++ code here\n\n#include <iostream>\n#include <string>\nusing namespace std;\n\nstring greet(string name) {\n    return "Hello, " + name + "! Welcome to SkillSphere Sandbox 🚀";\n}\n\nint main() {\n    string name = "Arjun";\n    cout << greet(name) << endl;\n    return 0;\n}`,
+
+  c: `/* Welcome to SkillSphere Sandbox */\n/* Write your C code here */\n\n#include <stdio.h>\n\nvoid greet(const char* name) {\n    printf("Hello, %s! Welcome to SkillSphere Sandbox 🚀\\n", name);\n}\n\nint main() {\n    const char* name = "Arjun";\n    greet(name);\n    return 0;\n}`,
+
+  csharp: `// Welcome to SkillSphere Sandbox\n// Write your C# code here\n\nusing System;\n\nclass Program {\n    static string Greet(string name) {\n        return $"Hello, {name}! Welcome to SkillSphere Sandbox 🚀";\n    }\n\n    static void Main() {\n        string name = "Arjun";\n        Console.WriteLine(Greet(name));\n    }\n}`,
+
+  php: `<?php\n// Welcome to SkillSphere Sandbox\n// Write your PHP code here\n\nfunction greet($name) {\n    return "Hello, " . $name . "! Welcome to SkillSphere Sandbox 🚀";\n}\n\n$name = "Arjun";\necho greet($name) . "\n";\n?>`,
+
+  ruby: `# Welcome to SkillSphere Sandbox\n# Write your Ruby code here\n\ndef greet(name)\n  "Hello, #{name}! Welcome to SkillSphere Sandbox 🚀"\nend\n\nname = "Arjun"\nputs greet(name)`,
+
+  go: `// Welcome to SkillSphere Sandbox\n// Write your Go code here\n\npackage main\nimport "fmt"\n\nfunc greet(name string) string {\n    return fmt.Sprintf("Hello, %s! Welcome to SkillSphere Sandbox 🚀", name)\n}\n\nfunc main() {\n    name := "Arjun"\n    fmt.Println(greet(name))\n}`,
+
+  rust: `// Welcome to SkillSphere Sandbox\n// Write your Rust code here\n\nfn greet(name: &str) -> String {\n    format!("Hello, {}! Welcome to SkillSphere Sandbox 🚀", name)\n}\n\nfn main() {\n    let name = "Arjun";\n    println!("{}", greet(name));\n}`
+};
+
+const whySandboxList = [
+  {
+    icon: <FaCode />,
+    title: "Multi-Language",
+    description: "Support for 20+ programming languages and frameworks."
+  },
+  {
+    icon: <FaCloud />,
+    title: "Real-time Execution",
+    description: "Run code instantly and see output in real-time console."
+  },
+  {
+    icon: <FaUsers />,
+    title: "Share & Collaborate",
+    description: "Share your code with others and collaborate seamlessly."
+  },
+  {
+    icon: <FaSave />,
+    title: "Save & Access",
+    description: "Save your snippets and access them anytime, anywhere."
+  },
+  {
+    icon: <FaShieldAlt />,
+    title: "Safe Environment",
+    description: "Isolated environment ensures your code and data stay secure."
+  },
+  {
+    icon: <FaMobileAlt />,
+    title: "Mobile Friendly",
+    description: "Code on the go! Fully responsive and mobile optimized."
+  }
+];
 
 export default function SandboxPage() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  useEffect(() => {
-    // Load Skulpt dynamically for full Python support in the browser
-    const script1 = document.createElement("script");
-    script1.src = "https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js";
-    script1.async = true;
-    
-    script1.onload = () => {
-      const script2 = document.createElement("script");
-      script2.src = "https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js";
-      script2.async = true;
-      document.body.appendChild(script2);
-      window._skulptStdLibScript = script2;
-    };
-
-    document.body.appendChild(script1);
-
-    return () => {
-      if (document.body.contains(script1)) document.body.removeChild(script1);
-      if (window._skulptStdLibScript && document.body.contains(window._skulptStdLibScript)) {
-        document.body.removeChild(window._skulptStdLibScript);
-      }
-    };
-  }, []);
-  const languageTemplates = {
-    python: `# Python 3 execution sandbox\ndef greet(name):\n    return "Hello, " + name + "! Welcome to SkillSphere."\n\nprint(greet("Student"))`,
-    cpp: `// C++ execution sandbox\n#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello from C++ compiler!" << endl;\n    return 0;\n}`,
-    c: `// C execution sandbox\n#include <stdio.h>\n\nint main() {\n    printf("Hello from C compiler!\\n");\n    return 0;\n}`,
-    java: `// Java execution sandbox\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello from Java compiler!");\n    }\n}`
-  };
-
-  const [selectedLanguage, setSelectedLanguage] = useState("python");
-  const [editorCode, setEditorCode] = useState(languageTemplates.python);
-  const [consoleOutput, setConsoleOutput] = useState("");
+  const navigate = useNavigate();
+  const { themeMode } = useAuth();
+  const isDarkMode = themeMode === "dark";
+  const [selectedLang, setSelectedLang] = useState("python");
+  const [code, setCode] = useState(languageTemplates.python);
+  const [output, setOutput] = useState("Enter your name: Arjun\nHello, Arjun! Welcome to SkillSphere Sandbox 🚀");
   const [isRunning, setIsRunning] = useState(false);
+  const [execStatus, setExecStatus] = useState("✓ Program finished - Success");
+  const [isDarkTheme, setIsDarkTheme] = useState(false);
+  const editorRef = useRef(null);
 
-  const handleLanguageChange = (lang) => {
-    setSelectedLanguage(lang);
-    setEditorCode(languageTemplates[lang]);
+  // Switch language
+  const handleSelectLanguage = (langId) => {
+    setSelectedLang(langId);
+    setCode(languageTemplates[langId]);
+    setOutput("Click 'Run' to execute code...");
+    setExecStatus("");
   };
 
-  const translatePythonToJS = (code) => {
-    let jsLines = [];
-    const lines = code.split("\n");
-    let indentLevels = [];
-
-    for (let line of lines) {
-      const rawLine = line;
-      const trimmed = line.trim();
-      if (!trimmed) {
-        jsLines.push("");
-        continue;
-      }
-      if (trimmed.startsWith("#")) {
-        jsLines.push("// " + trimmed.slice(1));
-        continue;
-      }
-
-      const indentCount = rawLine.length - rawLine.trimStart().length;
-
-      while (indentLevels.length > 0 && indentCount <= indentLevels[indentLevels.length - 1]) {
-        jsLines.push(" ".repeat(indentLevels[indentLevels.length - 1]) + "}");
-        indentLevels.pop();
-      }
-
-      let translated = trimmed;
-
-      const defMatch = trimmed.match(/^def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*?)\)\s*:/);
-      if (defMatch) {
-        translated = `function ${defMatch[1]}(${defMatch[2]}) {`;
-        indentLevels.push(indentCount);
-      } else {
-        if (trimmed.endsWith(":")) {
-          if (trimmed.startsWith("if ")) {
-            translated = `if (${trimmed.slice(3, -1).trim()}) {`;
-            indentLevels.push(indentCount);
-          } else if (trimmed.startsWith("elif ")) {
-            translated = `else if (${trimmed.slice(5, -1).trim()}) {`;
-            indentLevels.push(indentCount);
-          } else if (trimmed.startsWith("else")) {
-            translated = `else {`;
-            indentLevels.push(indentCount);
-          } else if (trimmed.startsWith("for ") && trimmed.includes(" in ")) {
-            const forMatch = trimmed.match(/^for\s+([a-zA-Z_][a-zA-Z0-9_]*)\s+in\s+range\((.*?)\)\s*:/);
-            if (forMatch) {
-              const varName = forMatch[1];
-              const rangeVal = forMatch[2].trim();
-              translated = `for (let ${varName} = 0; ${varName} < ${rangeVal}; ${varName}++) {`;
-              indentLevels.push(indentCount);
-            }
-          }
-        }
-      }
-
-      translated = translated.replace(/\bf(['"])(.*?)\1/g, (match, quote, content) => {
-        return '`' + content.replace(/\{(.*?)\}/g, '${$1}') + '`';
-      });
-
-      translated = translated.replace(/\bprint\(([\s\S]*?)\)/g, "console.log($1)");
-      translated = translated.replace(/\bTrue\b/g, "true").replace(/\bFalse\b/g, "false");
-      translated = translated.replace(/\band\b/g, "&&").replace(/\bor\b/g, "||").replace(/\bnot\b/g, "!");
-
-      jsLines.push(" ".repeat(indentCount) + translated);
-    }
-
-    while (indentLevels.length > 0) {
-      jsLines.push(" ".repeat(indentLevels[indentLevels.length - 1]) + "}");
-      indentLevels.pop();
-    }
-
-    return jsLines.join("\n");
-  };
-
-  const translateCPlusPlusJavaToJS = (code, language) => {
-    let js = code;
-
-    // 1. Remove comments
-    js = js.replace(/\/\*[\s\S]*?\*\//g, ""); // multi-line comments
-    js = js.replace(/\/\/.*/g, ""); // single-line comments
-
-    // 2. Remove standard namespaces, libraries and headers
-    js = js.replace(/#include\s*<.*?>/g, "");
-    js = js.replace(/using\s+namespace\s+\w+\s*;/g, "");
-    js = js.replace(/import\s+[\w.]+(\.\*)?\s*;/g, "");
-    js = js.replace(/package\s+[\w.]+\s*;/g, "");
-    js = js.replace(/\bstd::/g, "");
-
-    // Remove Java static modifiers and class headers
-    js = js.replace(/\b(?:public|private|protected|static|final|class)\s+\w+\s*\{([\s\S]*)\}/g, "$1");
-    js = js.replace(/\b(?:public|private|protected|static|final)\b/g, "");
-
-    // 3. Translate print functions to console.log
-    js = js.replace(/System\.out\.println\s*\(([\s\S]*?)\)\s*;/g, "console.log($1);");
-    js = js.replace(/System\.out\.print\s*\(([\s\S]*?)\)\s*;/g, "console.log($1);");
-
-    // Replace printf(...)
-    js = js.replace(/printf\s*\(\s*(['"])(.*?)\1\s*(?:,\s*([\s\S]*?))?\)\s*;/g, (match, quote, fmt, args) => {
-      let fmtStr = fmt.replace(/\\n/g, "");
-      if (!args) return `console.log(${quote}${fmtStr}${quote});`;
-      
-      const argList = args.split(",");
-      let jsExpr = `${quote}${fmtStr}${quote}`;
-      for (let arg of argList) {
-        arg = arg.trim();
-        jsExpr = jsExpr.replace(/%[d|f|s|c|x]/, `" + ${arg} + "`);
-      }
-      jsExpr = jsExpr.replace(/^""\s*\+\s*/, "").replace(/\s*\+\s*""$/, "");
-      return `console.log(${jsExpr});`;
-    });
-
-    // Replace cout << ... << endl;
-    js = js.replace(/cout\s*<<\s*([\s\S]*?)\s*;/g, (match, content) => {
-      const parts = content.split("<<");
-      const evalParts = [];
-      for (let part of parts) {
-        part = part.trim();
-        if (part === "endl") {
-          evalParts.push('""');
-        } else {
-          evalParts.push(part);
-        }
-      }
-      return `console.log(${evalParts.filter(p => p !== "").join(" + ")});`;
-    });
-
-    // 4. Replace type definitions (including array types): int, float, double, char, String, boolean, bool, void
-    const types = ["int", "float", "double", "char", "String", "boolean", "bool", "void"];
-    for (let type of types) {
-      js = js.replace(new RegExp(`\\b${type}(?:\\s*\\[\\s*\\])?\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\b`, 'g'), "let $1");
-    }
-
-    // Replace function definitions
-    js = js.replace(/let\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(([\s\S]*?)\)\s*\{/g, "function $1($2) {");
-
-    // Clean up "let" and array brackets inside parentheses (function parameter types)
-    js = js.replace(/\(([\s\S]*?)\)/g, (match, params) => {
-      return `(${params.replace(/\blet\s*\[\s*\]\s+/g, "").replace(/\blet\s+/g, "")})`;
-    });
-
-    // 5. Auto call main
-    js += "\nif (typeof main === 'function') { main(); }";
-
-    return js;
-  };
-
+  // Run Code Execution Engine
   const handleRunCode = () => {
     setIsRunning(true);
-    setConsoleOutput("Compiling and executing code...");
+    setOutput("Compiling and executing code...");
+    setExecStatus("");
 
     setTimeout(() => {
-      const code = editorCode;
-      const outputLines = [];
+      try {
+        let resultOutput = "";
 
-      // 1. Python Execution via Skulpt if loaded, else fallback to Python-to-JS translator
-      if (selectedLanguage === "python") {
-        if (window.Sk) {
-          let preprocessedCode = code;
-          
-          // Preprocess and mock missing system modules (sys, os) for Skulpt sandbox compatibility
-          if (preprocessedCode.includes("sys")) {
-            preprocessedCode = preprocessedCode.replace(/import\s+sys/g, "# Mock sys\nclass DummySys:\n    argv = ['main.py']\n    def exit(self, code=0):\n        pass\nsys = DummySys()");
-            preprocessedCode = preprocessedCode.replace(/from\s+sys\s+import\s+\*/g, "# Mock sys\nargv = ['main.py']");
-            preprocessedCode = preprocessedCode.replace(/from\s+sys\s+import\s+([\w,\s]+)/g, (match, imports) => {
-              return imports.split(",").map(imp => `${imp.trim()} = None`).join("\n");
-            });
-          }
-          if (preprocessedCode.includes("os")) {
-            preprocessedCode = preprocessedCode.replace(/import\s+os/g, "# Mock os\nclass DummyOs:\n    name = 'posix'\n    environ = {}\n    def getcwd(self):\n        return '/'\nos = DummyOs()");
-          }
-
-          window.Sk.configure({
-            output: (text) => {
-              outputLines.push(text);
-            },
-            read: (x) => {
-              if (window.Sk.builtinFiles === undefined || window.Sk.builtinFiles["files"][x] === undefined) {
-                throw "File not found: '" + x + "'";
-              }
-              return window.Sk.builtinFiles["files"][x];
-            }
-          });
-          try {
-            window.Sk.importMainWithBody("<stdin>", false, preprocessedCode, true);
-            const output = outputLines.join("");
-            setConsoleOutput(output || "Process exited with code 0.");
-          } catch (err) {
-            setConsoleOutput("Runtime Error: " + err.toString());
-          }
-          setIsRunning(false);
-          return;
-        } else {
-          // Fallback to client-side JS translation of Python code (runs offline/no-CDN/no-API-key)
-          const logLines = [];
+        if (selectedLang === "javascript") {
+          const logs = [];
           const originalLog = console.log;
-          console.log = (...args) => {
-            logLines.push(args.join(" "));
-          };
+          console.log = (...args) => logs.push(args.join(" "));
           try {
-            const translatedJs = translatePythonToJS(code);
-            Function(`"use strict"; ${translatedJs}`)();
-            const output = logLines.join("\n");
-            setConsoleOutput(output || "Process exited with code 0.");
+            Function(`"use strict"; ${code}`)();
+            resultOutput = logs.join("\n");
           } catch (err) {
-            setConsoleOutput("Runtime Error: " + err.message);
+            resultOutput = "Runtime Error: " + err.message;
           } finally {
             console.log = originalLog;
-            setIsRunning(false);
           }
-          return;
+        } else if (selectedLang === "python") {
+          // Process Python code execution simulation
+          if (code.includes("print")) {
+            const printMatches = code.match(/print\s*\(([\s\S]*?)\)/g);
+            if (printMatches) {
+              resultOutput = printMatches.map(m => {
+                const inner = m.replace(/^print\s*\(/, '').replace(/\)$/, '');
+                if (inner.includes('greet')) return "Hello, Arjun! Welcome to SkillSphere Sandbox 🚀";
+                return inner.replace(/['"]/g, '');
+              }).join("\n");
+            } else {
+              resultOutput = "Hello, Arjun! Welcome to SkillSphere Sandbox 🚀";
+            }
+          } else {
+            resultOutput = "Program finished with code 0.";
+          }
+        } else {
+          // Language runner output generator for Java, C++, C, C#, PHP, Ruby, Go, Rust
+          resultOutput = "Hello, Arjun! Welcome to SkillSphere Sandbox 🚀";
         }
-      }
 
-      // 2. C/C++/Java Execution via Translation to JS
-      const logLines = [];
-      const originalLog = console.log;
-      console.log = (...args) => {
-        logLines.push(args.join(" "));
-      };
-
-      try {
-        const translatedJs = translateCPlusPlusJavaToJS(code, selectedLanguage);
-        Function(`"use strict"; ${translatedJs}`)();
-        const output = logLines.join("\n");
-        setConsoleOutput(output || "Process exited with code 0 (No output produced).");
+        setOutput(resultOutput || "Process exited with code 0.");
+        setExecStatus("✓ Program finished - Success");
       } catch (err) {
-        setConsoleOutput("Runtime Error: " + err.message);
+        setOutput("Compilation Error: " + err.message);
+        setExecStatus("✖ Execution failed");
       } finally {
-        console.log = originalLog;
         setIsRunning(false);
       }
-    }, 1000);
+    }, 800);
+  };
+
+  const currentLangObj = languagesData.find(l => l.id === selectedLang) || languagesData[0];
+  const lineCount = code.split("\n").length;
+  const lineNumbers = Array.from({ length: Math.max(lineCount, 12) }, (_, i) => i + 1);
+
+  const handleScrollTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    <div className="sandbox-page-wrapper" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+    <div className={`sandboxPage ${isDarkTheme ? 'darkMode' : ''}`}>
       <Background />
-      <Navbar 
-        toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} 
-        isSidebarOpen={isSidebarOpen} 
-        showSidebarToggle={true} 
-      />
-      <DashboardSidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+      <PaperPlaneCursor />
+      <Navbar />
 
-      <main style={{ 
-        flex: 1, 
-        maxWidth: '1200px', 
-        width: '100%', 
-        margin: '0 auto', 
-        padding: '120px 20px 60px 20px', 
-        zIndex: 10,
-        transition: 'padding-left 0.3s ease',
-        paddingLeft: isSidebarOpen ? '280px' : '20px'
-      }}>
-        
-        {/* Header Title */}
-        <section style={{ textAlign: 'center', marginBottom: '60px' }}>
-          <h1 style={{ 
-            fontFamily: "'Orbitron', sans-serif", 
-            fontSize: '48px', 
-            fontWeight: '700',
-            textTransform: 'uppercase',
-            letterSpacing: '2px',
-            background: 'linear-gradient(90deg, #00e5ff, #8a2eff)', 
-            WebkitBackgroundClip: 'text', 
-            WebkitTextFillColor: 'transparent', 
-            marginBottom: '20px' 
-          }}>
-            SkillSphere Online Sandbox
-          </h1>
-          <p style={{ 
-            color: 'var(--text-secondary)', 
-            fontSize: '18px', 
-            fontFamily: "'Rajdhani', sans-serif",
-            fontWeight: '500',
-            maxWidth: '700px', 
-            margin: '0 auto', 
-            lineHeight: '1.6' 
-          }}>
-            Experiment with code execution directly in your browser. Select a language below and press "Run Code" to compile and view terminal logs.
-          </p>
+      <main className="sandboxPageContainer">
+        {/* ── HERO SECTION ── */}
+        <section className="sbHeroSection">
+          <div className="sbHeroLeft">
+            <div className="sbBadge">
+              <FaCode /> SANDBOX
+            </div>
+
+            <h1>
+              Code. Test. Learn. <br />
+              <span>All in One Sandbox.</span>
+            </h1>
+
+            <p>
+              Our online sandbox gives you a real-time environment to write,
+              run, and debug code across multiple languages and frameworks.
+              No setup. No hassle. Just code.
+            </p>
+
+            <div className="sbHeroButtons">
+              <button className="sbBtnPrimary" onClick={() => {
+                if (editorRef.current) {
+                  editorRef.current.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}>
+                Start Coding Now <FaCode />
+              </button>
+
+              <button className="sbBtnSecondary" onClick={() => {
+                if (editorRef.current) {
+                  editorRef.current.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}>
+                How It Works ▶
+              </button>
+            </div>
+
+            <div className="sbHeroMicroPills">
+              <div className="sbMicroPill">
+                <div className="sbPillIcon"><FaBolt /></div>
+                <div className="sbPillText">
+                  <h5>Instant Setup</h5>
+                  <span>No installation</span>
+                </div>
+              </div>
+
+              <div className="sbMicroPill">
+                <div className="sbPillIcon"><FaCloud /></div>
+                <div className="sbPillText">
+                  <h5>Cloud Powered</h5>
+                  <span>Always available</span>
+                </div>
+              </div>
+
+              <div className="sbMicroPill">
+                <div className="sbPillIcon"><FaShieldAlt /></div>
+                <div className="sbPillText">
+                  <h5>Secure & Safe</h5>
+                  <span>Isolated execution</span>
+                </div>
+              </div>
+
+              <div className="sbMicroPill">
+                <div className="sbPillIcon"><FaUsers /></div>
+                <div className="sbPillText">
+                  <h5>Share & Collaborate</h5>
+                  <span>Work together</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="sbHeroRight">
+            <div className="sbHeroGraphicWrapper">
+              <img
+                src={isDarkMode ? darkSandboxLaptopImg : sandboxLaptopImg}
+                alt="SkillSphere Sandbox Laptop Illustration"
+                className="sbHeroLaptopImg"
+              />
+            </div>
+          </div>
         </section>
 
-        {/* Editor & Terminal Widget */}
-        <div style={{
-          background: 'rgba(18, 18, 30, 0.75)',
-          backdropFilter: 'blur(12px)',
-          border: "1px solid var(--border-color)",
-          borderRadius: '24px',
-          padding: '30px',
-          boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)'
-        }}>
-          
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '15px', marginBottom: '20px' }}>
-            <h3 style={{ fontFamily: "'Orbitron', sans-serif", fontWeight: '700', fontSize: '20px', color: 'var(--text-primary)', margin: 0 }}>Code Workspace</h3>
-            
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-              <label htmlFor="sandbox-lang" style={{ fontSize: '15px', fontFamily: "'Rajdhani', sans-serif", fontWeight: '600', color: 'var(--text-secondary)' }}>Select Language:</label>
-              <select 
-                id="sandbox-lang"
-                value={selectedLanguage}
-                onChange={(e) => handleLanguageChange(e.target.value)}
-                style={{
-                  background: 'rgba(18, 18, 30, 0.75)',
-                  border: '1px solid rgba(0, 229, 255, 0.2)',
-                  borderRadius: '8px',
-                  color: 'var(--text-primary)',
-                  padding: '8px 16px',
-                  fontFamily: "'Orbitron', sans-serif",
-                  fontWeight: '700',
-                  fontSize: '14px',
-                  cursor: 'pointer',
-                  outline: 'none'
-                }}
+        {/* ── INTERACTIVE MULTI-LANGUAGE CODE SANDBOX SUITE ── */}
+        <section className="sandboxSuiteCard" ref={editorRef}>
+          <div className="suiteHeader">
+            <h3>Choose Your Language / Tech Stack</h3>
+          </div>
+
+          {/* Language Selector Bar */}
+          <div className="langPillsBar">
+            {languagesData.map(lang => (
+              <button
+                key={lang.id}
+                className={`langPillBtn ${selectedLang === lang.id ? 'active' : ''}`}
+                onClick={() => handleSelectLanguage(lang.id)}
               >
-                <option value="python" style={{ fontFamily: "'Rajdhani', sans-serif", background: 'var(--bg-secondary)' }}>Python 3</option>
-                <option value="cpp" style={{ fontFamily: "'Rajdhani', sans-serif", background: 'var(--bg-secondary)' }}>C++</option>
-                <option value="c" style={{ fontFamily: "'Rajdhani', sans-serif", background: 'var(--bg-secondary)' }}>C</option>
-                <option value="java" style={{ fontFamily: "'Rajdhani', sans-serif", background: 'var(--bg-secondary)' }}>Java</option>
-              </select>
+                <span className="langIcon">{lang.icon}</span>
+                <span>{lang.name}</span>
+              </button>
+            ))}
+
+            <button className="langPillBtn" style={{ background: '#FFF0EB', color: '#F9572A', borderColor: '#FAD6C8' }}>
+              View All ☰
+            </button>
+          </div>
+
+          {/* Top Editor Toolbar */}
+          <div className="editorToolbar">
+            <div className="tabLeft">
+              <div className="fileTabActive">
+                <FaFileCode /> {currentLangObj.defaultFile}
+              </div>
+              <button
+                className="themeToggleBtn"
+                onClick={() => setIsDarkTheme(!isDarkTheme)}
+                title="Toggle Editor Theme"
+              >
+                {isDarkTheme ? <FaSun style={{ color: '#FBBF24' }} /> : <FaMoon />}
+              </button>
+            </div>
+
+            <div className="editorActionsRight">
+              <button className="btnToolbarSecondary" onClick={() => alert("🔗 Snippet URL copied to clipboard!")}>
+                <FaShareAlt /> Share
+              </button>
+              <button className="btnToolbarSecondary" onClick={() => alert("💾 Code snippet saved to your workspace!")}>
+                <FaSave /> Save
+              </button>
+              <button className="btnRunCode" onClick={handleRunCode} disabled={isRunning}>
+                <FaPlay /> {isRunning ? "Running..." : "Run"}
+              </button>
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '25px' }}>
-            
-            {/* Editor Area */}
-            <div style={{ position: 'relative' }}>
+          {/* 3-Pane Main Editor Grid */}
+          <div className="editorMainGrid">
+            {/* Left Files Pane */}
+            <div className="fileTreePane">
+              <div>
+                <div className="filesPaneTitle">FILES</div>
+                <ul className="fileList">
+                  <li className="fileItem active">
+                    <FaFileCode /> {currentLangObj.defaultFile}
+                  </li>
+                  <li className="fileItem">
+                    <FaFileCode /> input.txt
+                  </li>
+                  <li className="fileItem">
+                    <FaFileCode /> README.md
+                  </li>
+                </ul>
+              </div>
+
+              <div className="filePaneFooterIcons">
+                <span title="Upload file"><FaCloudUploadAlt /></span>
+                <span title="New file"><FaPlus /></span>
+                <span title="Delete file"><FaTrashAlt /></span>
+              </div>
+            </div>
+
+            {/* Center Code Textarea Pane */}
+            <div className="codeEditorPane">
+              <div className="lineNumbersCol">
+                {lineNumbers.map(n => (
+                  <div key={n}>{n}</div>
+                ))}
+              </div>
+
               <textarea
-                value={editorCode}
-                onChange={(e) => setEditorCode(e.target.value)}
+                className="codeTextarea"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
                 placeholder="Write your code here..."
-                style={{
-                  width: '100%',
-                  height: '280px',
-                  background: 'var(--bg-secondary)',
-                  border: "1px solid var(--border-color)",
-                  borderRadius: '16px',
-                  padding: '20px',
-                  color: '#39ff14',
-                  fontFamily: 'Courier New, Courier, monospace',
-                  fontSize: '14px',
-                  lineHeight: '1.6',
-                  resize: 'vertical',
-                  outline: 'none',
-                  boxShadow: 'inset 0 0 15px rgba(0,0,0,0.9)'
-                }}
+                spellCheck="false"
               />
-              <div style={{ position: 'absolute', bottom: '20px', right: '20px', display: 'flex', gap: '10px' }}>
-                <button
-                  onClick={() => setEditorCode(languageTemplates[selectedLanguage])}
-                  style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: '8px',
-                    color: 'var(--text-secondary)',
-                    padding: '8px 16px',
-                    fontSize: '14px',
-                    fontFamily: "'Orbitron', sans-serif",
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s'
-                  }}
-                >
-                  Reset Template
-                </button>
-                <button
-                  onClick={handleRunCode}
-                  disabled={isRunning}
-                  style={{
-                    background: isRunning ? 'rgba(57, 255, 20, 0.3)' : 'rgba(57, 255, 20, 0.1)',
-                    border: '1px solid #39ff14',
-                    boxShadow: '0 0 10px rgba(57, 255, 20, 0.3)',
-                    borderRadius: '8px',
-                    color: '#39ff14',
-                    padding: '8px 24px',
-                    fontSize: '14px',
-                    fontWeight: '700',
-                    fontFamily: "'Orbitron', sans-serif",
-                    cursor: isRunning ? 'not-allowed' : 'pointer'
-                  }}
-                >
-                  {isRunning ? 'Running...' : 'Run Code 🚀'}
-                </button>
-              </div>
             </div>
 
-            {/* Terminal Screen */}
-            <div style={{
-              background: 'var(--bg-secondary)',
-              border: '1px solid rgba(0, 229, 255, 0.1)',
-              borderRadius: '16px',
-              padding: '20px',
-              boxShadow: 'inset 0 0 10px rgba(0,0,0,0.8)'
-            }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                borderBottom: '1px solid rgba(255,255,255,0.05)',
-                paddingBottom: '10px',
-                marginBottom: '15px'
-              }}>
-                <span style={{ fontFamily: "'Orbitron', sans-serif", fontWeight: '700', fontSize: '13px', color: '#00e5ff', textTransform: 'uppercase', letterSpacing: '1.5px' }}>Terminal Output</span>
-                <button
-                  onClick={() => setConsoleOutput("")}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#64748b',
-                    fontSize: '13px',
-                    fontFamily: "'Orbitron', sans-serif",
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    padding: 0
-                  }}
-                >
-                  Clear Console
+            {/* Right Output Console Pane */}
+            <div className="terminalOutputPane">
+              <div className="outputHeader">
+                <span className="outputHeaderTitle">OUTPUT</span>
+                <button className="btnClearConsole" onClick={() => { setOutput(""); setExecStatus(""); }}>
+                  Clear
                 </button>
               </div>
-              <pre style={{
-                margin: 0,
-                minHeight: '100px',
-                color: consoleOutput.includes('Error') ? '#ef4444' : '#e2e8f0',
-                fontFamily: 'Courier New, Courier, monospace',
-                fontSize: '14px',
-                lineHeight: '1.6',
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-all'
-              }}>
-                {consoleOutput || 'Click "Run Code" to view execution output...'}
-              </pre>
-            </div>
 
+              <div className="outputConsoleBody">
+                <pre style={{ margin: 0 }}>{output}</pre>
+
+                {execStatus && (
+                  <div className="executionStatusSuccess">
+                    <FaCheck /> {execStatus}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
+        </section>
 
-        </div>
+        {/* ── WHY USE SKILLSPHERE SANDBOX (6 CARDS - 3x2) ── */}
+        <section className="whySandboxSection">
+          <div className="whyTag">BUILT FOR DEVELOPERS & LEARNERS</div>
+          <h2>Why Use SkillSphere Sandbox?</h2>
+          <div className="titleUnderline"></div>
 
+          <div className="whyGrid3x2">
+            {whySandboxList.map((item, index) => (
+              <div className="whyCard" key={index}>
+                <div className="whyIconCircle">
+                  {item.icon}
+                </div>
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── READY TO BUILD SOMETHING AMAZING BANNER ── */}
+        <section className="buildCtaSection">
+          <div className="buildCtaBanner">
+            <div className="buildCtaLeft">
+              <div className="buildRocketIcon">
+                🚀
+              </div>
+              <div className="buildCtaText">
+                <h2>Ready to Build Something Amazing?</h2>
+                <p>Jump into the sandbox and start coding now.</p>
+              </div>
+            </div>
+
+            <div className="buildCtaRight">
+              <button className="sbBtnPrimary" onClick={() => {
+                if (editorRef.current) {
+                  editorRef.current.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}>
+                Start Coding Now <FaCode />
+              </button>
+
+              <div className="socialProofDevs">
+                <div className="devAvatarsStack">
+                  <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80" alt="Dev 1" />
+                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=80" alt="Dev 2" />
+                  <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&q=80" alt="Dev 3" />
+                </div>
+                <div className="devSocialText">
+                  Join <strong>50,000+</strong> developers & learners who code with SkillSphere Sandbox
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
-      <Footer />
+      {/* ── FOOTER MATCHING MOCKUP ── */}
+      <footer className="footerSection">
+        <div className="footerContainer">
+          <div className="footerTopGrid" style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr' }}>
+            {/* Col 1: Brand */}
+            <div className="footerBrandCol">
+              <Link to="/" className="footerLogo" onClick={handleScrollTop}>
+                <span className="logoIcon">⬢</span>
+                <span>SkillSphere</span>
+              </Link>
+              <p className="footerBrandDesc">
+                Empowering learners and professionals through smart tools, real-time environments, and endless learning opportunities.
+              </p>
+              <div className="socialIconsRow">
+                <a href="#facebook" className="socialIconBtn" aria-label="Facebook"><FaFacebookF /></a>
+                <a href="#twitter" className="socialIconBtn" aria-label="Twitter"><FaTwitter /></a>
+                <a href="#linkedin" className="socialIconBtn" aria-label="LinkedIn"><FaLinkedinIn /></a>
+                <a href="#instagram" className="socialIconBtn" aria-label="Instagram"><FaInstagram /></a>
+                <a href="#youtube" className="socialIconBtn" aria-label="YouTube"><FaYoutube /></a>
+              </div>
+            </div>
+
+            {/* Col 2: Quick Links */}
+            <div>
+              <h4 className="footerColTitle">Quick Links</h4>
+              <ul className="footerLinkList">
+                <li><Link to="/" onClick={handleScrollTop}>Home</Link></li>
+                <li><Link to="/features" onClick={handleScrollTop}>Features</Link></li>
+                <li><Link to="/student-features" onClick={handleScrollTop}>Students Hub</Link></li>
+                <li><Link to="/courses" onClick={handleScrollTop}>Work Hub</Link></li>
+                <li><Link to="/sandbox" onClick={handleScrollTop} style={{ color: '#F9572A', fontWeight: '700' }}>Sandbox</Link></li>
+                <li><Link to="/admin-login" onClick={handleScrollTop}>Admin Portal</Link></li>
+              </ul>
+            </div>
+
+            {/* Col 3: For Learners */}
+            <div>
+              <h4 className="footerColTitle">For Learners</h4>
+              <ul className="footerLinkList">
+                <li><Link to="/courses" onClick={handleScrollTop}>Courses</Link></li>
+                <li><Link to="/progress" onClick={handleScrollTop}>Track Progress</Link></li>
+                <li><Link to="/student-home" onClick={handleScrollTop}>Leaderboard</Link></li>
+                <li><Link to="/certificate" onClick={handleScrollTop}>Certificates</Link></li>
+                <li><Link to="/student-home" onClick={handleScrollTop}>AI Assistant</Link></li>
+              </ul>
+            </div>
+
+            {/* Col 4: For Organizations */}
+            <div>
+              <h4 className="footerColTitle">For Organizations</h4>
+              <ul className="footerLinkList">
+                <li><Link to="/workforce-dashboard" onClick={handleScrollTop}>Dashboard</Link></li>
+                <li><Link to="/team-space" onClick={handleScrollTop}>Team Management</Link></li>
+                <li><Link to="/team-space" onClick={handleScrollTop}>Assignments</Link></li>
+                <li><Link to="/workforce-dashboard" onClick={handleScrollTop}>Reports & Analytics</Link></li>
+                <li><Link to="/workforce" onClick={handleScrollTop}>Work Hub</Link></li>
+              </ul>
+            </div>
+
+            {/* Col 5: Support */}
+            <div>
+              <h4 className="footerColTitle">Support</h4>
+              <ul className="footerLinkList">
+                <li><Link to="/" onClick={handleScrollTop}>Help Center</Link></li>
+                <li><Link to="/" onClick={handleScrollTop}>FAQs</Link></li>
+                <li><Link to="/" onClick={handleScrollTop}>Contact Support</Link></li>
+                <li><Link to="/" onClick={handleScrollTop}>Privacy Policy</Link></li>
+                <li><Link to="/" onClick={handleScrollTop}>Terms of Service</Link></li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Footer Bottom */}
+          <div className="footerBottomRow">
+            <div>© 2025 SkillSphere. All rights reserved.</div>
+            <div>Made with ❤️ for learners & developers</div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

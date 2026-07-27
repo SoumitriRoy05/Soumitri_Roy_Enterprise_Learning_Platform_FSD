@@ -1,0 +1,700 @@
+/* Dedicated Opportunity Feed Page Stylesheet - SkillSphere Theme (1-to-1 Match) */
+.ofpWrapper {
+  background: #FFFBF7;
+  color: #1E1B18;
+  min-height: 100vh;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+.ofpMainContainer {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px;
+  gap: 24px;
+}
+
+/* ── LEFT SIDEBAR ── */
+.ofpLeftSidebar {
+  width: 245px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 16px;
+  background: #FFFFFF;
+  border: 1px solid #F3EBE1;
+  border-radius: 28px;
+  padding: 24px 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.03);
+  position: sticky;
+  top: 24px;
+  align-self: flex-start;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+.ofpLeftSidebar::-webkit-scrollbar { display: none; }
+.ofpLeftSidebar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.ofpSidebarHomeArchHeader {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 12px 14px 12px;
+  margin-bottom: 8px;
+}
+
+.ofpArchLine {
+  position: absolute;
+  top: -8px;
+  left: 36px;
+  width: 150px;
+  height: 50px;
+  border: 2px dashed #FAD6C8;
+  border-bottom: none;
+  border-right: none;
+  border-radius: 30px 0 0 0;
+  pointer-events: none;
+}
+
+.ofpHomeCircularBtn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #F9572A;
+  border: none;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(249, 87, 42, 0.35);
+  transition: transform 0.2s ease;
+  z-index: 2;
+}
+
+/* ── RIGHT MAIN BODY AREA ── */
+.ofpRightBodyArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ofpPageHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ofpPageHeader h1 {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0 0 4px 0;
+}
+
+.ofpPageHeader p {
+  font-size: 14px;
+  color: #64748B;
+  margin: 0;
+}
+
+.btnMyApplications {
+  background: #FFFFFF;
+  border: 1px solid #F3EBE1;
+  border-radius: 99px;
+  padding: 8px 18px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1E1B18;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+}
+
+.btnMyApplications:hover {
+  background: #FFF8F3;
+  border-color: #FAD6C8;
+  color: #F9572A;
+}
+
+.ofpToastNotification {
+  background: #ECFDF5;
+  border: 1px solid #6EE7B7;
+  color: #065F46;
+  padding: 10px 18px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* 2-COLUMN MAIN GRID */
+.ofpGridContainer {
+  display: grid;
+  grid-template-columns: 1fr 310px;
+  gap: 24px;
+}
+
+/* FILTER TABS ROW */
+.ofpFilterTabsRow {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.ofpTab {
+  padding: 8px 18px;
+  border-radius: 99px;
+  background: #FFFFFF;
+  border: 1px solid #F3EBE1;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748B;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.ofpTab:hover { background: #FFF8F3; color: #F9572A; }
+
+.ofpTab.active {
+  background: #F9572A;
+  color: #FFFFFF;
+  border-color: #F9572A;
+  box-shadow: 0 4px 14px rgba(249, 87, 42, 0.25);
+}
+
+.tabBadge {
+  font-size: 10px;
+  font-weight: 800;
+  background: rgba(0, 0, 0, 0.08);
+  padding: 2px 6px;
+  border-radius: 99px;
+}
+
+.ofpTab.active .tabBadge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+}
+
+/* DROPDOWN FILTERS ROW */
+.ofpDropdownFiltersRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.ofpSelect {
+  padding: 8px 14px;
+  background: #FFFFFF;
+  border: 1px solid #F3EBE1;
+  border-radius: 99px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748B;
+  outline: none;
+  cursor: pointer;
+}
+
+.clearFiltersLink {
+  font-size: 11px;
+  font-weight: 700;
+  color: #F9572A;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+/* SECTIONS */
+.ofpSectionBlock {
+  margin-bottom: 28px;
+}
+
+.sectionTitleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.sectionTitleRow h3 {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.viewAllLink {
+  font-size: 11px;
+  font-weight: 800;
+  color: #F9572A;
+  cursor: pointer;
+}
+
+/* 1. HACKATHONS GRID */
+.hackathonsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.hackathonCard {
+  background: #FFFFFF;
+  border: 1px solid #F3EBE1;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hackathonCard:hover {
+  transform: translateY(-4px);
+  border-color: #FAD6C8;
+}
+
+.hackathonBanner {
+  height: 120px;
+  position: relative;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #FFFFFF;
+}
+
+.hackathonBanner.sihBanner { background: linear-gradient(135deg, #082F49 0%, #0369A1 100%); }
+.hackathonBanner.cohortBanner { background: linear-gradient(135deg, #09090B 0%, #18181B 100%); }
+.hackathonBanner.mlhBanner { background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); }
+
+.featuredBadge {
+  position: absolute;
+  top: 12px; right: 12px;
+  background: #10B981;
+  color: #FFFFFF;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.levelPill {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.prizePill {
+  position: absolute;
+  bottom: 12px; right: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.bannerLogo { font-size: 32px; margin-bottom: 4px; }
+.hackathonBanner h4 { font-size: 14px; font-weight: 800; margin: 0; }
+
+.hackathonBody { padding: 16px; }
+.hackathonBody h4 { font-size: 14px; font-weight: 800; margin: 0 0 2px 0; color: #1E1B18; }
+.dateSub { font-size: 10px; color: #94A3B8; display: block; margin-bottom: 8px; }
+.descText { font-size: 11px; color: #475569; margin: 0 0 12px 0; line-height: 1.4; }
+
+.tagsRow { display: flex; gap: 6px; margin-bottom: 14px; }
+.tagPill { font-size: 9px; font-weight: 700; background: #FAF8F5; border: 1px solid #F3EBE1; padding: 3px 8px; border-radius: 99px; color: #64748B; }
+
+.btnApplyNowOutline {
+  width: 100%;
+  background: #FFFFFF;
+  color: #F9572A;
+  border: 1px solid #FAD6C8;
+  padding: 6px 14px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnApplyNowOutline:hover {
+  background: #F9572A;
+  color: #FFFFFF;
+}
+
+/* 2. INTERNSHIPS GRID */
+.internshipsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.internshipCard {
+  background: #FFFFFF;
+  border: 1px solid #F3EBE1;
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.internshipCard:hover {
+  transform: translateY(-4px);
+  border-color: #FAD6C8;
+}
+
+.internHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.compLogoBadge {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.verifiedGreenTag {
+  background: #ECFDF5;
+  color: #10B981;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+.companySub { font-size: 10px; color: #64748B; font-weight: 600; display: block; margin-bottom: 8px; }
+
+.internChipsRow { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.internChipsRow .chip { font-size: 9px; font-weight: 700; background: #FAF8F5; border: 1px solid #F3EBE1; padding: 2px 7px; border-radius: 99px; color: #64748B; }
+
+.descP { font-size: 11px; color: #475569; margin: 0 0 14px 0; line-height: 1.4; }
+
+.internFooter { display: flex; flex-direction: column; gap: 10px; }
+.footerMeta { display: flex; justify-content: space-between; font-size: 10px; color: #64748B; }
+.footerMeta strong { color: #10B981; }
+
+/* 3. PLACEMENTS TABLE */
+.placementsTableCard {
+  background: #FFFFFF;
+  border: 1px solid #F3EBE1;
+  border-radius: 24px;
+  padding: 16px 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+}
+
+.placementsTable { width: 100%; border-collapse: collapse; text-align: left; }
+
+.placementsTable td {
+  padding: 14px 10px;
+  border-bottom: 1px solid #FAF8F5;
+  vertical-align: middle;
+  font-size: 12px;
+}
+
+.placementsTable tr:last-child td { border-bottom: none; }
+
+.compTableCell { display: flex; align-items: center; gap: 12px; }
+
+.compLogoSquare {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.compTableCell strong { display: block; font-size: 13px; color: #1E1B18; margin-bottom: 1px; }
+.roleSub { font-size: 10px; color: #64748B; }
+
+.eligibilityCell { font-size: 11px; color: #64748B; font-weight: 600; }
+.locCell { font-size: 11px; color: #64748B; }
+.ctcCell strong { font-size: 12px; color: #10B981; }
+.deadlineCell { font-size: 10px; color: #94A3B8; }
+
+.ofpBottomActionRow { text-align: center; margin-top: 10px; }
+
+.btnViewMoreOpps {
+  background: #FFFFFF;
+  color: #F9572A;
+  border: 1px solid #FAD6C8;
+  padding: 8px 24px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* RIGHT COLUMN SIDEBAR WIDGETS */
+.ofpRightSidebar { display: flex; flex-direction: column; gap: 20px; }
+.ofpWidgetCard { background: #FFFFFF; border: 1px solid #F3EBE1; border-radius: 24px; padding: 20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02); }
+.ofpWidgetCard h4 { font-size: 14px; font-weight: 800; margin: 0 0 14px 0; }
+
+.summaryDonutContainer {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  margin: 0 auto 14px auto;
+}
+
+.summaryDonutSvg { width: 100%; height: 100%; transform: rotate(-90deg); }
+
+.summaryLegendList { display: flex; flex-direction: column; gap: 8px; font-size: 11px; font-weight: 700; margin-bottom: 10px; }
+.legendRow { display: flex; align-items: center; gap: 6px; }
+.legendRow strong { margin-left: auto; }
+
+.progressSubLink { font-size: 11px; font-weight: 800; color: #F9572A; text-align: center; cursor: pointer; }
+
+.recList { display: flex; flex-direction: column; gap: 10px; }
+.recItem { display: flex; align-items: center; gap: 10px; }
+
+.rIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
+.rIcon.blue { background: #0284C7; }
+.rIcon.yellow { background: #EAB308; }
+.rIcon.purple { background: #7E22CE; }
+
+.rInfo { flex: 1; }
+.rInfo h5 { font-size: 11px; font-weight: 800; margin: 0 0 2px 0; }
+.rInfo span { font-size: 9px; color: #94A3B8; }
+
+.badgeNew { background: #ECFDF5; color: #10B981; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 99px; }
+.viewAllRecsLink { font-size: 11px; font-weight: 800; color: #F9572A; display: block; text-align: center; margin-top: 10px; cursor: pointer; }
+
+.subP { font-size: 11px; color: #64748B; margin: 0 0 12px 0; line-height: 1.4; }
+
+.btnEnableNotifs {
+  width: 100%;
+  background: #FFF0EB;
+  color: #F9572A;
+  border: 1px solid #FAD6C8;
+  padding: 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.skillsChipsGrid { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.sChip { font-size: 10px; font-weight: 700; background: #FAF8F5; border: 1px solid #F3EBE1; padding: 4px 10px; border-radius: 99px; color: #475569; }
+.explorePathsLink { font-size: 11px; font-weight: 800; color: #F9572A; display: block; text-align: center; cursor: pointer; }
+
+.hostHackathonBanner {
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+  border-radius: 24px;
+  padding: 20px;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hostHackathonBanner h5 { font-size: 14px; font-weight: 800; margin: 0 0 4px 0; }
+.hostHackathonBanner p { font-size: 10px; color: #94A3B8; margin: 0 0 12px 0; line-height: 1.3; }
+
+.btnPartnerWithUs {
+  background: #F9572A;
+  color: #FFFFFF;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.trophyGraphic { font-size: 36px; }
+
+.appliedList { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.appliedItem { padding: 10px 14px; border-radius: 14px; background: #FAF8F5; border: 1px solid #F3EBE1; display: flex; justify-content: space-between; align-items: center; }
+.appliedItem strong { display: block; font-size: 12px; }
+.appDate { font-size: 10px; color: #94A3B8; }
+.appStatus { font-size: 10px; font-weight: 800; color: #10B981; background: #ECFDF5; padding: 2px 8px; border-radius: 99px; }
+
+@media (max-width: 1100px) {
+  .hackathonsGrid, .internshipsGrid { grid-template-columns: 1fr; }
+  .ofpGridContainer { grid-template-columns: 1fr; }
+}
+
+/* ── DARK THEME STYLES ── */
+.ofpWrapper.dark-theme {
+  background: #0F172A;
+  color: #F8FAFC;
+}
+
+.ofpWrapper.dark-theme .btnMyApplications,
+.ofpWrapper.dark-theme .ofpTab,
+.ofpWrapper.dark-theme .ofpSelect,
+.ofpWrapper.dark-theme .hackathonCard,
+.ofpWrapper.dark-theme .internshipCard,
+.ofpWrapper.dark-theme .placementsTableCard,
+.ofpWrapper.dark-theme .ofpWidgetCard,
+.ofpWrapper.dark-theme .appliedItem {
+  background: #1E293B;
+  border-color: #334155;
+  color: #F8FAFC;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.ofpWrapper.dark-theme .ofpPageHeader h1,
+.ofpWrapper.dark-theme .sectionTitleRow h3,
+.ofpWrapper.dark-theme .hackathonBody h4,
+.ofpWrapper.dark-theme .compTableCell strong,
+.ofpWrapper.dark-theme .ofpWidgetCard h4,
+.ofpWrapper.dark-theme .rInfo h5,
+.ofpWrapper.dark-theme .appliedItem strong {
+  color: #F8FAFC;
+}
+
+.ofpWrapper.dark-theme .ofpPageHeader p,
+.ofpWrapper.dark-theme .descText,
+.ofpWrapper.dark-theme .companySub,
+.ofpWrapper.dark-theme .descP,
+.ofpWrapper.dark-theme .roleSub,
+.ofpWrapper.dark-theme .eligibilityCell,
+.ofpWrapper.dark-theme .locCell,
+.ofpWrapper.dark-theme .rInfo span,
+.ofpWrapper.dark-theme .subP,
+.ofpWrapper.dark-theme .appDate {
+  color: #94A3B8;
+}
+
+.ofpWrapper.dark-theme .ofpTab {
+  color: #94A3B8;
+}
+
+.ofpWrapper.dark-theme .ofpTab:hover {
+  background: rgba(249, 87, 42, 0.15);
+  color: #F9572A;
+}
+
+.ofpWrapper.dark-theme .ofpTab.active {
+  background: #F9572A;
+  color: #FFFFFF;
+}
+
+.ofpWrapper.dark-theme .tagPill,
+.ofpWrapper.dark-theme .internChipsRow .chip,
+.ofpWrapper.dark-theme .sChip {
+  background: #0F172A;
+  border-color: #334155;
+  color: #CBD5E1;
+}
+
+.ofpWrapper.dark-theme .btnApplyNowOutline,
+.ofpWrapper.dark-theme .btnViewMoreOpps {
+  background: #0F172A;
+  color: #F9572A;
+  border-color: rgba(249, 87, 42, 0.4);
+}
+
+.ofpWrapper.dark-theme .btnApplyNowOutline:hover {
+  background: #F9572A;
+  color: #FFFFFF;
+}
+
+.ofpWrapper.dark-theme .placementsTable td {
+  border-bottom-color: #334155;
+}
+
+.ofpWrapper.dark-theme .btnEnableNotifs {
+  background: rgba(249, 87, 42, 0.15);
+  border-color: rgba(249, 87, 42, 0.4);
+  color: #F9572A;
+}
+
+.ofpWrapper.dark-theme .verifiedGreenTag,
+.ofpWrapper.dark-theme .appStatus {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+}
+
+/* SIDEBAR DARK MODE */
+.ofpWrapper.dark-theme .ofpLeftSidebar,
+.ofpWrapper.dark-theme .sdLeftSidebar {
+  background: #182030;
+  border-color: #212B3E;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.ofpWrapper.dark-theme .sdBrandLogo {
+  color: #FFFFFF;
+}
+
+.ofpWrapper.dark-theme .sdNavItem {
+  color: #94A3B8;
+}
+
+.ofpWrapper.dark-theme .sdNavItem:hover {
+  background: rgba(249, 87, 42, 0.12);
+  color: #F9572A;
+}
+
+.ofpWrapper.dark-theme .sdNavItem.active {
+  background: rgba(249, 87, 42, 0.16);
+  color: #F9572A;
+  font-weight: 800;
+}
+
+.ofpWrapper.dark-theme .sdSidebarFooterControls {
+  background: #131926;
+  border-color: #212B3E;
+}
+
+.ofpWrapper.dark-theme .sdRocketIllustrationBox {
+  background: linear-gradient(180deg, rgba(249, 87, 42, 0.15) 0%, rgba(17, 23, 36, 0.9) 100%);
+  border: 1px solid #1E293B;
+}
+
+.ofpWrapper.dark-theme .sdThemeToggleBtn {
+  color: #F9572A;
+}

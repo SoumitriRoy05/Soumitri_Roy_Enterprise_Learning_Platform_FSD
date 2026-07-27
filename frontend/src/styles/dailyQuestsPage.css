@@ -1,0 +1,435 @@
+/* Daily Quests Page Stylesheet - SkillSphere Theme (1-to-1 Exact Match) */
+.dqpWrapper {
+  background: #FFFBF7;
+  color: #1E1B18;
+  min-height: 100vh;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+.dqpMainContainer {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px;
+  gap: 24px;
+}
+
+/* TOAST ALERT NOTIFICATION */
+.dqpToastAlert {
+  background: #1E1B18;
+  color: #FFFFFF;
+  border-left: 4px solid #F9572A;
+  padding: 12px 20px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  margin-bottom: 12px;
+}
+
+/* ── LEFT SIDEBAR ── */
+.dqpLeftSidebar {
+  width: 245px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 16px;
+  background: #FFFFFF;
+  border: 1px solid #F3EBE1;
+  border-radius: 28px;
+  padding: 24px 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.03);
+  position: sticky;
+  top: 24px;
+  align-self: flex-start;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+.dqpLeftSidebar::-webkit-scrollbar { display: none; }
+.dqpLeftSidebar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.dqpSidebarHomeArchHeader {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 12px 14px 12px;
+  margin-bottom: 8px;
+}
+
+.dqpArchLine {
+  position: absolute;
+  top: -8px;
+  left: 36px;
+  width: 150px;
+  height: 50px;
+  border: 2px dashed #FAD6C8;
+  border-bottom: none;
+  border-right: none;
+  border-radius: 30px 0 0 0;
+  pointer-events: none;
+}
+
+.dqpHomeCircularBtn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #F9572A;
+  border: none;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(249, 87, 42, 0.35);
+  transition: transform 0.2s ease;
+  z-index: 2;
+}
+
+.dqpSidebarLevelWidget {
+  background: #FAF8F5;
+  border: 1px solid #F3EBE1;
+  border-radius: 20px;
+  padding: 14px;
+}
+
+.levelHeaderRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.lvlTrophy { font-size: 20px; }
+.levelHeaderRow strong { display: block; font-size: 13px; font-weight: 800; }
+.levelHeaderRow span { font-size: 10px; color: #64748B; }
+
+.lvlBarTrack { height: 6px; background: #E2E8F0; border-radius: 99px; overflow: hidden; margin-bottom: 4px; }
+.lvlBarFill { height: 100%; background: #F9572A; }
+.lvlXpSub { font-size: 9px; color: #94A3B8; display: block; text-align: right; }
+
+.upgradeProCard {
+  background: #FFF0EB;
+  border: 1px solid #FAD6C8;
+  border-radius: 20px;
+  padding: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.proTitleRow { display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: #F9572A; margin-bottom: 4px; }
+.upgradeProCard p { font-size: 9.5px; color: #64748B; margin: 0; width: 80%; }
+.rocketGraphic { position: absolute; bottom: 8px; right: 8px; font-size: 24px; }
+
+/* ── RIGHT MAIN BODY AREA ── */
+.dqpRightBodyArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dqpPageHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dqpPageHeader h1 { font-size: 28px; font-weight: 800; margin: 0 0 4px 0; }
+.dqpPageHeader p { font-size: 14px; color: #64748B; margin: 0; }
+
+.btnHowQuestsWork {
+  background: #FFFFFF;
+  border: 1px solid #F3EBE1;
+  border-radius: 99px;
+  padding: 8px 18px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1E1B18;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+/* TOP METRICS CARDS ROW (3 CARDS) */
+.dqpTopMetricsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.metricCard {
+  background: #FFFFFF;
+  border: 1px solid #F3EBE1;
+  border-radius: 24px;
+  padding: 18px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+}
+
+.cardTitle { font-size: 12px; font-weight: 800; color: #64748B; display: block; margin-bottom: 12px; }
+.metricContentRow { display: flex; align-items: center; gap: 16px; }
+
+.donutGaugeBox { position: relative; width: 70px; height: 70px; flex-shrink: 0; }
+.donutGaugeBox svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.donutCenterText { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+.donutCenterText strong { font-size: 16px; font-weight: 800; color: #1E1B18; }
+
+.metricDetailsText strong { font-size: 15px; font-weight: 800; color: #1E1B18; display: block; line-height: 1.1; }
+.metricDetailsText .sub { font-size: 10px; color: #94A3B8; display: block; margin-bottom: 4px; }
+.xpEarnedToday { font-size: 10px; font-weight: 800; color: #F9572A; background: #FFF0EB; padding: 2px 8px; border-radius: 99px; display: inline-block; }
+
+.streakFlameIcon { font-size: 42px; }
+.streakNumber { font-size: 26px !important; color: #F9572A !important; }
+.bestStreakSub { font-size: 10px; color: #64748B; font-weight: 700; }
+
+.chestIcon { font-size: 38px; }
+.mTrack { height: 6px; background: #E2E8F0; border-radius: 99px; overflow: hidden; margin: 4px 0 2px 0; }
+.mFill { height: 100%; background: #F9572A; }
+.mFraction { font-size: 9px; color: #94A3B8; font-weight: 700; display: block; text-align: right; }
+
+/* 2-COLUMN MAIN WORKSPACE GRID */
+.dqpGridContainer {
+  display: grid;
+  grid-template-columns: 1fr 310px;
+  gap: 24px;
+}
+
+.dqpQuestsBlock {
+  background: #FFFFFF;
+  border: 1px solid #F3EBE1;
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+}
+
+.questsBlockHeaderRow { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.questsBlockHeaderRow h3 { font-size: 16px; font-weight: 800; margin: 0; }
+.resetTimerTag { font-size: 11px; font-weight: 700; color: #F9572A; background: #FFF0EB; padding: 4px 12px; border-radius: 99px; display: flex; align-items: center; gap: 6px; }
+
+.questsList { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+
+.questItemCard {
+  background: #FAF8F5;
+  border: 1px solid #F3EBE1;
+  border-radius: 18px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: background 0.2s ease;
+}
+
+.questItemCard.completed { background: #FFFFFF; border-color: #E2E8F0; }
+
+.questIconBox { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.questIconBox.olive { background: #FEF9C3; color: #CA8A04; }
+.questIconBox.green { background: #DCFCE7; color: #16A34A; }
+.questIconBox.orange { background: #FFF0EB; color: #F9572A; }
+.questIconBox.brown { background: #FFEDD5; color: #C2410C; }
+.questIconBox.gold { background: #FEF08A; color: #CA8A04; }
+
+.questMainInfo { flex: 1; }
+.questMainInfo h4 { font-size: 13px; font-weight: 800; margin: 0 0 2px 0; color: #1E1B18; }
+.questMainInfo p { font-size: 10px; color: #64748B; margin: 0; }
+
+.questXpCol { width: 70px; text-align: center; }
+.xpPill { font-size: 11px; font-weight: 800; color: #F9572A; }
+
+.questProgressCol { display: flex; align-items: center; gap: 10px; }
+
+.btnCompletedPill {
+  background: #DCFCE7;
+  color: #15803D;
+  border: 1px solid #86EFAC;
+  padding: 6px 14px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.goActionBox, .lockedBonusBox { display: flex; align-items: center; gap: 8px; }
+.miniTrack { width: 60px; height: 5px; background: #E2E8F0; border-radius: 99px; overflow: hidden; }
+.miniFill { height: 100%; background: #16A34A; }
+.frac { font-size: 9px; font-weight: 700; color: #64748B; }
+
+.btnGoPrimary {
+  background: #FFF0EB;
+  color: #F9572A;
+  border: 1px solid #FAD6C8;
+  padding: 6px 18px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.btnLockedIcon { background: #F1F5F9; color: #94A3B8; border: 1px solid #E2E8F0; padding: 6px 12px; border-radius: 99px; font-size: 11px; }
+
+.mountainTrailBanner {
+  background: #FAF8F5;
+  border: 1px solid #F3EBE1;
+  border-radius: 18px;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bannerTextRow { display: flex; align-items: center; gap: 10px; }
+.bannerTextRow strong { font-size: 12px; font-weight: 800; color: #1E1B18; }
+.landscapeIllustration { font-size: 28px; }
+
+/* RIGHT COLUMN SIDEBAR WIDGETS */
+.dqpRightSidebar { display: flex; flex-direction: column; gap: 20px; }
+.dqpWidgetCard { background: #FFFFFF; border: 1px solid #F3EBE1; border-radius: 24px; padding: 18px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02); }
+.dqpWidgetCard h4 { font-size: 14px; font-weight: 800; margin: 0 0 12px 0; }
+.widgetTitleRow { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+
+.rewardCard { background: #FAF8F5; }
+.giftBoxGraphicCenter { text-align: center; padding: 10px 0; }
+.giftBox3d { font-size: 48px; margin-bottom: 4px; }
+.completeSub { font-size: 10px; color: #64748B; display: block; }
+.rewardXpText { font-size: 16px; font-weight: 800; color: #F9572A; display: block; margin-top: 2px; }
+
+.streakCalendarGrid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; margin-bottom: 8px; }
+.dayCol { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.dayName { font-size: 9px; color: #94A3B8; font-weight: 700; }
+.checkCirclePill { width: 26px; height: 26px; border-radius: 50%; background: #FAF8F5; border: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; }
+.dayCol.activeCheck .checkCirclePill { background: #DCFCE7; border-color: #86EFAC; }
+.dayCol.currentDay .checkCirclePill { background: #F9572A; color: #FFF; border-color: #F9572A; }
+.streakKeepText { font-size: 9px; color: #64748B; font-weight: 700; text-align: center; display: block; }
+
+.leaderboardRankList { display: flex; flex-direction: column; gap: 8px; }
+.rankItem { display: flex; align-items: center; gap: 10px; background: #FAF8F5; border: 1px solid #F3EBE1; border-radius: 14px; padding: 8px 12px; font-size: 11px; }
+.rankItem.activeUser { background: #FFF0EB; border-color: #FAD6C8; }
+.rankBadge { width: 18px; height: 18px; border-radius: 50%; background: #CBD5E1; color: #FFF; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.rankItem.gold .rankBadge { background: #F59E0B; }
+.rankItem.silver .rankBadge { background: #94A3B8; }
+.rankItem.bronze .rankBadge { background: #D97706; }
+.userAvatarMini { font-size: 16px; }
+.userName { flex: 1; font-weight: 700; color: #1E1B18; font-size: 11px; }
+.rankXp { font-weight: 800; color: #F9572A; font-size: 10px; }
+
+.didYouKnowCard { background: #26221F; color: #FFFFFF; border-radius: 20px; padding: 16px; display: flex; gap: 12px; align-items: flex-start; }
+.bulbIcon { font-size: 22px; color: #F59E0B; flex-shrink: 0; }
+.didYouKnowCard h5 { font-size: 12px; font-weight: 800; margin: 0 0 2px 0; color: #FFFFFF; }
+.didYouKnowCard p { font-size: 10px; color: #CBD5E1; margin: 0; line-height: 1.3; }
+
+/* MODALS */
+.questModalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.questModalContent {
+  background: #FFFFFF;
+  border-radius: 28px;
+  padding: 28px;
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2);
+}
+
+.btnCloseModal { position: absolute; top: 18px; right: 18px; background: #FAF8F5; border: 1px solid #E2E8F0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+.modalQuestIconHex { width: 56px; height: 56px; border-radius: 18px; background: #FFF0EB; color: #F9572A; font-size: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; }
+
+.questModalContent h2 { font-size: 18px; font-weight: 800; margin: 0 0 4px 0; }
+.modalSub { font-size: 11px; color: #64748B; margin: 0 0 12px 0; }
+.modalXpPill { background: #DCFCE7; color: #15803D; font-size: 12px; font-weight: 800; padding: 4px 14px; border-radius: 99px; display: inline-block; margin-bottom: 16px; }
+
+.questActionInteractiveBox { background: #FAF8F5; border: 1px solid #F3EBE1; border-radius: 16px; padding: 16px; margin-top: 10px; }
+.questActionInteractiveBox p { font-size: 11px; color: #475569; margin: 0 0 14px 0; }
+.btnClaimQuest { background: #F9572A; color: #FFF; border: none; padding: 10px 24px; border-radius: 99px; font-size: 12px; font-weight: 800; cursor: pointer; }
+
+.guideStepsList { text-align: left; list-style: none; padding: 0; margin: 16px 0; font-size: 11px; color: #475569; display: flex; flex-direction: column; gap: 8px; }
+.btnGotIt { background: #F9572A; color: #FFF; border: none; padding: 8px 24px; border-radius: 99px; font-size: 11px; font-weight: 800; cursor: pointer; }
+
+@media (max-width: 1100px) {
+  .dqpTopMetricsRow { grid-template-columns: 1fr; }
+  .dqpGridContainer { grid-template-columns: 1fr; }
+}
+
+/* ── DARK THEME STYLES ── */
+.dqpWrapper.dark-theme {
+  background: #0F172A;
+  color: #F8FAFC;
+}
+
+.dqpWrapper.dark-theme .dqpLeftSidebar,
+.dqpWrapper.dark-theme .sdLeftSidebar,
+.dqpWrapper.dark-theme .metricCard,
+.dqpWrapper.dark-theme .weeklyStreakCardBlock,
+.dqpWrapper.dark-theme .questCardItem,
+.dqpWrapper.dark-theme .dqpWidgetCard,
+.dqpWrapper.dark-theme .rankItem,
+.dqpWrapper.dark-theme .questModalContent,
+.dqpWrapper.dark-theme .questActionInteractiveBox {
+  background: #1E293B;
+  border-color: #334155;
+  color: #F8FAFC;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.dqpWrapper.dark-theme .dqpPageHeader h1,
+.dqpWrapper.dark-theme .metricInfo strong,
+.dqpWrapper.dark-theme .weeklyHeaderRow h4,
+.dqpWrapper.dark-theme .qMainInfo h4,
+.dqpWrapper.dark-theme .dqpWidgetCard h4,
+.dqpWrapper.dark-theme .userName,
+.dqpWrapper.dark-theme .questModalContent h2,
+.dqpWrapper.dark-theme .sectionTitleRow h3 {
+  color: #F8FAFC;
+}
+
+.dqpWrapper.dark-theme .dqpPageHeader p,
+.dqpWrapper.dark-theme .metricInfo label,
+.dqpWrapper.dark-theme .weeklyHeaderRow span,
+.dqpWrapper.dark-theme .qMainInfo p,
+.dqpWrapper.dark-theme .subText,
+.dqpWrapper.dark-theme .modalSub,
+.dqpWrapper.dark-theme .questActionInteractiveBox p,
+.dqpWrapper.dark-theme .guideStepsList {
+  color: #94A3B8;
+}
+
+.dqpWrapper.dark-theme .btnHowItWorks,
+.dqpWrapper.dark-theme .filterPillBtn,
+.dqpWrapper.dark-theme .qBtnAction.locked,
+.dqpWrapper.dark-theme .qBtnAction.completed,
+.dqpWrapper.dark-theme .btnCloseModal {
+  background: #0F172A;
+  color: #F8FAFC;
+  border-color: #334155;
+}
+
+.dqpWrapper.dark-theme .filterPillBtn.active {
+  background: #F9572A;
+  color: #FFFFFF;
+  border-color: #F9572A;
+}
+
+.dqpWrapper.dark-theme .qTrack {
+  background: #0F172A;
+}

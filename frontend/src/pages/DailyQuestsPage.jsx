@@ -1,0 +1,603 @@
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import Background from "../components/Background";
+import PaperPlaneCursor from "../components/PaperPlaneCursor";
+import StudentFooter from "../components/StudentFooter";
+import FloatingChatbot from "../components/FloatingChatbot";
+
+import {
+  FaHome,
+  FaBook,
+  FaCodeBranch,
+  FaFileAlt,
+  FaComments,
+  FaAward,
+  FaCertificate,
+  FaChartLine,
+  FaFileInvoice,
+  FaBolt,
+  FaTrophy,
+  FaCog,
+  FaSearch,
+  FaBell,
+  FaRobot,
+  FaRocket,
+  FaCheckCircle,
+  FaSun,
+  FaMoon,
+  FaArrowLeft,
+  FaCalendarAlt,
+  FaBullseye,
+  FaFire,
+  FaQuestionCircle,
+  FaCode,
+  FaLock,
+  FaGift,
+  FaCrown,
+  FaTimes,
+  FaInfoCircle,
+  FaHourglassHalf,
+  FaLightbulb
+} from "react-icons/fa";
+
+import "../styles/studentDashboard.css";
+import "../styles/dailyQuestsPage.css";
+
+export default function DailyQuestsPage() {
+  const { user, xp, themeMode, toggleTheme } = useAuth();
+  const navigate = useNavigate();
+  const isDarkMode = themeMode === "dark";
+  const [toastMessage, setToastMessage] = useState("");
+  const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
+
+  // Active Quest Action Modal State
+  const [activeActionQuest, setActiveActionQuest] = useState(null);
+
+  // Live Countdown Timer (12h 45m 30s)
+  const [timeLeft, setTimeLeft] = useState(12 * 3600 + 45 * 60 + 30);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 24 * 3600));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatCountdown = (seconds) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h}h ${m.toString().padStart(2, "0")}m ${s.toString().padStart(2, "0")}s`;
+  };
+
+  const userName = user?.full_name || user?.username || "Learner";
+  const [currentXp, setCurrentXp] = useState(xp ?? 0);
+
+  // Quests State (3/6 Completed Initially)
+  const [quests, setQuests] = useState([
+    {
+      id: 1,
+      title: "Complete 1 Lesson",
+      desc: "Finish any lesson in your enrolled courses",
+      xp: "+20 XP",
+      xpVal: 20,
+      progress: "1/1",
+      isCompleted: true,
+      icon: <FaBook />,
+      color: "olive"
+    },
+    {
+      id: 2,
+      title: "Solve 2 Coding Problems",
+      desc: "Solve any 2 problems on the practice platform",
+      xp: "+40 XP",
+      xpVal: 40,
+      progress: "2/2",
+      isCompleted: true,
+      icon: <FaCode />,
+      color: "green"
+    },
+    {
+      id: 3,
+      title: "Join a Discussion",
+      desc: "Ask a question or reply to a discussion",
+      xp: "+15 XP",
+      xpVal: 15,
+      progress: "0/1",
+      isCompleted: false,
+      icon: <FaComments />,
+      color: "orange"
+    },
+    {
+      id: 4,
+      title: "Practice for 20 Minutes",
+      desc: "Spend 20 minutes learning or practicing",
+      xp: "+25 XP",
+      xpVal: 25,
+      progress: "8/20 min",
+      isCompleted: false,
+      icon: <FaBullseye />,
+      color: "brown"
+    },
+    {
+      id: 5,
+      title: "Attempt 1 Quiz",
+      desc: "Attempt any quiz in your enrolled modules",
+      xp: "+20 XP",
+      xpVal: 20,
+      progress: "0/1",
+      isCompleted: false,
+      icon: <FaFileAlt />,
+      color: "olive"
+    },
+    {
+      id: 6,
+      title: "Daily Bonus",
+      desc: "Complete all daily quests",
+      xp: "+50 XP",
+      xpVal: 50,
+      progress: "3/6",
+      isCompleted: false,
+      isLocked: true,
+      icon: <FaCrown />,
+      color: "gold"
+    }
+  ]);
+
+  const completedCount = quests.filter((q) => q.isCompleted).length;
+
+  // Handler to Execute / Complete a Quest
+  const handleCompleteQuest = (quest) => {
+    setQuests((prevQuests) =>
+      prevQuests.map((q) => {
+        if (q.id === quest.id) {
+          return { ...q, isCompleted: true, progress: "1/1" };
+        }
+        return q;
+      })
+    );
+
+    setCurrentXp((prev) => prev + quest.xpVal);
+    setActiveActionQuest(null);
+
+    setToastMessage(`🎉 Quest Completed! You earned ${quest.xp} & +${quest.xpVal} XP!`);
+    setTimeout(() => setToastMessage(""), 4000);
+  };
+
+  // Nav items (EVENTS & WEBINARS REMOVED AS DIRECTED)
+  const navItems = [
+    { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
+    { id: "courses", label: "Courses", icon: <FaBook /> },
+    { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
+    { id: "assignments", label: "Assignments", icon: <FaFileAlt /> },
+    { id: "discussions", label: "Discussions", icon: <FaComments /> },
+    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
+    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
+    { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
+    { id: "badges", label: "Badges", icon: <FaAward /> },
+    { id: "certificates", label: "Certificates", icon: <FaCertificate /> },
+    { id: "progress", label: "Progress", icon: <FaChartLine /> },
+    { id: "resume", label: "Resume Builder", icon: <FaFileInvoice /> },
+    { id: "code-arena", label: "CodeArena", icon: <FaCode />, isNew: true },
+    { id: "settings", label: "Settings", icon: <FaCog /> }
+  ];
+
+  return (
+    <div className={`dqpWrapper ${isDarkMode ? "dark-theme" : ""}`}>
+      <Background />
+      <PaperPlaneCursor />
+
+      {/* Main Grid Container */}
+      <div className="dqpMainContainer">
+        
+        {/* ── LEFT SIDEBAR ── */}
+        <aside className="dqpLeftSidebar">
+          <div>
+            <Link to="/" className="sdBrandLogo">
+              <span className="logoHex">⬢</span>
+              <span>SkillSphere</span>
+            </Link>
+
+            <div className="sdSidebarHomeArchHeader">
+              <div className="sdArchLine" />
+              <button
+                className="sdHomeCircularBtn active"
+                onClick={() => navigate("/student-home")}
+                title="Dashboard Overview"
+              >
+                <FaHome />
+              </button>
+            </div>
+
+            <ul className="sdNavList">
+              {navItems.map((item) => (
+                <li key={item.id}>
+                  <button
+                    className={`sdNavItem ${item.id === "daily-quests" ? "active" : ""}`}
+                    onClick={() => {
+                      if (item.id === "dashboard") navigate("/student-home");
+                      else if (item.id === "courses") navigate("/courses");
+                      else if (item.id === "learning-paths") navigate("/learning-paths");
+                      else if (item.id === "assignments") navigate("/assignments");
+                      else if (item.id === "discussions") navigate("/discussions");
+                      else if (item.id === "ai-buddy") navigate("/ai-buddy");
+                      else if (item.id === "opportunity-feed") navigate("/opportunity-feed");
+                      else if (item.id === "daily-quests") navigate("/daily-quests");
+                      else if (item.id === "badges") navigate("/badges");
+                      else if (item.id === "certificates") navigate("/certificate");
+                      else if (item.id === "progress") navigate("/progress");
+                      else if (item.id === "resume") navigate("/resume");
+                      else if (item.id === "code-arena") navigate("/code-arena");
+                      else if (item.id === "settings") navigate("/settings");
+                      else navigate("/student-home");
+                    }}
+                  >
+                    <span className="navIcon">{item.icon}</span>
+                    <span className="navLabel">{item.label}</span>
+                    {item.isNew && <span className="navNewBadge">New</span>}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Bottom Sidebar Container: Rocket Graphic + Theme Controls */}
+          <div className="sdSidebarBottomSection">
+            <div className="sdRocketIllustrationBox">
+              <span className="sdRocketEmoji">🚀</span>
+              <div className="sdCloudDeco"></div>
+            </div>
+
+            <div className="sdSidebarFooterControls">
+              <button className="sdThemeToggleBtn" onClick={toggleTheme} title={`Switch to ${isDarkMode ? "Light" : "Dark"} Mode`}>
+                {isDarkMode ? <FaSun /> : <FaMoon />}
+              </button>
+              <span className="sdControlDivider">|</span>
+              <button className="sdCollapseBtn" title="Collapse Menu">
+                <FaArrowLeft />
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        {/* ── RIGHT MAIN BODY AREA ── */}
+        <div className="dqpRightBodyArea">
+          
+          {/* Top Header Bar */}
+          <header className="sdTopHeaderBar">
+            <div className="sdSearchWrapper">
+              <FaSearch className="sdSearchIcon" />
+              <input
+                type="text"
+                className="sdSearchInput"
+                placeholder="Search for courses, skills, discussions..."
+              />
+            </div>
+
+            <div className="sdHeaderActionsRow">
+              <div className="sdXpBadgePill">
+                <FaBolt color="#F9572A" /> <span>{currentXp} XP</span>
+              </div>
+
+              <div className="sdNotificationBtnWrapper">
+                <button className="sdNotificationBtn">
+                  <FaBell />
+                  <span className="sdNotifBadge">3</span>
+                </button>
+              </div>
+
+              <div className="sdUserProfilePill" onClick={() => navigate("/settings")}>
+                <div className="sdUserAvatarImg">🧑‍🎓</div>
+                <div className="sdUserInfoText">
+                  <strong>{userName}</strong>
+                  <span>Student</span>
+                </div>
+                <span className="dropdownArrow">▾</span>
+              </div>
+            </div>
+          </header>
+
+          {/* Page Heading Row */}
+          <div className="dqpPageHeaderRow">
+            <div className="dqpPageHeader">
+              <h1>🎯 Daily Quests</h1>
+              <p>Complete quests, earn XP and keep your streak alive!</p>
+            </div>
+
+            <button className="btnHowQuestsWork" onClick={() => setIsHowItWorksOpen(true)}>
+              How Daily Quests Work? <FaInfoCircle />
+            </button>
+          </div>
+
+          {/* Toast Notification Alert */}
+          {toastMessage && (
+            <div className="dqpToastAlert">
+              <span>{toastMessage}</span>
+            </div>
+          )}
+
+          {/* TOP METRICS CARDS ROW (3 CARDS) */}
+          <div className="dqpTopMetricsRow">
+            
+            {/* Daily Progress Donut Gauge */}
+            <div className="metricCard">
+              <span className="cardTitle">Daily Progress</span>
+
+              <div className="metricContentRow">
+                <div className="donutGaugeBox">
+                  <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="40" stroke="#F1F5F9" strokeWidth="10" fill="none" />
+                    <circle
+                      cx="50"
+                      cy="50"
+                      r="40"
+                      stroke="#F9572A"
+                      strokeWidth="10"
+                      fill="none"
+                      strokeDasharray="251.2"
+                      strokeDashoffset={251.2 - (251.2 * completedCount) / 6}
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <div className="donutCenterText">
+                    <strong>{completedCount}/6</strong>
+                  </div>
+                </div>
+
+                <div className="metricDetailsText">
+                  <strong>{completedCount}/6 Quests</strong>
+                  <span className="sub">Quests Completed</span>
+                  <div className="xpEarnedToday">⭐ +120 XP earned today</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Today's Streak Card */}
+            <div className="metricCard">
+              <span className="cardTitle">Today's Streak</span>
+
+              <div className="metricContentRow">
+                <div className="streakFlameIcon">🔥</div>
+                <div className="metricDetailsText">
+                  <strong className="streakNumber">7</strong>
+                  <span className="sub">Days</span>
+                  <div className="bestStreakSub">👑 Best Streak: 12 days</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Next Milestone Card */}
+            <div className="metricCard">
+              <span className="cardTitle">Next Milestone</span>
+
+              <div className="metricContentRow">
+                <div className="chestIcon">📦</div>
+                <div className="metricDetailsText">
+                  <strong>Complete 6 quests</strong>
+                  <span className="sub">to earn bonus reward!</span>
+                  <div className="mTrack"><div className="mFill" style={{ width: `${(completedCount / 6) * 100}%` }}></div></div>
+                  <span className="mFraction">{completedCount}/6</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* 2-COLUMN MAIN WORKSPACE GRID */}
+          <div className="dqpGridContainer">
+            
+            {/* CENTER COLUMN: TODAY'S QUESTS LIST */}
+            <div className="dqpCenterColumn">
+              
+              <div className="dqpQuestsBlock">
+                
+                {/* Header Row with Countdown Timer */}
+                <div className="questsBlockHeaderRow">
+                  <h3>📅 Today's Quests</h3>
+                  <span className="resetTimerTag">
+                    <FaHourglassHalf color="#F9572A" /> Resets in {formatCountdown(timeLeft)}
+                  </span>
+                </div>
+
+                {/* 6 QUESTS LIST */}
+                <div className="questsList">
+                  {quests.map((q) => (
+                    <div key={q.id} className={`questItemCard ${q.isCompleted ? "completed" : ""}`}>
+                      <div className={`questIconBox ${q.color}`}>{q.icon}</div>
+
+                      <div className="questMainInfo">
+                        <h4>{q.title}</h4>
+                        <p>{q.desc}</p>
+                      </div>
+
+                      <div className="questXpCol">
+                        <span className="xpPill">{q.xp}</span>
+                      </div>
+
+                      <div className="questProgressCol">
+                        {q.isCompleted ? (
+                          <button className="btnCompletedPill">
+                            <FaCheckCircle /> Completed
+                          </button>
+                        ) : q.isLocked ? (
+                          <div className="lockedBonusBox">
+                            <div className="miniTrack"><div className="miniFill" style={{ width: `${(completedCount / 6) * 100}%` }}></div></div>
+                            <span className="frac">{completedCount}/6</span>
+                            <button className="btnLockedIcon"><FaLock /></button>
+                          </div>
+                        ) : (
+                          <div className="goActionBox">
+                            <div className="miniTrack"><div className="miniFill" style={{ width: "40%" }}></div></div>
+                            <span className="frac">{q.progress}</span>
+                            <button
+                              className="btnGoPrimary"
+                              onClick={() => setActiveActionQuest(q)}
+                            >
+                              Go
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Bottom Mountain Trail Banner */}
+                <div className="mountainTrailBanner">
+                  <div className="bannerTextRow">
+                    <FaCrown color="#F59E0B" fontSize="20px" />
+                    <strong>Complete all quests to earn 50 XP bonus!</strong>
+                  </div>
+                  <div className="landscapeIllustration">🌄</div>
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* RIGHT COLUMN SIDEBAR WIDGETS */}
+            <div className="dqpRightSidebar">
+              
+              {/* Today's Reward Card */}
+              <div className="dqpWidgetCard rewardCard">
+                <h4>🎁 Today's Reward</h4>
+
+                <div className="giftBoxGraphicCenter">
+                  <div className="giftBox3d">🎁</div>
+                  <span className="completeSub">Complete all quests</span>
+                  <strong className="rewardXpText">+50 XP ⭐</strong>
+                </div>
+              </div>
+
+              {/* Streak Calendar Widget */}
+              <div className="dqpWidgetCard">
+                <div className="widgetTitleRow">
+                  <h4>Streak Calendar</h4>
+                  <FaInfoCircle color="#94A3B8" />
+                </div>
+
+                <div className="streakCalendarGrid">
+                  {["M", "T", "W", "T", "F", "S", "S"].map((day, idx) => (
+                    <div key={idx} className={`dayCol ${idx <= 5 ? "activeCheck" : idx === 6 ? "currentDay" : ""}`}>
+                      <span className="dayName">{day}</span>
+                      <div className="checkCirclePill">
+                        {idx <= 5 ? <FaCheckCircle color="#10B981" /> : idx === 6 ? "7" : "•"}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <span className="streakKeepText">Keep your streak alive!</span>
+              </div>
+
+              {/* Leaderboard Widget */}
+              <div className="dqpWidgetCard">
+                <div className="widgetTitleRow">
+                  <h4>Leaderboard</h4>
+                  <span className="viewAllLink" onClick={() => setToastMessage("Full Leaderboard view loaded!")}>
+                    View All
+                  </span>
+                </div>
+
+                <div className="leaderboardRankList">
+                  <div className="rankItem gold">
+                    <span className="rankBadge">1</span>
+                    <div className="userAvatarMini">🧑‍🎓</div>
+                    <strong className="userName">Aarav Mehta</strong>
+                    <span className="rankXp">920 XP</span>
+                  </div>
+
+                  <div className="rankItem silver">
+                    <span className="rankBadge">2</span>
+                    <div className="userAvatarMini">👩‍🎓</div>
+                    <strong className="userName">Neha Kumari</strong>
+                    <span className="rankXp">730 XP</span>
+                  </div>
+
+                  <div className="rankItem bronze activeUser">
+                    <span className="rankBadge">3</span>
+                    <div className="userAvatarMini">🧑‍🎓</div>
+                    <strong className="userName">{userName} (You)</strong>
+                    <span className="rankXp">{currentXp} XP</span>
+                  </div>
+
+                  <div className="rankItem">
+                    <span className="rankBadge">4</span>
+                    <div className="userAvatarMini">🧑‍💻</div>
+                    <strong className="userName">Rohit Sharma</strong>
+                    <span className="rankXp">610 XP</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Did You Know? Box */}
+              <div className="didYouKnowCard">
+                <FaLightbulb className="bulbIcon" />
+                <div>
+                  <h5>Did you know?</h5>
+                  <p>Students who complete daily quests learn 2x faster and earn 3x more XP!</p>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      {/* QUEST EXECUTION ACTION MODAL */}
+      {activeActionQuest && (
+        <div className="questModalOverlay" onClick={() => setActiveActionQuest(null)}>
+          <div className="questModalContent" onClick={(e) => e.stopPropagation()}>
+            <button className="btnCloseModal" onClick={() => setActiveActionQuest(null)}>
+              <FaTimes />
+            </button>
+
+            <div className="modalQuestIconHex">{activeActionQuest.icon}</div>
+            <h2>{activeActionQuest.title}</h2>
+            <p className="modalSub">{activeActionQuest.desc}</p>
+            <div className="modalXpPill">{activeActionQuest.xp} Reward</div>
+
+            <div className="questActionInteractiveBox">
+              <p>Execute this quest now to claim your +{activeActionQuest.xpVal} XP bonus!</p>
+              <button
+                className="btnClaimQuest"
+                onClick={() => handleCompleteQuest(activeActionQuest)}
+              >
+                Complete Quest & Claim XP ⭐
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* HOW DAILY QUESTS WORK GUIDE MODAL */}
+      {isHowItWorksOpen && (
+        <div className="questModalOverlay" onClick={() => setIsHowItWorksOpen(false)}>
+          <div className="questModalContent guide" onClick={(e) => e.stopPropagation()}>
+            <button className="btnCloseModal" onClick={() => setIsHowItWorksOpen(false)}>
+              <FaTimes />
+            </button>
+
+            <h2>How Daily Quests Work? 🎯</h2>
+            <p className="modalSub">Complete 6 daily quests to boost your learning and earn bonus rewards!</p>
+
+            <ul className="guideStepsList">
+              <li>1. Daily quests reset every 24 hours at midnight.</li>
+              <li>2. Complete quests like finishing lessons, solving code problems, or joining discussions.</li>
+              <li>3. Completing all 6 quests unlocks the +50 XP Daily Bonus reward box!</li>
+            </ul>
+
+            <button className="btnGotIt" onClick={() => setIsHowItWorksOpen(false)}>
+              Got It!
+            </button>
+          </div>
+        </div>
+      )}
+
+      <FloatingChatbot />
+      <StudentFooter />
+    </div>
+  );
+}

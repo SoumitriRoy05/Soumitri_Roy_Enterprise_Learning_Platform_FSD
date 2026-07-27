@@ -1,77 +1,46 @@
+import React from "react";
+import { FaGraduationCap, FaUsers, FaAward, FaBuilding, FaShieldAlt } from "react-icons/fa";
 import "../styles/stats.css";
 
-export default function Stats(){
+const statData = [
+  {
+    icon: <FaGraduationCap />,
+    number: "10,000+",
+    label: "Courses"
+  },
+  {
+    icon: <FaUsers />,
+    number: "500K+",
+    label: "Happy Learners"
+  },
+  {
+    icon: <FaAward />,
+    number: "20K+",
+    label: "Certifications Issued"
+  },
+  {
+    icon: <FaBuilding />,
+    number: "500+",
+    label: "Partner Organizations"
+  }
+];
 
-return(
-
-<section className="statsSection">
-
-<div className="statCard">
-
-<h1>
-
-25K+
-
-</h1>
-
-<p>
-
-Active Learners
-
-</p>
-
-</div>
-
-<div className="statCard">
-
-<h1>
-
-700+
-
-</h1>
-
-<p>
-
-Organizations
-
-</p>
-
-</div>
-
-<div className="statCard">
-
-<h1>
-
-250+
-
-</h1>
-
-<p>
-
-Courses
-
-</p>
-
-</div>
-
-<div className="statCard">
-
-<h1>
-
-99%
-
-</h1>
-
-<p>
-
-Platform Uptime
-
-</p>
-
-</div>
-
-</section>
-
-)
-
+export default function Stats() {
+  return (
+    <section className="statsSection">
+      <div className="statsCardContainer">
+        {statData.map((item, index) => (
+          <div className="statItem" key={index}>
+            <div className="statIconBox">
+              {item.icon}
+            </div>
+            <div className="statTextContent">
+              <span className="statNumber">{item.number}</span>
+              <span className="statLabel">{item.label}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 }

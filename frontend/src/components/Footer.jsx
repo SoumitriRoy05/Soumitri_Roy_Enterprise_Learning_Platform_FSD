@@ -1,74 +1,71 @@
-import "../styles/footer.css";
+import React from "react";
 import { Link } from "react-router-dom";
-import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
-import { useAuth } from "../context/AuthContext";
+import { FaFacebookF, FaTwitter, FaLinkedinIn, FaInstagram, FaYoutube } from "react-icons/fa";
+import "../styles/footer.css";
 
 export default function Footer() {
-  const { user } = useAuth();
-
-  const handleLinkClick = () => {
+  const handleScrollTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    <footer className="footer">
+    <footer className="footerSection">
+      <div className="footerContainer">
+        <div className="footerTopGrid">
+          {/* Col 1: Brand */}
+          <div className="footerBrandCol">
+            <Link to="/" className="footerLogo" onClick={handleScrollTop}>
+              <span className="logoIcon">⬢</span>
+              <span>SkillSphere</span>
+            </Link>
+            <p className="footerBrandDesc">
+              Empowering students and organizations through gamified learning and workforce development.
+            </p>
+            <div className="socialIconsRow">
+              <a href="#facebook" className="socialIconBtn" aria-label="Facebook"><FaFacebookF /></a>
+              <a href="#twitter" className="socialIconBtn" aria-label="Twitter"><FaTwitter /></a>
+              <a href="#linkedin" className="socialIconBtn" aria-label="LinkedIn"><FaLinkedinIn /></a>
+              <a href="#instagram" className="socialIconBtn" aria-label="Instagram"><FaInstagram /></a>
+              <a href="#youtube" className="socialIconBtn" aria-label="YouTube"><FaYoutube /></a>
+            </div>
+          </div>
 
-      <div className="footerTop">
+          {/* Col 2: Quick Links */}
+          <div>
+            <h4 className="footerColTitle">Quick Links</h4>
+            <ul className="footerLinkList">
+              <li><Link to="/" onClick={handleScrollTop}>Home</Link></li>
+              <li><Link to="/features" onClick={handleScrollTop}>Features</Link></li>
+              <li><Link to="/student-features" onClick={handleScrollTop}>Students Hub</Link></li>
+              <li><Link to="/workforce" onClick={handleScrollTop}>Work Hub</Link></li>
+              <li><Link to="/sandbox" onClick={handleScrollTop}>Sandbox</Link></li>
+            </ul>
+          </div>
 
-        <div className="footerBrand">
-          <h2>SkillSphere</h2>
-          <p>
-            Empowering students and organizations through
-            gamified learning and workforce management.
-          </p>
-        </div>
-
-        <div className="footerLinks">
-          <h3>Quick Links</h3>
-
-          {user && user.role === 'STUDENT' ? (
-            <>
-              <Link to="/student-home" onClick={handleLinkClick}>Home</Link>
-              <Link to="/student-features" onClick={handleLinkClick}>Features</Link>
-              <Link to="/learning" onClick={handleLinkClick}>Learning</Link>
-              <Link to="/dashboard" onClick={handleLinkClick}>Dashboard</Link>
-              <Link to="/sandbox" onClick={handleLinkClick}>Sandbox</Link>
-
-            </>
-          ) : user && user.role === 'EMPLOYEE' ? (
-            <>
-              <Link to="/workforce-home" onClick={handleLinkClick}>Home</Link>
-              <Link to="/workforce-features" onClick={handleLinkClick}>Features</Link>
-              <Link to="/workforce-dashboard" onClick={handleLinkClick}>Dashboard</Link>
-            </>
-          ) : (
-            <>
-              <Link to="/" onClick={handleLinkClick}>Home</Link>
-              <Link to="/features" onClick={handleLinkClick}>Features</Link>
-              <Link to="/learning" onClick={handleLinkClick}>Learning</Link>
-              <Link to="/workforce" onClick={handleLinkClick}>Workforce</Link>
-              <Link to="/sandbox" onClick={handleLinkClick}>Sandbox</Link>
-              <Link to="/contact" onClick={handleLinkClick}>Contact</Link>
-            </>
-          )}
-        </div>
-
-        <div className="footerContact">
-          <h3>Connect</h3>
-
-          <div className="socialIcons">
-            <FaGithub />
-            <FaLinkedin />
-            <FaEnvelope />
+          {/* Col 3: For Organizations */}
+          <div>
+            <h4 className="footerColTitle">For Organizations</h4>
+            <ul className="footerLinkList">
+              <li><Link to="/workforce" onClick={handleScrollTop}>Why SkillSphere</Link></li>
+              <li><Link to="/workforce-features" onClick={handleScrollTop}>Solutions</Link></li>
+              <li><Link to="/admin-login" onClick={handleScrollTop}>Admin Portal</Link></li>
+              <li><Link to="/sandbox" onClick={handleScrollTop}>Sandbox Environment</Link></li>
+            </ul>
           </div>
         </div>
 
+        {/* Footer Bottom */}
+        <div className="footerBottomRow">
+          <div>© 2025 SkillSphere. All rights reserved.</div>
+          <div className="legalLinks">
+            <Link to="/" onClick={handleScrollTop}>Privacy Policy</Link>
+            <span>|</span>
+            <Link to="/" onClick={handleScrollTop}>Terms of Service</Link>
+            <span>|</span>
+            <Link to="/" onClick={handleScrollTop}>Cookie Policy</Link>
+          </div>
+        </div>
       </div>
-
-      <div className="footerBottom">
-        © 2026 SkillSphere. All Rights Reserved.
-      </div>
-
     </footer>
   );
 }

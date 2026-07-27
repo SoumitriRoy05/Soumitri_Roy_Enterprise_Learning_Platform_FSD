@@ -9,6 +9,8 @@ import WorkforcePage from "./pages/WorkforcePage";
 import ContactPage from "./pages/ContactPage";
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import StudentHome from "./pages/StudentHome";
 import WorkforceDashboard from "./pages/WorkforceDashboard";
 import WorkforceHome from "./pages/WorkforceHome";
@@ -28,6 +30,15 @@ import HomePage from "./pages/HomePage";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import { useAdmin } from "./context/AdminContext";
+
+import LearningPathsPage from "./pages/LearningPathsPage";
+import AssignmentsPage from "./pages/AssignmentsPage";
+import AIStudyBuddyPage from "./pages/AIStudyBuddyPage";
+import OpportunityFeedPage from "./pages/OpportunityFeedPage";
+import BadgesPage from "./pages/BadgesPage";
+import ResumeBuilderPage from "./pages/ResumeBuilderPage";
+import DailyQuestsPage from "./pages/DailyQuestsPage";
+import CodeArenaPage from "./pages/CodeArenaPage";
 
 function AdminProtectedRoute({ children }) {
   const { isAdminAuth } = useAdmin();
@@ -75,12 +86,18 @@ function App() {
         {/* Public routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/features" element={<FeaturesPage />} />
-        <Route path="/courses" element={<CoursesPage />} />
-        <Route path="/learning" element={<LearningPage />} />
+        <Route path="/student-features" element={<StudentFeatures />} />
+        <Route path="/student-hub" element={<StudentFeatures />} />
+        <Route path="/courses" element={<ProtectedRoute><CoursesPage /></ProtectedRoute>} />
         <Route path="/workforce" element={<WorkforcePage />} />
+        <Route path="/work-hub" element={<WorkforcePage />} />
+        <Route path="/sandbox" element={<SandboxPage />} />
+        <Route path="/learning" element={<LearningPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         
         {/* Admin routes */}
         <Route path="/admin-login" element={<AdminLogin />} />
@@ -93,15 +110,24 @@ function App() {
         <Route path="/student-home" element={<ProtectedRoute><StudentHome /></ProtectedRoute>} />
         <Route path="/workforce-home" element={<ProtectedRoute><WorkforceHome /></ProtectedRoute>} />
         <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
-        <Route path="/student-features" element={<ProtectedRoute><StudentFeatures /></ProtectedRoute>} />
         <Route path="/workforce-features" element={<ProtectedRoute><WorkforceFeatures /></ProtectedRoute>} />
-        <Route path="/sandbox" element={<ProtectedRoute><SandboxPage /></ProtectedRoute>} />
         <Route path="/discussions" element={<ProtectedRoute><DiscussionsPage /></ProtectedRoute>} />
         <Route path="/team-space"   element={<ProtectedRoute><TeamSpace /></ProtectedRoute>} />
         <Route path="/resources" element={<ProtectedRoute><ComingSoonPage title="Resources" /></ProtectedRoute>} />
         <Route path="/certificate" element={<ProtectedRoute><CertificatesPage /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><ProfileSettingsPage /></ProtectedRoute>} />
         <Route path="/progress" element={<ProtectedRoute><ProgressPage /></ProtectedRoute>} />
+        <Route path="/learning-paths" element={<ProtectedRoute><LearningPathsPage /></ProtectedRoute>} />
+        <Route path="/assignments" element={<ProtectedRoute><AssignmentsPage /></ProtectedRoute>} />
+        <Route path="/ai-buddy" element={<ProtectedRoute><AIStudyBuddyPage /></ProtectedRoute>} />
+        <Route path="/ai-study-buddy" element={<ProtectedRoute><AIStudyBuddyPage /></ProtectedRoute>} />
+        <Route path="/opportunity-feed" element={<ProtectedRoute><OpportunityFeedPage /></ProtectedRoute>} />
+        <Route path="/badges" element={<ProtectedRoute><BadgesPage /></ProtectedRoute>} />
+        <Route path="/progress" element={<ProtectedRoute><ProgressPage /></ProtectedRoute>} />
+        <Route path="/daily-quests" element={<ProtectedRoute><DailyQuestsPage /></ProtectedRoute>} />
+        <Route path="/resume" element={<ProtectedRoute><ResumeBuilderPage /></ProtectedRoute>} />
+        <Route path="/resume-builder" element={<ProtectedRoute><ResumeBuilderPage /></ProtectedRoute>} />
+        <Route path="/code-arena" element={<ProtectedRoute><CodeArenaPage /></ProtectedRoute>} />
       </Routes>
       {!isDashboardRoute && <FloatingChatbot />}
     </>

@@ -1,16 +1,45 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import Background from "../components/Background";
+import PaperPlaneCursor from "../components/PaperPlaneCursor";
+import {
+  FaGraduationCap,
+  FaBriefcase,
+  FaEnvelope,
+  FaLock,
+  FaEye,
+  FaEyeSlash,
+  FaArrowRight,
+  FaArrowLeft,
+  FaShieldAlt
+} from "react-icons/fa";
+
+import studentLoginImg from "../assets/student_login_illustration.png";
+import workforceLoginImg from "../assets/workforce_login_illustration.png";
+import darkStudentLoginImg from "../assets/dark_student_login_illustration.png";
+import darkWorkforceLoginImg from "../assets/dark_workforce_login_illustration.png";
+
 import "../styles/loginPage.css";
 
 export default function LoginPage() {
-  const { user, loginLocal, loginWithGoogle, logout } = useAuth();
+  const { user, loginLocal, loginWithGoogle, logout, themeMode } = useAuth();
+  const isDarkMode = themeMode === "dark";
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Selected Role State (Student or Workforce)
+  // Selected Role State (STUDENT or EMPLOYEE)
   const [role, setRole] = useState(location.state?.role || 'STUDENT');
   const roleRef = useRef(role);
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState("");
+  const [showDevBypass, setShowDevBypass] = useState(true);
+  const [devEmail, setDevEmail] = useState("");
+  const googleBtnRef = useRef(null);
 
   // Sync ref to avoid stale closures in Google API callback
   useEffect(() => {
@@ -21,61 +50,6 @@ export default function LoginPage() {
     return <Navigate to={user.role === 'EMPLOYEE' ? '/workforce-home' : '/student-home'} replace />;
   }
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState("");
-  const [showDevBypass, setShowDevBypass] = useState(false);
-  const [devEmail, setDevEmail] = useState("");
-  const googleBtnRef = useRef(null);
-
-  useEffect(() => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    setShowDevBypass(true);
-
-    const initGoogleSignIn = () => {
-      if (window.google) {
-        try {
-          window.google.accounts.id.initialize({
-            client_id: clientId || 'mock_client_id',
-            callback: async (response) => {
-              try {
-                setError('');
-                // Pass current selected role to login verification
-                const user = await loginWithGoogle(response.credential, roleRef.current);
-                if (user) {
-                  if (user.role === 'STUDENT') {
-                    navigate('/student-home');
-                  } else if (user.role === 'EMPLOYEE') {
-                    navigate('/workforce-home');
-                  } else {
-                    navigate('/');
-                  }
-                }
-              } catch (err) {
-                setError(err.message || 'Google authentication failed');
-              }
-            }
-          });
-          
-          if (googleBtnRef.current) {
-            window.google.accounts.id.renderButton(
-              googleBtnRef.current,
-              { theme: 'filled_blue', size: 'large', width: '340' }
-            );
-          }
-        } catch (err) {
-          console.warn('Google accounts initialization error:', err);
-          setShowDevBypass(true);
-        }
-      } else {
-        setTimeout(initGoogleSignIn, 100);
-      }
-    };
-
-    initGoogleSignIn();
-  }, [loginWithGoogle, navigate, logout]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
@@ -84,19 +58,19 @@ export default function LoginPage() {
     }
     try {
       setError("");
-      const user = await loginLocal(email, password);
-      if (user) {
-        if (role === 'EMPLOYEE' && user.role === 'STUDENT') {
+      const loggedUser = await loginLocal(email, password);
+      if (loggedUser) {
+        if (role === 'EMPLOYEE' && loggedUser.role === 'STUDENT') {
           setError('Enter valid workplace email id');
           await logout();
           return;
         }
-        if (role === 'STUDENT' && user.role !== 'STUDENT') {
+        if (role === 'STUDENT' && loggedUser.role !== 'STUDENT') {
           setError('This account is registered as a Workforce user. Please use the Workforce Portal.');
           await logout();
           return;
         }
-        if (user.role === 'STUDENT') {
+        if (loggedUser.role === 'STUDENT') {
           navigate('/student-home');
         } else {
           navigate('/workforce-home');
@@ -109,22 +83,22 @@ export default function LoginPage() {
 
   const handleDevBypass = async (e) => {
     e.preventDefault();
-    if (!devEmail) return;
+    const targetEmail = devEmail || (role === 'STUDENT' ? 'student@skillsphere.com' : 'employee@skillsphere.com');
     try {
       setError("");
-      const user = await loginWithGoogle(`mock_google_token_${devEmail}`, role);
-      if (user) {
-        if (role === 'EMPLOYEE' && user.role === 'STUDENT') {
+      const loggedUser = await loginWithGoogle(`mock_google_token_${targetEmail}`, role);
+      if (loggedUser) {
+        if (role === 'EMPLOYEE' && loggedUser.role === 'STUDENT') {
           setError('Enter valid workplace email id');
           await logout();
           return;
         }
-        if (role === 'STUDENT' && user.role !== 'STUDENT') {
+        if (role === 'STUDENT' && loggedUser.role !== 'STUDENT') {
           setError('This account is registered as a Workforce user. Please use the Workforce Portal.');
           await logout();
           return;
         }
-        if (user.role === 'STUDENT') {
+        if (loggedUser.role === 'STUDENT') {
           navigate('/student-home');
         } else {
           navigate('/workforce-home');
@@ -136,129 +110,126 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-page-wrapper">
-      {/* Header Bar */}
-      <header className="header-bar">
-        <Link to="/" className="logo-brand">
-          <span className="logo-icon" style={{ 
-            color: role === 'STUDENT' ? '#00E5FF' : '#ff00c8', 
-            textShadow: role === 'STUDENT' ? '0 0 10px cyan' : '0 0 10px #ff00c8',
-            transition: 'all 0.3s' 
-          }}>⬢</span>
-          <span className="logo-text-skill">Skill</span>
-          <span className="logo-text-sphere" style={{ 
-            color: role === 'STUDENT' ? '#00E5FF' : '#ff00c8',
-            transition: 'color 0.3s' 
-          }}>Sphere</span>
+    <div className="loginPageWrapper" style={{ paddingTop: '24px' }}>
+      <Background />
+      <PaperPlaneCursor />
+
+      {/* Top Header Bar */}
+      <header className="registerHeaderBar">
+        <Link to="/" className="registerLogoBrand">
+          <span className="logoIcon">⬢</span>
+          <span>SkillSphere</span>
         </Link>
-        <Link to="/" className="back-btn">
-          Back to Home
-        </Link>
+
+        <button className="btnBackHome" onClick={() => navigate('/')}>
+          <FaArrowLeft /> Back to Home
+        </button>
       </header>
 
-      <div className="container">
-        <div className="login-card" style={{
-          border: role === 'STUDENT' ? '1px solid rgba(0, 229, 255, 0.15)' : '1px solid rgba(255, 0, 200, 0.15)',
-          boxShadow: role === 'STUDENT' 
-            ? '0 20px 45px rgba(0, 0, 0, 0.55), 0 0 35px rgba(0, 229, 255, 0.1)'
-            : '0 20px 45px rgba(0, 0, 0, 0.55), 0 0 35px rgba(255, 0, 200, 0.1)',
-          transition: 'all 0.3s'
-        }}>
-          <h1>Welcome Back</h1>
-          
-          <p className="subtitle" style={{ 
-            color: role === 'STUDENT' ? '#00e5ff' : '#ff00c8', 
-            textShadow: role === 'STUDENT' ? '0 0 5px rgba(0, 229, 255, 0.2)' : '0 0 5px rgba(255, 0, 200, 0.2)', 
-            transition: 'color 0.3s',
-            fontWeight: '600'
-          }}>
-            {role === 'STUDENT' ? "Student Access Portal" : "Workforce Access Portal"}
-          </p>
+      {/* Main Split Card Container */}
+      <div className="loginMainContainer">
+        
+        {/* ── LEFT PANEL (ILLUSTRATION & COPY) ── */}
+        <div className="loginLeftPanel">
+          <div className="leftDotsPattern">• • • • • •</div>
 
-          {/* Role Switcher Tabs */}
-          <div className="login-role-tabs" style={{
-            display: 'flex',
-            background: 'rgba(0, 0, 0, 0.25)',
-            padding: '4px',
-            borderRadius: '12px',
-            marginBottom: '25px',
-            border: "1px solid var(--border-color)"
-          }}>
+          <div className="leftCopyHeader">
+            <h1>Welcome Back!</h1>
+            <h2>
+              {role === 'STUDENT' ? (
+                <>Let's continue <br />your learning journey</>
+              ) : (
+                <>Let's build, collaborate <br />and create impact.</>
+              )}
+            </h2>
+            <p>
+              {role === 'STUDENT'
+                ? "Access your personalized learning space and keep progressing towards your goals."
+                : "Access your workspace and tools to manage projects, teams and drive results."}
+            </p>
+          </div>
+
+          <div className="leftIllustrationBox">
+            <img
+              src={role === 'STUDENT' ? (isDarkMode ? darkStudentLoginImg : studentLoginImg) : (isDarkMode ? darkWorkforceLoginImg : workforceLoginImg)}
+              alt={role === 'STUDENT' ? "Student Login Illustration" : "Workforce Login Illustration"}
+              className="loginIllustrationImg"
+            />
+          </div>
+        </div>
+
+        {/* ── RIGHT PANEL (ACCESS PORTAL FORM) ── */}
+        <div className="loginRightPanel">
+          <div className="portalTitleHeader">
+            <h2>{role === 'STUDENT' ? "Student Access Portal" : "Workforce Access Portal"}</h2>
+            <div className="orangeUnderline"></div>
+          </div>
+
+          {/* Segmented Role Switcher */}
+          <div className="roleSegmentedBar">
             <button
               type="button"
-              onClick={() => setRole('STUDENT')}
-              style={{
-                flex: 1,
-                padding: '12px',
-                background: role === 'STUDENT' ? 'rgba(0, 229, 255, 0.15)' : 'transparent',
-                border: 'none',
-                borderRadius: '8px',
-                color: role === 'STUDENT' ? '#00e5ff' : 'var(--text-secondary)',
-                fontWeight: '700',
-                fontSize: '15px',
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-                textShadow: role === 'STUDENT' ? '0 0 8px rgba(0, 229, 255, 0.4)' : 'none',
-                fontFamily: "'Outfit', 'Inter', sans-serif"
-              }}
+              className={`roleSegmentBtn ${role === 'STUDENT' ? 'active' : ''}`}
+              onClick={() => { setRole('STUDENT'); setError(''); }}
             >
-              🎓 Student
+              <FaGraduationCap /> Student
             </button>
+
             <button
               type="button"
-              onClick={() => setRole('EMPLOYEE')}
-              style={{
-                flex: 1,
-                padding: '12px',
-                background: role === 'EMPLOYEE' ? 'rgba(255, 0, 200, 0.15)' : 'transparent',
-                border: 'none',
-                borderRadius: '8px',
-                color: role === 'EMPLOYEE' ? '#ff00c8' : 'var(--text-secondary)',
-                fontWeight: '700',
-                fontSize: '15px',
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-                textShadow: role === 'EMPLOYEE' ? '0 0 8px rgba(255, 0, 200, 0.4)' : 'none',
-                fontFamily: "'Outfit', 'Inter', sans-serif"
-              }}
+              className={`roleSegmentBtn ${role === 'EMPLOYEE' ? 'active' : ''}`}
+              onClick={() => { setRole('EMPLOYEE'); setError(''); }}
             >
-              💼 Workforce
+              <FaBriefcase /> Workforce
             </button>
           </div>
 
-          {error && <div className="errorMessage">{error}</div>}
+          {error && <div className="errorMessageCard">{error}</div>}
 
-          {/* Login Form */}
-          <form onSubmit={handleSubmit} className="login-content">
-            <div className="input-group">
-              <label htmlFor="email">Email Address</label>
-              <input
-                id="email"
-                type="email"
-                placeholder={role === 'STUDENT' ? "student@gmail.com" : "manager@company.com"}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                style={{
-                  borderColor: role === 'STUDENT' ? '' : '#3a205a'
-                }}
-              />
+          {/* Form Content */}
+          <form onSubmit={handleSubmit} className="loginFormContent">
+            {/* Email Field */}
+            <div className="inputFieldGroup">
+              <label htmlFor="login-email">Email Address</label>
+              <div className="inputWithIconWrapper">
+                <FaEnvelope className="fieldPrefixIcon" />
+                <input
+                  id="login-email"
+                  type="email"
+                  placeholder={role === 'STUDENT' ? "student@gmail.com" : "workforce@company.com"}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
             </div>
 
-            <div className="input-group">
-              <label htmlFor="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+            {/* Password Field */}
+            <div className="inputFieldGroup">
+              <label htmlFor="login-password">Password</label>
+              <div className="inputWithIconWrapper">
+                <FaLock className="fieldPrefixIcon" />
+                <input
+                  id="login-password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="passwordEyeToggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
             </div>
 
-            <div className="options">
-              <label className="remember">
+            {/* Remember & Forgot Password Options */}
+            <div className="formOptionsRow">
+              <label className="rememberCheckboxLabel">
                 <input
                   type="checkbox"
                   checked={rememberMe}
@@ -266,87 +237,66 @@ export default function LoginPage() {
                 />
                 <span>Remember me</span>
               </label>
-              <a href="#" onClick={(e) => e.preventDefault()} style={{ color: role === 'STUDENT' ? '' : '#ff00c8' }}>Forgot Password?</a>
+
+              <Link to="/forgot-password" className="forgotPassLink">
+                Forgot Password?
+              </Link>
             </div>
 
-            <button 
-              type="submit" 
-              className="login-btn"
-              style={{
-                background: role === 'STUDENT' 
-                  ? 'linear-gradient(90deg, #00e5ff, #8a2be2)' 
-                  : 'linear-gradient(90deg, #ff00c8, #8a2be2)',
-                boxShadow: role === 'STUDENT'
-                  ? '0 10px 25px rgba(0, 229, 255, 0.25)'
-                  : '0 10px 25px rgba(255, 0, 200, 0.25)'
-              }}
-            >
-              Log In
+            {/* Submit Button */}
+            <button type="submit" className="btnSubmitLogin">
+              Log In <FaArrowRight />
             </button>
 
-            <div className="divider">
+            {/* Divider */}
+            <div className="orDividerLine">
               <span>or continue with</span>
             </div>
 
-            {/* Google Login Container with Custom UI Overlay */}
-            <div style={{ position: 'relative', width: '100%', height: '52px', margin: '10px 0' }}>
-              <button className="google-btn" type="button" onClick={e => e.preventDefault()} style={{ margin: 0, height: '100%', width: '100%' }}>
-                <img
-                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                  alt="Google Logo"
+            {/* Google Login Button */}
+            <button
+              type="button"
+              className="btnGoogleLogin"
+              onClick={handleDevBypass}
+            >
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
+                alt="Google logo"
+              />
+              Continue with Google
+            </button>
+
+            {/* Mock Dev Mode Box */}
+            <div className="mockDevModeBox">
+              <div className="mockDevHeader">
+                <FaShieldAlt /> Mock Dev Mode
+              </div>
+              <div className="mockDevSubtext">
+                Enter email to bypass Google ({role === 'STUDENT' ? 'STUDENT' : 'WORKFORCE'})
+              </div>
+              <div className="mockDevFormRow">
+                <input
+                  type="email"
+                  className="mockDevInput"
+                  placeholder={role === 'STUDENT' ? "student@skillsphere.com" : "workforce@company.com"}
+                  value={devEmail}
+                  onChange={(e) => setDevEmail(e.target.value)}
                 />
-                <span>Google</span>
-              </button>
-              {!showDevBypass && (
-                <div
-                  ref={googleBtnRef}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    opacity: 0,
-                    overflow: 'hidden',
-                    zIndex: 2,
-                    cursor: 'pointer'
-                  }}
-                ></div>
-              )}
+                <button type="button" className="btnDevBypass" onClick={handleDevBypass}>
+                  Bypass
+                </button>
+              </div>
             </div>
 
-            {showDevBypass && (
-              <div className="devBypassSection">
-                <p className="devNote">⚠️ Mock Dev Mode. Enter email to bypass Google ({role}):</p>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <input
-                    type="email"
-                    placeholder={role === 'STUDENT' ? "student@skillsphere.com" : "employee@skillsphere.com"}
-                    value={devEmail}
-                    onChange={(e) => setDevEmail(e.target.value)}
-                    className="devInput"
-                    style={{ margin: 0 }}
-                  />
-                  <button 
-                    type="button" 
-                    onClick={handleDevBypass} 
-                    className="devSubmitBtn" 
-                    style={{ 
-                      width: 'auto', 
-                      whiteSpace: 'nowrap',
-                      background: role === 'STUDENT' ? '' : '#ff00c8'
-                    }}
-                  >
-                    Bypass
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <p className="signup-text">
+            {/* Bottom Signup Text */}
+            <div className="bottomAuthText">
               Don't have an account?{" "}
-              <Link to="/register" style={{ color: role === 'STUDENT' ? '#00e5ff' : '#ff00c8' }}>Sign up here</Link>
-            </p>
+              {role === 'STUDENT' ? (
+                <Link to="/register" state={{ role: 'STUDENT' }}>Sign up here</Link>
+              ) : (
+                <Link to="/register" state={{ role: 'EMPLOYEE' }}>Contact Admin</Link>
+              )}
+            </div>
           </form>
         </div>
       </div>

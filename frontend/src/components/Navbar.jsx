@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { FiMenu, FiLogOut } from "react-icons/fi";
+import { FiMenu, FiLogOut, FiSun, FiMoon } from "react-icons/fi";
 import "../styles/navbar.css";
 
 export default function Navbar({ toggleSidebar, isSidebarOpen, showSidebarToggle }) {
-  const { user, logout, xp } = useAuth();
+  const { user, logout, xp, themeMode, toggleTheme } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
   return (
     <header className="navbar">
-      {/* ── Left: Logo + sidebar toggle ── */}
+      {/* ── Left: Logo + optional sidebar toggle ── */}
       <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
         {(showSidebarToggle || (user && user.role === "STUDENT")) && (
           <button
@@ -33,58 +33,66 @@ export default function Navbar({ toggleSidebar, isSidebarOpen, showSidebarToggle
         </Link>
       </div>
 
-      {/* ── Centre: Nav links ── */}
+      {/* ── Center: Nav links matching user request ── */}
       <nav className="navLinks">
         <Link
           to={user ? (user.role === "STUDENT" ? "/student-home" : "/workforce-home") : "/"}
-          className="backHome"
+          className={location.pathname === "/" || location.pathname === "/student-home" || location.pathname === "/workforce-home" ? "activeNav" : ""}
         >
           Home
         </Link>
 
         {user && user.role === "STUDENT" && (
           <>
-            <Link to="/student-features" style={{ color: location.pathname === "/student-features" ? "#00e5ff" : "" }}>Features</Link>
-            <Link to="/courses"          style={{ color: location.pathname === "/courses"          ? "#00e5ff" : "" }}>Courses</Link>
-            <Link to="/learning"         style={{ color: location.pathname === "/learning"         ? "#00e5ff" : "" }}>Learning</Link>
-            <Link to="/progress"         style={{ color: location.pathname === "/progress"         ? "#00e5ff" : "" }}>Progress</Link>
-            <Link to="/sandbox"          style={{ color: location.pathname === "/sandbox"          ? "#00e5ff" : "" }}>Sandbox</Link>
+            <Link to="/student-features" className={location.pathname === "/student-features" ? "activeNav" : ""}>Features</Link>
+            <Link to="/courses"          className={location.pathname === "/courses" ? "activeNav" : ""}>Work Hub</Link>
+            <Link to="/learning"         className={location.pathname === "/learning" ? "activeNav" : ""}>Students Hub</Link>
+            <Link to="/progress"         className={location.pathname === "/progress" ? "activeNav" : ""}>Progress</Link>
+            <Link to="/sandbox"          className={location.pathname === "/sandbox" ? "activeNav" : ""}>Sandbox</Link>
           </>
         )}
 
         {user && user.role === "EMPLOYEE" && (
           <>
-            <Link to="/workforce-features" style={{ color: location.pathname === "/workforce-features" ? "#ff00c8" : "" }}>Features</Link>
-            <Link to="/team-space"         style={{ color: location.pathname === "/team-space"         ? "#ff00c8" : "" }}>Team Space</Link>
+            <Link to="/workforce-features" className={location.pathname === "/workforce-features" ? "activeNav" : ""}>Features</Link>
+            <Link to="/team-space"         className={location.pathname === "/team-space" ? "activeNav" : ""}>Team Space</Link>
           </>
         )}
 
         {!user && (
           <>
-            <Link to="/features">Features</Link>
-            <Link to="/workforce">Workforce</Link>
-            <Link to="/sandbox" style={{ color: location.pathname === "/sandbox" ? "#00e5ff" : "" }}>Sandbox</Link>
-            <Link to="/contact">Contact</Link>
-            <Link to="/admin-login" style={{ color: location.pathname === "/admin-login" ? "#00e5ff" : "#ffd700", fontWeight: "bold" }}>Admin Portal</Link>
+            <Link to="/features"          className={location.pathname === "/features" ? "activeNav" : ""}>Features</Link>
+            <Link to="/student-features" className={location.pathname === "/student-features" || location.pathname === "/student-hub" ? "activeNav" : ""}>Students Hub</Link>
+            <Link to="/workforce"         className={location.pathname === "/workforce" || location.pathname === "/work-hub" ? "activeNav" : ""}>Work Hub</Link>
+            <Link to="/sandbox"           className={location.pathname === "/sandbox" ? "activeNav" : ""}>Sandbox</Link>
+            <Link to="/admin-login"       className="adminLink">Admin Portal</Link>
           </>
         )}
       </nav>
 
-      {/* ── Right: Buttons + workforce controls ── */}
+      {/* ── Right: Action Buttons ── */}
       <div className="navButtons">
+        <button
+          className="themeToggleNavBtn"
+          onClick={toggleTheme}
+          title={`Switch to ${themeMode === 'dark' ? 'Light' : 'Dark'} Mode`}
+        >
+          {themeMode === 'dark' ? <FiSun className="themeNavIcon sun" /> : <FiMoon className="themeNavIcon moon" />}
+          <span className="themeNavText">{themeMode === 'dark' ? 'Light' : 'Dark'}</span>
+        </button>
+
         {user && user.role === "STUDENT" && (
           <button className="xpBtn" onClick={() => navigate("/student-home")}>⚡ {xp} XP</button>
         )}
 
-        {/* User profile + logout */}
         {user ? (
           <div
             className="userProfileContainer"
             onClick={() => {
-              if (user.role === "STUDENT")   navigate("/student-home");
+              if (user.role === "STUDENT") navigate("/student-home");
               else if (user.role === "EMPLOYEE") navigate("/workforce-home");
             }}
-            style={{ cursor: (user.role === "STUDENT" || user.role === "EMPLOYEE") ? "pointer" : "default" }}
+            style={{ cursor: "pointer" }}
           >
             <div className="userProfileBadge">
               <div className="avatarCircle">
@@ -100,14 +108,14 @@ export default function Navbar({ toggleSidebar, isSidebarOpen, showSidebarToggle
               onClick={async (e) => { e.stopPropagation(); await logout(); navigate("/"); }}
               title="Sign out of SkillSphere"
             >
-              <FiLogOut className="logoutIcon" />
+              <FiLogOut />
               <span>Logout</span>
             </button>
           </div>
         ) : (
           <div style={{ display: "flex", gap: "10px" }}>
             <button className="loginBtn" onClick={() => navigate("/login")}>Login</button>
-            <button className="loginBtn" style={{ background: "#ff00c8", borderColor: "#ff00c8" }} onClick={() => navigate("/register")}>Register</button>
+            <button className="registerBtn" onClick={() => navigate("/register")}>Register</button>
           </div>
         )}
       </div>
