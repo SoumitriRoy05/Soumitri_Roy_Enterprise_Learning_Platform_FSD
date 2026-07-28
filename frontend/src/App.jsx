@@ -39,6 +39,7 @@ import BadgesPage from "./pages/BadgesPage";
 import ResumeBuilderPage from "./pages/ResumeBuilderPage";
 import DailyQuestsPage from "./pages/DailyQuestsPage";
 import CodeArenaPage from "./pages/CodeArenaPage";
+import FlashcardsPage from "./pages/FlashcardsPage";
 
 function AdminProtectedRoute({ children }) {
   const { isAdminAuth } = useAdmin();
@@ -128,6 +129,8 @@ function App() {
         <Route path="/resume" element={<ProtectedRoute><ResumeBuilderPage /></ProtectedRoute>} />
         <Route path="/resume-builder" element={<ProtectedRoute><ResumeBuilderPage /></ProtectedRoute>} />
         <Route path="/code-arena" element={<ProtectedRoute><CodeArenaPage /></ProtectedRoute>} />
+        <Route path="/flashcards" element={<ProtectedRoute><FlashcardsPage /></ProtectedRoute>} />
+        <Route path="/create-flashcards" element={<ProtectedRoute><FlashcardsPage /></ProtectedRoute>} />
       </Routes>
       {!isDashboardRoute && <FloatingChatbot />}
     </>

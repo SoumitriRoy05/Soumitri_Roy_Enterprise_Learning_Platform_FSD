@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaRobot,
   FaLightbulb,
@@ -27,6 +28,7 @@ import {
 } from "react-icons/fa";
 
 export default function AIStudyBuddy() {
+  const navigate = useNavigate();
   const [inputMsg, setInputMsg] = useState("");
   const [copiedCode, setCopiedCode] = useState(false);
   const [messages, setMessages] = useState([
@@ -155,7 +157,7 @@ export default function AIStudyBuddy() {
               </div>
             </div>
 
-            <div className="aisbPromptCard" onClick={() => handleSend("Create Flashcards")}>
+            <div className="aisbPromptCard" onClick={() => navigate("/flashcards")}>
               <div className="pCardIcon purple"><FaClone /></div>
               <div>
                 <strong>Create Flashcards</strong>
@@ -338,7 +340,7 @@ export default function AIStudyBuddy() {
                 <span>Test your knowledge</span>
               </div>
 
-              <div className="toolGridBox">
+              <div className="toolGridBox" onClick={() => navigate("/flashcards")} style={{ cursor: "pointer" }}>
                 <div className="tIcon orange"><FaClone /></div>
                 <strong>Flashcards</strong>
                 <span>Smart Flashcards</span>

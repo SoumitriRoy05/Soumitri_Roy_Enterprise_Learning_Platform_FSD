@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Background from "../components/Background";
@@ -42,13 +42,80 @@ import {
 import "../styles/assignments.css";
 
 export default function AssignmentsPage() {
-  const { user, xp, themeMode, toggleTheme, enrolledCourses, completedTopics } = useAuth();
+  const { user, xp, earnXp, themeMode, toggleTheme, enrolledCourses, completedTopics } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("assignments");
   const [filterTab, setFilterTab] = useState("all");
   const [courseFilter, setCourseFilter] = useState("all");
   const [sortBy, setSortBy] = useState("duedate");
   const isDarkMode = themeMode === "dark";
+
+  // Zip Upload & Submission State
+  const fileInputRef = useRef(null);
+  const [targetAsgnId, setTargetAsgnId] = useState(null);
+  const [toastMsg, setToastMsg] = useState("");
+  const [submittedAsgnsMap, setSubmittedAsgnsMap] = useState(() => {
+    try {
+      const saved = localStorage.getItem("skillsphere_submitted_asgns");
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  });
+
+  const showToast = (msg) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(""), 4500);
+  };
+
+  const handleTriggerUpload = (asgnId) => {
+    setTargetAsgnId(asgnId);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith(".zip")) {
+      alert("⚠️ Invalid file type! Please select a valid .ZIP archive file.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+
+    if (!targetAsgnId) return;
+
+    const nowStr = new Date().toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric"
+    }) + ", " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+    const newSubmission = {
+      fileName: file.name,
+      submittedDate: `Submitted on ${nowStr}`
+    };
+
+    const updatedMap = {
+      ...submittedAsgnsMap,
+      [targetAsgnId]: newSubmission
+    };
+
+    setSubmittedAsgnsMap(updatedMap);
+    try {
+      localStorage.setItem("skillsphere_submitted_asgns", JSON.stringify(updatedMap));
+    } catch (err) {}
+
+    if (earnXp) {
+      earnXp(100);
+    }
+
+    const targetAsgn = rawAssignments.find(a => a.id === targetAsgnId);
+    showToast(`🎉 Assignment "${targetAsgn ? targetAsgn.title : 'Project'}" submitted successfully! (${file.name}) +100 XP`);
+  };
 
   const userName = user?.full_name || user?.username || "Learner";
   const currentXp = xp ?? 0;
@@ -156,10 +223,14 @@ export default function AssignmentsPage() {
   const userEnrolled = enrolledCourses || [];
 
   const assignmentsList = rawAssignments.map(asgn => {
-    const isEnrolled = userEnrolled.includes(asgn.courseId) || userEnrolled.includes(asgn.courseKey);
+    const isSubmitted = !!submittedAsgnsMap[asgn.id];
+    const isEnrolled = userEnrolled.includes(asgn.courseId) || userEnrolled.includes(asgn.courseKey) || true; // allow interactive submission
+    const status = isSubmitted ? "submitted" : (isEnrolled ? asgn.defaultStatus : "locked");
     return {
       ...asgn,
-      status: isEnrolled ? asgn.defaultStatus : "locked"
+      status,
+      submittedDate: isSubmitted ? submittedAsgnsMap[asgn.id].submittedDate : asgn.dueDateFull,
+      fileName: isSubmitted ? submittedAsgnsMap[asgn.id].fileName : null
     };
   });
 
@@ -252,6 +323,21 @@ export default function AssignmentsPage() {
 
         {/* ── RIGHT MAIN BODY AREA ── */}
         <div className="asRightBodyArea">
+          {/* Hidden File Input for Zip Files */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept=".zip"
+            onChange={handleFileSelect}
+            style={{ display: "none" }}
+          />
+
+          {/* Toast Notification Alert */}
+          {toastMsg && (
+            <div className="asToastAlert">
+              <FaCheckCircle /> {toastMsg}
+            </div>
+          )}
           
           {/* Top Header Bar */}
           <header className="sdTopHeaderBar">
@@ -393,7 +479,7 @@ export default function AssignmentsPage() {
               {/* 5 Assignment Cards Stack */}
               <div className="asCardsStack">
                 {filteredAssignments.map((asgn) => (
-                  <div key={asgn.id} className="asgnCard">
+                  <div key={asgn.id} className={`asgnCard ${asgn.status === "submitted" ? "submittedCard" : ""}`}>
                     
                     {/* Left Icon Badge */}
                     <div
@@ -430,17 +516,20 @@ export default function AssignmentsPage() {
                             <span className="dueFullDate">{asgn.dueDateFull}</span>
                           </div>
                           <div className="btnGroup">
-                            <button className="btnContinueAsgn">Continue</button>
-                            <button className="btnSubmitLink">Submit →</button>
+                            <button className="btnContinueAsgn" onClick={() => handleTriggerUpload(asgn.id)} title="Upload .ZIP Solution File">Continue</button>
+                            <button className="btnSubmitLink" onClick={() => handleTriggerUpload(asgn.id)}>Submit →</button>
                           </div>
                         </>
                       )}
 
                       {asgn.status === "submitted" && (
                         <>
-                          <span className="submittedTag">✓ Submitted</span>
+                          <span className="submittedTag green"><FaCheckCircle /> Submitted</span>
+                          {asgn.fileName && <span className="zipFileBadge">📦 {asgn.fileName}</span>}
                           <span className="subDateText">{asgn.submittedDate}</span>
-                          <button className="btnOutlineAction">View Submission</button>
+                          <button className="btnSubmittedGreen" onClick={() => handleTriggerUpload(asgn.id)}>
+                            ✓ Submitted (.zip)
+                          </button>
                         </>
                       )}
 

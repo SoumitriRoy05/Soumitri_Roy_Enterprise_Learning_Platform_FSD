@@ -405,67 +405,75 @@ export default function StudentHome() {
                   <div className="sdWhitePanelCard" style={{ marginTop: "24px" }}>
                     <div className="sdPanelHeaderRow">
                       <h3>Continue Learning</h3>
-                      <span className="sdViewAllLink" onClick={() => navigate("/courses")}>View All</span>
+                      <span className="sdViewAllLink" onClick={() => navigate("/learning-paths")}>View All</span>
                     </div>
 
                     <div className="sdContinueLearningGrid">
-                      <div className="sdCourseCardBox">
-                        <div className="sdCourseHeaderRow">
-                          <div className="sdCourseIconBadge yellowBg">JS</div>
-                          <FaEllipsisH className="moreDots" />
-                        </div>
-                        <h4>JavaScript Fundamentals</h4>
-                        <div className="sdCourseProgressBar">
-                          <div className="sdCourseProgressFill" style={{ width: "60%" }}></div>
-                        </div>
-                        <div className="sdCourseFooterRow">
-                          <span className="sdCoursePctText">60% Complete</span>
-                          <button className="btnContinueCourse" onClick={() => navigate("/learning")}>Continue</button>
-                        </div>
-                      </div>
-
-                      <div className="sdCourseCardBox">
+                      {/* React Developer Path */}
+                      <div className="sdCourseCardBox" onClick={() => navigate("/learning-paths")} style={{ cursor: "pointer" }}>
                         <div className="sdCourseHeaderRow">
                           <div className="sdCourseIconBadge blueBg">⚛️</div>
                           <FaEllipsisH className="moreDots" />
                         </div>
-                        <h4>React.js Development</h4>
+                        <h4>React Developer Path</h4>
+                        <p style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "2px 0 8px 0" }}>Module 2: React Components & Hooks</p>
                         <div className="sdCourseProgressBar">
                           <div className="sdCourseProgressFill" style={{ width: "40%" }}></div>
                         </div>
                         <div className="sdCourseFooterRow">
                           <span className="sdCoursePctText">40% Complete</span>
-                          <button className="btnContinueCourse" onClick={() => navigate("/learning")}>Continue</button>
+                          <button className="btnContinueCourse" onClick={(e) => { e.stopPropagation(); navigate("/learning-paths"); }}>Continue</button>
                         </div>
                       </div>
 
-                      <div className="sdCourseCardBox">
+                      {/* JavaScript Fundamentals Path */}
+                      <div className="sdCourseCardBox" onClick={() => navigate("/learning-paths")} style={{ cursor: "pointer" }}>
+                        <div className="sdCourseHeaderRow">
+                          <div className="sdCourseIconBadge yellowBg">JS</div>
+                          <FaEllipsisH className="moreDots" />
+                        </div>
+                        <h4>JavaScript Fundamentals</h4>
+                        <p style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "2px 0 8px 0" }}>Module 1: ES6 Syntax & Async JS</p>
+                        <div className="sdCourseProgressBar">
+                          <div className="sdCourseProgressFill" style={{ width: "60%" }}></div>
+                        </div>
+                        <div className="sdCourseFooterRow">
+                          <span className="sdCoursePctText">60% Complete</span>
+                          <button className="btnContinueCourse" onClick={(e) => { e.stopPropagation(); navigate("/learning-paths"); }}>Continue</button>
+                        </div>
+                      </div>
+
+                      {/* Python for Beginners Path */}
+                      <div className="sdCourseCardBox" onClick={() => navigate("/learning-paths")} style={{ cursor: "pointer" }}>
                         <div className="sdCourseHeaderRow">
                           <div className="sdCourseIconBadge pyYellowBg">🐍</div>
                           <FaEllipsisH className="moreDots" />
                         </div>
                         <h4>Python for Beginners</h4>
+                        <p style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "2px 0 8px 0" }}>Module 3: Functions & Data Structures</p>
                         <div className="sdCourseProgressBar">
                           <div className="sdCourseProgressFill" style={{ width: "75%" }}></div>
                         </div>
                         <div className="sdCourseFooterRow">
                           <span className="sdCoursePctText">75% Complete</span>
-                          <button className="btnContinueCourse" onClick={() => navigate("/learning")}>Continue</button>
+                          <button className="btnContinueCourse" onClick={(e) => { e.stopPropagation(); navigate("/learning-paths"); }}>Continue</button>
                         </div>
                       </div>
 
-                      <div className="sdCourseCardBox">
+                      {/* UI/UX Design Essentials Path */}
+                      <div className="sdCourseCardBox" onClick={() => navigate("/learning-paths")} style={{ cursor: "pointer" }}>
                         <div className="sdCourseHeaderRow">
                           <div className="sdCourseIconBadge pinkBg">🎨</div>
                           <FaEllipsisH className="moreDots" />
                         </div>
                         <h4>UI/UX Design Essentials</h4>
+                        <p style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "2px 0 8px 0" }}>Module 1: Design Systems & Wireframing</p>
                         <div className="sdCourseProgressBar">
                           <div className="sdCourseProgressFill" style={{ width: "30%" }}></div>
                         </div>
                         <div className="sdCourseFooterRow">
                           <span className="sdCoursePctText">30% Complete</span>
-                          <button className="btnContinueCourse" onClick={() => navigate("/learning")}>Continue</button>
+                          <button className="btnContinueCourse" onClick={(e) => { e.stopPropagation(); navigate("/learning-paths"); }}>Continue</button>
                         </div>
                       </div>
                     </div>

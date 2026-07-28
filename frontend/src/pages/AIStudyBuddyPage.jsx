@@ -397,7 +397,7 @@ function findItem(arr, target) {
                   </div>
                 </div>
 
-                <div className="aisbpPromptCard" onClick={() => handleSend("Create Flashcards for Web Dev")}>
+                <div className="aisbpPromptCard" onClick={() => navigate("/flashcards")}>
                   <div className="pCardIcon purple"><FaClone /></div>
                   <div>
                     <strong>Create Flashcards</strong>
@@ -609,7 +609,7 @@ function findItem(arr, target) {
                     <span>Test your knowledge</span>
                   </div>
 
-                  <div className="toolGridBox" onClick={() => openToolModal("Flashcards", "Create smart flashcards for fast revision.")}>
+                  <div className="toolGridBox" onClick={() => navigate("/flashcards")}>
                     <div className="tIcon orange"><FaClone /></div>
                     <strong>Flashcards</strong>
                     <span>Smart Flashcards</span>
