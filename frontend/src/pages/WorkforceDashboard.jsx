@@ -72,6 +72,13 @@ import studentDashboardHeroImg from "../assets/student_dashboard_hero_illustrati
 import studentHubGirlImg from "../assets/student_hub_girl_illustration.png";
 import engagementHeroImg from "../assets/engagement_hero_illustration.png";
 import womanWorkingImg from "../assets/woman_working_computer_illustration.png";
+import darkWorkforcePortalImg from "../assets/dark_workforce_portal_illustration.png";
+import darkWorkHubHeroImg from "../assets/dark_work_hub_hero_illustration.png";
+import darkHeroImg from "../assets/dark_hero_illustration.png";
+import darkSandboxHeroImg from "../assets/dark_sandbox_hero_illustration.png";
+import darkFeatureHeroImg from "../assets/dark_feature_hero_illustration.png";
+import darkStudentDashboardHeroImg from "../assets/dark_student_dashboard_hero_illustration.png";
+import darkReactLearningHero from "../assets/dark_react_learning_hero.png";
 
 import "../styles/workforceDashboard.css";
 
@@ -353,7 +360,7 @@ export default function WorkforceDashboard() {
   });
 
   return (
-    <div className="wf-dashboard-container">
+    <div className={`wf-dashboard-container ${themeMode === 'dark' ? 'dark-theme' : ''}`} data-theme={themeMode || 'dark'}>
       
       {/* BACKGROUND & MOVING GRAPHICS */}
       <Background />
@@ -506,7 +513,7 @@ export default function WorkforceDashboard() {
           {activeTab === "Engagement" && (
             <>
               {/* WELCOME BANNER WITH DISTINCT HUMAN GRAPHIC (sandboxHeroImg) */}
-              <section className="wf-welcome-banner">
+              <section className="wf-welcome-banner wf-hero-banner-enhanced">
                 <div className="wf-welcome-text">
                   <h1>Engagement Management Control Panel</h1>
                   <p>Real-time workforce management center for engagement. Access team allocation tools and analytics.</p>
@@ -514,8 +521,18 @@ export default function WorkforceDashboard() {
                     Return to Overview Dashboard
                   </button>
                 </div>
-                <div className="wf-welcome-graphic">
-                  <img src={sandboxHeroImg} alt="Engagement Team Graphic" className="wf-team-illustration" style={{ height: "135px", maxWidth: "300px" }} />
+                <div className="wf-welcome-graphic wf-welcome-graphic-enhanced">
+                  <div className="wf-hero-glow-backdrop" />
+                  <div className="wf-hero-dot-matrix" />
+                  <svg className="wf-hero-leaf-graphic" viewBox="0 0 100 100" fill="none">
+                    <path d="M20 80 Q 40 20 80 10 Q 60 70 20 80 Z" fill="rgba(212, 140, 102, 0.18)" stroke="rgba(212, 140, 102, 0.35)" strokeWidth="1.5" />
+                    <path d="M40 85 Q 70 40 90 30 Q 75 80 40 85 Z" fill="rgba(224, 122, 95, 0.15)" stroke="rgba(224, 122, 95, 0.3)" strokeWidth="1.5" />
+                  </svg>
+                  <img
+                    src={themeMode === 'dark' ? (darkSandboxHeroImg || darkHeroImg) : sandboxHeroImg}
+                    alt="Engagement Team Graphic"
+                    className="wf-team-illustration wf-team-illustration-large"
+                  />
                 </div>
               </section>
 
@@ -790,7 +807,7 @@ export default function WorkforceDashboard() {
           {/* TAB 7: ATTENDANCE MANAGEMENT */}
           {activeTab === "Attendance" && (
             <>
-              <section className="wf-welcome-banner">
+              <section className="wf-welcome-banner wf-hero-banner-enhanced">
                 <div className="wf-welcome-text">
                   <h1>Attendance Management</h1>
                   <p>Track, manage and analyze attendance in real-time. Monitor presence, leaves and punctuality across your organization.</p>
@@ -798,8 +815,18 @@ export default function WorkforceDashboard() {
                     Return to Overview Dashboard
                   </button>
                 </div>
-                <div className="wf-welcome-graphic">
-                  <img src={workHubHeroImg || workforcePortalImg} alt="Attendance Illustration" className="wf-team-illustration" style={{ height: "135px", maxWidth: "300px" }} />
+                <div className="wf-welcome-graphic wf-welcome-graphic-enhanced">
+                  <div className="wf-hero-glow-backdrop" />
+                  <div className="wf-hero-dot-matrix" />
+                  <svg className="wf-hero-leaf-graphic" viewBox="0 0 100 100" fill="none">
+                    <path d="M20 80 Q 40 20 80 10 Q 60 70 20 80 Z" fill="rgba(212, 140, 102, 0.18)" stroke="rgba(212, 140, 102, 0.35)" strokeWidth="1.5" />
+                    <path d="M40 85 Q 70 40 90 30 Q 75 80 40 85 Z" fill="rgba(224, 122, 95, 0.15)" stroke="rgba(224, 122, 95, 0.3)" strokeWidth="1.5" />
+                  </svg>
+                  <img
+                    src={themeMode === 'dark' ? (darkWorkHubHeroImg || darkWorkforcePortalImg) : workHubHeroImg}
+                    alt="Attendance Illustration"
+                    className="wf-team-illustration wf-team-illustration-large"
+                  />
                 </div>
               </section>
 
@@ -1074,7 +1101,7 @@ export default function WorkforceDashboard() {
           {/* TAB 2: EMPLOYEES MANAGEMENT */}
           {activeTab === "Employees" && (
             <>
-              <section className="wf-welcome-banner">
+              <section className="wf-welcome-banner wf-hero-banner-enhanced">
                 <div className="wf-welcome-text">
                   <h1>Employees Management Control Panel</h1>
                   <p>Real-time workforce management center for employees. Access team allocation tools and analytics.</p>
@@ -1082,8 +1109,18 @@ export default function WorkforceDashboard() {
                     Return to Overview Dashboard
                   </button>
                 </div>
-                <div className="wf-welcome-graphic">
-                  <img src={workforcePortalImg || featureHeroImg} alt="Employees Team Graphic" className="wf-team-illustration" style={{ height: "135px", maxWidth: "300px" }} />
+                <div className="wf-welcome-graphic wf-welcome-graphic-enhanced">
+                  <div className="wf-hero-glow-backdrop" />
+                  <div className="wf-hero-dot-matrix" />
+                  <svg className="wf-hero-leaf-graphic" viewBox="0 0 100 100" fill="none">
+                    <path d="M20 80 Q 40 20 80 10 Q 60 70 20 80 Z" fill="rgba(212, 140, 102, 0.18)" stroke="rgba(212, 140, 102, 0.35)" strokeWidth="1.5" />
+                    <path d="M40 85 Q 70 40 90 30 Q 75 80 40 85 Z" fill="rgba(224, 122, 95, 0.15)" stroke="rgba(224, 122, 95, 0.3)" strokeWidth="1.5" />
+                  </svg>
+                  <img
+                    src={themeMode === 'dark' ? (darkWorkforcePortalImg || darkWorkHubHeroImg) : workforcePortalImg}
+                    alt="Employees Team Graphic"
+                    className="wf-team-illustration wf-team-illustration-large"
+                  />
                 </div>
               </section>
 
@@ -1292,7 +1329,7 @@ export default function WorkforceDashboard() {
           {/* TAB 3: TEAMS MANAGEMENT */}
           {activeTab === "Teams" && (
             <>
-              <section className="wf-welcome-banner">
+              <section className="wf-welcome-banner wf-hero-banner-enhanced">
                 <div className="wf-welcome-text">
                   <h1>Teams Management Control Panel</h1>
                   <p>Real-time workforce management center for teams. Access team allocation tools and analytics.</p>
@@ -1300,8 +1337,18 @@ export default function WorkforceDashboard() {
                     Return to Overview Dashboard
                   </button>
                 </div>
-                <div className="wf-welcome-graphic">
-                  <img src={workHubHeroImg || workforcePortalImg} alt="Teams Graphic" className="wf-team-illustration" style={{ height: "135px", maxWidth: "300px" }} />
+                <div className="wf-welcome-graphic wf-welcome-graphic-enhanced">
+                  <div className="wf-hero-glow-backdrop" />
+                  <div className="wf-hero-dot-matrix" />
+                  <svg className="wf-hero-leaf-graphic" viewBox="0 0 100 100" fill="none">
+                    <path d="M20 80 Q 40 20 80 10 Q 60 70 20 80 Z" fill="rgba(212, 140, 102, 0.18)" stroke="rgba(212, 140, 102, 0.35)" strokeWidth="1.5" />
+                    <path d="M40 85 Q 70 40 90 30 Q 75 80 40 85 Z" fill="rgba(224, 122, 95, 0.15)" stroke="rgba(224, 122, 95, 0.3)" strokeWidth="1.5" />
+                  </svg>
+                  <img
+                    src={themeMode === 'dark' ? (darkWorkHubHeroImg || darkHeroImg) : workHubHeroImg}
+                    alt="Teams Graphic"
+                    className="wf-team-illustration wf-team-illustration-large"
+                  />
                 </div>
               </section>
 
@@ -1510,17 +1557,27 @@ export default function WorkforceDashboard() {
           {/* TAB 1: OVERVIEW */}
           {activeTab === "Overview" && (
             <>
-              <section className="wf-welcome-banner">
+              <section className="wf-welcome-banner wf-hero-banner-enhanced">
                 <div className="wf-welcome-text">
                   <h1>Welcome back, Arjun! 👋</h1>
                   <p>Here's what's happening with your workforce today.</p>
                 </div>
-                <div className="wf-welcome-graphic">
+                <div className="wf-welcome-graphic wf-welcome-graphic-enhanced">
+                  <div className="wf-hero-glow-backdrop" />
+                  <div className="wf-hero-dot-matrix" />
+                  <svg className="wf-hero-leaf-graphic" viewBox="0 0 100 100" fill="none">
+                    <path d="M20 80 Q 40 20 80 10 Q 60 70 20 80 Z" fill="rgba(212, 140, 102, 0.15)" stroke="rgba(212, 140, 102, 0.3)" strokeWidth="1.5" />
+                    <path d="M40 85 Q 70 40 90 30 Q 75 80 40 85 Z" fill="rgba(224, 122, 95, 0.12)" stroke="rgba(224, 122, 95, 0.25)" strokeWidth="1.5" />
+                  </svg>
                   <select className="wf-select-filter" style={{ padding: "8px 14px", fontSize: "13px", fontWeight: "700" }}>
                     <option>📅 May 1 – May 31, 2025</option>
                     <option>📅 April 1 – April 30, 2025</option>
                   </select>
-                  <img src={workforcePortalImg || workHubHeroImg} alt="Workforce Team Graphic" className="wf-team-illustration" />
+                  <img
+                    src={themeMode === 'dark' ? (darkWorkforcePortalImg || darkWorkHubHeroImg) : (workforcePortalImg || workHubHeroImg)}
+                    alt="Workforce Team Hero Graphic"
+                    className="wf-team-illustration wf-team-illustration-large"
+                  />
                 </div>
               </section>
 
@@ -1877,19 +1934,74 @@ export default function WorkforceDashboard() {
                   </div>
                 </div>
               </section>
+
+              {/* BOTTOM HERO & ENGAGEMENT SCORE ROW */}
+              <section className="wf-bottom-banner-grid">
+                <div className="wf-invest-banner">
+                  <div className="wf-invest-text">
+                    <h3>Invest in people. Drive performance.</h3>
+                    <p>Help your workforce learn, grow and achieve more together.</p>
+                    <button className="wf-invest-btn" onClick={() => setActiveTab("Learning")}>
+                      🏆 Explore Learning Paths →
+                    </button>
+                  </div>
+                  <div className="wf-invest-graphic">
+                    <img src={themeMode === 'dark' ? (darkHeroImg || engagementHeroImg) : engagementHeroImg} alt="Workforce Collaboration" className="wf-invest-img" />
+                  </div>
+                </div>
+
+                <div className="wf-card wf-engagement-score-card">
+                  <div className="wf-card-header">
+                    <h2 className="wf-card-title">Engagement Score</h2>
+                    <span className="wf-card-action" onClick={() => setActiveTab("Engagement")}>View Insights →</span>
+                  </div>
+                  <div className="wf-engagement-score-body">
+                    <div className="wf-score-donut">
+                      <svg viewBox="0 0 100 65" className="wf-half-donut-svg">
+                        <path d="M 10 55 A 40 40 0 0 1 90 55" fill="none" stroke="var(--wf-card-border)" strokeWidth="12" strokeLinecap="round" />
+                        <path d="M 10 55 A 40 40 0 0 1 76 22" fill="none" stroke="url(#engGrad)" strokeWidth="12" strokeLinecap="round" />
+                        <defs>
+                          <linearGradient id="engGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#d48c66" />
+                            <stop offset="100%" stopColor="#e07a5f" />
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                      <div className="wf-score-center">
+                        <span className="wf-score-value">76%</span>
+                        <span className="wf-score-label">Good</span>
+                      </div>
+                    </div>
+                    <div className="wf-score-stats">
+                      <span className="wf-score-trend">↑ 7% <span className="wf-score-sub">from last month</span></span>
+                      <p className="wf-score-msg">Keep up the great work!</p>
+                    </div>
+                  </div>
+                </div>
+              </section>
             </>
           )}
 
           {/* TAB 4: SKILLS & ASSESSMENTS */}
           {activeTab === "Skills" && (
             <>
-              <section className="wf-welcome-banner">
+              <section className="wf-welcome-banner wf-hero-banner-enhanced">
                 <div className="wf-welcome-text">
                   <h1>Skills & Assessments</h1>
                   <p>Manage skills, track proficiency, and evaluate your teams with data-driven insights.</p>
                 </div>
-                <div className="wf-welcome-graphic">
-                  <img src={workHubHeroImg || workforcePortalImg} alt="Skills Illustration" className="wf-team-illustration" />
+                <div className="wf-welcome-graphic wf-welcome-graphic-enhanced">
+                  <div className="wf-hero-glow-backdrop" />
+                  <div className="wf-hero-dot-matrix" />
+                  <svg className="wf-hero-leaf-graphic" viewBox="0 0 100 100" fill="none">
+                    <path d="M20 80 Q 40 20 80 10 Q 60 70 20 80 Z" fill="rgba(212, 140, 102, 0.18)" stroke="rgba(212, 140, 102, 0.35)" strokeWidth="1.5" />
+                    <path d="M40 85 Q 70 40 90 30 Q 75 80 40 85 Z" fill="rgba(224, 122, 95, 0.15)" stroke="rgba(224, 122, 95, 0.3)" strokeWidth="1.5" />
+                  </svg>
+                  <img
+                    src={themeMode === 'dark' ? (darkFeatureHeroImg || darkWorkforcePortalImg) : featureHeroImg}
+                    alt="Skills Illustration"
+                    className="wf-team-illustration wf-team-illustration-large"
+                  />
                 </div>
               </section>
 
@@ -2327,7 +2439,7 @@ export default function WorkforceDashboard() {
           {activeTab === "Reports" && (
             <>
               {/* WELCOME BANNER WITH GRAPHIC */}
-              <section className="wf-welcome-banner">
+              <section className="wf-welcome-banner wf-hero-banner-enhanced">
                 <div className="wf-welcome-text">
                   <h1>Reports & Analytics Control Panel</h1>
                   <p>Comprehensive organizational intelligence center. Generate, analyze, and export multi-dimensional workforce performance, skills, and engagement analytics.</p>
@@ -2340,8 +2452,18 @@ export default function WorkforceDashboard() {
                     </button>
                   </div>
                 </div>
-                <div className="wf-welcome-graphic">
-                  <img src={featureHeroImg || workHubHeroImg} alt="Reports & Analytics Illustration" className="wf-team-illustration" style={{ height: "135px", maxWidth: "300px" }} />
+                <div className="wf-welcome-graphic wf-welcome-graphic-enhanced">
+                  <div className="wf-hero-glow-backdrop" />
+                  <div className="wf-hero-dot-matrix" />
+                  <svg className="wf-hero-leaf-graphic" viewBox="0 0 100 100" fill="none">
+                    <path d="M20 80 Q 40 20 80 10 Q 60 70 20 80 Z" fill="rgba(212, 140, 102, 0.18)" stroke="rgba(212, 140, 102, 0.35)" strokeWidth="1.5" />
+                    <path d="M40 85 Q 70 40 90 30 Q 75 80 40 85 Z" fill="rgba(224, 122, 95, 0.15)" stroke="rgba(224, 122, 95, 0.3)" strokeWidth="1.5" />
+                  </svg>
+                  <img
+                    src={themeMode === 'dark' ? (darkFeatureHeroImg || darkWorkHubHeroImg) : featureHeroImg}
+                    alt="Reports Graphic"
+                    className="wf-team-illustration wf-team-illustration-large"
+                  />
                 </div>
               </section>
 
@@ -2623,7 +2745,7 @@ export default function WorkforceDashboard() {
           {activeTab === "Settings" && (
             <>
               {/* WELCOME BANNER WITH GRAPHIC */}
-              <section className="wf-welcome-banner">
+              <section className="wf-welcome-banner wf-hero-banner-enhanced">
                 <div className="wf-welcome-text">
                   <h1>Workforce Settings & Administration</h1>
                   <p>Configure organizational structure, security policies, roles & permissions, notification preferences, and third-party integrations.</p>
@@ -2636,8 +2758,18 @@ export default function WorkforceDashboard() {
                     </button>
                   </div>
                 </div>
-                <div className="wf-welcome-graphic">
-                  <img src={workforcePortalImg || featureHeroImg} alt="Workforce Settings Illustration" className="wf-team-illustration" style={{ height: "135px", maxWidth: "300px" }} />
+                <div className="wf-welcome-graphic wf-welcome-graphic-enhanced">
+                  <div className="wf-hero-glow-backdrop" />
+                  <div className="wf-hero-dot-matrix" />
+                  <svg className="wf-hero-leaf-graphic" viewBox="0 0 100 100" fill="none">
+                    <path d="M20 80 Q 40 20 80 10 Q 60 70 20 80 Z" fill="rgba(212, 140, 102, 0.18)" stroke="rgba(212, 140, 102, 0.35)" strokeWidth="1.5" />
+                    <path d="M40 85 Q 70 40 90 30 Q 75 80 40 85 Z" fill="rgba(224, 122, 95, 0.15)" stroke="rgba(224, 122, 95, 0.3)" strokeWidth="1.5" />
+                  </svg>
+                  <img
+                    src={themeMode === 'dark' ? (darkWorkforcePortalImg || darkHeroImg) : workforcePortalImg}
+                    alt="Workforce Settings Illustration"
+                    className="wf-team-illustration wf-team-illustration-large"
+                  />
                 </div>
               </section>
 
