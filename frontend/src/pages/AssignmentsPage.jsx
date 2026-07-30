@@ -1,10 +1,10 @@
 import React, { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import Background from "../components/Background";
-import PaperPlaneCursor from "../components/PaperPlaneCursor";
-import StudentFooter from "../components/StudentFooter";
-import FloatingChatbot from "../components/FloatingChatbot";
+import { useAuth } from "../../context/AuthContext";
+import Background from "../../components/Background";
+import PaperPlaneCursor from "../../components/PaperPlaneCursor";
+import StudentFooter from "../../components/StudentFooter";
+import FloatingChatbot from "../../components/FloatingChatbot";
 
 import {
   FaHome,
@@ -358,7 +358,7 @@ export default function AssignmentsPage() {
               <div className="sdNotificationBtnWrapper">
                 <button className="sdNotificationBtn">
                   <FaBell />
-                  <span className="sdNotifBadge">3</span>
+                  {3 > 0 && <span className="sdNotifBadge">3</span>}
                 </button>
               </div>
 

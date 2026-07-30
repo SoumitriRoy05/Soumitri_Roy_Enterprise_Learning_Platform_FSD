@@ -291,7 +291,7 @@ export default function CodeArenaPage() {
 
             <div className="caHeaderRightStats">
               <div className="caStreakBadge">
-                <FaFire color="#F9572A" /> <span>21 Day Streak</span>
+                <FaFire color="#F9572A" /> <span>0 Day Streak</span>
               </div>
               <div className="caXpBadge">
                 <FaStar color="#F59E0B" /> <span>{userXp.toLocaleString()} XP</span>
@@ -350,8 +350,8 @@ export default function CodeArenaPage() {
                     <span className="iconBox green"><FaCheckCircle /></span>
                     <span className="label">Problems Solved</span>
                   </div>
-                  <div className="statVal">187</div>
-                  <div className="statSub green">↑ 12 this week</div>
+                  <div className="statVal">0</div>
+                  <div className="statSub green">↑ 0 this week</div>
                   <div className="sparklineSvg green">
                     <svg viewBox="0 0 100 20" className="sparkline">
                       <path d="M 0 15 Q 25 5, 50 12 T 100 2" fill="none" stroke="#10B981" strokeWidth="3" />
@@ -364,8 +364,8 @@ export default function CodeArenaPage() {
                     <span className="iconBox orange"><FaFire /></span>
                     <span className="label">Current Streak</span>
                   </div>
-                  <div className="statVal">21 Days</div>
-                  <div className="statSub orange">Best: 36 days</div>
+                  <div className="statVal">0 Days</div>
+                  <div className="statSub orange">Best: 0 days</div>
                   <div className="sparklineSvg orange">
                     <svg viewBox="0 0 100 20" className="sparkline">
                       <path d="M 0 18 Q 30 10, 60 14 T 100 4" fill="none" stroke="#F9572A" strokeWidth="3" />
@@ -378,8 +378,8 @@ export default function CodeArenaPage() {
                     <span className="iconBox purple"><FaBullseye /></span>
                     <span className="label">Interview Readiness</span>
                   </div>
-                  <div className="statVal">83%</div>
-                  <div className="statSub purple">↑ 7% this week</div>
+                  <div className="statVal">0%</div>
+                  <div className="statSub purple">↑ 0% this week</div>
                   <div className="sparklineSvg purple">
                     <svg viewBox="0 0 100 20" className="sparkline">
                       <path d="M 0 16 Q 20 8, 70 12 T 100 3" fill="none" stroke="#8B5CF6" strokeWidth="3" />
@@ -393,7 +393,7 @@ export default function CodeArenaPage() {
                     <span className="label">XP Earned</span>
                   </div>
                   <div className="statVal">{userXp.toLocaleString()} XP</div>
-                  <div className="statSub yellow">↑ 850 this week</div>
+                  <div className="statSub yellow">↑ 0 this week</div>
                   <div className="sparklineSvg yellow">
                     <svg viewBox="0 0 100 20" className="sparkline">
                       <path d="M 0 14 Q 40 18, 70 6 T 100 1" fill="none" stroke="#F59E0B" strokeWidth="3" />
@@ -636,7 +636,7 @@ export default function CodeArenaPage() {
                   ))}
                   {[...Array(31)].map((_, i) => {
                     const dayNum = i + 1;
-                    const isStreakDay = [5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22, 23, 26, 27].includes(dayNum);
+                    const isStreakDay = false;
                     return (
                       <div
                         key={dayNum}
@@ -662,7 +662,7 @@ export default function CodeArenaPage() {
                       <span className="rankIcon">🌐</span>
                       <span>Global Rank</span>
                     </div>
-                    <strong className="rankVal">#6,248</strong>
+                    <strong className="rankVal">Unranked</strong>
                   </div>
 
                   <div className="rankRowItem">

@@ -480,7 +480,7 @@ export default function DiscussionsPage() {
               <div className="sdNotificationBtnWrapper">
                 <button className="sdNotificationBtn">
                   <FaBell />
-                  <span className="sdNotifBadge">5</span>
+                  {5 > 0 && <span className="sdNotifBadge">5</span>}
                 </button>
               </div>
 

@@ -2646,6 +2646,11 @@ input:checked + .wf-toggle-slider:before {
   color: #e07a5f !important;
 }
 
+[data-theme="dark"] .wf-badge-count,
+.dark-theme .wf-badge-count {
+  border-color: #201d27;
+}
+
 [data-theme="dark"] .wf-user-profile-btn:hover,
 .dark-theme .wf-user-profile-btn:hover {
   background: #24202c !important;

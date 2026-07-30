@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
 import { FaShieldAlt, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
 import Background from '../../components/Background';
-import PaperPlaneCursor from '../../components/PaperPlaneCursor';
 import '../../styles/loginPage.css';
 
 export default function AdminLogin() {
@@ -26,7 +25,6 @@ export default function AdminLogin() {
   return (
     <div className="loginPageWrapper">
       <Background />
-      <PaperPlaneCursor />
 
       <div className="loginMainContainer" style={{ maxWidth: '460px', gridTemplateColumns: '1fr' }}>
         <div className="loginRightPanel" style={{ borderRadius: '28px', padding: '48px 40px' }}>

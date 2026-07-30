@@ -32,7 +32,6 @@ export default function StudentDashboard() {
     { id: "springboot", title: "Spring Boot Microservices", category: "Backend Dev", progress: Math.round((springbootCompleted / 6) * 100), color: "#22c55e" }
   ];
 
-  // Quests & Challenges
   const [quests, setQuests] = useState([
     { id: 1, title: "Log in and maintain your daily streak", xpReward: 50, status: "COMPLETED" },
     { id: 2, title: "Complete the React architecture practice quiz", xpReward: 150, status: "CLAIMABLE" },
@@ -41,7 +40,7 @@ export default function StudentDashboard() {
 
   const [previewedCert, setPreviewedCert] = useState(null);
 
-  // Leaderboard data (dynamic based on student's XP)
+
   const initialLeaderboard = [
     { rank: 1, username: "CypherLearner", xp: 3500, isSelf: false },
     { rank: 2, username: "NeonCoder", xp: 2900, isSelf: false },
@@ -52,25 +51,25 @@ export default function StudentDashboard() {
   ];
   const [leaderboard, setLeaderboard] = useState(initialLeaderboard);
 
-  // Sync leaderboard when student XP changes
+  
   useEffect(() => {
     const updated = initialLeaderboard.map(member => 
       member.isSelf ? { ...member, xp: xp } : member
     );
-    // Re-sort leaderboard by XP descending and re-assign ranks
+
     updated.sort((a, b) => b.xp - a.xp);
     const ranked = updated.map((item, idx) => ({ ...item, rank: idx + 1 }));
     setLeaderboard(ranked);
   }, [xp]);
 
   const handleDownloadCertificate = (cert) => {
-    // Create a canvas element dynamically
+    
     const canvas = document.createElement("canvas");
     canvas.width = 1000;
     canvas.height = 700;
     const ctx = canvas.getContext("2d");
 
-    // Draw dark background gradient
+    
     const grad = ctx.createLinearGradient(0, 0, 1000, 700);
     grad.addColorStop(0, "var(--bg-secondary)");
     grad.addColorStop(1, "var(--bg-primary)");

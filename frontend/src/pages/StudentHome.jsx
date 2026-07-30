@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Background from "../components/Background";
-import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
 import FloatingChatbot from "../components/FloatingChatbot";
 
@@ -87,6 +86,94 @@ export default function StudentHome() {
     ? user.badges.split(",").filter(Boolean).length
     : 0;
 
+  // ── COURSE CATALOG (mirrors CoursesPage) ─────────────────────────────
+  const COURSE_CATALOG = [
+    { id: 1, title: "JavaScript Fundamentals", icon: "JS",  iconBg: "#FEF08A", iconColor: "#CA8A04", topicPrefix: "js_",     lessons: 12 },
+    { id: 2, title: "React.js Development",    icon: "⚛️", iconBg: "#E0F2FE", iconColor: "#0284C7", topicPrefix: "react_",  lessons: 18 },
+    { id: 3, title: "Python for Beginners",    icon: "🐍",  iconBg: "#FEF9C3", iconColor: "#854D0E", topicPrefix: "python_", lessons: 16 },
+    { id: 4, title: "UI/UX Design Essentials", icon: "🎨",  iconBg: "#FCE7F3", iconColor: "#DB2777", topicPrefix: "uiux_",  lessons: 14 },
+    { id: 5, title: "Data Structures & Algo",  icon: "📊",  iconBg: "#E0F2FE", iconColor: "#0284C7", topicPrefix: "dsa_",   lessons: 20 },
+    { id: 6, title: "Node.js Essentials",       icon: "🟢",  iconBg: "#DCFCE7", iconColor: "#166534", topicPrefix: "node_",  lessons: 15 },
+    { id: 7, title: "System Design Basics",     icon: "📐",  iconBg: "#F3E8FF", iconColor: "#7E22CE", topicPrefix: "system_",lessons: 10 },
+    { id: 8, title: "Advanced Machine Learning",icon: "🧠",  iconBg: "#FEE2E2", iconColor: "#B91C1C", topicPrefix: "ml_",    lessons: 24 },
+  ];
+
+  // Build enrolled course cards with real progress
+  const enrolledCourseCards = COURSE_CATALOG
+    .filter(c => (enrolledCourses || []).some(id => id.toString() === c.id.toString()))
+    .map(c => {
+      const done = (completedTopics || []).filter(id => id.startsWith(c.topicPrefix)).length;
+      const pct  = Math.min(100, Math.round((done / c.lessons) * 100));
+      return { ...c, done, pct };
+    });
+
+  // ── STREAK CALCULATION ────────────────────────────────────────────────
+  // We track activity days in localStorage as "ss_activity_days" = Set of YYYY-MM-DD strings
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const activityKey = `ss_activity_${user?.email || user?.username || "guest"}`;
+  const activityRaw = localStorage.getItem(activityKey);
+  const activityDays = new Set(activityRaw ? JSON.parse(activityRaw) : []);
+
+  // Mark today active if user has any XP or completed topics
+  if ((currentXp > 0 || userCompletedTopicsCount > 0) && !activityDays.has(todayStr)) {
+    activityDays.add(todayStr);
+    localStorage.setItem(activityKey, JSON.stringify([...activityDays]));
+  }
+
+  // Compute current streak (consecutive days going back from today)
+  const computeStreak = () => {
+    let streak = 0;
+    let d = new Date();
+    while (true) {
+      const s = d.toISOString().slice(0, 10);
+      if (activityDays.has(s)) {
+        streak++;
+        d.setDate(d.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return streak;
+  };
+  const currentStreak = computeStreak();
+
+  // Days of current week (Sun-Sat) for the 7 circles
+  const DAYS_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
+  const weekDayActivity = DAYS_LABELS.map((lbl, i) => {
+    const d = new Date();
+    const todayDow = d.getDay(); // 0=Sun…6=Sat
+    const diff = i - todayDow;
+    d.setDate(d.getDate() + diff);
+    const dStr = d.toISOString().slice(0, 10);
+    return { label: lbl, active: activityDays.has(dStr) && diff <= 0 };
+  });
+
+  // Heatmap rows: 4 weeks back
+  const getWeekHeatRow = (weeksBack) => {
+    const squares = [];
+    for (let dow = 0; dow < 7; dow++) {
+      const d = new Date();
+      const startOfWeek = d.getDate() - d.getDay(); // Sunday of current week
+      d.setDate(startOfWeek - weeksBack * 7 + dow);
+      const dStr = d.toISOString().slice(0, 10);
+      // intensity based on completed topics that day (approx via presence)
+      squares.push(activityDays.has(dStr) ? "l3" : "l0");
+    }
+    return squares;
+  };
+
+  const getWeekLabel = (weeksBack) => {
+    const d = new Date();
+    const startOfWeek = d.getDate() - d.getDay();
+    const start = new Date(d); start.setDate(startOfWeek - weeksBack * 7);
+    const end   = new Date(start); end.setDate(start.getDate() + 6);
+    const fmt = (dt) => dt.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    if (weeksBack === 0) return "This Week";
+    if (weeksBack === 1) return "Last Week";
+    return `${fmt(start)} – ${fmt(end)}`;
+  };
+
+
 
   // Exact 1-to-1 Sidebar Items matching screenshot
   const navItems = [
@@ -109,7 +196,6 @@ export default function StudentHome() {
   return (
     <div className={`sdDashboardWrapper ${isDarkMode ? "dark-theme" : ""}`}>
       <Background />
-      <PaperPlaneCursor />
 
       {/* Main Grid Layout Container */}
       <div className="sdMainContainer">
@@ -207,7 +293,7 @@ export default function StudentHome() {
               <div className="sdNotificationBtnWrapper">
                 <button className="sdNotificationBtn">
                   <FaBell />
-                  <span className="sdNotifBadge">3</span>
+                  
                 </button>
               </div>
 
@@ -310,7 +396,7 @@ export default function StudentHome() {
                       <div className="sdStatValueText">
                         <span className="statLabel">Courses Enrolled</span>
                         <strong>{userEnrolledCount}</strong>
-                        <span className="sdStatSublink orange">Active Courses</span>
+                        <span className="sdStatSublink orange" onClick={() => navigate("/courses")}>Active Courses</span>
                       </div>
                     </div>
 
@@ -332,7 +418,7 @@ export default function StudentHome() {
                       <div className="sdStatValueText">
                         <span className="statLabel">Badges Earned</span>
                         <strong>{earnedBadgesCount}</strong>
-                        <span className="sdStatSublink orange" onClick={() => setActiveTab("badges")}>View All</span>
+                        <span className="sdStatSublink orange" onClick={() => navigate("/badges")}>View All</span>
                       </div>
                     </div>
 
@@ -343,7 +429,7 @@ export default function StudentHome() {
                       <div className="sdStatValueText">
                         <span className="statLabel">Total XP</span>
                         <strong>{currentXp}</strong>
-                        <span className="sdStatSublink orange">Keep Learning!</span>
+                        <span className="sdStatSublink orange" onClick={() => navigate("/learning-paths")}>Keep Learning!</span>
                       </div>
                     </div>
                   </div>
@@ -374,12 +460,12 @@ export default function StudentHome() {
                           <div className="questTitleWithProgress">
                             <span>Solve 3 Coding Problems</span>
                             <div className="miniTrack">
-                              <div className="miniFill" style={{ width: "33%" }}></div>
+                              <div className="miniFill" style={{ width: "0%" }}></div>
                             </div>
                           </div>
                         </div>
                         <div className="questRowRight">
-                          <span className="questFraction">1 / 3</span>
+                          <span className="questFraction">0 / 3</span>
                           <span className="questRewardPill">+30 XP 🎁</span>
                         </div>
                       </div>
@@ -396,7 +482,7 @@ export default function StudentHome() {
                       </div>
                     </div>
 
-                    <button className="btnSolidOrangeClaim">
+                    <button className="btnSolidOrangeClaim" onClick={() => navigate("/daily-quests")}>
                       🎁 Claim All Rewards
                     </button>
                   </div>
@@ -405,79 +491,58 @@ export default function StudentHome() {
                   <div className="sdWhitePanelCard" style={{ marginTop: "24px" }}>
                     <div className="sdPanelHeaderRow">
                       <h3>Continue Learning</h3>
-                      <span className="sdViewAllLink" onClick={() => navigate("/learning-paths")}>View All</span>
+                      <span className="sdViewAllLink" onClick={() => navigate("/courses")}>View All</span>
                     </div>
 
-                    <div className="sdContinueLearningGrid">
-                      {/* React Developer Path */}
-                      <div className="sdCourseCardBox" onClick={() => navigate("/learning-paths")} style={{ cursor: "pointer" }}>
-                        <div className="sdCourseHeaderRow">
-                          <div className="sdCourseIconBadge blueBg">⚛️</div>
-                          <FaEllipsisH className="moreDots" />
-                        </div>
-                        <h4>React Developer Path</h4>
-                        <p style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "2px 0 8px 0" }}>Module 2: React Components & Hooks</p>
-                        <div className="sdCourseProgressBar">
-                          <div className="sdCourseProgressFill" style={{ width: "40%" }}></div>
-                        </div>
-                        <div className="sdCourseFooterRow">
-                          <span className="sdCoursePctText">40% Complete</span>
-                          <button className="btnContinueCourse" onClick={(e) => { e.stopPropagation(); navigate("/learning-paths"); }}>Continue</button>
-                        </div>
+                    {enrolledCourseCards.length > 0 ? (
+                      <div className="sdContinueLearningGrid">
+                        {enrolledCourseCards.map(c => (
+                          <div
+                            key={c.id}
+                            className="sdCourseCardBox"
+                            onClick={() => navigate("/courses")}
+                            style={{ cursor: "pointer" }}
+                          >
+                            <div className="sdCourseHeaderRow">
+                              <div
+                                className="sdCourseIconBadge"
+                                style={{ background: c.iconBg, color: c.iconColor }}
+                              >
+                                {c.icon}
+                              </div>
+                              <FaEllipsisH className="moreDots" />
+                            </div>
+                            <h4>{c.title}</h4>
+                            <p style={{ fontSize: "10px", color: "var(--text-secondary, #64748B)", margin: "0 0 8px 0" }}>
+                              {c.done} / {c.lessons} lessons done
+                            </p>
+                            <div className="sdCourseProgressBar">
+                              <div className="sdCourseProgressFill" style={{ width: `${c.pct}%` }}></div>
+                            </div>
+                            <div className="sdCourseFooterRow">
+                              <span className="sdCoursePctText">{c.pct}% Complete</span>
+                              <button
+                                className="btnContinueCourse"
+                                onClick={e => { e.stopPropagation(); navigate("/courses"); }}
+                              >
+                                Continue
+                              </button>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-
-                      {/* JavaScript Fundamentals Path */}
-                      <div className="sdCourseCardBox" onClick={() => navigate("/learning-paths")} style={{ cursor: "pointer" }}>
-                        <div className="sdCourseHeaderRow">
-                          <div className="sdCourseIconBadge yellowBg">JS</div>
-                          <FaEllipsisH className="moreDots" />
-                        </div>
-                        <h4>JavaScript Fundamentals</h4>
-                        <p style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "2px 0 8px 0" }}>Module 1: ES6 Syntax & Async JS</p>
-                        <div className="sdCourseProgressBar">
-                          <div className="sdCourseProgressFill" style={{ width: "60%" }}></div>
-                        </div>
-                        <div className="sdCourseFooterRow">
-                          <span className="sdCoursePctText">60% Complete</span>
-                          <button className="btnContinueCourse" onClick={(e) => { e.stopPropagation(); navigate("/learning-paths"); }}>Continue</button>
-                        </div>
+                    ) : (
+                      <div className="sdEmptyStateBox" style={{ textAlign: "center", padding: "32px", background: "#FAF8F5", borderRadius: "16px", border: "1px dashed #FAD6C8", marginTop: "16px" }}>
+                        <div style={{ fontSize: "32px", marginBottom: "12px" }}>📚</div>
+                        <h4 style={{ margin: "0 0 8px 0", color: "#1E1B18" }}>No Courses Enrolled</h4>
+                        <p style={{ fontSize: "12px", color: "#64748B", margin: "0 0 16px 0" }}>You haven't enrolled in any courses yet. Explore our catalog to start learning!</p>
+                        <button className="btnOutlineOrange" onClick={() => navigate("/courses")}>
+                          Browse Courses
+                        </button>
                       </div>
-
-                      {/* Python for Beginners Path */}
-                      <div className="sdCourseCardBox" onClick={() => navigate("/learning-paths")} style={{ cursor: "pointer" }}>
-                        <div className="sdCourseHeaderRow">
-                          <div className="sdCourseIconBadge pyYellowBg">🐍</div>
-                          <FaEllipsisH className="moreDots" />
-                        </div>
-                        <h4>Python for Beginners</h4>
-                        <p style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "2px 0 8px 0" }}>Module 3: Functions & Data Structures</p>
-                        <div className="sdCourseProgressBar">
-                          <div className="sdCourseProgressFill" style={{ width: "75%" }}></div>
-                        </div>
-                        <div className="sdCourseFooterRow">
-                          <span className="sdCoursePctText">75% Complete</span>
-                          <button className="btnContinueCourse" onClick={(e) => { e.stopPropagation(); navigate("/learning-paths"); }}>Continue</button>
-                        </div>
-                      </div>
-
-                      {/* UI/UX Design Essentials Path */}
-                      <div className="sdCourseCardBox" onClick={() => navigate("/learning-paths")} style={{ cursor: "pointer" }}>
-                        <div className="sdCourseHeaderRow">
-                          <div className="sdCourseIconBadge pinkBg">🎨</div>
-                          <FaEllipsisH className="moreDots" />
-                        </div>
-                        <h4>UI/UX Design Essentials</h4>
-                        <p style={{ fontSize: "11px", color: "var(--text-secondary)", margin: "2px 0 8px 0" }}>Module 1: Design Systems & Wireframing</p>
-                        <div className="sdCourseProgressBar">
-                          <div className="sdCourseProgressFill" style={{ width: "30%" }}></div>
-                        </div>
-                        <div className="sdCourseFooterRow">
-                          <span className="sdCoursePctText">30% Complete</span>
-                          <button className="btnContinueCourse" onClick={(e) => { e.stopPropagation(); navigate("/learning-paths"); }}>Continue</button>
-                        </div>
-                      </div>
-                    </div>
+                    )}
                   </div>
+
 
                   {/* Build Your Career Ready Profile Promotional Card */}
                   <div className="sdCareerProfileCard">
@@ -485,7 +550,7 @@ export default function StudentHome() {
                       <h3>Build Your Career Ready Profile</h3>
                       <p>Create a professional resume, showcase your skills and stand out to top recruiters.</p>
                       <button className="btnCreateResume" onClick={() => navigate("/settings")}>
-                        Create Resume
+                        Create Profile
                       </button>
                     </div>
                     <div className="careerCardRight">
@@ -496,11 +561,11 @@ export default function StudentHome() {
                   </div>
 
                   {/* Motivational Quote Footer Banner */}
-                  <div className="sdQuoteBanner">
+                 {/* <div className="sdQuoteBanner">
                     <FaQuoteLeft className="quoteIcon" />
                     <span>"The beautiful thing about learning is nobody can take it away from you."</span>
                     <strong className="quoteAuthor">— B.B. King</strong>
-                  </div>
+                  </div>*/}
 
                 </div>
 
@@ -512,27 +577,33 @@ export default function StudentHome() {
                     <div className="sdStreakHeaderRow">
                       <span className="widgetTitle">Learning Streak 🔥</span>
                     </div>
-                    <div className="sdStreakBigVal">1 Day</div>
-                    <div className="sdStreakSub">Keep it up!</div>
+                    <div className="sdStreakBigVal">{currentStreak} {currentStreak === 1 ? "Day" : "Days"}</div>
+                    <div className="sdStreakSub">
+                      {currentStreak === 0
+                        ? "Start learning today to build your streak!"
+                        : currentStreak < 3
+                        ? "Great start! Keep going!"
+                        : currentStreak < 7
+                        ? `${currentStreak} days strong — you're on a roll! 🚀`
+                        : `Amazing! ${currentStreak}-day streak! 🏆`}
+                    </div>
 
                     <div className="sdDaysRow">
-                      <div className="dayCol active">
-                        <span>S</span>
-                        <div className="dayCircle flame"><FaFire /></div>
-                      </div>
-                      <div className="dayCol"><span>M</span><div className="dayCircle"></div></div>
-                      <div className="dayCol"><span>T</span><div className="dayCircle"></div></div>
-                      <div className="dayCol"><span>W</span><div className="dayCircle"></div></div>
-                      <div className="dayCol"><span>T</span><div className="dayCircle"></div></div>
-                      <div className="dayCol"><span>F</span><div className="dayCircle"></div></div>
-                      <div className="dayCol"><span>S</span><div className="dayCircle"></div></div>
+                      {weekDayActivity.map((day, i) => (
+                        <div key={i} className={`dayCol${day.active ? " active" : ""}`}>
+                          <span>{day.label}</span>
+                          <div className={`dayCircle${day.active ? " flame" : ""}`}>
+                            {day.active ? "🔥" : ""}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
                   {/* Learning Streak Heatmap Widget */}
                   <div className="sdRightWidgetCard">
                     <div className="widgetTitleRow">
-                      <h4>Learning Streak Heatmap</h4>
+                      <h4>Activity Heatmap</h4>
                     </div>
 
                     <div className="miniHeatmapWrapper">
@@ -540,33 +611,16 @@ export default function StudentHome() {
                         <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
                       </div>
 
-                      <div className="heatmapRowItem">
-                        <span className="rowLabel">This Week</span>
-                        <div className="squaresRow">
-                          <span className="sq l0"></span><span className="sq l0"></span><span className="sq l0"></span><span className="sq l0"></span><span className="sq l2"></span><span className="sq l3"></span><span className="sq l4"></span>
+                      {[0, 1, 2, 3].map(weeksBack => (
+                        <div key={weeksBack} className="heatmapRowItem">
+                          <span className="rowLabel">{getWeekLabel(weeksBack)}</span>
+                          <div className="squaresRow">
+                            {getWeekHeatRow(weeksBack).map((lvl, j) => (
+                              <span key={j} className={`sq ${lvl}`}></span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-
-                      <div className="heatmapRowItem">
-                        <span className="rowLabel">Last Week</span>
-                        <div className="squaresRow">
-                          <span className="sq l1"></span><span className="sq l0"></span><span className="sq l0"></span><span className="sq l2"></span><span className="sq l3"></span><span className="sq l4"></span><span className="sq l1"></span>
-                        </div>
-                      </div>
-
-                      <div className="heatmapRowItem">
-                        <span className="rowLabel">May 12 – 18</span>
-                        <div className="squaresRow">
-                          <span className="sq l0"></span><span className="sq l0"></span><span className="sq l2"></span><span className="sq l3"></span><span className="sq l4"></span><span className="sq l1"></span><span className="sq l0"></span>
-                        </div>
-                      </div>
-
-                      <div className="heatmapRowItem">
-                        <span className="rowLabel">May 5 – 11</span>
-                        <div className="squaresRow">
-                          <span className="sq l1"></span><span className="sq l2"></span><span className="sq l3"></span><span className="sq l2"></span><span className="sq l1"></span><span className="sq l0"></span><span className="sq l1"></span>
-                        </div>
-                      </div>
+                      ))}
 
                       <div className="heatmapLegendFooter">
                         <span>Less</span>
@@ -576,10 +630,11 @@ export default function StudentHome() {
                         <span className="legendBox sq l3"></span>
                         <span className="legendBox sq l4"></span>
                         <span>More</span>
-                        <span className="greatPill">Great! 🔥</span>
+                        {currentStreak >= 3 && <span className="greatPill">Great! 🔥</span>}
                       </div>
                     </div>
                   </div>
+
 
                   {/* AI Study Buddy Interactive Chat Widget */}
                   <div className="sdRightWidgetCard">
@@ -626,7 +681,7 @@ export default function StudentHome() {
                   <div className="sdRightWidgetCard">
                     <div className="sdPanelHeaderRow">
                       <h4>Opportunity Feed</h4>
-                      <span className="sdViewAllLink" onClick={() => setActiveTab("opportunity-feed")}>View All</span>
+                      <span className="sdViewAllLink" onClick={() => navigate("/opportunity-feed")}>View All</span>
                     </div>
 
                     <div className="miniOppFeedList">
@@ -667,7 +722,7 @@ export default function StudentHome() {
                       </div>
                     </div>
 
-                    <div className="exploreOppLink" onClick={() => setActiveTab("opportunity-feed")}>
+                    <div className="exploreOppLink" onClick={() => navigate("/opportunity-feed")}>
                       Explore More Opportunities →
                     </div>
                   </div>
@@ -694,12 +749,12 @@ export default function StudentHome() {
                         <span>Resume Builder</span>
                       </div>
 
-                      <div className="sdQuickActionItem" onClick={() => setActiveTab("ai-buddy")}>
-                        <div className="sdQuickActionIcon"><FaQuestionCircle /></div>
-                        <span>Take Quiz</span>
+                      <div className="sdQuickActionItem" onClick={() => navigate("/progress")}>
+                        <div className="sdQuickActionIcon"><FaChartLine /></div>
+                        <span>Progress</span>
                       </div>
 
-                      <div className="sdQuickActionItem">
+                      <div className="sdQuickActionItem" onClick={() => navigate("/assignments")}>
                         <div className="sdQuickActionIcon"><FaUpload /></div>
                         <span>Upload Assignment</span>
                       </div>

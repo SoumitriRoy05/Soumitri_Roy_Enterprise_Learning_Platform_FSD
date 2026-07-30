@@ -283,7 +283,7 @@ export default function DailyQuestsPage() {
               <div className="sdNotificationBtnWrapper">
                 <button className="sdNotificationBtn">
                   <FaBell />
-                  <span className="sdNotifBadge">3</span>
+                  {3 > 0 && <span className="sdNotifBadge">3</span>}
                 </button>
               </div>
 
@@ -360,9 +360,9 @@ export default function DailyQuestsPage() {
               <div className="metricContentRow">
                 <div className="streakFlameIcon">🔥</div>
                 <div className="metricDetailsText">
-                  <strong className="streakNumber">7</strong>
+                  <strong className="streakNumber">0</strong>
                   <span className="sub">Days</span>
-                  <div className="bestStreakSub">👑 Best Streak: 12 days</div>
+                  <div className="bestStreakSub">🏆 Best Streak: 0 days</div>
                 </div>
               </div>
             </div>
@@ -460,7 +460,7 @@ export default function DailyQuestsPage() {
             <div className="dqpRightSidebar">
               
               {/* Today's Reward Card */}
-              <div className="dqpWidgetCard rewardCard">
+             <div className="dqpWidgetCard rewardCard">
                 <h4>🎁 Today's Reward</h4>
 
                 <div className="giftBoxGraphicCenter">
@@ -471,7 +471,7 @@ export default function DailyQuestsPage() {
               </div>
 
               {/* Streak Calendar Widget */}
-              <div className="dqpWidgetCard">
+            <div className="dqpWidgetCard">
                 <div className="widgetTitleRow">
                   <h4>Streak Calendar</h4>
                   <FaInfoCircle color="#94A3B8" />
@@ -491,7 +491,7 @@ export default function DailyQuestsPage() {
               </div>
 
               {/* Leaderboard Widget */}
-              <div className="dqpWidgetCard">
+             <div className="dqpWidgetCard">
                 <div className="widgetTitleRow">
                   <h4>Leaderboard</h4>
                   <span className="viewAllLink" onClick={() => setToastMessage("Full Leaderboard view loaded!")}>
@@ -531,7 +531,7 @@ export default function DailyQuestsPage() {
               </div>
 
               {/* Did You Know? Box */}
-              <div className="didYouKnowCard">
+             <div className="didYouKnowCard">
                 <FaLightbulb className="bulbIcon" />
                 <div>
                   <h5>Did you know?</h5>

@@ -24,12 +24,7 @@ export default function StreakHeatmap() {
         let count = 0;
         let level = 0;
 
-        // Give realistic study patterns (weekends + high recent streak)
-        if (dayOffset > 320) {
-          count = Math.floor(Math.random() * 5) + 2; // high current streak
-        } else if (Math.random() > 0.4) {
-          count = Math.floor(Math.random() * 4);
-        }
+        // Default to 0 streak
 
         if (count === 1) level = 1;
         else if (count === 2) level = 2;
@@ -58,7 +53,7 @@ export default function StreakHeatmap() {
         <div className="streakBadgePill">
           <FaFire className="flameIcon" />
           <div>
-            <strong>14 Days Streak!</strong>
+            <strong>0 Days Streak!</strong>
             <span>Active Today</span>
           </div>
         </div>
@@ -71,7 +66,7 @@ export default function StreakHeatmap() {
             <FaFire />
           </div>
           <div>
-            <strong>14 Days</strong>
+            <strong>0 Days</strong>
             <span>Current Streak</span>
           </div>
         </div>
@@ -81,7 +76,7 @@ export default function StreakHeatmap() {
             <FaTrophy />
           </div>
           <div>
-            <strong>32 Days</strong>
+            <strong>0 Days</strong>
             <span>Longest Streak</span>
           </div>
         </div>
@@ -91,7 +86,7 @@ export default function StreakHeatmap() {
             <FaClock />
           </div>
           <div>
-            <strong>148 Hours</strong>
+            <strong>0 Hours</strong>
             <span>Total Study Time</span>
           </div>
         </div>
@@ -101,7 +96,7 @@ export default function StreakHeatmap() {
             <FaChartLine />
           </div>
           <div>
-            <strong>214 Days</strong>
+            <strong>0 Days</strong>
             <span>Active Learning Days</span>
           </div>
         </div>

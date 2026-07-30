@@ -191,7 +191,7 @@ export default function ProgressPage() {
               <div className="sdNotificationBtnWrapper">
                 <button className="sdNotificationBtn">
                   <FaBell />
-                  <span className="sdNotifBadge">3</span>
+                  {3 > 0 && <span className="sdNotifBadge">3</span>}
                 </button>
               </div>
 

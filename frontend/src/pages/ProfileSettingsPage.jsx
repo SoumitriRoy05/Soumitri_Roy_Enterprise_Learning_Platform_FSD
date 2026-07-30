@@ -66,26 +66,26 @@ export default function ProfileSettingsPage() {
 
   // Profile Form State (Anonymous Generic Data)
   const [profileData, setProfileData] = useState({
-    fullName: user?.full_name || "Alex Morgan",
-    username: user?.username || "alex_student",
-    email: user?.email || "alex.morgan@skillsphere.edu",
-    phone: "+1 (555) 019-2834",
-    bio: "Passionate Computer Science student learning Fullstack Web Development & AI engineering.",
-    location: "San Francisco, CA",
-    dob: "2003-05-15",
-    college: "Global Institute of Technology",
-    branch: "Computer Science & Engineering",
-    linkedin: "https://linkedin.com/in/alexmorgan",
-    github: "https://github.com/alexmorgan",
-    website: "https://alexmorgan.dev"
+    fullName: "",
+    username: "",
+    email: "",
+    phone: "",
+    bio: "",
+    location: "",
+    dob: "",
+    college: "",
+    branch: "",
+    linkedin: "",
+    github: "",
+    website: ""
   });
 
   // Account Preferences State
   const [accountPrefs, setAccountPrefs] = useState({
-    language: "English",
-    timezone: "(GMT+05:30) Asia/Kolkata",
-    country: "India",
-    dateFormat: "DD MMM YYYY",
+    language: "",
+    timezone: "",
+    country: "",
+    dateFormat: "",
     enable2FA: false
   });
 
@@ -248,7 +248,7 @@ export default function ProfileSettingsPage() {
               <div className="sdNotificationBtnWrapper">
                 <button className="sdNotificationBtn">
                   <FaBell />
-                  <span className="sdNotifBadge">5</span>
+                  
                 </button>
               </div>
 
@@ -381,6 +381,7 @@ export default function ProfileSettingsPage() {
                       value={profileData.location}
                       onChange={(e) => setProfileData({ ...profileData, location: e.target.value })}
                     >
+                      <option value="" disabled>Select Location</option>
                       <option value="Bhubaneswar, Odisha">Bhubaneswar, Odisha</option>
                       <option value="Bangalore, Karnataka">Bangalore, Karnataka</option>
                       <option value="Hyderabad, Telangana">Hyderabad, Telangana</option>
@@ -590,6 +591,7 @@ export default function ProfileSettingsPage() {
                         value={accountPrefs.language}
                         onChange={(e) => setAccountPrefs({ ...accountPrefs, language: e.target.value })}
                       >
+                        <option value="" disabled>Select Language</option>
                         <option value="English">English</option>
                         <option value="Hindi">Hindi</option>
                         <option value="Spanish">Spanish</option>
@@ -602,6 +604,7 @@ export default function ProfileSettingsPage() {
                         value={accountPrefs.timezone}
                         onChange={(e) => setAccountPrefs({ ...accountPrefs, timezone: e.target.value })}
                       >
+                        <option value="" disabled>Select Timezone</option>
                         <option value="(GMT+05:30) Asia/Kolkata">(GMT+05:30) Asia/Kolkata</option>
                         <option value="(GMT+00:00) UTC">(GMT+00:00) UTC</option>
                         <option value="(GMT-05:00) Eastern Time">(GMT-05:00) Eastern Time</option>
@@ -616,6 +619,7 @@ export default function ProfileSettingsPage() {
                         value={accountPrefs.country}
                         onChange={(e) => setAccountPrefs({ ...accountPrefs, country: e.target.value })}
                       >
+                        <option value="" disabled>Select Country</option>
                         <option value="India">India</option>
                         <option value="United States">United States</option>
                         <option value="United Kingdom">United Kingdom</option>
@@ -628,6 +632,7 @@ export default function ProfileSettingsPage() {
                         value={accountPrefs.dateFormat}
                         onChange={(e) => setAccountPrefs({ ...accountPrefs, dateFormat: e.target.value })}
                       >
+                        <option value="" disabled>Select Date Format</option>
                         <option value="DD MMM YYYY">DD MMM YYYY</option>
                         <option value="MM/DD/YYYY">MM/DD/YYYY</option>
                         <option value="YYYY-MM-DD">YYYY-MM-DD</option>

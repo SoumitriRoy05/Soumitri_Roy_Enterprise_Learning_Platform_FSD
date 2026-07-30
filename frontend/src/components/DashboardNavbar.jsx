@@ -37,11 +37,9 @@ export default function DashboardNavbar({ toggleSidebar, isSidebarOpen }) {
         <div className="dash-nav-icons">
           <button className="dash-icon-btn">
             <FiMessageCircle />
-            <span className="notification-dot"></span>
           </button>
           <button className="dash-icon-btn">
             <FiBell />
-            <span className="notification-dot"></span>
           </button>
         </div>
 

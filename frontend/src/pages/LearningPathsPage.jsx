@@ -1263,10 +1263,10 @@ function AnalyticsDashboard() {
       id: 1,
       title: "React Developer Path",
       levelInfo: "Intermediate • 6 Modules • 24.5K Learners",
-      status: "in-progress",
-      statusText: "In Progress",
-      progress: 50,
-      completedModules: "3 / 6",
+      status: "not-started",
+      statusText: "Not Started",
+      progress: 0,
+      completedModules: "0 / 6",
       bannerType: "react",
       logoText: "⚛️"
     },
@@ -1274,10 +1274,10 @@ function AnalyticsDashboard() {
       id: 2,
       title: "Python for Data Science",
       levelInfo: "Beginner • 8 Modules • 18.7K Learners",
-      status: "in-progress",
-      statusText: "In Progress",
-      progress: 30,
-      completedModules: "2 / 8",
+      status: "not-started",
+      statusText: "Not Started",
+      progress: 0,
+      completedModules: "0 / 8",
       bannerType: "python",
       logoText: "🐍"
     },
@@ -1296,10 +1296,10 @@ function AnalyticsDashboard() {
       id: 4,
       title: "UI/UX Design Masterclass",
       levelInfo: "Beginner • 5 Modules • 9.8K Learners",
-      status: "in-progress",
-      statusText: "In Progress",
-      progress: 60,
-      completedModules: "3 / 5",
+      status: "not-started",
+      statusText: "Not Started",
+      progress: 0,
+      completedModules: "0 / 5",
       bannerType: "figma",
       logoText: "🎨"
     }
@@ -1309,28 +1309,28 @@ function AnalyticsDashboard() {
     {
       id: 1,
       title: "React Developer Path",
-      status: "in-progress",
-      statusText: "In Progress",
-      progress: 50,
+      status: "not-started",
+      statusText: "Not Started",
+      progress: 0,
       progressColor: "#0284C7",
-      modules: "3 / 6",
-      lastAccessed: "Today",
+      modules: "0 / 6",
+      lastAccessed: "—",
       logoText: "⚛️",
       logoBg: "#E0F2FE",
-      actionText: "Continue"
+      actionText: "Start Now"
     },
     {
       id: 2,
       title: "Python for Data Science",
-      status: "in-progress",
-      statusText: "In Progress",
-      progress: 30,
+      status: "not-started",
+      statusText: "Not Started",
+      progress: 0,
       progressColor: "#F9572A",
-      modules: "2 / 8",
-      lastAccessed: "Yesterday",
+      modules: "0 / 8",
+      lastAccessed: "—",
       logoText: "🐍",
       logoBg: "#FEF9C3",
-      actionText: "Continue"
+      actionText: "Start Now"
     },
     {
       id: 3,
@@ -1348,15 +1348,15 @@ function AnalyticsDashboard() {
     {
       id: 4,
       title: "UI/UX Design Masterclass",
-      status: "in-progress",
-      statusText: "In Progress",
-      progress: 60,
+      status: "not-started",
+      statusText: "Not Started",
+      progress: 0,
       progressColor: "#8B5CF6",
-      modules: "3 / 5",
-      lastAccessed: "2 days ago",
+      modules: "0 / 5",
+      lastAccessed: "—",
       logoText: "🎨",
       logoBg: "#FCE7F3",
-      actionText: "Continue"
+      actionText: "Start Now"
     }
   ];
 
@@ -1471,7 +1471,7 @@ function AnalyticsDashboard() {
               <div className="sdNotificationBtnWrapper">
                 <button className="sdNotificationBtn">
                   <FaBell />
-                  <span className="sdNotifBadge">3</span>
+                  
                 </button>
               </div>
 

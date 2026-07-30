@@ -307,8 +307,8 @@
 
 .caNotifBtn {
   position: relative;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: #FFFFFF;
   border: 1px solid #E2E8F0;
@@ -317,6 +317,15 @@
   justify-content: center;
   cursor: pointer;
   color: #64748B;
+  font-size: 15px;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.caNotifBtn:hover {
+  background: #FFF0EB;
+  border-color: #FAD6C8;
+  color: #F9572A;
+  box-shadow: 0 4px 12px rgba(249, 87, 42, 0.15);
 }
 
 .dark-theme .caNotifBtn {
@@ -325,20 +334,33 @@
   color: #CBD5E1;
 }
 
+.dark-theme .caNotifBtn:hover {
+  background: rgba(249, 87, 42, 0.12);
+  border-color: rgba(249, 87, 42, 0.4);
+  color: #F9572A;
+}
+
 .notifDot {
   position: absolute;
-  top: -2px;
-  right: -2px;
+  top: -4px;
+  right: -4px;
   background: #F9572A;
   color: #FFF;
   font-size: 9px;
   font-weight: 800;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 3px;
+  border-radius: 99px;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 2px solid #FFFFFF;
+  pointer-events: none;
+}
+
+.dark-theme .notifDot {
+  border-color: #1E293B;
 }
 
 .caUserProfilePill {

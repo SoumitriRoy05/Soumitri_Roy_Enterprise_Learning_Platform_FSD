@@ -142,7 +142,7 @@
 /* 2-COLUMN MAIN GRID */
 .ofpGridContainer {
   display: grid;
-  grid-template-columns: 1fr 310px;
+  grid-template-columns: 1fr;
   gap: 24px;
 }
 
@@ -250,8 +250,8 @@
 /* 1. HACKATHONS GRID */
 .hackathonsGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
 }
 
 .hackathonCard {
@@ -272,9 +272,9 @@
 }
 
 .hackathonBanner {
-  height: 120px;
+  height: 100px;
   position: relative;
-  padding: 16px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -284,6 +284,7 @@
 .hackathonBanner.sihBanner { background: linear-gradient(135deg, #082F49 0%, #0369A1 100%); }
 .hackathonBanner.cohortBanner { background: linear-gradient(135deg, #09090B 0%, #18181B 100%); }
 .hackathonBanner.mlhBanner { background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); }
+.hackathonBanner.hwiaBanner { background: linear-gradient(135deg, #7C2D12 0%, #EA580C 100%); }
 
 .featuredBadge {
   position: absolute;
@@ -317,16 +318,16 @@
   border-radius: 99px;
 }
 
-.bannerLogo { font-size: 32px; margin-bottom: 4px; }
-.hackathonBanner h4 { font-size: 14px; font-weight: 800; margin: 0; }
+.bannerLogo { font-size: 26px; margin-bottom: 2px; }
+.hackathonBanner h4 { font-size: 12px; font-weight: 800; margin: 0; }
 
-.hackathonBody { padding: 16px; }
-.hackathonBody h4 { font-size: 14px; font-weight: 800; margin: 0 0 2px 0; color: #1E1B18; }
-.dateSub { font-size: 10px; color: #94A3B8; display: block; margin-bottom: 8px; }
-.descText { font-size: 11px; color: #475569; margin: 0 0 12px 0; line-height: 1.4; }
+.hackathonBody { padding: 12px; }
+.hackathonBody h4 { font-size: 12px; font-weight: 800; margin: 0 0 2px 0; color: #1E1B18; }
+.dateSub { font-size: 9px; color: #94A3B8; display: block; margin-bottom: 6px; }
+.descText { font-size: 10px; color: #475569; margin: 0 0 8px 0; line-height: 1.4; }
 
-.tagsRow { display: flex; gap: 6px; margin-bottom: 14px; }
-.tagPill { font-size: 9px; font-weight: 700; background: #FAF8F5; border: 1px solid #F3EBE1; padding: 3px 8px; border-radius: 99px; color: #64748B; }
+.tagsRow { display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap; }
+.tagPill { font-size: 8px; font-weight: 700; background: #FAF8F5; border: 1px solid #F3EBE1; padding: 2px 6px; border-radius: 99px; color: #64748B; }
 
 .btnApplyNowOutline {
   width: 100%;
@@ -349,15 +350,15 @@
 /* 2. INTERNSHIPS GRID */
 .internshipsGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
 }
 
 .internshipCard {
   background: #FFFFFF;
   border: 1px solid #F3EBE1;
-  border-radius: 24px;
-  padding: 20px;
+  border-radius: 20px;
+  padding: 14px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
   transition: transform 0.2s ease, border-color 0.2s ease;
   display: flex;
@@ -378,15 +379,15 @@
 }
 
 .compLogoBadge {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #FFFFFF;
   font-weight: 800;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .verifiedGreenTag {
@@ -398,15 +399,15 @@
   border-radius: 99px;
 }
 
-.companySub { font-size: 10px; color: #64748B; font-weight: 600; display: block; margin-bottom: 8px; }
+.companySub { font-size: 9px; color: #64748B; font-weight: 600; display: block; margin-bottom: 6px; }
 
-.internChipsRow { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
-.internChipsRow .chip { font-size: 9px; font-weight: 700; background: #FAF8F5; border: 1px solid #F3EBE1; padding: 2px 7px; border-radius: 99px; color: #64748B; }
+.internChipsRow { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
+.internChipsRow .chip { font-size: 8px; font-weight: 700; background: #FAF8F5; border: 1px solid #F3EBE1; padding: 2px 6px; border-radius: 99px; color: #64748B; }
 
-.descP { font-size: 11px; color: #475569; margin: 0 0 14px 0; line-height: 1.4; }
+.descP { font-size: 10px; color: #475569; margin: 0 0 10px 0; line-height: 1.4; }
 
-.internFooter { display: flex; flex-direction: column; gap: 10px; }
-.footerMeta { display: flex; justify-content: space-between; font-size: 10px; color: #64748B; }
+.internFooter { display: flex; flex-direction: column; gap: 8px; }
+.footerMeta { display: flex; justify-content: space-between; font-size: 9px; color: #64748B; }
 .footerMeta strong { color: #10B981; }
 
 /* 3. PLACEMENTS TABLE */
@@ -560,9 +561,17 @@
 .appDate { font-size: 10px; color: #94A3B8; }
 .appStatus { font-size: 10px; font-weight: 800; color: #10B981; background: #ECFDF5; padding: 2px 8px; border-radius: 99px; }
 
+@media (max-width: 1280px) {
+  .hackathonsGrid, .internshipsGrid { grid-template-columns: repeat(2, 1fr); }
+}
+
 @media (max-width: 1100px) {
-  .hackathonsGrid, .internshipsGrid { grid-template-columns: 1fr; }
   .ofpGridContainer { grid-template-columns: 1fr; }
+  .placementsTable td { font-size: 11px; padding: 10px 6px; }
+}
+
+@media (max-width: 768px) {
+  .hackathonsGrid, .internshipsGrid { grid-template-columns: 1fr; }
 }
 
 /* ── DARK THEME STYLES ── */

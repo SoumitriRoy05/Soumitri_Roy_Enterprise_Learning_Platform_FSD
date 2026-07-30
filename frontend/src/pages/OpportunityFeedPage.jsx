@@ -55,6 +55,10 @@ export default function OpportunityFeedPage() {
   const [expFilter, setExpFilter] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
 
+  const [showAllHackathons, setShowAllHackathons] = useState(false);
+  const [showAllInternships, setShowAllInternships] = useState(false);
+  const [showAllPlacements, setShowAllPlacements] = useState(false);
+
   const [myApplicationsModal, setMyApplicationsModal] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [appliedList, setAppliedList] = useState([
@@ -117,6 +121,17 @@ export default function OpportunityFeedPage() {
       bannerClass: "mlhBanner",
       bannerLogo: "⚡",
       applyUrl: "https://localhackday.mlh.io/"
+    },
+    {
+      id: "h4",
+      title: "HackWithIndia 3.0",
+      prizeText: "₹ 5 Lakh+ Prizes",
+      dates: "Aug 10 - Aug 12, 2025",
+      description: "India's largest open innovation hackathon. Build for social impact with AI, IoT & Cloud.",
+      tags: ["🌐 Online", "👥 Team (1-5)"],
+      bannerClass: "hwiaBanner",
+      bannerLogo: "🇮🇳",
+      applyUrl: "https://hackwithindia.com/"
     }
   ];
 
@@ -162,6 +177,20 @@ export default function OpportunityFeedPage() {
       logoBg: "#5F259F",
       logoText: "Pe",
       applyUrl: "https://www.naukri.com/phonepe-jobs"
+    },
+    {
+      id: "i4",
+      title: "Data Science Intern",
+      company: "Amazon",
+      location: "Chennai, India",
+      isVerified: true,
+      tags: ["Hybrid", "Full-time", "Summer 2025"],
+      description: "Leverage big data and ML to build insights that power millions of customer decisions.",
+      deadline: "20 Jun 2025",
+      stipend: "₹55K / Month",
+      logoBg: "#FF9900",
+      logoText: "a",
+      applyUrl: "https://www.amazon.jobs/en/teams/internships-for-students"
     }
   ];
 
@@ -201,8 +230,25 @@ export default function OpportunityFeedPage() {
       logoBg: "#006699",
       logoText: "wipro",
       applyUrl: "https://www.naukri.com/wipro-jobs"
+    },
+    {
+      id: "p4",
+      company: "Cognizant",
+      role: "Programmer Analyst Trainee",
+      eligibility: "B.Tech, MCA, BCA",
+      location: "Across India",
+      ctc: "CTC 4.5 LPA",
+      deadline: "05 Jul 2025",
+      logoBg: "#1A4788",
+      logoText: "CTS",
+      applyUrl: "https://careers.cognizant.com/"
     }
   ];
+
+  // Derived display data – show 4 by default, all when expanded
+  const displayedHackathons = showAllHackathons ? hackathonsData : hackathonsData.slice(0, 4);
+  const displayedInternships = showAllInternships ? internshipsData : internshipsData.slice(0, 4);
+  const displayedPlacements = showAllPlacements ? placementsData : placementsData.slice(0, 4);
 
   const handleApplyClick = (title, url) => {
     // Open real Naukri/official portal link in new tab
@@ -318,7 +364,7 @@ export default function OpportunityFeedPage() {
               <div className="sdNotificationBtnWrapper">
                 <button className="sdNotificationBtn">
                   <FaBell />
-                  <span className="sdNotifBadge">3</span>
+                  
                 </button>
               </div>
 
@@ -436,9 +482,13 @@ export default function OpportunityFeedPage() {
                     setLocationFilter("all");
                     setExpFilter("all");
                     setSortBy("newest");
+                    setActiveTab("all");
+                    setShowAllHackathons(false);
+                    setShowAllInternships(false);
+                    setShowAllPlacements(false);
                   }}
                 >
-                  Clear Filters
+                  ✕ Clear Filters
                 </span>
               </div>
 
@@ -447,11 +497,19 @@ export default function OpportunityFeedPage() {
                 <div className="ofpSectionBlock">
                   <div className="sectionTitleRow">
                     <h3>🔥 Hackathons</h3>
-                    <span className="viewAllLink">View All</span>
+                    <span
+                      className="viewAllLink"
+                      onClick={() => {
+                        setShowAllHackathons(prev => !prev);
+                        setActiveTab("hackathons");
+                      }}
+                    >
+                      {showAllHackathons ? "Show Less" : `View All (${hackathonsData.length})`}
+                    </span>
                   </div>
 
                   <div className="hackathonsGrid">
-                    {hackathonsData.map((h) => (
+                    {displayedHackathons.map((h) => (
                       <div key={h.id} className="hackathonCard">
                         <div className={`hackathonBanner ${h.bannerClass}`}>
                           {h.isFeatured && <span className="featuredBadge">Featured</span>}
@@ -493,11 +551,19 @@ export default function OpportunityFeedPage() {
                 <div className="ofpSectionBlock">
                   <div className="sectionTitleRow">
                     <h3>💼 Internships</h3>
-                    <span className="viewAllLink">View All</span>
+                    <span
+                      className="viewAllLink"
+                      onClick={() => {
+                        setShowAllInternships(prev => !prev);
+                        setActiveTab("internships");
+                      }}
+                    >
+                      {showAllInternships ? "Show Less" : `View All (${internshipsData.length})`}
+                    </span>
                   </div>
 
                   <div className="internshipsGrid">
-                    {internshipsData.map((intern) => (
+                    {displayedInternships.map((intern) => (
                       <div key={intern.id} className="internshipCard">
                         
                         <div className="internHeader">
@@ -548,13 +614,21 @@ export default function OpportunityFeedPage() {
                 <div className="ofpSectionBlock">
                   <div className="sectionTitleRow">
                     <h3>🎯 Placements</h3>
-                    <span className="viewAllLink">View All</span>
+                    <span
+                      className="viewAllLink"
+                      onClick={() => {
+                        setShowAllPlacements(prev => !prev);
+                        setActiveTab("placements");
+                      }}
+                    >
+                      {showAllPlacements ? "Show Less" : `View All (${placementsData.length})`}
+                    </span>
                   </div>
 
                   <div className="placementsTableCard">
                     <table className="placementsTable">
                       <tbody>
-                        {placementsData.map((p) => (
+                        {displayedPlacements.map((p) => (
                           <tr key={p.id}>
                             <td>
                               <div className="compTableCell">
@@ -594,8 +668,19 @@ export default function OpportunityFeedPage() {
 
               {/* Bottom Center Button */}
               <div className="ofpBottomActionRow">
-                <button className="btnViewMoreOpps">
-                  View More Opportunities →
+                <button
+                  className="btnViewMoreOpps"
+                  onClick={() => {
+                    setActiveTab("all");
+                    setShowAllHackathons(true);
+                    setShowAllInternships(true);
+                    setShowAllPlacements(true);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                >
+                  {(showAllHackathons && showAllInternships && showAllPlacements)
+                    ? "✓ All Opportunities Shown"
+                    : "View More Opportunities →"}
                 </button>
               </div>
 
@@ -605,7 +690,7 @@ export default function OpportunityFeedPage() {
             <div className="ofpRightSidebar">
               
               {/* Opportunity Summary Donut Chart Widget */}
-              <div className="ofpWidgetCard">
+            {/*  <div className="ofpWidgetCard">
                 <h4>📊 Opportunity Summary</h4>
 
                 <div className="summaryDonutContainer">
@@ -631,8 +716,8 @@ export default function OpportunityFeedPage() {
                 </div>
               </div>
 
-              {/* Recommended For You Widget */}
-              <div className="ofpWidgetCard">
+            {/* Recommended For You Widget */}
+           {/*   <div className="ofpWidgetCard">
                 <div className="widgetTitleRow">
                   <h4>🚀 Recommended For You</h4>
                 </div>
@@ -668,19 +753,19 @@ export default function OpportunityFeedPage() {
 
                 <span className="viewAllRecsLink">View All Recommendations →</span>
               </div>
-
+*/}
               {/* Never Miss An Opportunity Widget */}
-              <div className="ofpWidgetCard">
+           {/*   <div className="ofpWidgetCard">
                 <h4>⏰ Never Miss An Opportunity</h4>
                 <p className="subP">Enable notifications and be the first to know about new openings.</p>
 
                 <button className="btnEnableNotifs">
                   🔔 Enable Notifications
                 </button>
-              </div>
+              </div>*/}
 
               {/* Trending Skills Widget */}
-              <div className="ofpWidgetCard">
+            {/*  <div className="ofpWidgetCard">
                 <h4>🔥 Trending Skills</h4>
 
                 <div className="skillsChipsGrid">
@@ -695,10 +780,10 @@ export default function OpportunityFeedPage() {
                 <span className="explorePathsLink" onClick={() => navigate("/learning-paths")}>
                   Explore Learning Paths →
                 </span>
-              </div>
+              </div>*/}
 
               {/* Host a Hackathon Banner Widget (Dark Gradient Box) */}
-              <div className="hostHackathonBanner">
+             {/* <div className="hostHackathonBanner">
                 <div>
                   <h5>Host a Hackathon?</h5>
                   <p>Partner with SkillSphere and reach 50K+ student developers.</p>
@@ -706,9 +791,9 @@ export default function OpportunityFeedPage() {
                 </div>
                 <div className="trophyGraphic">🏆</div>
               </div>
-
+*/}
             </div>
-
+            
           </div>
 
         </div>

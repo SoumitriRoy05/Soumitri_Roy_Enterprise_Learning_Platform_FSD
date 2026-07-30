@@ -302,25 +302,38 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 15px;
   color: #64748B;
   cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.sdNotificationBtn:hover {
+  background: #FFF0EB;
+  border-color: #FAD6C8;
+  color: #F9572A;
+  box-shadow: 0 4px 12px rgba(249, 87, 42, 0.15);
 }
 
 .sdNotifBadge {
   position: absolute;
-  top: -2px;
-  right: -2px;
+  top: -4px;
+  right: -4px;
   background: #EF4444;
   color: #FFFFFF;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 3px;
+  border-radius: 99px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 2px solid #FFFFFF;
+  line-height: 1;
+  pointer-events: none;
 }
 
 .sdUserProfilePill {
@@ -837,7 +850,7 @@
 /* CONTINUE LEARNING GRID */
 .sdContinueLearningGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 16px;
   margin-top: 16px;
 }
@@ -1509,8 +1522,15 @@
 
 .sdDashboardWrapper.dark-theme .sdNotificationBtn:hover,
 [data-theme="dark"] .sdNotificationBtn:hover {
-  color: #F9572A;
+  background: rgba(249, 87, 42, 0.12);
   border-color: rgba(249, 87, 42, 0.4);
+  color: #F9572A;
+  box-shadow: 0 4px 12px rgba(249, 87, 42, 0.15);
+}
+
+.sdDashboardWrapper.dark-theme .sdNotifBadge,
+[data-theme="dark"] .sdNotifBadge {
+  border-color: #131926;
 }
 
 .sdDashboardWrapper.dark-theme .sdLogoutHeaderBtn,
@@ -2095,4 +2115,5 @@
 [data-theme="dark"] .sdQuickActionItem span {
   color: #E2E8F0;
 }
+
 

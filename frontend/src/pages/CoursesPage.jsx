@@ -234,7 +234,7 @@ export default function CoursesPage() {
     if (filter === "all") return true;
     if (filter === "in-progress") return c.status === "in-progress";
     if (filter === "completed") return c.status === "completed";
-    if (filter === "saved") return c.status === "saved";
+   if (filter === "saved") return c.status === "saved";
     if (filter === "wishlist") return c.status === "saved" || c.status === "not-started" || c.status === "locked";
     return true;
   });
@@ -373,7 +373,7 @@ export default function CoursesPage() {
               <div className="sdNotificationBtnWrapper">
                 <button className="sdNotificationBtn">
                   <FaBell />
-                  <span className="sdNotifBadge">3</span>
+                  {3 > 0 && <span className="sdNotifBadge">3</span>}
                 </button>
               </div>
 
@@ -682,7 +682,7 @@ export default function CoursesPage() {
               </div>
 
               {/* Recommended For You Carousel Widget */}
-              <div className="mcOverviewCard">
+            {/*  <div className="mcOverviewCard">
                 <div className="recHeaderRow">
                   <h4>Recommended For You</h4>
                   <span className="sdViewAllLink">View All</span>
@@ -713,7 +713,7 @@ export default function CoursesPage() {
                   </div>
                   <button className="carouselArrow right"><FaChevronRight /></button>
                 </div>
-              </div>
+              </div>*/}
 
               {/* Bottom Right Decor */}
               <div className="mcBottomPlantDecor">

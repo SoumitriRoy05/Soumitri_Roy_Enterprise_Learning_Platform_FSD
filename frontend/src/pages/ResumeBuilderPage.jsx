@@ -65,6 +65,7 @@ export default function ResumeBuilderPage() {
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
   const [toastMessage, setToastMessage] = useState("");
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [isResumeAnalyzed, setIsResumeAnalyzed] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const handleLogout = async () => {
@@ -1000,7 +1001,7 @@ ${resumeData.interests.join(", ")}
               <div className="sdNotificationBtnWrapper">
                 <button className="sdNotificationBtn">
                   <FaBell />
-                  <span className="sdNotifBadge">3</span>
+                  {3 > 0 && <span className="sdNotifBadge">3</span>}
                 </button>
               </div>
 
@@ -1054,7 +1055,7 @@ ${resumeData.interests.join(", ")}
 
             <div className="rbpHeaderActionsRight">
               <span className="lastSavedTag"><FaCheckCircle color="#10B981" /> Last Saved: Just now ▾</span>
-              <div className="atsScorePill">ATS Score : 92%</div>
+              {isResumeAnalyzed && <div className="atsScorePill">ATS Score : 92%</div>}
               <button className="btnNewResume">+ New Resume ▾</button>
             </div>
           </div>
@@ -1707,91 +1708,6 @@ ${resumeData.interests.join(", ")}
 
                 </div>
               </div>
-
-              {/* 3 AI & ATS WIDGET CARDS ROW */}
-              <div className="aiAtsWidgetsGrid">
-                
-                {/* AI Resume Assistant (Beta) */}
-                <div className="rbpCardWidget">
-                  <h4>🪄 AI Resume Assistant <span className="betaTag">Beta</span></h4>
-
-                  <div className="aiActionGrid">
-                    <button onClick={() => handleAiAction("Improve Summary")}>✏️ Improve Summary</button>
-                    <button onClick={() => handleAiAction("Rewrite Bullet Points")}>✏️ Rewrite Bullet Points</button>
-                    <button onClick={() => handleAiAction("Add Action Verbs")}>⚡ Add Action Verbs</button>
-                    <button onClick={() => handleAiAction("Suggest Skills")}>💡 Suggest Skills</button>
-                    <button onClick={() => handleAiAction("Generate Summary")}>📝 Generate Summary</button>
-                    <button onClick={() => handleAiAction("ATS Optimization")}>📈 ATS Optimization</button>
-                    <button onClick={() => handleAiAction("Improve Grammar")}>✨ Improve Grammar</button>
-                    <button onClick={() => handleAiAction("Check Readability")}>📖 Check Readability</button>
-                  </div>
-                </div>
-
-                {/* ATS Analyzer */}
-                <div className="rbpCardWidget">
-                  <h4>ATS Analyzer</h4>
-
-                  <div className="atsGaugeCenter">
-                    <svg viewBox="0 0 100 100">
-                      <circle cx="50" cy="50" r="40" stroke="#E2E8F0" strokeWidth="10" fill="none" />
-                      <circle cx="50" cy="50" r="40" stroke="#10B981" strokeWidth="10" fill="none" strokeDasharray="251.2" strokeDashoffset="20" />
-                    </svg>
-                    <div className="atsCenterText">
-                      <strong>92%</strong>
-                      <span className="matchSub">Great Match!</span>
-                    </div>
-                  </div>
-
-                  <ul className="atsChecklist">
-                    <li><FaCheckCircle color="#10B981" /> Contact Information</li>
-                    <li><FaCheckCircle color="#10B981" /> Keywords</li>
-                    <li><FaCheckCircle color="#10B981" /> Skills</li>
-                    <li><FaCheckCircle color="#10B981" /> Experience</li>
-                    <li><FaCheckCircle color="#10B981" /> Education</li>
-                    <li><FaExclamationTriangle color="#F59E0B" /> Certifications</li>
-                    <li><FaExclamationTriangle color="#F59E0B" /> Projects</li>
-                  </ul>
-                </div>
-
-                {/* Resume Metrics */}
-                <div className="rbpCardWidget">
-                  <h4>Resume Metrics</h4>
-
-                  <div className="metricsGrid2x3">
-                    <div className="metricBox">
-                      <div className="mIcon red"><FaBriefcase /></div>
-                      <div><span>Experience</span><strong>2.5 Years</strong></div>
-                    </div>
-
-                    <div className="metricBox">
-                      <div className="mIcon orange"><FaRocket /></div>
-                      <div><span>Projects</span><strong>{resumeData.projects.length}</strong></div>
-                    </div>
-
-                    <div className="metricBox">
-                      <div className="mIcon blue"><FaCode /></div>
-                      <div><span>Skills</span><strong>{resumeData.skills.length}</strong></div>
-                    </div>
-
-                    <div className="metricBox">
-                      <div className="mIcon gold"><FaCertificate /></div>
-                      <div><span>Certificates</span><strong>{resumeData.certifications.length}</strong></div>
-                    </div>
-
-                    <div className="metricBox">
-                      <div className="mIcon gray"><FaFileAlt /></div>
-                      <div><span>Word Count</span><strong>542</strong></div>
-                    </div>
-
-                    <div className="metricBox">
-                      <div className="mIcon green"><FaBolt /></div>
-                      <div><span>ATS Score</span><strong className="greenText">92%</strong></div>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
             </div>
 
             {/* RIGHT STICKY LIVE PREVIEW COLUMN */}
@@ -1867,3 +1783,4 @@ ${resumeData.interests.join(", ")}
     </div>
   );
 }
+
