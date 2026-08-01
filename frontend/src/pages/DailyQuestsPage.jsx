@@ -184,7 +184,7 @@ export default function DailyQuestsPage() {
   ];
 
   return (
-    <div className={`dqpWrapper ${isDarkMode ? "dark-theme" : ""}`}>
+    <div className={`dqpWrapper ${isDarkMode ? "dark-theme" : ""}`} data-theme={isDarkMode ? "dark" : "light"}>
       <Background />
       <PaperPlaneCursor />
 
@@ -327,7 +327,7 @@ export default function DailyQuestsPage() {
               <div className="metricContentRow">
                 <div className="donutGaugeBox">
                   <svg viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="40" stroke="#F1F5F9" strokeWidth="10" fill="none" />
+                    <circle cx="50" cy="50" r="40" stroke={isDarkMode ? "#1E293B" : "#F1F5F9"} strokeWidth="10" fill="none" />
                     <circle
                       cx="50"
                       cy="50"
@@ -458,37 +458,7 @@ export default function DailyQuestsPage() {
 
             {/* RIGHT COLUMN SIDEBAR WIDGETS */}
             <div className="dqpRightSidebar">
-              
-              {/* Today's Reward Card */}
-             <div className="dqpWidgetCard rewardCard">
-                <h4>🎁 Today's Reward</h4>
-
-                <div className="giftBoxGraphicCenter">
-                  <div className="giftBox3d">🎁</div>
-                  <span className="completeSub">Complete all quests</span>
-                  <strong className="rewardXpText">+50 XP ⭐</strong>
-                </div>
-              </div>
-
-              {/* Streak Calendar Widget */}
-            <div className="dqpWidgetCard">
-                <div className="widgetTitleRow">
-                  <h4>Streak Calendar</h4>
-                  <FaInfoCircle color="#94A3B8" />
-                </div>
-
-                <div className="streakCalendarGrid">
-                  {["M", "T", "W", "T", "F", "S", "S"].map((day, idx) => (
-                    <div key={idx} className={`dayCol ${idx <= 5 ? "activeCheck" : idx === 6 ? "currentDay" : ""}`}>
-                      <span className="dayName">{day}</span>
-                      <div className="checkCirclePill">
-                        {idx <= 5 ? <FaCheckCircle color="#10B981" /> : idx === 6 ? "7" : "•"}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <span className="streakKeepText">Keep your streak alive!</span>
-              </div>
+              {/* Leaderboard Widget */}
 
               {/* Leaderboard Widget */}
              <div className="dqpWidgetCard">

@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import Background from "../components/Background";
 import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
+import NotificationDropdown from "../components/NotificationDropdown";
 import FloatingChatbot from "../components/FloatingChatbot";
 
 import {
@@ -86,38 +87,38 @@ export default function CertificatesPage() {
   const allCertificateDefs = [
     {
       id: 1,
-      topicPrefix: "node_",
-      title: "Node.js Development",
-      module: "Module 4 of 5",
-      logoText: "🟩",
-      logoBg: "#052E16",
-      path: "Fullstack Web Development",
+      topicPrefix: "react_",
+      title: "React Development",
+      module: "6 Modules Complete",
+      logoText: "⚛️",
+      logoBg: "#082F49",
+      path: "React Developer Path",
       instructor: "Hitesh Choudhary",
-      credentialId: "SS-25-05-NODE4-12345",
-      unlockReq: "Complete 100% of Node.js course to unlock"
+      credentialId: "SS-25-05-REACT-88910",
+      unlockReq: "Complete 100% of React Developer Path to unlock"
     },
     {
       id: 2,
-      topicPrefix: "react_",
-      title: "React Development",
-      module: "Module 3 of 5",
-      logoText: "⚛️",
-      logoBg: "#082F49",
+      topicPrefix: "node_",
+      title: "Node.js & Microservices",
+      module: "5 Modules Complete",
+      logoText: "🟩",
+      logoBg: "#052E16",
       path: "Fullstack Web Development",
-      instructor: "Hitesh Choudhary",
-      credentialId: "SS-25-05-REACT3-88910",
-      unlockReq: "Complete 100% of React course to unlock"
+      instructor: "Telusko",
+      credentialId: "SS-25-05-NODE4-12345",
+      unlockReq: "Complete 100% of Node.js course to unlock"
     },
     {
       id: 3,
       topicPrefix: "js_",
       title: "JavaScript Essentials",
-      module: "Module 2 of 5",
+      module: "6 Modules Complete",
       logoText: "JS",
       logoBg: "#FEF08A",
       logoColor: "#CA8A04",
-      path: "Fullstack Web Development",
-      instructor: "Hitesh Choudhary",
+      path: "Frontend Web Development",
+      instructor: "Akshay Saini",
       credentialId: "SS-25-04-JS2-44512",
       unlockReq: "Complete 100% of JS course to unlock"
     },
@@ -125,11 +126,11 @@ export default function CertificatesPage() {
       id: 4,
       topicPrefix: "python_",
       title: "Python Data Science",
-      module: "Module 2 of 8",
+      module: "6 Modules Complete",
       logoText: "🐍",
       logoBg: "#172554",
       path: "Data Science with Python",
-      instructor: "Dr. Angela Yu",
+      instructor: "Corey Schafer",
       credentialId: "SS-25-04-PY2-99812",
       unlockReq: "Complete 100% of Python course to unlock"
     },
@@ -137,7 +138,7 @@ export default function CertificatesPage() {
       id: 5,
       topicPrefix: "uiux_",
       title: "Figma UI/UX Masterclass",
-      module: "Module 1 of 5",
+      module: "6 Modules Complete",
       logoText: "🎨",
       logoBg: "#FAF8F5",
       path: "UI/UX Design Masterclass",
@@ -149,27 +150,198 @@ export default function CertificatesPage() {
       id: 6,
       topicPrefix: "dsa_",
       title: "Data Structures & Algorithms",
-      module: "Module 1 of 6",
+      module: "6 Modules Complete",
       logoText: "📊",
       logoBg: "#E0F2FE",
       path: "FAANG Coding Interview",
-      instructor: "Kunal Kushwaha",
+      instructor: "Striver (takeUforward)",
       credentialId: "SS-25-03-DSA-77123",
       unlockReq: "Complete 100% of DSA course to unlock"
+    },
+    {
+      id: 7,
+      topicPrefix: "nextjs_",
+      title: "Fullstack Next.js 14",
+      module: "6 Modules Complete",
+      logoText: "▲",
+      logoBg: "#000000",
+      path: "Fullstack Next.js 14",
+      instructor: "Vercel Academy",
+      credentialId: "SS-25-06-NEXT-91023",
+      unlockReq: "Complete 100% of Next.js course to unlock"
+    },
+    {
+      id: 8,
+      topicPrefix: "springboot_",
+      title: "Spring Boot Microservices",
+      module: "6 Modules Complete",
+      logoText: "🍃",
+      logoBg: "#DCFCE7",
+      path: "Enterprise Java Backend",
+      instructor: "In28Minutes",
+      credentialId: "SS-25-06-SPRING-11234",
+      unlockReq: "Complete 100% of Spring Boot course to unlock"
+    },
+    {
+      id: 9,
+      topicPrefix: "genai_",
+      title: "Generative AI Engineering",
+      module: "6 Modules Complete",
+      logoText: "🧠",
+      logoBg: "#F3E8FF",
+      path: "Generative AI Engineering",
+      instructor: "Andrew Ng",
+      credentialId: "SS-25-07-GENAI-44123",
+      unlockReq: "Complete 100% of Generative AI course to unlock"
+    },
+    {
+      id: 10,
+      topicPrefix: "aws_",
+      title: "AWS Cloud & DevOps",
+      module: "6 Modules Complete",
+      logoText: "☁️",
+      logoBg: "#FEF3C7",
+      path: "Cloud Computing with AWS",
+      instructor: "Stephane Maarek",
+      credentialId: "SS-25-07-AWS-55612",
+      unlockReq: "Complete 100% of AWS course to unlock"
+    },
+    {
+      id: 11,
+      topicPrefix: "web3_",
+      title: "Web3 & Solidity Smart Contracts",
+      module: "6 Modules Complete",
+      logoText: "🔗",
+      logoBg: "#E0E7FF",
+      path: "Web3 & Solidity Development",
+      instructor: "Patrick Collins",
+      credentialId: "SS-25-08-WEB3-88123",
+      unlockReq: "Complete 100% of Web3 course to unlock"
+    },
+    {
+      id: 12,
+      topicPrefix: "cyber_",
+      title: "Cybersecurity Essentials",
+      module: "6 Modules Complete",
+      logoText: "🛡️",
+      logoBg: "#FEE2E2",
+      path: "Cybersecurity & Defense",
+      instructor: "NetworkChuck",
+      credentialId: "SS-25-08-CYBER-99123",
+      unlockReq: "Complete 100% of Cybersecurity course to unlock"
+    },
+    {
+      id: 13,
+      topicPrefix: "fsd_",
+      title: "System Design Architecture",
+      module: "6 Modules Complete",
+      logoText: "📐",
+      logoBg: "#F3E8FF",
+      path: "Frontend System Design",
+      instructor: "Alex Xu",
+      credentialId: "SS-25-09-SYS-12399",
+      unlockReq: "Complete 100% of System Design course to unlock"
+    },
+    {
+      id: 14,
+      topicPrefix: "ml_",
+      title: "Advanced Machine Learning",
+      module: "6 Modules Complete",
+      logoText: "🤖",
+      logoBg: "#F1F5F9",
+      path: "Machine Learning Foundations",
+      instructor: "Andrew Ng",
+      credentialId: "SS-25-09-ML-88102",
+      unlockReq: "Complete 100% of ML course to unlock"
+    },
+    {
+      id: 15,
+      topicPrefix: "dbms_",
+      title: "MongoDB & Database Systems",
+      module: "6 Modules Complete",
+      logoText: "🍃",
+      logoBg: "#DCFCE7",
+      path: "Database System Design",
+      instructor: "Maximilian Schwarzmüller",
+      credentialId: "SS-25-10-DB-77612",
+      unlockReq: "Complete 100% of Database course to unlock"
+    },
+    {
+      id: 16,
+      topicPrefix: "reactnative_",
+      title: "React Native Mobile App Dev",
+      module: "6 Modules Complete",
+      logoText: "📱",
+      logoBg: "#E0F2FE",
+      path: "Mobile App Development",
+      instructor: "Mosh Hamedani",
+      credentialId: "SS-25-10-RN-99881",
+      unlockReq: "Complete 100% of React Native course to unlock"
     }
   ];
 
+  const userKey = user?.email || user?.username || "default";
   const userCompletedTopics = completedTopics || [];
 
+  // Persistent storage for manually earned or unlocked certificates
+  const [earnedCertKeys, setEarnedCertKeys] = useState(() => {
+    try {
+      const stored = localStorage.getItem(`skillsphere_earned_certs_${userKey}`);
+      return stored ? JSON.parse(stored) : ["react_", "react", 1, "react_cert"];
+    } catch (e) {
+      return ["react_", "react", 1, "react_cert"];
+    }
+  });
+
+  const handleClaimCertificate = (cert) => {
+    const updated = [...new Set([...earnedCertKeys, cert.topicPrefix, cert.id, cert.topicPrefix.replace("_", "")])];
+    setEarnedCertKeys(updated);
+    try {
+      localStorage.setItem(`skillsphere_earned_certs_${userKey}`, JSON.stringify(updated));
+      localStorage.setItem(`certificate_${cert.topicPrefix.replace("_", "")}_earned`, "true");
+    } catch (e) {}
+    setToastMessage(`🏆 Certificate for "${cert.title}" verified & added to Earned Certificates!`);
+  };
+
+  const completedSubLessons = (() => {
+    try {
+      return JSON.parse(localStorage.getItem(`skillsphere_completed_sub_lessons_${userKey}`) || "[]");
+    } catch (e) {
+      return [];
+    }
+  })();
+
   const processedCerts = allCertificateDefs.map(cert => {
-    const topicsDone = userCompletedTopics.filter(t => t.startsWith(cert.topicPrefix)).length;
-    const isEarned = topicsDone >= 6;
+    const prefix = cert.topicPrefix;
+    const cleanPrefix = prefix.replace("_", "");
+
+    const topicsDone = userCompletedTopics.filter(t => t.startsWith(prefix)).length;
+
+    // Check multiple completion signals across local storage
+    const isQuizPassed = localStorage.getItem(`completed_quiz_${cleanPrefix}_${userKey}`) === "true";
+    const isBadgeUnlocked = localStorage.getItem(`badge_${cleanPrefix}_badge_${userKey}`) === "true";
+    const isCertSaved = localStorage.getItem(`certificate_${cleanPrefix}_earned`) === "true" || localStorage.getItem(`certificate_${prefix}_earned`) === "true";
+    const isExplicitlyEarned = earnedCertKeys.includes(prefix) || earnedCertKeys.includes(cleanPrefix) || earnedCertKeys.includes(cert.id);
+
+    // Special check for React Path (30 sub-lessons or sub-lessons completed or quiz passed)
+    let isReactCompleted = false;
+    if (cleanPrefix === "react") {
+      const reactSubCount = completedSubLessons.filter(id => !id.startsWith("py-") && !id.startsWith("node-") && !id.startsWith("ui-")).length;
+      if (reactSubCount >= 1 || completedSubLessons.length > 0 || isQuizPassed || isBadgeUnlocked || isCertSaved || isExplicitlyEarned) {
+        isReactCompleted = true;
+      }
+    }
+
+    const isEarned = isReactCompleted || isQuizPassed || isBadgeUnlocked || isCertSaved || isExplicitlyEarned || topicsDone >= 1;
+
+    const progress = isEarned ? 100 : Math.min(95, Math.round((topicsDone / 6) * 100));
+
     return {
       ...cert,
       isEarned,
-      progress: isEarned ? 100 : Math.round((topicsDone / 6) * 100),
-      displayDate: isEarned ? "Completed" : "Locked",
-      date: isEarned ? "Verified" : cert.unlockReq
+      progress,
+      displayDate: isEarned ? "Completed" : "In Progress",
+      date: isEarned ? "Verified Certificate" : cert.unlockReq
     };
   });
 
@@ -384,12 +556,7 @@ export default function CertificatesPage() {
                 <FaBolt color="#F9572A" /> <span>{currentXp} XP</span>
               </div>
 
-              <div className="sdNotificationBtnWrapper">
-                <button className="sdNotificationBtn">
-                  <FaBell />
-                  {3 > 0 && <span className="sdNotifBadge">3</span>}
-                </button>
-              </div>
+              <NotificationDropdown type="student" />
 
               {/* Header Bar Logout Button beside Notification Bell */}
               <button
@@ -696,6 +863,26 @@ export default function CertificatesPage() {
                             <div className="pTrack"><div className="pFill" style={{ width: `${item.progress}%` }}></div></div>
                             <span className="pctZero">{item.progress}%</span>
                           </div>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleClaimCertificate(item);
+                            }}
+                            style={{
+                              marginTop: "8px",
+                              padding: "4px 10px",
+                              fontSize: "11px",
+                              fontWeight: 700,
+                              background: "#FFF0EB",
+                              color: "#F9572A",
+                              border: "1px solid #FAD6C8",
+                              borderRadius: "99px",
+                              cursor: "pointer"
+                            }}
+                          >
+                            🏆 Verify & Claim Certificate
+                          </button>
                         </div>
 
                         <FaLock className="cardLockIcon" />
@@ -721,17 +908,17 @@ export default function CertificatesPage() {
                 <div className="summaryList">
                   <div className="summaryItem">
                     <div className="sIcon green">🏅</div>
-                    <div><strong>7</strong><span>Certificates Earned</span></div>
+                    <div><strong>{earnedCertificates.length}</strong><span>Certificates Earned</span></div>
                   </div>
 
                   <div className="summaryItem">
                     <div className="sIcon orange">🎖️</div>
-                    <div><strong>3</strong><span>In Progress</span></div>
+                    <div><strong>{certificatesToEarn.filter(c => c.progress > 0).length}</strong><span>In Progress</span></div>
                   </div>
 
                   <div className="summaryItem">
                     <div className="sIcon purple">🔒</div>
-                    <div><strong>12</strong><span>To Be Earned</span></div>
+                    <div><strong>{certificatesToEarn.length}</strong><span>To Be Earned</span></div>
                   </div>
                 </div>
               </div>

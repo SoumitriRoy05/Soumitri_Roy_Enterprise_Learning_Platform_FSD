@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import Background from "../components/Background";
 import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
+import NotificationDropdown from "../components/NotificationDropdown";
 import FloatingChatbot from "../components/FloatingChatbot";
 
 import {
@@ -82,14 +83,14 @@ export default function ResumeBuilderPage() {
 
   // Real-time Resume Form State (Fully Editable Across All 9 Tabs)
   const [resumeData, setResumeData] = useState({
-    fullName: "Alex Morgan",
+    fullName: "Soumitri Roy",
     jobTitle: "Software Engineer",
-    email: "alex.morgan@email.com",
-    phone: "+1 (555) 019-2834",
-    location: "San Francisco, CA",
-    linkedin: "linkedin.com/in/alexmorgan",
-    github: "github.com/alexmorgan",
-    portfolio: "alexmorgan.dev",
+    email: "soumitriroy@gmail.com",
+    phone: "+91 98765 43210",
+    location: "Bhubaneswar, Odisha",
+    linkedin: "linkedin.com/in/soumitriroy",
+    github: "github.com/soumitriroy",
+    portfolio: "yourportfolio.dev",
     photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
     summary:
       "I am a software engineer with experience in a variety of programming languages and a track record of delivering high-quality code. I am skilled in problem-solving and have a strong background in computer science. I am a strong communicator and enjoy working collaboratively with others.",
@@ -106,8 +107,8 @@ export default function ResumeBuilderPage() {
     ],
     languages: [
       { id: 1, name: "English", level: "•••••" },
-      { id: 2, name: "Spanish", level: "•••••" },
-      { id: 3, name: "French", level: "•••••" }
+      { id: 2, name: "Hindi", level: "•••••" },
+      { id: 3, name: "Odia", level: "•••••" }
     ],
     experiences: [
       {
@@ -998,12 +999,7 @@ ${resumeData.interests.join(", ")}
                 <FaBolt color="#F9572A" /> <span>{currentXp} XP</span>
               </div>
 
-              <div className="sdNotificationBtnWrapper">
-                <button className="sdNotificationBtn">
-                  <FaBell />
-                  {3 > 0 && <span className="sdNotifBadge">3</span>}
-                </button>
-              </div>
+              <NotificationDropdown type="student" />
 
               {/* Header Bar Logout Button beside Notification Bell */}
               <button

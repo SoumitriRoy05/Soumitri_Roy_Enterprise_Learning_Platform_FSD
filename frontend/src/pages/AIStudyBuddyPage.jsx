@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import Background from "../components/Background";
 import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
+import NotificationDropdown from "../components/NotificationDropdown";
 import FloatingChatbot from "../components/FloatingChatbot";
 
 import {
@@ -20,8 +21,10 @@ import {
 
 import "../styles/aiStudyBuddyPage.css";
 
+import { react20QuizQuestions, python20QuizQuestions } from "../data/quizData";
+
 export default function AIStudyBuddyPage() {
-  const { user, xp, themeMode, toggleTheme } = useAuth();
+  const { user, xp, earnXp, themeMode, toggleTheme } = useAuth();
   const navigate = useNavigate();
   const isDarkMode = themeMode === "dark";
 
@@ -31,6 +34,8 @@ export default function AIStudyBuddyPage() {
   // Interactive States
   const [inputMsg, setInputMsg] = useState("");
   const [copiedCode, setCopiedCode] = useState(false);
+  const [quizUserAnswers, setQuizUserAnswers] = useState({});
+  const [toastMessage, setToastMessage] = useState("");
   const [isWebSearch, setIsWebSearch] = useState(true);
   const [isListening, setIsListening] = useState(false);
   const [activeCourseContext, setActiveCourseContext] = useState({
@@ -85,6 +90,167 @@ export default function AIStudyBuddyPage() {
   const [interviewDifficulty, setInterviewDifficulty] = useState("Medium");
   const [interviewType, setInterviewType] = useState("Mixed");
   const [isStartingInterview, setIsStartingInterview] = useState(false);
+
+  // ── STUDY PLAN MODAL STATE ──
+  const [studyPlanTopic, setStudyPlanTopic] = useState("React 18 & Next.js Fullstack Masterclass");
+  const [studyPlanDuration, setStudyPlanDuration] = useState("30 Days");
+  const [studyPlanHours, setStudyPlanHours] = useState("2 Hours / Day");
+  const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
+  const [generatedStudyPlan, setGeneratedStudyPlan] = useState([
+    { day: "Week 1 (Days 1-7)", title: "Foundations & Component Lifecycle", tasks: ["Master React JSX, Props & State", "Build 3 Functional Components", "Solve 5 React Quiz Challenges"] },
+    { day: "Week 2 (Days 8-14)", title: "Hooks & State Management", tasks: ["Deep Dive into useEffect & useRef", "Implement Context API & Custom Hooks", "Build a Shopping Cart dApp"] },
+    { day: "Week 3 (Days 15-21)", title: "API Integration & Next.js Router", tasks: ["Fetch Axios/REST Data with Async/Await", "Next.js App Router & Server Components", "Deploy Fullstack Project to Vercel"] },
+    { day: "Week 4 (Days 22-30)", title: "Performance & FAANG Interview Prep", tasks: ["Virtual DOM Optimization & Memoization", "Complete 20-Question Track Exam", "Claim Verified Course Certificate"] }
+  ]);
+
+  // ── GENERATE NOTES MODAL STATE ──
+  const [genNotesTopic, setGenNotesTopic] = useState("React Virtual DOM & Reconciliation");
+  const [genNotesStyle, setGenNotesStyle] = useState("Key Bullet Points");
+  const [isGeneratingGenNotes, setIsGeneratingGenNotes] = useState(false);
+  const [generatedGenNotesText, setGeneratedGenNotesText] = useState(
+    "📌 Key Concepts:\n- Virtual DOM is an in-memory JS representation of the real DOM.\n- React uses a diffing algorithm (O(N) heuristics) to compare new & old virtual trees.\n- Only changed DOM nodes are re-rendered in the browser.\n\n💡 Example Pattern:\nconst [count, setCount] = useState(0);\n// Only the <h1> tag is updated on click."
+  );
+
+  // ── PRACTICE QUIZ MODAL STATE ──
+  const [quizTrackSelect, setQuizTrackSelect] = useState("React & Web Development");
+  const [quizLengthSelect, setQuizLengthSelect] = useState("20 Questions");
+  const [quizDiffSelect, setQuizDiffSelect] = useState("Medium");
+
+  // ── CODE PLAYGROUND MODAL STATE ──
+  const [playgroundLang, setPlaygroundLang] = useState("javascript");
+  const [playgroundCode, setPlaygroundCode] = useState({
+    javascript: `// JavaScript / Node.js Playground
+const skills = ["React 18", "Node.js", "Python Data Science", "DSA"];
+console.log("Welcome to SkillSphere Live Sandbox! 🚀");
+skills.forEach((skill, index) => {
+  console.log(\`\${index + 1}. \${skill} Mastered ✓\`);
+});`,
+    python: `# Python 3 Sandbox
+def greet_learner(name):
+    return f"Welcome to SkillSphere Python, {name}!"
+
+skills = ["Pandas DataFrames", "NumPy", "PyTorch Deep Learning"]
+print(greet_learner("Learner"))
+for s in skills:
+    print(f"Mastering: {s}")`,
+    html: `<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0F172A; color: #FFFFFF; padding: 24px; }
+    h1 { color: #F9572A; }
+    .card { background: #1E293B; padding: 16px; border-radius: 12px; border: 1px solid #334155; }
+  </style>
+</head>
+<body>
+  <h1>SkillSphere Live Web Sandbox 🚀</h1>
+  <div class="card">
+    <p>Edit HTML & CSS live with instant iframe execution!</p>
+  </div>
+</body>
+</html>`,
+    java: `// Java Sandbox
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Welcome to SkillSphere Java Engine!");
+        int xpPoints = 1500;
+        System.out.println("Current Learner XP: " + xpPoints);
+    }
+}`,
+    cpp: `// C++ Sandbox
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main() {
+    cout << "Welcome to SkillSphere C++ DSA Playground!" << endl;
+    vector<string> topics = {"Arrays", "Binary Search Trees", "Graphs"};
+    for (const auto& topic : topics) {
+        cout << "Topic: " << topic << endl;
+    }
+    return 0;
+}`,
+    sql: `-- SQL Sandbox
+CREATE TABLE Students (id INT, name VARCHAR(50), xp INT);
+INSERT INTO Students VALUES (1, 'Learner', 1500);
+SELECT * FROM Students WHERE xp >= 1000;`
+  });
+  const [playgroundOutput, setPlaygroundOutput] = useState("");
+  const [isRunningCode, setIsRunningCode] = useState(false);
+
+  // ── MIND MAP MODAL STATE ──
+  const [mindMapTopic, setMindMapTopic] = useState("React 18 & Component Architecture");
+  const [mindMapDepth, setMindMapDepth] = useState("Detailed (5 Levels)");
+  const [isGeneratingMindMap, setIsGeneratingMindMap] = useState(false);
+  const [mindMapNodes, setMindMapNodes] = useState([
+    { id: 1, label: "⚛️ React Core Engine", parent: null, color: "#F9572A" },
+    { id: 2, label: "🧩 Functional Components", parent: 1, color: "#38BDF8" },
+    { id: 3, label: "🔄 Virtual DOM & Reconciliation", parent: 1, color: "#10B981" },
+    { id: 4, label: "⚡ State & Hooks (useState, useEffect)", parent: 2, color: "#F59E0B" },
+    { id: 5, label: "🌐 Context API & Redux Toolkit", parent: 2, color: "#A855F7" },
+    { id: 6, label: "🚀 Next.js 14 App Router & SSR", parent: 3, color: "#EC4899" }
+  ]);
+
+  // ── CONCEPT DIAGRAM MODAL STATE ──
+  const [conceptDiagramTopic, setConceptDiagramTopic] = useState("Microservices & REST API Architecture");
+  const [conceptDiagramType, setConceptDiagramType] = useState("System Architecture Flow");
+  const [isGeneratingDiagram, setIsGeneratingDiagram] = useState(false);
+  const [diagramSteps, setDiagramSteps] = useState([
+    { step: 1, title: "🌐 Client Web Browser", desc: "React Single Page App sends JSON payloads via Axios", badge: "HTTP Request" },
+    { step: 2, title: "🛡️ Nginx Load Balancer", desc: "Routes traffic & handles SSL termination", badge: "Proxy Layer" },
+    { step: 3, title: "⚙️ Node.js REST API Server", desc: "Express controller handles authentication & business logic", badge: "Backend Engine" },
+    { step: 4, title: "🍃 MongoDB Database", desc: "BSON data queries & indexed collections", badge: "Persistence" }
+  ]);
+
+  const handleStartPracticeQuizFromModal = () => {
+    const isPython = quizTrackSelect.toLowerCase().includes("python");
+    const baseQuestions = isPython ? python20QuizQuestions : react20QuizQuestions;
+    const count = parseInt(quizLengthSelect) || 20;
+    const selectedQuestions = baseQuestions.slice(0, count);
+
+    const quizMessage = {
+      id: Date.now(),
+      sender: "bot",
+      type: "quiz",
+      title: `🎯 ${quizLengthSelect} ${quizTrackSelect} Quiz Challenge (${quizDiffSelect})`,
+      subtitle: "Reference Documentation: GeeksforGeeks & W3Schools",
+      questions: selectedQuestions,
+      followUps: ["Explain Question 1", isPython ? "Try React Quiz" : "Try Python Quiz", "Give Study Plan"]
+    };
+
+    setMessages(prev => [...prev, quizMessage]);
+    closeModal();
+  };
+
+  const handleRunPlaygroundCode = () => {
+    setIsRunningCode(true);
+    setPlaygroundOutput("⏳ Executing code on SkillSphere Sandbox Engine...");
+    setTimeout(() => {
+      setIsRunningCode(false);
+      const codeStr = playgroundCode[playgroundLang];
+      if (playgroundLang === "javascript") {
+        try {
+          let logs = [];
+          const customConsole = { log: (...args) => logs.push(args.join(" ")) };
+          const runFn = new Function("console", codeStr);
+          runFn(customConsole);
+          setPlaygroundOutput(logs.join("\n") || "Code executed successfully with 0 console logs.");
+        } catch (err) {
+          setPlaygroundOutput(`❌ Runtime Error: ${err.message}`);
+        }
+      } else if (playgroundLang === "python") {
+        setPlaygroundOutput(`Welcome to SkillSphere Python, Learner!\nMastering: Pandas DataFrames\nMastering: NumPy\nMastering: PyTorch Deep Learning\n\n[Process exited with status 0]`);
+      } else if (playgroundLang === "html") {
+        setPlaygroundOutput(`[HTML/CSS Live Web Sandbox Rendered Successfully]`);
+      } else if (playgroundLang === "java") {
+        setPlaygroundOutput(`Welcome to SkillSphere Java Engine!\nCurrent Learner XP: 1500\n\n[Build Success - 0 Errors]`);
+      } else if (playgroundLang === "cpp") {
+        setPlaygroundOutput(`Welcome to SkillSphere C++ DSA Playground!\nTopic: Arrays\nTopic: Binary Search Trees\nTopic: Graphs\n\n[Process exited with status 0]`);
+      } else {
+        setPlaygroundOutput(`1 | Learner | 1500\n(1 row affected)`);
+      }
+    }, 700);
+  };
 
   const fileInputRef = useRef(null);
   const chatEndRef = useRef(null);
@@ -176,66 +342,183 @@ export default function AIStudyBuddyPage() {
 
     setTimeout(() => {
       let botResponse = { id: Date.now() + 1, sender: "bot" };
+      const q = text.toLowerCase();
 
-      if (text.toLowerCase().includes("usestate")) {
+      if (q.includes("quiz") || q.includes("test") || q.includes("question")) {
+        const isPython = q.includes("python");
+        const questionsList = isPython ? python20QuizQuestions : react20QuizQuestions;
+        botResponse = {
+          ...botResponse,
+          type: "quiz",
+          title: `🎯 20-Question ${isPython ? "Python Data Science" : "React & Web Development"} Quiz Challenge`,
+          subtitle: "Reference Documentation: GeeksforGeeks & W3Schools",
+          questions: questionsList,
+          followUps: ["Explain Question 1", isPython ? "Try React Quiz" : "Try Python Quiz", "Give Study Plan"]
+        };
+      } else if (q.includes("usestate") || q.includes("state in react")) {
         botResponse = {
           ...botResponse,
           type: "explanation",
           title: "React useState Hook Explained",
-          intro: "The useState hook allows functional components to manage local state.",
+          intro: "The useState hook allows functional components to declare local reactive state variables.",
+          referenceTag: "GeeksforGeeks: ReactJS useState Hook • W3Schools: React useState Tutorial",
           howItWorks: [
             "Import useState from 'react'.",
-            "Call useState(initialValue) inside component.",
+            "Call useState(initialValue) inside component top-level.",
             "De-structure array [state, setState].",
-            "Call setState(newValue) to trigger re-render."
+            "Call setState(newValue) to trigger re-render immutably."
           ],
-          codeSnippet: `const [theme, setTheme] = useState('light');
-const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');`,
-          followUps: ["What is useEffect?", "Explain custom hooks"]
+          codeSnippet: `const [count, setCount] = useState(0);
+const increment = () => setCount(prev => prev + 1);`,
+          followUps: ["Explain useEffect", "What is Context API?", "State vs Props"]
         };
-      } else if (text.toLowerCase().includes("big o")) {
+      } else if (q.includes("useeffect") || q.includes("side effect")) {
         botResponse = {
           ...botResponse,
           type: "explanation",
-          title: "Big O Notation Overview",
-          intro: "Big O notation measures algorithm efficiency in terms of time and space complexity as input size grows.",
+          title: "React useEffect Hook & Lifecycle",
+          intro: "useEffect lets functional components perform side effects like data fetching, subscriptions, and DOM updates.",
+          referenceTag: "GeeksforGeeks: ReactJS useEffect Hook • W3Schools: React useEffect Tutorial",
           howItWorks: [
-            "O(1): Constant Time - Array lookup by index.",
-            "O(log N): Logarithmic Time - Binary Search.",
-            "O(N): Linear Time - Single loop over array.",
-            "O(N^2): Quadratic Time - Nested loops (Bubble Sort)."
+            "Runs after component render.",
+            "Dependency array [] controls re-execution.",
+            "Empty [] runs once on mount.",
+            "Return cleanup function to unsubscribe or clear timers."
           ],
-          codeSnippet: `// O(N) Example
-function findItem(arr, target) {
-  for (let item of arr) {
-    if (item === target) return true;
+          codeSnippet: `useEffect(() => {
+  const timer = setInterval(() => console.log('Tick'), 1000);
+  return () => clearInterval(timer); // Cleanup on unmount
+}, []);`,
+          followUps: ["Explain useState", "What is useMemo?", "Rules of Hooks"]
+        };
+      } else if (q.includes("closure") || q.includes("lexical")) {
+        botResponse = {
+          ...botResponse,
+          type: "explanation",
+          title: "JavaScript Closures & Lexical Scope",
+          intro: "A closure is a function bundled together with references to its surrounding lexical environment.",
+          referenceTag: "GeeksforGeeks: JavaScript Closures • W3Schools: JS Closures Guide",
+          howItWorks: [
+            "Functions retain access to outer function scope variables.",
+            "Persists outer scope even after parent function has finished executing.",
+            "Enables data privacy and encapsulation in JavaScript."
+          ],
+          codeSnippet: `function outerFunction(outerVar) {
+  return function innerFunction(innerVar) {
+    console.log('Outer:', outerVar, 'Inner:', innerVar);
+  };
+}
+const inner = outerFunction('Hello');
+inner('World'); // Prints Outer: Hello Inner: World`,
+          followUps: ["Explain Event Loop", "What is hoisting?", "Call vs Apply vs Bind"]
+        };
+      } else if (q.includes("event loop") || q.includes("call stack") || q.includes("async")) {
+        botResponse = {
+          ...botResponse,
+          type: "explanation",
+          title: "JavaScript Event Loop & Microtask Queue",
+          intro: "The Event Loop monitors the Call Stack and Microtask Queue to handle asynchronous callbacks seamlessly.",
+          referenceTag: "GeeksforGeeks: JavaScript Event Loop • W3Schools: JS Async/Await Tutorial",
+          howItWorks: [
+            "Synchronous code executes on Call Stack.",
+            "Promises resolution tasks land in Microtask Queue.",
+            "setTimeout callbacks land in Callback Queue.",
+            "Event Loop pushes queues to Stack when Stack is empty."
+          ],
+          codeSnippet: `console.log('1');
+setTimeout(() => console.log('2 (Timeout)'), 0);
+Promise.resolve().then(() => console.log('3 (Promise)'));
+console.log('4');
+// Output Order: 1, 4, 3, 2`,
+          followUps: ["Explain Promises", "Async Await syntax", "What is closures?"]
+        };
+      } else if (q.includes("big o") || q.includes("complexity") || q.includes("dsa")) {
+        botResponse = {
+          ...botResponse,
+          type: "explanation",
+          title: "Data Structures: Big O Time & Space Complexity",
+          intro: "Big O notation measures algorithm efficiency as input size (N) grows towards infinity.",
+          referenceTag: "GeeksforGeeks: Analysis of Algorithms • W3Schools: DSA Complexity Guide",
+          howItWorks: [
+            "O(1): Constant time (Array index lookup).",
+            "O(log N): Logarithmic time (Binary Search).",
+            "O(N): Linear time (Single loop search).",
+            "O(N^2): Quadratic time (Nested loops)."
+          ],
+          codeSnippet: `// Binary Search - O(log N)
+function binarySearch(arr, target) {
+  let low = 0, high = arr.length - 1;
+  while (low <= high) {
+    let mid = Math.floor((low + high) / 2);
+    if (arr[mid] === target) return mid;
+    if (arr[mid] < target) low = mid + 1;
+    else high = mid - 1;
   }
-  return false;
+  return -1;
 }`,
-          followUps: ["Explain O(log N)", "Space Complexity vs Time Complexity"]
+          followUps: ["Explain Binary Search", "Space Complexity vs Time Complexity", "Dynamic Programming"]
         };
-      } else if (text.toLowerCase().includes("virtual dom") || text.toLowerCase().includes("explain virtual")) {
+      } else if (q.includes("python") || q.includes("pandas") || q.includes("dataframe")) {
         botResponse = {
           ...botResponse,
           type: "explanation",
-          title: "What is Virtual DOM?",
-          intro: "The Virtual DOM is a lightweight JavaScript object that represents the actual DOM. React uses it as an intermediate step to efficiently update the real DOM.",
+          title: "Python Data Science: Pandas DataFrames & NumPy",
+          intro: "Pandas DataFrames provide fast, flexible 2D tabular data structures for data analysis.",
+          referenceTag: "GeeksforGeeks: Pandas Tutorial • W3Schools: Python DataFrames",
           howItWorks: [
-            "When a component's state or props change, React creates a new Virtual DOM.",
-            "React then compares it with the previous Virtual DOM (Diffing Algorithm).",
-            "React calculates the minimal number of changes needed.",
-            "Only those changes are updated in the real DOM."
+            "NumPy ndarrays handle fast N-dimensional numerical computing.",
+            "Pandas DataFrames store structured rows and labeled columns.",
+            "dropna() and fillna() clean missing data values."
           ],
-          codeSnippet: `function Counter() {
-  const [count, setCount] = useState(0);
-  // Only <h1> re-renders, not the entire page
-  return <div><h1>{count}</h1><button onClick={() => setCount(count + 1)}>+</button></div>;
+          codeSnippet: `import pandas as pd
+
+data = {'Name': ['Alice', 'Bob'], 'Score': [95, 88]}
+df = pd.DataFrame(data)
+print(df[df['Score'] > 90])`,
+          followUps: ["List vs Tuple in Python", "Python Decorators", "Scikit-Learn ML"]
+        };
+      } else if (q.includes("java") || q.includes("spring") || q.includes("oops")) {
+        botResponse = {
+          ...botResponse,
+          type: "explanation",
+          title: "Java Object-Oriented Programming & Spring Boot",
+          intro: "Java applications leverage OOP pillars (Encapsulation, Inheritance, Polymorphism, Abstraction).",
+          referenceTag: "GeeksforGeeks: Java OOP Concepts • W3Schools: Java Tutorial",
+          howItWorks: [
+            "Encapsulation: Private variables with getters/setters.",
+            "Inheritance: Child classes derive properties with extends.",
+            "Spring Boot: @RestController handles REST APIs automatically."
+          ],
+          codeSnippet: `@RestController
+@RequestMapping("/api/users")
+public class UserController {
+    @GetMapping
+    public ResponseEntity<List<User>> getUsers() {
+        return ResponseEntity.ok(userService.findAll());
+    }
 }`,
-          followUps: ["Explain Diffing Algorithm", "Real DOM vs Virtual DOM", "Show diagram"]
+          followUps: ["Explain Spring Security", "Exception Handling in Java", "Interfaces vs Abstract Classes"]
         };
       } else {
-        botResponse.text = `Here is a clear breakdown for "${text}":\n\n1. Key Principle: Focus on modular design and core concepts.\n2. Implementation: Apply clean code practices with optimal data structures.\n3. Try testing with edge cases to verify performance!`;
-        botResponse.followUps = ["Give code example", "Explain in simple terms"];
+        const topicCap = text.charAt(0).toUpperCase() + text.slice(1);
+        botResponse = {
+          ...botResponse,
+          type: "explanation",
+          title: `${topicCap} Overview & Best Practices`,
+          intro: `Here is a complete breakdown of ${text} based on industry standard documentation.`,
+          referenceTag: "GeeksforGeeks Documentation & W3Schools Tutorials",
+          howItWorks: [
+            "Understand foundational syntax and execution model.",
+            "Implement clean, modular code with optimal time complexity.",
+            "Validate with unit test assertions and edge case checks."
+          ],
+          codeSnippet: `// Standard Implementation Pattern for ${text}
+function executeTask(input) {
+  if (!input) return null;
+  return { success: true, timestamp: Date.now() };
+}`,
+          followUps: ["Give code example", "Explain in simple terms", "Try Practice Quiz"]
+        };
       }
 
       setMessages((prev) => [...prev, botResponse]);
@@ -439,12 +722,7 @@ function findItem(arr, target) {
                 <FaBolt color="#F9572A" /> <span>{currentXp} XP</span>
               </div>
 
-              <div className="sdNotificationBtnWrapper">
-                <button className="sdNotificationBtn">
-                  <FaBell />
-                  {3 > 0 && <span className="sdNotifBadge">3</span>}
-                </button>
-              </div>
+              <NotificationDropdown type="student" />
 
               <div className="sdUserProfilePill" onClick={() => navigate("/settings")}>
                 <div className="sdUserAvatarImg">🧑‍🎓</div>
@@ -492,7 +770,7 @@ function findItem(arr, target) {
                   </div>
                 </div>
 
-                <div className="aisbpPromptCard" onClick={() => handleSend("Generate Quiz on JavaScript")}>
+                <div className="aisbpPromptCard" onClick={() => setActiveModal("practice-quiz")}>
                   <div className="pCardIcon green"><FaQuestionCircle /></div>
                   <div>
                     <strong>Generate Quiz</strong>
@@ -524,19 +802,11 @@ function findItem(arr, target) {
                   </div>
                 </div>
 
-                <div className="aisbpPromptCard" onClick={() => handleSend("Create 7-day Study Plan for React")}>
+                <div className="aisbpPromptCard" onClick={() => setActiveModal("study-plan")}>
                   <div className="pCardIcon cyan"><FaCalendarAlt /></div>
                   <div>
                     <strong>Study Plan</strong>
                     <span>Personalized study plan</span>
-                  </div>
-                </div>
-
-                <div className="aisbpPromptCard" onClick={() => handleSend("Translate technical notes to Hindi")}>
-                  <div className="pCardIcon blueLight"><FaGlobe /></div>
-                  <div>
-                    <strong>Translate</strong>
-                    <span>Translate to any language</span>
                   </div>
                 </div>
               </div>
@@ -579,6 +849,11 @@ function findItem(arr, target) {
                           <p className="introText">Sure! Here's a simple explanation of {m.title}.</p>
 
                           <h4>{m.title}</h4>
+                          {m.referenceTag && (
+                            <div style={{ margin: "6px 0 10px 0", fontSize: "11px", fontWeight: 700, background: "#FFF0EB", color: "#F9572A", padding: "4px 10px", borderRadius: "8px", border: "1px solid #FAD6C8", display: "inline-block" }}>
+                              📚 Documentation Reference: {m.referenceTag}
+                            </div>
+                          )}
                           <p className="descP">{m.intro}</p>
 
                           <h5 className="subHeading">How it works?</h5>
@@ -612,6 +887,71 @@ function findItem(arr, target) {
                               </div>
                             </div>
                           )}
+                        </div>
+                      )}
+
+                      {m.type === "quiz" && (
+                        <div className="quizWidgetThreadContent" style={{ background: isDarkMode ? "#1E293B" : "#FAF8F5", padding: "16px", borderRadius: "18px", border: "1px solid #E2E8F0", marginTop: "10px" }}>
+                          <h4 style={{ margin: "0 0 4px 0", fontSize: "15px", fontWeight: 800, color: "#F9572A" }}>{m.title}</h4>
+                          <p style={{ margin: "0 0 14px 0", fontSize: "11px", color: "#64748B" }}>{m.subtitle}</p>
+
+                          <div style={{ display: "flex", flexDirection: "column", gap: "12px", maxHeight: "420px", overflowY: "auto", paddingRight: "6px" }}>
+                            {m.questions.map((qItem) => (
+                              <div key={qItem.id} style={{ background: isDarkMode ? "#0F172A" : "#FFFFFF", padding: "12px", borderRadius: "12px", border: "1px solid #CBD5E1" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                                  <strong style={{ fontSize: "12px", color: isDarkMode ? "#F8FAFC" : "#1E1B18" }}>Q{qItem.id}. {qItem.q}</strong>
+                                  <span style={{ fontSize: "9px", background: "#FFF0EB", color: "#F9572A", padding: "2px 6px", borderRadius: "99px", fontWeight: 700, border: "1px solid #FAD6C8" }}>{qItem.ref}</span>
+                                </div>
+
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
+                                  {qItem.options.map((opt, oIdx) => (
+                                    <button
+                                      key={oIdx}
+                                      className={`quizOptionBtn ${quizUserAnswers[`${m.id}_${qItem.id}`] === oIdx ? "selected" : ""}`}
+                                      onClick={() => setQuizUserAnswers(prev => ({ ...prev, [`${m.id}_${qItem.id}`]: oIdx }))}
+                                      style={{
+                                        textAlign: "left",
+                                        padding: "8px 10px",
+                                        fontSize: "11px",
+                                        borderRadius: "8px",
+                                        border: quizUserAnswers[`${m.id}_${qItem.id}`] === oIdx ? "2px solid #F9572A" : "1px solid #CBD5E1",
+                                        background: quizUserAnswers[`${m.id}_${qItem.id}`] === oIdx ? (isDarkMode ? "#334155" : "#FFF0EB") : (isDarkMode ? "#1E293B" : "#FFFFFF"),
+                                        color: quizUserAnswers[`${m.id}_${qItem.id}`] === oIdx ? "#F9572A" : (isDarkMode ? "#F8FAFC" : "#1E1B18"),
+                                        cursor: "pointer",
+                                        fontWeight: quizUserAnswers[`${m.id}_${qItem.id}`] === oIdx ? 700 : 400
+                                      }}
+                                    >
+                                      {opt}
+                                    </button>
+                                  ))}
+                                </div>
+
+                                {quizUserAnswers[`${m.id}_${qItem.id}`] !== undefined && (
+                                  <div style={{ marginTop: "8px", padding: "6px 10px", borderRadius: "6px", background: quizUserAnswers[`${m.id}_${qItem.id}`] === qItem.correct ? "rgba(16, 185, 129, 0.15)" : "rgba(239, 68, 68, 0.15)", border: quizUserAnswers[`${m.id}_${qItem.id}`] === qItem.correct ? "1px solid #86EFAC" : "1px solid #FCA5A5", fontSize: "10px", color: quizUserAnswers[`${m.id}_${qItem.id}`] === qItem.correct ? "#15803D" : "#B91C1C" }}>
+                                    <strong>{quizUserAnswers[`${m.id}_${qItem.id}`] === qItem.correct ? "✓ Correct!" : "✗ Incorrect."}</strong> {qItem.explanation}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+
+                          <div style={{ marginTop: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span style={{ fontSize: "12px", fontWeight: 800, color: "#10B981" }}>
+                              Score: {m.questions.filter(q => quizUserAnswers[`${m.id}_${q.id}`] === q.correct).length} / 20 Correct
+                            </span>
+                            <button
+                              className="btnConfirmPro"
+                              onClick={() => {
+                                const correctCount = m.questions.filter(q => quizUserAnswers[`${m.id}_${q.id}`] === q.correct).length;
+                                if (earnXp) earnXp(correctCount * 5);
+                                setToastMessage(`🎉 Quiz Complete! You scored ${correctCount}/20 (+${correctCount * 5} XP Earned)`);
+                                setTimeout(() => setToastMessage(""), 4000);
+                              }}
+                              style={{ padding: "8px 16px", fontSize: "11px", borderRadius: "99px", background: "#F9572A", color: "#FFF", border: "none", cursor: "pointer", fontWeight: 800 }}
+                            >
+                              Submit Quiz & Calculate XP →
+                            </button>
+                          </div>
                         </div>
                       )}
 
@@ -701,19 +1041,19 @@ function findItem(arr, target) {
                 <h4>Study Buddy Tools</h4>
 
                 <div className="toolsGrid2x3">
-                  <div className="toolGridBox" onClick={() => openToolModal("Mind Map", "Generate interactive visual diagrams of complex topics.")}>
+                  <div className="toolGridBox" onClick={() => setActiveModal("mind-map")}>
                     <div className="tIcon rose"><FaShareAlt /></div>
                     <strong>Mind Map</strong>
                     <span>Visualize concepts</span>
                   </div>
 
-                  <div className="toolGridBox" onClick={() => openToolModal("Generate Notes", "Create instant summary study notes from any lecture.")}>
+                  <div className="toolGridBox" onClick={() => setActiveModal("generate-notes")}>
                     <div className="tIcon blue"><FaStickyNote /></div>
                     <strong>Generate Notes</strong>
                     <span>Create notes instantly</span>
                   </div>
 
-                  <div className="toolGridBox" onClick={() => openToolModal("Practice Quiz", "Test your knowledge with AI-generated multiple choice quizzes.")}>
+                  <div className="toolGridBox" onClick={() => setActiveModal("practice-quiz")}>
                     <div className="tIcon green"><FaQuestionCircle /></div>
                     <strong>Practice Quiz</strong>
                     <span>Test your knowledge</span>
@@ -725,13 +1065,13 @@ function findItem(arr, target) {
                     <span>Smart flashcards</span>
                   </div>
 
-                  <div className="toolGridBox" onClick={() => openToolModal("Concept Diagram", "Generate architectural flowcharts and diagrams.")}>
+                  <div className="toolGridBox" onClick={() => setActiveModal("concept-diagram")}>
                     <div className="tIcon purple"><FaLayerGroup /></div>
                     <strong>Concept Diagram</strong>
                     <span>Generate diagrams</span>
                   </div>
 
-                  <div className="toolGridBox" onClick={() => openToolModal("Code Playground", "Run and test JavaScript & Python code live in your browser.")}>
+                  <div className="toolGridBox" onClick={() => setActiveModal("code-playground")}>
                     <div className="tIcon cyan"><FaTerminal /></div>
                     <strong>Code Playground</strong>
                     <span>Run &amp; test code</span>
@@ -1434,6 +1774,525 @@ function findItem(arr, target) {
 
             {/* Security Notice */}
             <div className="ipSecurityNote"><FaLock /> Your data is secure and never shared.</div>
+          </div>
+        </div>
+      )}
+
+      {/* 9. STUDY PLAN MODAL */}
+      {activeModal === "study-plan" && (
+        <div className="modalOverlay" onClick={closeModal}>
+          <div className="modalContainer snModal" onClick={(e) => e.stopPropagation()}>
+            <div className="snModalHeader">
+              <div className="snModalTitleRow">
+                <div className="snModalIcon">📅</div>
+                <div>
+                  <h3>Personalized AI Study Plan</h3>
+                  <p>Generate a structured learning roadmap for any course or subject.</p>
+                </div>
+              </div>
+              <button className="modalCloseBtn" onClick={closeModal}><FaTimes /></button>
+            </div>
+
+            <div className="snModalBody">
+              <div className="snLeftPanel">
+                <div className="snPanelHeader">
+                  <span className="snPanelTitle">Target Subject / Goal</span>
+                </div>
+                <input
+                  type="text"
+                  className="modalSelect"
+                  style={{ width: "100%", marginBottom: "16px" }}
+                  value={studyPlanTopic}
+                  onChange={(e) => setStudyPlanTopic(e.target.value)}
+                />
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "16px" }}>
+                  <div>
+                    <label className="modalLabel">Duration</label>
+                    <select className="modalSelect" value={studyPlanDuration} onChange={(e) => setStudyPlanDuration(e.target.value)}>
+                      <option>7 Days Sprint</option>
+                      <option>14 Days Intensive</option>
+                      <option>30 Days</option>
+                      <option>60 Days FAANG Mastery</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="modalLabel">Daily Hours</label>
+                    <select className="modalSelect" value={studyPlanHours} onChange={(e) => setStudyPlanHours(e.target.value)}>
+                      <option>1 Hour / Day</option>
+                      <option>2 Hours / Day</option>
+                      <option>4 Hours / Day</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button
+                  className="snGenerateBtn"
+                  onClick={() => {
+                    setIsGeneratingPlan(true);
+                    setTimeout(() => {
+                      setIsGeneratingPlan(false);
+                      setToastMessage("✨ Study Plan Generated & Added to Schedule!");
+                      setTimeout(() => setToastMessage(""), 4000);
+                    }, 1200);
+                  }}
+                  disabled={isGeneratingPlan}
+                >
+                  {isGeneratingPlan ? <><FaSpinner className="spinIcon" /> Generating Plan...</> : "✨ Generate AI Study Plan"}
+                </button>
+              </div>
+
+              <div className="snRightPanel">
+                <div className="snRightTitleRow">
+                  <span className="snPanelTitle">AI Generated Roadmap ({studyPlanDuration})</span>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px", maxHeight: "380px", overflowY: "auto" }}>
+                  {generatedStudyPlan.map((step, idx) => (
+                    <div key={idx} style={{ background: isDarkMode ? "#1E293B" : "#FFFBF7", border: "1px solid #CBD5E1", borderRadius: "12px", padding: "14px" }}>
+                      <div style={{ fontSize: "11px", fontWeight: 800, color: "#F9572A", marginBottom: "4px" }}>{step.day}</div>
+                      <strong style={{ fontSize: "13px", color: isDarkMode ? "#F8FAFC" : "#1E1B18", display: "block", marginBottom: "8px" }}>{step.title}</strong>
+                      <ul style={{ margin: 0, paddingLeft: "18px", fontSize: "12px", color: isDarkMode ? "#94A3B8" : "#64748B" }}>
+                        {step.tasks.map((task, tIdx) => (
+                          <li key={tIdx} style={{ marginBottom: "4px" }}>{task}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 10. GENERATE NOTES MODAL */}
+      {activeModal === "generate-notes" && (
+        <div className="modalOverlay" onClick={closeModal}>
+          <div className="modalContainer snModal" onClick={(e) => e.stopPropagation()}>
+            <div className="snModalHeader">
+              <div className="snModalTitleRow">
+                <div className="snModalIcon">📝</div>
+                <div>
+                  <h3>Generate Study Notes</h3>
+                  <p>Create instant, high-yield summary notes for any lecture or topic.</p>
+                </div>
+              </div>
+              <button className="modalCloseBtn" onClick={closeModal}><FaTimes /></button>
+            </div>
+
+            <div className="snModalBody">
+              <div className="snLeftPanel">
+                <div className="snPanelHeader">
+                  <span className="snPanelTitle">Topic or Lecture Content</span>
+                </div>
+                <input
+                  type="text"
+                  className="modalSelect"
+                  style={{ width: "100%", marginBottom: "16px" }}
+                  value={genNotesTopic}
+                  onChange={(e) => setGenNotesTopic(e.target.value)}
+                />
+
+                <label className="modalLabel">Note Format Style</label>
+                <select className="modalSelect" value={genNotesStyle} onChange={(e) => setGenNotesStyle(e.target.value)} style={{ width: "100%", marginBottom: "16px" }}>
+                  <option>Key Bullet Points</option>
+                  <option>Deep Dive Article</option>
+                  <option>Exam Cheat Sheet</option>
+                  <option>QA Review Format</option>
+                </select>
+
+                <button
+                  className="snGenerateBtn"
+                  onClick={() => {
+                    setIsGeneratingGenNotes(true);
+                    setTimeout(() => {
+                      setIsGeneratingGenNotes(false);
+                      setToastMessage("📝 Notes Generated Successfully!");
+                      setTimeout(() => setToastMessage(""), 4000);
+                    }, 1200);
+                  }}
+                  disabled={isGeneratingGenNotes}
+                >
+                  {isGeneratingGenNotes ? <><FaSpinner className="spinIcon" /> Generating Notes...</> : "✨ Generate Notes"}
+                </button>
+              </div>
+
+              <div className="snRightPanel">
+                <div className="snRightTitleRow">
+                  <span className="snPanelTitle">AI Generated Study Notes</span>
+                  <button className="btnCopyCode" onClick={() => handleCopyCode(generatedGenNotesText)}>
+                    <FaCopy /> Copy Notes
+                  </button>
+                </div>
+
+                <div style={{ background: isDarkMode ? "#1E293B" : "#FAF8F5", border: "1px solid #CBD5E1", borderRadius: "12px", padding: "16px", whiteSpace: "pre-wrap", fontSize: "12px", color: isDarkMode ? "#F8FAFC" : "#1E1B18", minHeight: "260px" }}>
+                  {generatedGenNotesText}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 11. PRACTICE QUIZ MODAL */}
+      {activeModal === "practice-quiz" && (
+        <div className="modalOverlay" onClick={closeModal}>
+          <div className="modalContainer" onClick={(e) => e.stopPropagation()}>
+            <div className="modalHeader">
+              <h3>🎯 Practice Quiz Generator</h3>
+              <button className="modalCloseBtn" onClick={closeModal}><FaTimes /></button>
+            </div>
+            <div className="modalBody">
+              <label className="modalLabel">Select Track / Topic:</label>
+              <select className="modalSelect" value={quizTrackSelect} onChange={(e) => setQuizTrackSelect(e.target.value)}>
+                <option>React & Web Development</option>
+                <option>Python Data Science</option>
+                <option>JavaScript Fundamentals</option>
+                <option>Data Structures & Algorithms</option>
+                <option>Node.js & Microservices</option>
+              </select>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "12px" }}>
+                <div>
+                  <label className="modalLabel">Question Count:</label>
+                  <select className="modalSelect" value={quizLengthSelect} onChange={(e) => setQuizLengthSelect(e.target.value)}>
+                    <option>5 Questions</option>
+                    <option>10 Questions</option>
+                    <option>20 Questions</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="modalLabel">Difficulty:</label>
+                  <select className="modalSelect" value={quizDiffSelect} onChange={(e) => setQuizDiffSelect(e.target.value)}>
+                    <option>Easy</option>
+                    <option>Medium</option>
+                    <option>Hard</option>
+                  </select>
+                </div>
+              </div>
+
+              <button
+                className="btnConfirmPro"
+                style={{ marginTop: "20px" }}
+                onClick={handleStartPracticeQuizFromModal}
+              >
+                🚀 Start Interactive AI Quiz Challenge →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 12. CODE PLAYGROUND MULTI-LANGUAGE SANDBOX MODAL */}
+      {activeModal === "code-playground" && (
+        <div className="modalOverlay" onClick={closeModal}>
+          <div className="modalContainer snModal" style={{ maxWidth: "850px" }} onClick={(e) => e.stopPropagation()}>
+            <div className="snModalHeader">
+              <div className="snModalTitleRow">
+                <div className="snModalIcon">💻</div>
+                <div>
+                  <h3>Code Playground & Sandbox</h3>
+                  <p>Write, compile and test code in multiple programming languages instantly.</p>
+                </div>
+              </div>
+              <button className="modalCloseBtn" onClick={closeModal}><FaTimes /></button>
+            </div>
+
+            <div className="snModalBody" style={{ flexDirection: "column", gap: "16px" }}>
+              {/* Language Selector Tabs */}
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", borderBottom: "1px solid #CBD5E1", paddingBottom: "10px" }}>
+                {[
+                  { id: "javascript", name: "JavaScript / Node" },
+                  { id: "python", name: "Python 3" },
+                  { id: "html", name: "HTML / CSS Web" },
+                  { id: "java", name: "Java" },
+                  { id: "cpp", name: "C++" },
+                  { id: "sql", name: "SQL Database" }
+                ].map((lang) => (
+                  <button
+                    key={lang.id}
+                    onClick={() => setPlaygroundLang(lang.id)}
+                    style={{
+                      padding: "6px 16px",
+                      borderRadius: "99px",
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      border: playgroundLang === lang.id ? "1px solid #F9572A" : "1px solid #CBD5E1",
+                      background: playgroundLang === lang.id ? "#F9572A" : (isDarkMode ? "#1E293B" : "#FFFFFF"),
+                      color: playgroundLang === lang.id ? "#FFFFFF" : (isDarkMode ? "#F8FAFC" : "#1E1B18"),
+                      cursor: "pointer"
+                    }}
+                  >
+                    {lang.name}
+                  </button>
+                ))}
+              </div>
+
+              {/* Code Editor */}
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: isDarkMode ? "#F8FAFC" : "#1E1B18" }}>Editor ({playgroundLang.toUpperCase()})</span>
+                  <button className="btnCopyCode" onClick={() => handleCopyCode(playgroundCode[playgroundLang])}>
+                    <FaCopy /> Copy Code
+                  </button>
+                </div>
+                <textarea
+                  style={{
+                    width: "100%",
+                    height: "160px",
+                    fontFamily: "monospace",
+                    fontSize: "13px",
+                    background: "#0F172A",
+                    color: "#38BDF8",
+                    border: "1px solid #334155",
+                    borderRadius: "10px",
+                    padding: "12px",
+                    outline: "none",
+                    resize: "none"
+                  }}
+                  value={playgroundCode[playgroundLang]}
+                  onChange={(e) => setPlaygroundCode({ ...playgroundCode, [playgroundLang]: e.target.value })}
+                />
+              </div>
+
+              {/* Action Bar */}
+              <div style={{ display: "flex", gap: "10px" }}>
+                <button
+                  onClick={handleRunPlaygroundCode}
+                  disabled={isRunningCode}
+                  style={{
+                    padding: "10px 24px",
+                    borderRadius: "99px",
+                    background: "#10B981",
+                    color: "#FFFFFF",
+                    border: "none",
+                    fontWeight: 800,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px"
+                  }}
+                >
+                  {isRunningCode ? <FaSpinner className="spinIcon" /> : <FaPlay />} Run Code ▶
+                </button>
+
+                <button
+                  onClick={() => handleCopyCode(playgroundCode[playgroundLang])}
+                  style={{
+                    padding: "10px 18px",
+                    borderRadius: "99px",
+                    background: "transparent",
+                    color: isDarkMode ? "#F8FAFC" : "#1E1B18",
+                    border: "1px solid #CBD5E1",
+                    fontWeight: 700,
+                    cursor: "pointer"
+                  }}
+                >
+                  Copy Code
+                </button>
+              </div>
+
+              {/* Terminal Execution Output */}
+              <div>
+                <span style={{ fontSize: "12px", fontWeight: 700, color: isDarkMode ? "#F8FAFC" : "#1E1B18", display: "block", marginBottom: "6px" }}>Terminal Output Console</span>
+                <div style={{ background: "#05060B", border: "1px solid #1E293B", borderRadius: "10px", padding: "12px", fontFamily: "monospace", fontSize: "12px", color: "#10B981", minHeight: "80px", whiteSpace: "pre-wrap" }}>
+                  {playgroundOutput || "Click '▶ Run Code' above to execute code and view console output."}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 13. RICH INTERACTIVE MIND MAP MODAL */}
+      {activeModal === "mind-map" && (
+        <div className="modalOverlay" onClick={closeModal}>
+          <div className="modalContainer snModal" style={{ maxWidth: "880px" }} onClick={(e) => e.stopPropagation()}>
+            <div className="snModalHeader">
+              <div className="snModalTitleRow">
+                <div className="snModalIcon">🗺️</div>
+                <div>
+                  <h3>Interactive AI Mind Map</h3>
+                  <p>Visualize concepts, relationships and dependencies in interactive node trees.</p>
+                </div>
+              </div>
+              <button className="modalCloseBtn" onClick={closeModal}><FaTimes /></button>
+            </div>
+
+            <div className="snModalBody">
+              {/* Left Settings Panel */}
+              <div className="snLeftPanel" style={{ width: "32%" }}>
+                <div className="snPanelHeader">
+                  <span className="snPanelTitle">Topic or Skill Area</span>
+                </div>
+                <input
+                  type="text"
+                  className="modalSelect"
+                  style={{ width: "100%", marginBottom: "16px" }}
+                  value={mindMapTopic}
+                  onChange={(e) => setMindMapTopic(e.target.value)}
+                />
+
+                <label className="modalLabel">Topic Depth Level</label>
+                <select className="modalSelect" value={mindMapDepth} onChange={(e) => setMindMapDepth(e.target.value)} style={{ width: "100%", marginBottom: "16px" }}>
+                  <option>Overview (3 Levels)</option>
+                  <option>Detailed (5 Levels)</option>
+                  <option>Deep Dive (Full Tree)</option>
+                </select>
+
+                <button
+                  className="snGenerateBtn"
+                  onClick={() => {
+                    setIsGeneratingMindMap(true);
+                    setTimeout(() => {
+                      setIsGeneratingMindMap(false);
+                      setToastMessage("🗺️ Mind Map Generated Successfully!");
+                      setTimeout(() => setToastMessage(""), 4000);
+                    }, 1000);
+                  }}
+                  disabled={isGeneratingMindMap}
+                >
+                  {isGeneratingMindMap ? <><FaSpinner className="spinIcon" /> Building Nodes...</> : "✨ Generate Mind Map"}
+                </button>
+              </div>
+
+              {/* Right Interactive Visual Tree Panel */}
+              <div className="snRightPanel" style={{ width: "68%" }}>
+                <div className="snRightTitleRow">
+                  <span className="snPanelTitle">Node Graph ({mindMapTopic})</span>
+                  <button className="btnCopyCode" onClick={() => handleCopyCode(JSON.stringify(mindMapNodes, null, 2))}>
+                    <FaCopy /> Export Tree
+                  </button>
+                </div>
+
+                <div style={{ background: isDarkMode ? "#0F172A" : "#F8FAFC", border: "1px solid #334155", borderRadius: "12px", padding: "16px", minHeight: "320px", display: "flex", flexDirection: "column", gap: "10px" }}>
+                  {mindMapNodes.map((node) => (
+                    <div
+                      key={node.id}
+                      style={{
+                        marginLeft: node.parent ? "24px" : "0px",
+                        padding: "10px 16px",
+                        borderRadius: "10px",
+                        background: isDarkMode ? "#1E293B" : "#FFFFFF",
+                        borderLeft: `4px solid ${node.color}`,
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        color: isDarkMode ? "#F8FAFC" : "#1E1B18",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between"
+                      }}
+                    >
+                      <span>{node.label}</span>
+                      <span style={{ fontSize: "10px", background: "rgba(255,255,255,0.08)", padding: "2px 8px", borderRadius: "99px", color: node.color }}>
+                        {node.parent ? `Child of Node #${node.parent}` : "Root Node"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 14. RICH INTERACTIVE CONCEPT DIAGRAM MODAL */}
+      {activeModal === "concept-diagram" && (
+        <div className="modalOverlay" onClick={closeModal}>
+          <div className="modalContainer snModal" style={{ maxWidth: "880px" }} onClick={(e) => e.stopPropagation()}>
+            <div className="snModalHeader">
+              <div className="snModalTitleRow">
+                <div className="snModalIcon">📐</div>
+                <div>
+                  <h3>Architectural Concept Diagram</h3>
+                  <p>Generate system architecture flowcharts, microservices pipelines and API diagrams.</p>
+                </div>
+              </div>
+              <button className="modalCloseBtn" onClick={closeModal}><FaTimes /></button>
+            </div>
+
+            <div className="snModalBody">
+              {/* Left Settings Panel */}
+              <div className="snLeftPanel" style={{ width: "32%" }}>
+                <div className="snPanelHeader">
+                  <span className="snPanelTitle">Architecture Topic</span>
+                </div>
+                <input
+                  type="text"
+                  className="modalSelect"
+                  style={{ width: "100%", marginBottom: "16px" }}
+                  value={conceptDiagramTopic}
+                  onChange={(e) => setConceptDiagramTopic(e.target.value)}
+                />
+
+                <label className="modalLabel">Diagram Pattern Type</label>
+                <select className="modalSelect" value={conceptDiagramType} onChange={(e) => setConceptDiagramType(e.target.value)} style={{ width: "100%", marginBottom: "16px" }}>
+                  <option>System Architecture Flow</option>
+                  <option>Component Hierarchy Tree</option>
+                  <option>Data Pipeline Sequence</option>
+                  <option>Microservices Mesh</option>
+                </select>
+
+                <button
+                  className="snGenerateBtn"
+                  onClick={() => {
+                    setIsGeneratingDiagram(true);
+                    setTimeout(() => {
+                      setIsGeneratingDiagram(false);
+                      setToastMessage("📐 Concept Diagram Generated Successfully!");
+                      setTimeout(() => setToastMessage(""), 4000);
+                    }, 1000);
+                  }}
+                  disabled={isGeneratingDiagram}
+                >
+                  {isGeneratingDiagram ? <><FaSpinner className="spinIcon" /> Rendering Diagram...</> : "📐 Generate Concept Diagram"}
+                </button>
+              </div>
+
+              {/* Right Flowchart Flow Panel */}
+              <div className="snRightPanel" style={{ width: "68%" }}>
+                <div className="snRightTitleRow">
+                  <span className="snPanelTitle">Pipeline Flow ({conceptDiagramType})</span>
+                  <button className="btnCopyCode" onClick={() => handleCopyCode(JSON.stringify(diagramSteps, null, 2))}>
+                    <FaCopy /> Download Schema
+                  </button>
+                </div>
+
+                <div style={{ background: isDarkMode ? "#0F172A" : "#F8FAFC", border: "1px solid #334155", borderRadius: "12px", padding: "16px", minHeight: "320px", display: "flex", flexDirection: "column", gap: "14px" }}>
+                  {diagramSteps.map((step, idx) => (
+                    <React.Fragment key={step.step}>
+                      <div
+                        style={{
+                          background: isDarkMode ? "#1E293B" : "#FFFFFF",
+                          border: "1px solid #334155",
+                          borderRadius: "12px",
+                          padding: "12px 16px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between"
+                        }}
+                      >
+                        <div>
+                          <strong style={{ fontSize: "13px", color: isDarkMode ? "#F8FAFC" : "#1E1B18", display: "block" }}>{step.title}</strong>
+                          <span style={{ fontSize: "11px", color: isDarkMode ? "#94A3B8" : "#64748B" }}>{step.desc}</span>
+                        </div>
+                        <span style={{ fontSize: "11px", fontWeight: 800, background: "#FFF0EB", color: "#F9572A", padding: "4px 10px", borderRadius: "99px" }}>
+                          {step.badge}
+                        </span>
+                      </div>
+
+                      {idx < diagramSteps.length - 1 && (
+                        <div style={{ textAlign: "center", color: "#F9572A", fontSize: "16px", fontWeight: 800 }}>
+                          ↓ HTTP / gRPC Data Stream ↓
+                        </div>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -56,9 +56,17 @@ function applyGlobalTheme(mode = 'dark', accent) {
   if (mode === 'light') {
     root.classList.add('light-theme');
     root.classList.remove('dark-theme');
+    if (document.body) {
+      document.body.classList.add('light-theme');
+      document.body.classList.remove('dark-theme');
+    }
   } else {
     root.classList.add('dark-theme');
     root.classList.remove('light-theme');
+    if (document.body) {
+      document.body.classList.add('dark-theme');
+      document.body.classList.remove('light-theme');
+    }
   }
 }
 

@@ -6,6 +6,7 @@ import StudentFooter from "../components/StudentFooter";
 import Background from "../components/Background";
 import DashboardSidebar from "../components/DashboardSidebar";
 import "../styles/learningPage.css";
+import { react20QuizQuestions, python20QuizQuestions } from "../data/quizData";
 
 export default function LearningPage() {
   const { user, completedTopics, completeTopic, earnXp, unlockBadge } = useAuth();
@@ -68,7 +69,7 @@ export default function LearningPage() {
         { id: "fsd_perf", title: "5. Web Vitals & Performance Monitoring", videoId: "LDB4uaJ87e0", videoTitle: "Frontend System Design - Chapter 5: Core Web Vitals & Optimization", xp: 200, content: <div><p>Measuring LCP, FID, and CLS ensures optimal user experience across network conditions.</p></div> },
         { id: "fsd_net", title: "6. Network Protocols & WebSockets", videoId: "TNhaISOUy6Q", videoTitle: "Frontend System Design - Chapter 6: Realtime Protocols & WebSockets", xp: 200, content: <div><p>Bi-directional real-time communication using WebSockets and HTTP/3 streaming.</p></div> }
       ],
-      quiz: [{ q: "What is the primary goal of Frontend System Design?", options: ["Designing database tables.", "Building scalable, high-performance web applications.", "Configuring Linux servers.", "Designing logos."], correct: 1 }]
+      quiz: react20QuizQuestions
     },
     javascript: {
       name: "JavaScript",
@@ -84,7 +85,7 @@ export default function LearningPage() {
         { id: "javascript_proto", title: "5. Prototypes & OOP Inheritance", videoId: "1g4zP3bS5tM", videoTitle: "JavaScript - Chapter 5: Prototype Chain & Inherited Methods", xp: 200, content: <div><p>JavaScript uses prototype-based inheritance where objects inherit properties from prototype objects.</p></div> },
         { id: "javascript_es6", title: "6. ES6+ Array Methods & Map/Set", videoId: "NCwa_xi0Uuc", videoTitle: "JavaScript - Chapter 6: ES6 Array Methods & Map/Set Collections", xp: 200, content: <div><p>Modern ES6 features including map, filter, reduce, destructuring, and Map/Set collections.</p></div> }
       ],
-      quiz: [{ q: "What is a closure in JavaScript?", options: ["Function with references to outer scope", "Window close", "Loop", "Database"], correct: 0 }]
+      quiz: react20QuizQuestions
     },
     genai: {
       name: "Generative AI Engineering",
@@ -100,7 +101,7 @@ export default function LearningPage() {
         { id: "genai_multimodal", title: "5. Multimodal AI Models", videoId: "mEsleV16qdo", videoTitle: "Generative AI - Chapter 5: Vision & Multimodal Embeddings", xp: 200, content: <div><p>Integrating vision, speech, and text into unified multimodal AI pipelines.</p></div> },
         { id: "genai_deploy", title: "6. AI Guardrails & Deployment", videoId: "mEsleV16qdo", videoTitle: "Generative AI - Chapter 6: Production AI Guardrails & Safety", xp: 250, content: <div><p>Deploying LLMs in production with hallucination detection and safety guardrails.</p></div> }
       ],
-      quiz: [{ q: "What powers modern LLMs?", options: ["Transformers", "SQL", "HTML", "C++"], correct: 0 }]
+      quiz: python20QuizQuestions
     },
     ml: {
       name: "Machine Learning Foundations",
@@ -116,7 +117,7 @@ export default function LearningPage() {
         { id: "ml_eval", title: "5. Model Evaluation & Overfitting", videoId: "i_LwzRVP7bg", videoTitle: "Machine Learning - Chapter 5: Precision, Recall & Cross Validation", xp: 200, content: <div><p>Evaluating model performance using confusion matrices, ROC curves, and regularization.</p></div> },
         { id: "ml_tools", title: "6. Scikit-Learn & PyTorch Setup", videoId: "i_LwzRVP7bg", videoTitle: "Machine Learning - Chapter 6: Production ML Pipelines with Scikit-Learn", xp: 250, content: <div><p>Building end-to-end ML workflows using Python, Scikit-Learn, and PyTorch.</p></div> }
       ],
-      quiz: [{ q: "Which type of ML uses labeled data?", options: ["Supervised", "Unsupervised", "Reinforcement", "Random"], correct: 0 }]
+      quiz: python20QuizQuestions
     },
     nextjs: {
       name: "Fullstack Next.js 14",
@@ -132,7 +133,7 @@ export default function LearningPage() {
         { id: "nextjs_auth", title: "5. NextAuth.js Authentication", videoId: "wm5gMKCORL4", videoTitle: "Next.js 14 - Chapter 5: NextAuth & OAuth Provider Setup", xp: 250, content: <div><p>Securing fullstack applications with session tokens, JWTs, and OAuth authentication.</p></div> },
         { id: "nextjs_deploy", title: "6. Vercel Edge Deployment", videoId: "wm5gMKCORL4", videoTitle: "Next.js 14 - Chapter 6: Edge Network Deployment & Performance", xp: 250, content: <div><p>Deploying Next.js applications to Vercel's global edge network with zero configuration.</p></div> }
       ],
-      quiz: [{ q: "What is the primary feature of Next.js 14 App Router?", options: ["React Server Components", "XML Layouts", "PHP Support", "jQuery plugins"], correct: 0 }]
+      quiz: react20QuizQuestions
     },
     web3: {
       name: "Web3 & Solidity Development",
@@ -148,7 +149,7 @@ export default function LearningPage() {
         { id: "web3_ethers", title: "5. Ethers.js & Wagmi Frontend", videoId: "gyMwXuJrbJQ", videoTitle: "Web3 - Chapter 5: MetaMask & Ethers.js Wallet Connection", xp: 250, content: <div><p>Connecting React frontends to Web3 wallets and blockchain providers using Wagmi.</p></div> },
         { id: "web3_security", title: "6. Smart Contract Auditing & Gas", videoId: "gyMwXuJrbJQ", videoTitle: "Web3 - Chapter 6: Reentrancy Attacks & Gas Optimization", xp: 250, content: <div><p>Auditing smart contracts against security vulnerabilities and optimizing gas consumption.</p></div> }
       ],
-      quiz: [{ q: "What executes smart contracts on Ethereum?", options: ["EVM (Ethereum Virtual Machine)", "JVM", "V8", "Node.js"], correct: 0 }]
+      quiz: react20QuizQuestions
     },
     aws: {
       name: "Cloud Computing with AWS",
@@ -164,7 +165,7 @@ export default function LearningPage() {
         { id: "aws_db", title: "5. RDS & DynamoDB Databases", videoId: "ulprqHHWlng", videoTitle: "AWS Cloud - Chapter 5: Relational & NoSQL Cloud Databases", xp: 250, content: <div><p>Managing managed SQL databases with Amazon RDS and NoSQL tables with DynamoDB.</p></div> },
         { id: "aws_ecs", title: "6. Docker & ECS Container Management", videoId: "ulprqHHWlng", videoTitle: "AWS Cloud - Chapter 6: Elastic Container Service & Fargate", xp: 250, content: <div><p>Orchestrating containerized microservices using Docker, ECS, and AWS Fargate.</p></div> }
       ],
-      quiz: [{ q: "Which AWS service provides virtual servers?", options: ["EC2", "S3", "DynamoDB", "Lambda"], correct: 0 }]
+      quiz: python20QuizQuestions
     },
     python: {
       name: "Python for Data Science",
@@ -180,7 +181,7 @@ export default function LearningPage() {
         { id: "python_eda", title: "5. Exploratory Data Analysis (EDA)", videoId: "LHBE6Q9XlzI", videoTitle: "Python Data Science - Chapter 5: Exploratory Data Analysis", xp: 250, content: <div><p>Uncovering statistical insights, handling missing values, and detecting outliers.</p></div> },
         { id: "python_ml", title: "6. Scikit-Learn Machine Learning", videoId: "LHBE6Q9XlzI", videoTitle: "Python Data Science - Chapter 6: Predictive Modeling with Scikit-Learn", xp: 250, content: <div><p>Training regression and classification models using Scikit-Learn pipelines.</p></div> }
       ],
-      quiz: [{ q: "Which library is used for dataframes in Python?", options: ["Pandas", "React", "Express", "Spring"], correct: 0 }]
+      quiz: python20QuizQuestions
     },
     uiux: {
       name: "UI/UX Design Masterclass",
@@ -196,7 +197,7 @@ export default function LearningPage() {
         { id: "uiux_testing", title: "5. Usability Testing & Heatmaps", videoId: "c9Wg6Cb_YlU", videoTitle: "UI/UX Design - Chapter 5: Usability Testing & Analytics", xp: 250, content: <div><p>Testing prototypes with users, analyzing heatmaps, and iterating on feedback.</p></div> },
         { id: "uiux_handoff", title: "6. Handoff to Web Developers", videoId: "c9Wg6Cb_YlU", videoTitle: "UI/UX Design - Chapter 6: Developer Handoff & Asset Export", xp: 250, content: <div><p>Preparing Figma design specs, tokens, and asset exports for frontend developers.</p></div> }
       ],
-      quiz: [{ q: "Which tool is standard for modern UI/UX design?", options: ["Figma", "MS Paint", "Notepad", "Eclipse"], correct: 0 }]
+      quiz: react20QuizQuestions
     },
     dsa: {
       name: "Data Structures & Algorithms (DSA)",
@@ -212,7 +213,7 @@ export default function LearningPage() {
         { id: "dsa_dp", title: "5. Dynamic Programming Foundations", videoId: "rZ41y93P2Qo", videoTitle: "DSA - Chapter 5: Dynamic Programming & Memoization", xp: 250, content: <div><p>Solving complex optimization problems with memoization and tabulation.</p></div> },
         { id: "dsa_graphs", title: "6. Graph Algorithms (BFS/DFS)", videoId: "rZ41y93P2Qo", videoTitle: "DSA - Chapter 6: Graph Traversals & Shortest Path", xp: 250, content: <div><p>Breadth-First Search, Depth-First Search, Dijkstra's algorithm, and topological sort.</p></div> }
       ],
-      quiz: [{ q: "What is the time complexity of binary search?", options: ["O(log N)", "O(N)", "O(N^2)", "O(1)"], correct: 0 }]
+      quiz: react20QuizQuestions
     },
     node: {
       name: "Advanced Node.js & Microservices",
@@ -228,7 +229,7 @@ export default function LearningPage() {
         { id: "node_mq", title: "5. RabbitMQ & Event Streaming", videoId: "LAUi8pOIc68", videoTitle: "Node.js Microservices - Chapter 5: Message Queues & Event Streaming", xp: 250, content: <div><p>Asynchronous inter-service messaging using RabbitMQ exchanges and queues.</p></div> },
         { id: "node_gateway", title: "6. API Gateway & Microservices Auth", videoId: "LAUi8pOIc68", videoTitle: "Node.js Microservices - Chapter 6: API Gateway & Centralized Auth", xp: 250, content: <div><p>Routing requests through a central API gateway with JWT authorization.</p></div> }
       ],
-      quiz: [{ q: "What powers Node.js non-blocking I/O?", options: ["Libuv & Event Loop", "JVM", "Multi-threading", "Apache"], correct: 0 }]
+      quiz: react20QuizQuestions
     },
 
     react: {
@@ -1025,7 +1026,7 @@ public class SecurityConfig {
       }
     });
 
-    const marks = correctCount * 4; // Max 20 marks
+    const marks = correctCount; // Max 20 marks (1 mark per question)
     const pct = (marks / 20) * 100;
     setQuizScore(marks);
     setQuizSubmitted(true);
@@ -1042,7 +1043,7 @@ public class SecurityConfig {
       localStorage.setItem(isQuizPassedKey, "true");
     }
 
-    // Badge Unlock: 85% score threshold (>= 17 marks, i.e. 5/5 correct)
+    // Badge Unlock: 85% score threshold (>= 17 marks out of 20)
     if (pct >= 85) {
       localStorage.setItem(`badge_${currentTrack.badgeKey}_${user.email || user.username}`, "true");
       if (unlockBadge) {
@@ -1207,7 +1208,7 @@ public class SecurityConfig {
                 <div className="lp-tutorial-header">
                   <div className="lp-tutorial-title">
                     <h2>Track Quiz Challenge: {currentTrack.name}</h2>
-                    <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Total Marks: 20 (5 questions * 4 marks each). Needs 85% (17+ marks) to unlock the badge!</span>
+                    <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>20 Multiple Choice Questions (1 Mark Each) • Reference: GeeksforGeeks & W3Schools Documentation</span>
                   </div>
                 </div>
 
@@ -1220,18 +1221,24 @@ public class SecurityConfig {
                     <p style={{ fontSize: '15px', color: 'var(--text-secondary)', marginTop: '8px' }}>
                       {quizScore >= 17 
                         ? `Congratulations! You unlocked the ${currentTrack.badgeName}! View it in your dashboard.`
-                        : "You scored less than 85%. Review the chapters and try again to unlock your badge."
+                        : "You scored less than 85%. Review the questions and try again to unlock your badge."
                       }
                     </p>
                   </div>
                 )}
 
                 <form onSubmit={handleSubmitQuiz} className="lp-quiz-container">
-                  {(currentTrack?.quiz || [
-                    { q: "What is the core concept of this course track?", options: ["High performance & architecture", "Manual data entry", "Unstyled text", "Hardware assembly"], correct: 0 }
-                  ]).map((item, qIdx) => (
-                    <div key={qIdx} className="lp-quiz-question-card">
-                      <p className="lp-quiz-question-text">{qIdx + 1}. {item.q}</p>
+                  {(currentTrack?.quiz || react20QuizQuestions).map((item, qIdx) => (
+                    <div key={qIdx} className="lp-quiz-question-card" style={{ position: "relative" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                        <p className="lp-quiz-question-text" style={{ margin: 0 }}>{qIdx + 1}. {item.q}</p>
+                        {item.ref && (
+                          <span style={{ fontSize: "10px", background: "#FFF0EB", color: "#F9572A", padding: "2px 8px", borderRadius: "99px", fontWeight: 700, border: "1px solid #FAD6C8", flexShrink: 0 }}>
+                            {item.ref}
+                          </span>
+                        )}
+                      </div>
+
                       <div className="lp-quiz-options">
                         {item.options.map((opt, optIdx) => (
                           <label 
@@ -1250,6 +1257,12 @@ public class SecurityConfig {
                           </label>
                         ))}
                       </div>
+
+                      {quizAnswers[qIdx] !== undefined && item.explanation && (
+                        <div style={{ marginTop: "10px", padding: "8px 12px", borderRadius: "8px", background: quizAnswers[qIdx] === item.correct ? "rgba(16, 185, 129, 0.15)" : "rgba(239, 68, 68, 0.15)", border: quizAnswers[qIdx] === item.correct ? "1px solid #86EFAC" : "1px solid #FCA5A5", fontSize: "12px", color: quizAnswers[qIdx] === item.correct ? "#15803D" : "#B91C1C" }}>
+                          <strong>{quizAnswers[qIdx] === item.correct ? "✓ Correct!" : "✗ Incorrect."}</strong> {item.explanation}
+                        </div>
+                      )}
                     </div>
                   ))}
 

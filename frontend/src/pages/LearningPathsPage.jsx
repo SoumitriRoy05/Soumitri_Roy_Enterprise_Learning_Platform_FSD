@@ -1258,48 +1258,104 @@ function AnalyticsDashboard() {
     { id: "settings", label: "Settings", icon: <FaCog /> }
   ];
 
+  // Dynamic Path Stats Calculation based on persistent completedSubLessonIds
+  const getPathStats = (pathTitle) => {
+    let totalLessons = 30;
+    let completedCount = 0;
+    let totalModules = 6;
+
+    if (pathTitle.includes("React")) {
+      totalLessons = 30;
+      totalModules = 6;
+      completedCount = completedSubLessonIds.filter(id => !id.startsWith("py-") && !id.startsWith("node-") && !id.startsWith("ui-")).length;
+    } else if (pathTitle.includes("Python")) {
+      totalLessons = 7;
+      totalModules = 6;
+      completedCount = completedSubLessonIds.filter(id => id.startsWith("py-")).length;
+    } else if (pathTitle.includes("Node")) {
+      totalLessons = 3;
+      totalModules = 3;
+      completedCount = completedSubLessonIds.filter(id => id.startsWith("node-")).length;
+    } else if (pathTitle.includes("UI/UX")) {
+      totalLessons = 6;
+      totalModules = 6;
+      completedCount = completedSubLessonIds.filter(id => id.startsWith("ui-")).length;
+    }
+
+    const pct = Math.min(100, Math.round((completedCount / totalLessons) * 100));
+    const completedMods = Math.min(totalModules, Math.ceil((completedCount / totalLessons) * totalModules));
+
+    let status = "not-started";
+    let statusText = "Not Started";
+    let actionText = "Start Now";
+
+    if (pct > 0 && pct < 100) {
+      status = "in-progress";
+      statusText = "In Progress";
+      actionText = "Continue Learning";
+    } else if (pct >= 100) {
+      status = "completed";
+      statusText = "Completed";
+      actionText = "Review Path";
+    }
+
+    return {
+      progress: pct,
+      status,
+      statusText,
+      completedModulesText: `${completedMods} / ${totalModules}`,
+      actionText,
+      lastAccessed: completedCount > 0 ? "Today" : "—"
+    };
+  };
+
+  const reactStats = getPathStats("React Developer Path");
+  const pythonStats = getPathStats("Python for Data Science");
+  const nodeStats = getPathStats("Fullstack with Node.js");
+  const uiStats = getPathStats("UI/UX Design Masterclass");
+
   const pathCards = [
     {
       id: 1,
       title: "React Developer Path",
       levelInfo: "Intermediate • 6 Modules • 24.5K Learners",
-      status: "not-started",
-      statusText: "Not Started",
-      progress: 0,
-      completedModules: "0 / 6",
+      status: reactStats.status,
+      statusText: reactStats.statusText,
+      progress: reactStats.progress,
+      completedModules: reactStats.completedModulesText,
       bannerType: "react",
       logoText: "⚛️"
     },
     {
       id: 2,
       title: "Python for Data Science",
-      levelInfo: "Beginner • 8 Modules • 18.7K Learners",
-      status: "not-started",
-      statusText: "Not Started",
-      progress: 0,
-      completedModules: "0 / 8",
+      levelInfo: "Beginner • 6 Modules • 18.7K Learners",
+      status: pythonStats.status,
+      statusText: pythonStats.statusText,
+      progress: pythonStats.progress,
+      completedModules: pythonStats.completedModulesText,
       bannerType: "python",
       logoText: "🐍"
     },
     {
       id: 3,
       title: "Fullstack with Node.js",
-      levelInfo: "Intermediate • 10 Modules • 12.1K Learners",
-      status: "not-started",
-      statusText: "Not Started",
-      progress: 0,
-      completedModules: "0 / 10",
+      levelInfo: "Intermediate • 3 Modules • 12.1K Learners",
+      status: nodeStats.status,
+      statusText: nodeStats.statusText,
+      progress: nodeStats.progress,
+      completedModules: nodeStats.completedModulesText,
       bannerType: "node",
       logoText: "🟩"
     },
     {
       id: 4,
       title: "UI/UX Design Masterclass",
-      levelInfo: "Beginner • 5 Modules • 9.8K Learners",
-      status: "not-started",
-      statusText: "Not Started",
-      progress: 0,
-      completedModules: "0 / 5",
+      levelInfo: "Beginner • 6 Modules • 9.8K Learners",
+      status: uiStats.status,
+      statusText: uiStats.statusText,
+      progress: uiStats.progress,
+      completedModules: uiStats.completedModulesText,
       bannerType: "figma",
       logoText: "🎨"
     }
@@ -1309,54 +1365,54 @@ function AnalyticsDashboard() {
     {
       id: 1,
       title: "React Developer Path",
-      status: "not-started",
-      statusText: "Not Started",
-      progress: 0,
+      status: reactStats.status,
+      statusText: reactStats.statusText,
+      progress: reactStats.progress,
       progressColor: "#0284C7",
-      modules: "0 / 6",
-      lastAccessed: "—",
+      modules: reactStats.completedModulesText,
+      lastAccessed: reactStats.lastAccessed,
       logoText: "⚛️",
       logoBg: "#E0F2FE",
-      actionText: "Start Now"
+      actionText: reactStats.actionText
     },
     {
       id: 2,
       title: "Python for Data Science",
-      status: "not-started",
-      statusText: "Not Started",
-      progress: 0,
+      status: pythonStats.status,
+      statusText: pythonStats.statusText,
+      progress: pythonStats.progress,
       progressColor: "#F9572A",
-      modules: "0 / 8",
-      lastAccessed: "—",
+      modules: pythonStats.completedModulesText,
+      lastAccessed: pythonStats.lastAccessed,
       logoText: "🐍",
       logoBg: "#FEF9C3",
-      actionText: "Start Now"
+      actionText: pythonStats.actionText
     },
     {
       id: 3,
       title: "Fullstack with Node.js",
-      status: "not-started",
-      statusText: "Not Started",
-      progress: 0,
-      progressColor: "#CBD5E1",
-      modules: "0 / 10",
-      lastAccessed: "—",
+      status: nodeStats.status,
+      statusText: nodeStats.statusText,
+      progress: nodeStats.progress,
+      progressColor: "#10B981",
+      modules: nodeStats.completedModulesText,
+      lastAccessed: nodeStats.lastAccessed,
       logoText: "🟩",
       logoBg: "#DCFCE7",
-      actionText: "Start Now"
+      actionText: nodeStats.actionText
     },
     {
       id: 4,
       title: "UI/UX Design Masterclass",
-      status: "not-started",
-      statusText: "Not Started",
-      progress: 0,
+      status: uiStats.status,
+      statusText: uiStats.statusText,
+      progress: uiStats.progress,
       progressColor: "#8B5CF6",
-      modules: "0 / 5",
-      lastAccessed: "—",
+      modules: uiStats.completedModulesText,
+      lastAccessed: uiStats.lastAccessed,
       logoText: "🎨",
       logoBg: "#FCE7F3",
-      actionText: "Start Now"
+      actionText: uiStats.actionText
     }
   ];
 
@@ -2314,76 +2370,227 @@ function AnalyticsDashboard() {
                 </div>
               )}
 
-              {/* ── TRACK QUIZ CHALLENGE MODAL ── */}
+              {/* ── TRACK QUIZ CHALLENGE MODAL (20 QUESTIONS WITH GFG & W3SCHOOLS REFS) ── */}
               {showQuizModal && (
                 <div className="lpModalOverlay" onClick={() => setShowQuizModal(false)}>
-                  <div className="lpModalContent" onClick={(e) => e.stopPropagation()}>
+                  <div className="lpModalContent" style={{ maxWidth: "780px", maxHeight: "85vh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
                     <div className="modalHeader">
-                      <h3>🏆 Track Quiz Challenge (React Path)</h3>
+                      <div>
+                        <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 800 }}>🏆 Track Quiz Challenge: React & Web Development</h3>
+                        <p style={{ margin: "4px 0 0 0", fontSize: "12px", color: "#64748B" }}>20 Multiple Choice Questions • Reference: GeeksforGeeks & W3Schools Documentation</p>
+                      </div>
                       <button className="modalCloseBtn" onClick={() => setShowQuizModal(false)}>✕</button>
                     </div>
 
-                    <form onSubmit={handleQuizSubmit}>
-                      <div className="quizQuestionCard">
-                        <strong>Q1. What is the main purpose of React JSX?</strong>
-                        <button
-                          type="button"
-                          className={`quizOptionBtn ${userAnswers[1] === true ? "selected" : ""}`}
-                          onClick={() => setUserAnswers(p => ({ ...p, 1: true }))}
-                        >
-                          A. Write HTML-like syntax inside JavaScript
-                        </button>
-                        <button
-                          type="button"
-                          className={`quizOptionBtn ${userAnswers[1] === false ? "selected" : ""}`}
-                          onClick={() => setUserAnswers(p => ({ ...p, 1: false }))}
-                        >
-                          B. Direct CSS stylesheet compilation
-                        </button>
-                      </div>
+                    <form onSubmit={handleQuizSubmit} style={{ marginTop: "16px" }}>
+                      {[
+                        {
+                          id: 1,
+                          q: "What is the primary purpose of React JSX?",
+                          options: ["A. Write HTML-like syntax inside JavaScript", "B. Directly compile CSS stylesheets", "C. Execute SQL database queries in the browser", "D. Replace Node.js runtime engines"],
+                          correct: 0,
+                          ref: "W3Schools: React JSX Guide",
+                          explanation: "JSX allows writing HTML-like tags in JavaScript which React converts into React.createElement() calls."
+                        },
+                        {
+                          id: 2,
+                          q: "Which hook is used to handle side effects in React functional components?",
+                          options: ["A. useState()", "B. useEffect()", "C. useContext()", "D. useReducer()"],
+                          correct: 1,
+                          ref: "GeeksforGeeks: ReactJS useEffect Hook",
+                          explanation: "useEffect handles side effects such as data fetching, subscriptions, and DOM updates."
+                        },
+                        {
+                          id: 3,
+                          q: "How do you pass data from a parent to a child component in React?",
+                          options: ["A. Via Props", "B. Via localStorage", "C. Via Redux reducers only", "D. Via HTTP POST requests"],
+                          correct: 0,
+                          ref: "W3Schools: React Props",
+                          explanation: "Props are read-only properties passed down from parent components to child components."
+                        },
+                        {
+                          id: 4,
+                          q: "What is the Virtual DOM in React?",
+                          options: ["A. A lightweight in-memory representation of the real DOM", "B. A database table inside Google Chrome", "C. A physical CPU hardware chip", "D. An alternative to HTML5 tags"],
+                          correct: 0,
+                          ref: "GeeksforGeeks: ReactJS Virtual DOM",
+                          explanation: "React maintains a Virtual DOM in memory and diffs it with previous state to optimize DOM updates."
+                        },
+                        {
+                          id: 5,
+                          q: "What is the correct way to update state using useState in React?",
+                          options: ["A. Direct mutation: state = newValue", "B. Call updater function: setScore(newValue)", "C. Call window.location.reload()", "D. Modify document.getElementById().value"],
+                          correct: 1,
+                          ref: "W3Schools: React useState Hook",
+                          explanation: "Calling the updater function returned by useState schedules a re-render and updates state immutably."
+                        },
+                        {
+                          id: 6,
+                          q: "Which rule MUST be followed when calling React Hooks?",
+                          options: ["A. Call hooks inside loops and conditional if blocks", "B. Call hooks only at the top level of functional components", "C. Call hooks inside class constructors only", "D. Call hooks inside utility helper files"],
+                          correct: 1,
+                          ref: "GeeksforGeeks: Rules of Hooks in React",
+                          explanation: "Hooks must be called at the top level to guarantee that Hooks are called in the exact same order on every render."
+                        },
+                        {
+                          id: 7,
+                          q: "What is the primary function of the 'key' prop when rendering lists in React?",
+                          options: ["A. Helps React identify which list items have changed, added, or removed", "B. Styles list items with dynamic background colors", "C. Encrypts list item data in local storage", "D. Automatically sorts list items alphabetically"],
+                          correct: 0,
+                          ref: "W3Schools: React Keys & Lists",
+                          explanation: "Keys give list elements a stable identity so React can efficiently re-render changed elements."
+                        },
+                        {
+                          id: 8,
+                          q: "What is the role of the useMemo hook in React performance optimization?",
+                          options: ["A. Memoizes the result of an expensive calculation between re-renders", "B. Sends HTTP GET requests to external APIs", "C. Stores component state inside browser memory cache", "D. Defines dynamic route parameters"],
+                          correct: 0,
+                          ref: "GeeksforGeeks: React useMemo Hook",
+                          explanation: "useMemo caches calculated values and only recalculates when one of its dependencies changes."
+                        },
+                        {
+                          id: 9,
+                          q: "How does React Context API solve the problem of Prop Drilling?",
+                          options: ["A. Shares global state directly down component tree without passing props manually", "B. Compiles React code into WebAssembly binaries", "C. Converts class components to functional components", "D. Connects React directly to MongoDB"],
+                          correct: 0,
+                          ref: "W3Schools: React useContext Hook",
+                          explanation: "Context provides a way to share state like user authentication or theme across components without prop drilling."
+                        },
+                        {
+                          id: 10,
+                          q: "In JavaScript, what is a Closure?",
+                          options: ["A. A function bundled together with references to its outer scope environment", "B. A browser button that closes the active window", "C. A statement that breaks out of a while loop", "D. A private CSS variable definition"],
+                          correct: 0,
+                          ref: "GeeksforGeeks: JavaScript Closures",
+                          explanation: "Closures give functions access to variables in their parent scope even after the parent function has executed."
+                        },
+                        {
+                          id: 11,
+                          q: "What does the JavaScript Event Loop monitor?",
+                          options: ["A. Monitors Call Stack and Microtask Queue to push async callbacks onto Call Stack", "B. Renders CSS flexbox elements on screen", "C. Compiles Java code into bytecode", "D. Manages SQL database connection pools"],
+                          correct: 0,
+                          ref: "GeeksforGeeks: JavaScript Event Loop",
+                          explanation: "The Event Loop continuously checks if Call Stack is empty, pushing tasks from Microtask and Callback queues."
+                        },
+                        {
+                          id: 12,
+                          q: "Which ES6 feature unpacks values from arrays or properties from objects into distinct variables?",
+                          options: ["A. Destructuring Assignment", "B. Array Splice", "C. Prototype Inheritance", "D. CommonJS Exports"],
+                          correct: 0,
+                          ref: "W3Schools: ES6 Destructuring",
+                          explanation: "Destructuring syntax unpacks object properties or array items cleanly into local variables."
+                        },
+                        {
+                          id: 13,
+                          q: "What is the key difference between call(), apply(), and bind() in JavaScript?",
+                          options: ["A. call() & apply() invoke function immediately; bind() returns a new function", "B. bind() deletes object properties from memory", "C. apply() only works on string parameters", "D. call() is used exclusively in Node.js"],
+                          correct: 0,
+                          ref: "GeeksforGeeks: call(), apply() vs bind()",
+                          explanation: "call() takes args individually, apply() takes an array of args, and bind() returns a new function."
+                        },
+                        {
+                          id: 14,
+                          q: "What makes Node.js architecture non-blocking and asynchronous?",
+                          options: ["A. Offloads I/O tasks to background libuv thread pool while Event Loop remains free", "B. Stops main thread until all file reads finish", "C. Spawns physical C++ GUI windows for each request", "D. Executes synchronous queries only"],
+                          correct: 0,
+                          ref: "GeeksforGeeks: Node.js Architecture & Libuv",
+                          explanation: "Node.js uses an event-driven non-blocking I/O model backed by libuv to handle thousands of concurrent connections."
+                        },
+                        {
+                          id: 15,
+                          q: "What is Express.js Middleware?",
+                          options: ["A. Functions that have access to req, res objects and next() in HTTP cycle", "B. A database ORM for MySQL", "C. A CSS frontend UI library", "D. A Chrome browser extension"],
+                          correct: 0,
+                          ref: "W3Schools: Node.js Express Middleware",
+                          explanation: "Middleware functions process incoming HTTP requests, modify req/res objects, or trigger error handling."
+                        },
+                        {
+                          id: 16,
+                          q: "In Mongoose, what is a Schema?",
+                          options: ["A. A document structure blueprint defining field types, defaults, and validators for MongoDB", "B. A SQL JOIN query string", "C. A CSS layout grid", "D. A web router table"],
+                          correct: 0,
+                          ref: "GeeksforGeeks: Mongoose Schema & Models",
+                          explanation: "Mongoose schemas define shape, data types, and validation rules for documents stored in MongoDB collections."
+                        },
+                        {
+                          id: 17,
+                          q: "What does React.memo HOC accomplish?",
+                          options: ["A. Skips re-rendering a component if its incoming props are unchanged", "B. Stores component state in browser IndexedDB", "C. Forces full browser window reloads", "D. Converts JSX into HTML string"],
+                          correct: 0,
+                          ref: "GeeksforGeeks: React.memo Performance",
+                          explanation: "React.memo is a higher-order component that memoizes functional component render outputs based on prop equality."
+                        },
+                        {
+                          id: 18,
+                          q: "Why do Single Page Applications (SPAs) use Client-Side Routing?",
+                          options: ["A. Updates URL and renders view components dynamically without reloading HTML page", "B. Reloads complete HTML files from server on every click", "C. Clears localStorage data on navigation", "D. Prevents users from clicking back buttons"],
+                          correct: 0,
+                          ref: "W3Schools: React Router SPAs",
+                          explanation: "Client-side routing swaps components in the DOM dynamically, providing fast seamless navigation without page reloads."
+                        },
+                        {
+                          id: 19,
+                          q: "What does the useRef hook return in React?",
+                          options: ["A. A mutable object with a .current property that persists across component re-renders", "B. A state variable and state setter pair", "C. A JavaScript Promise", "D. An array of DOM nodes"],
+                          correct: 0,
+                          ref: "GeeksforGeeks: React useRef Hook",
+                          explanation: "useRef returns a mutable object whose .current property holds a reference to a DOM node or persistent value without triggering re-renders."
+                        },
+                        {
+                          id: 20,
+                          q: "What is the primary role of Redux Toolkit Slices?",
+                          options: ["A. Bundles state, reducer logic, and action creators for a specific feature module", "B. Styles React buttons with CSS tokens", "C. Handles server SQL migrations", "D. Compresses image files before submission"],
+                          correct: 0,
+                          ref: "GeeksforGeeks: Redux Toolkit Slices",
+                          explanation: "A slice in Redux Toolkit defines the initial state, reducer functions, and auto-generates corresponding action creators."
+                        }
+                      ].map((item) => (
+                        <div key={item.id} className="quizQuestionCard" style={{ marginBottom: "16px", padding: "16px", background: isDarkMode ? "#1E293B" : "#FAF8F5", border: "1px solid #E2E8F0", borderRadius: "16px" }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                            <strong style={{ fontSize: "14px", color: isDarkMode ? "#F8FAFC" : "#1E1B18" }}>Q{item.id}. {item.q}</strong>
+                            <span style={{ fontSize: "10px", fontWeight: 800, background: "#FFF0EB", color: "#F9572A", padding: "2px 8px", borderRadius: "99px", border: "1px solid #FAD6C8" }}>
+                              {item.ref}
+                            </span>
+                          </div>
 
-                      <div className="quizQuestionCard">
-                        <strong>Q2. Which hook is used to handle side effects in React?</strong>
-                        <button
-                          type="button"
-                          className={`quizOptionBtn ${userAnswers[2] === true ? "selected" : ""}`}
-                          onClick={() => setUserAnswers(p => ({ ...p, 2: true }))}
-                        >
-                          A. useEffect()
-                        </button>
-                        <button
-                          type="button"
-                          className={`quizOptionBtn ${userAnswers[2] === false ? "selected" : ""}`}
-                          onClick={() => setUserAnswers(p => ({ ...p, 2: false }))}
-                        >
-                          B. useState()
-                        </button>
-                      </div>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginTop: "10px" }}>
+                            {item.options.map((opt, optIdx) => (
+                              <button
+                                key={optIdx}
+                                type="button"
+                                className={`quizOptionBtn ${userAnswers[item.id] === optIdx ? "selected" : ""}`}
+                                onClick={() => setUserAnswers(p => ({ ...p, [item.id]: optIdx }))}
+                                style={{
+                                  textAlign: "left",
+                                  padding: "10px 14px",
+                                  fontSize: "12px",
+                                  borderRadius: "12px",
+                                  border: userAnswers[item.id] === optIdx ? "2px solid #F9572A" : "1px solid #CBD5E1",
+                                  background: userAnswers[item.id] === optIdx ? (isDarkMode ? "#334155" : "#FFF0EB") : (isDarkMode ? "#0F172A" : "#FFFFFF"),
+                                  color: userAnswers[item.id] === optIdx ? "#F9572A" : (isDarkMode ? "#F8FAFC" : "#1E1B18"),
+                                  cursor: "pointer",
+                                  fontWeight: userAnswers[item.id] === optIdx ? 700 : 500
+                                }}
+                              >
+                                {opt}
+                              </button>
+                            ))}
+                          </div>
 
-                      <div className="quizQuestionCard">
-                        <strong>Q3. How do you pass data from a parent to a child component?</strong>
-                        <button
-                          type="button"
-                          className={`quizOptionBtn ${userAnswers[3] === true ? "selected" : ""}`}
-                          onClick={() => setUserAnswers(p => ({ ...p, 3: true }))}
-                        >
-                          A. Via Props
-                        </button>
-                        <button
-                          type="button"
-                          className={`quizOptionBtn ${userAnswers[3] === false ? "selected" : ""}`}
-                          onClick={() => setUserAnswers(p => ({ ...p, 3: false }))}
-                        >
-                          B. Via localStorage
-                        </button>
-                      </div>
+                          {userAnswers[item.id] !== undefined && (
+                            <div style={{ marginTop: "10px", padding: "8px 12px", borderRadius: "8px", background: userAnswers[item.id] === item.correct ? "rgba(16, 185, 129, 0.15)" : "rgba(239, 68, 68, 0.15)", border: userAnswers[item.id] === item.correct ? "1px solid #86EFAC" : "1px solid #FCA5A5", fontSize: "11px", color: userAnswers[item.id] === item.correct ? "#15803D" : "#B91C1C" }}>
+                              <strong>{userAnswers[item.id] === item.correct ? "✓ Correct!" : "✗ Incorrect."}</strong> {item.explanation}
+                            </div>
+                          )}
+                        </div>
+                      ))}
 
                       <button
                         type="submit"
                         className="btnNextComplete"
-                        style={{ width: "100%", marginTop: "12px" }}
+                        style={{ width: "100%", marginTop: "16px", padding: "12px", fontSize: "14px", fontWeight: 800, background: "#F9572A", color: "#FFF", borderRadius: "99px", border: "none", cursor: "pointer" }}
                       >
-                        Submit Quiz & Claim XP →
+                        Submit All 20 Quiz Answers & Claim Certificate →
                       </button>
 
                       <button
@@ -2395,14 +2602,14 @@ function AnalyticsDashboard() {
                           background: "#FFF0EB",
                           color: "#F9572A",
                           border: "1px dashed #FAD6C8",
-                          padding: "8px",
-                          borderRadius: "12px",
+                          padding: "10px",
+                          borderRadius: "99px",
                           fontSize: "12px",
                           fontWeight: 700,
                           cursor: "pointer"
                         }}
                       >
-                        ⚡ Instant Dev Test: Complete All 6 Modules & Unlock Certificate
+                        ⚡ Instant Unlock Test: Complete All 6 Modules & Claim Certificate
                       </button>
                     </form>
                   </div>

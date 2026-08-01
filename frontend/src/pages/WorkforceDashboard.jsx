@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import NotificationDropdown from "../components/NotificationDropdown";
 import Background from "../components/Background";
 import {
   FaHome,
@@ -468,9 +469,7 @@ export default function WorkforceDashboard() {
             <button className="wf-icon-btn" title="Messages">
               <FaCommentAlt />
             </button>
-            <button className="wf-icon-btn" title="Calendar">
-              <FaCalendarAlt />
-            </button>
+            <NotificationDropdown type="workforce" />
 
             <div className="wf-user-profile-wrapper">
               <button

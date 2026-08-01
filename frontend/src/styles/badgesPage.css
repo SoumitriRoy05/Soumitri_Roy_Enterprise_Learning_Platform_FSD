@@ -522,69 +522,90 @@
   .bpGridContainer { grid-template-columns: 1fr; }
 }
 
-/* ── DARK THEME STYLES ── */
-.bpWrapper.dark-theme {
-  background: #0F172A;
-  color: #F8FAFC;
+/* ── DARK THEME STYLES (Matching Reference Screenshot 1-to-1) ── */
+.bpWrapper.dark-theme,
+[data-theme="dark"] .bpWrapper,
+.dark-theme .bpWrapper {
+  background: #090D16 !important;
+  color: #F8FAFC !important;
 }
 
 .bpWrapper.dark-theme .bpLeftSidebar,
 .bpWrapper.dark-theme .sdLeftSidebar,
-.bpWrapper.dark-theme .statCard,
-.bpWrapper.dark-theme .bpCardWidget,
-.bpWrapper.dark-theme .badgeCardItem,
-.bpWrapper.dark-theme .badgeCardGridItem,
-.bpWrapper.dark-theme .activityItemRow,
-.bpWrapper.dark-theme .tierItem,
-.bpWrapper.dark-theme .modalStatusBox,
-.bpWrapper.dark-theme .badgeModalContent {
-  background: #1E293B;
-  border-color: #334155;
-  color: #F8FAFC;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+.bpWrapper.dark-theme .bpStatCard,
+.bpWrapper.dark-theme .badgeHexCard,
+.bpWrapper.dark-theme .bpWidgetCard,
+.bpWrapper.dark-theme .progressBadgeItem,
+.bpWrapper.dark-theme .lockedBadgeItem,
+.bpWrapper.dark-theme .rareBadgeCard,
+.bpWrapper.dark-theme .recentBadgeItem,
+.bpWrapper.dark-theme .badgeModalContent,
+[data-theme="dark"] .bpStatCard,
+[data-theme="dark"] .badgeHexCard,
+[data-theme="dark"] .bpWidgetCard,
+[data-theme="dark"] .progressBadgeItem,
+[data-theme="dark"] .lockedBadgeItem,
+[data-theme="dark"] .rareBadgeCard,
+[data-theme="dark"] .recentBadgeItem {
+  background: #0F172A !important;
+  border-color: #1E293B !important;
+  color: #F8FAFC !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
 }
 
 .bpWrapper.dark-theme .bpPageHeader h1,
 .bpWrapper.dark-theme .sectionHeaderRow h3,
-.bpWrapper.dark-theme .statCard strong,
-.bpWrapper.dark-theme .badgeCardItem h4,
-.bpWrapper.dark-theme .badgeCardGridItem h4,
+.bpWrapper.dark-theme .bpStatCard strong,
+.bpWrapper.dark-theme .badgeHexCard h4,
 .bpWrapper.dark-theme .bpWidgetCard h4,
-.bpWrapper.dark-theme .actInfo strong,
-.bpWrapper.dark-theme .badgeModalContent h2,
-.bpWrapper.dark-theme .modalStatusBox span,
-.bpWrapper.dark-theme .tierItem strong {
-  color: #F8FAFC;
+.bpWrapper.dark-theme .progressBadgeItem h5,
+.bpWrapper.dark-theme .lockedBadgeItem h5,
+.bpWrapper.dark-theme .rareBadgeCard h5,
+.bpWrapper.dark-theme .recentBadgeItem h5,
+[data-theme="dark"] .bpPageHeader h1,
+[data-theme="dark"] .sectionHeaderRow h3,
+[data-theme="dark"] .bpStatCard strong,
+[data-theme="dark"] .badgeHexCard h4,
+[data-theme="dark"] .bpWidgetCard h4 {
+  color: #F8FAFC !important;
 }
 
 .bpWrapper.dark-theme .bpPageHeader p,
-.bpWrapper.dark-theme .statCard span,
-.bpWrapper.dark-theme .badgeCardItem p,
-.bpWrapper.dark-theme .badgeCardGridItem p,
-.bpWrapper.dark-theme .subText,
-.bpWrapper.dark-theme .actInfo span,
-.bpWrapper.dark-theme .modalBadgeDesc,
-.bpWrapper.dark-theme .modalStatusBox small,
-.bpWrapper.dark-theme .tierItem span {
-  color: #94A3B8;
+.bpWrapper.dark-theme .bpStatCard span,
+.bpWrapper.dark-theme .badgeHexCard p,
+.bpWrapper.dark-theme .progressBadgeItem span,
+.bpWrapper.dark-theme .lockedBadgeItem span,
+.bpWrapper.dark-theme .rareBadgeCard p,
+.bpWrapper.dark-theme .collectorSubtext,
+[data-theme="dark"] .badgeHexCard p {
+  color: #94A3B8 !important;
 }
 
-.bpWrapper.dark-theme .categoryTab,
-.bpWrapper.dark-theme .filterChipBtn,
 .bpWrapper.dark-theme .btnHowBadgesWork,
-.bpWrapper.dark-theme .btnCloseModal {
-  background: #0F172A;
-  color: #F8FAFC;
-  border-color: #334155;
+[data-theme="dark"] .btnHowBadgesWork {
+  background: #1E293B !important;
+  color: #F8FAFC !important;
+  border: 1px solid #334155 !important;
 }
 
-.bpWrapper.dark-theme .categoryTab.active,
-.bpWrapper.dark-theme .filterChipBtn.active {
-  background: #F9572A;
-  color: #FFFFFF;
-  border-color: #F9572A;
+.bpWrapper.dark-theme .bpTab,
+[data-theme="dark"] .bpTab {
+  color: #94A3B8 !important;
 }
 
-.bpWrapper.dark-theme .bTrack {
-  background: #0F172A;
+.bpWrapper.dark-theme .bpTab.active,
+[data-theme="dark"] .bpTab.active {
+  color: #F9572A !important;
+  border-bottom-color: #F9572A !important;
 }
+
+.bpWrapper.dark-theme .gaugeBg,
+[data-theme="dark"] .gaugeBg {
+  stroke: #1E293B !important;
+}
+
+.bpWrapper.dark-theme .gaugeFill,
+[data-theme="dark"] .gaugeFill {
+  stroke: #F9572A !important;
+}
+

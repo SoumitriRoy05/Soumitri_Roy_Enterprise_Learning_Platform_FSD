@@ -4,6 +4,10 @@ import { useAuth } from "../context/AuthContext";
 import Background from "../components/Background";
 import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
+<<<<<<< HEAD
+=======
+import NotificationDropdown from "../components/NotificationDropdown";
+>>>>>>> c813a36 (Frontend Updates)
 import FloatingChatbot from "../components/FloatingChatbot";
 
 import {
@@ -99,18 +103,18 @@ export default function BadgesPage() {
   ];
 
   const earnedBadges = [
-    { id: 1, title: "Getting Started", desc: "Complete your first lesson", xp: "+50 XP", date: "", icon: <FaTrophy />, color: "orange", isLocked: true, isEarned: false },
-    { id: 2, title: "Lesson Learner", desc: "Complete 10 lessons", xp: "+100 XP", date: "", icon: <FaBook />, color: "green", isLocked: true, isEarned: false },
-    { id: 3, title: "Quiz Master", desc: "Score 90% or more in a quiz", xp: "+150 XP", date: "", icon: <FaQuestionCircle />, color: "purple", isLocked: true, isEarned: false },
-    { id: 4, title: "Code Explorer", desc: "Solve 20 coding problems", xp: "+200 XP", date: "", icon: <FaCode />, color: "brown", isLocked: true, isEarned: false },
-    { id: 5, title: "Streak Starter", desc: "Maintain a 3-day streak", xp: "+75 XP", date: "", icon: <FaFire />, color: "red", isLocked: true, isEarned: false },
-    { id: 6, title: "Consistent Learner", desc: "Maintain a 7-day streak", xp: "+150 XP", date: "", icon: <FaCalendarAlt />, color: "blue", isLocked: true, isEarned: false },
-    { id: 7, title: "Assignment Ace", desc: "Submit 5 assignments", xp: "+100 XP", date: "", icon: <FaClipboardList />, color: "teal", isLocked: true, isEarned: false },
-    { id: 8, title: "Discussion Star", desc: "Make 5 helpful discussions", xp: "+50 XP", date: "", icon: <FaStar />, color: "yellow", isLocked: true, isEarned: false },
-    { id: 9, title: "Early Bird", desc: "Complete a lesson before 9 AM", xp: "+30 XP", date: "", icon: <FaSun />, color: "gold", isLocked: true, isEarned: false },
-    { id: 10, title: "Weekend Warrior", desc: "Complete 5 lessons on weekend", xp: "+75 XP", date: "", icon: <FaBullseye />, color: "indigo", isLocked: true, isEarned: false },
-    { id: 11, title: "Project Builder", desc: "Complete a hands-on project", xp: "+250 XP", date: "", icon: <FaCubes />, color: "emerald", isLocked: true, isEarned: false },
-    { id: 12, title: "Path Pioneer", desc: "Complete your first learning path", xp: "+300 XP", date: "", icon: <FaMountain />, color: "violet", isLocked: true, isEarned: false }
+    { id: 1, title: "Getting Started", desc: "Complete your first lesson", xp: "+50 XP", date: "Earned on 12 Apr 2025", icon: <FaTrophy />, color: "orange", isEarned: true },
+    { id: 2, title: "Lesson Learner", desc: "Complete 10 lessons", xp: "+100 XP", date: "Earned on 18 Apr 2025", icon: <FaBook />, color: "green", isEarned: true },
+    { id: 3, title: "Quiz Master", desc: "Score 90% or more in a quiz", xp: "+150 XP", date: "Earned on 22 Apr 2025", icon: <FaQuestionCircle />, color: "purple", isEarned: true },
+    { id: 4, title: "Code Explorer", desc: "Solve 20 coding problems", xp: "+200 XP", date: "Earned on 22 Apr 2025", icon: <FaCode />, color: "brown", isEarned: true },
+    { id: 5, title: "Streak Starter", desc: "Maintain a 3-day streak", xp: "+75 XP", date: "Earned on 27 Apr 2025", icon: <FaFire />, color: "red", isEarned: true },
+    { id: 6, title: "Consistent Learner", desc: "Maintain a 7-day streak", xp: "+150 XP", date: "Earned on 30 Apr 2025", icon: <FaCalendarAlt />, color: "blue", isEarned: true },
+    { id: 7, title: "Assignment Ace", desc: "Submit 5 assignments", xp: "+100 XP", date: "Earned on 02 May 2025", icon: <FaClipboardList />, color: "teal", isEarned: true },
+    { id: 8, title: "Discussion Star", desc: "Make 5 helpful discussions", xp: "+50 XP", date: "Earned on 04 May 2025", icon: <FaStar />, color: "yellow", isEarned: true },
+    { id: 9, title: "Early Bird", desc: "Complete a lesson before 9 AM", xp: "+30 XP", date: "Earned on 05 May 2025", icon: <FaSun />, color: "gold", isEarned: true },
+    { id: 10, title: "Weekend Warrior", desc: "Complete 5 lessons on weekend", xp: "+75 XP", date: "Earned on 06 May 2025", icon: <FaBullseye />, color: "indigo", isEarned: true },
+    { id: 11, title: "Project Builder", desc: "Complete a hands-on project", xp: "+250 XP", date: "Earned on 08 May 2025", icon: <FaCubes />, color: "emerald", isEarned: true },
+    { id: 12, title: "Path Pioneer", desc: "Complete your first learning path", xp: "+300 XP", date: "Earned on 10 May 2025", icon: <FaMountain />, color: "violet", isEarned: true }
   ];
 
   // 24 MORE DISCOVERABLE LOCKED BADGES DATA (Matching Screenshot 1-to-1)
@@ -254,12 +258,7 @@ export default function BadgesPage() {
                 <FaBolt color="#F9572A" /> <span>{currentXp} XP</span>
               </div>
 
-              <div className="sdNotificationBtnWrapper">
-                <button className="sdNotificationBtn">
-                  <FaBell />
-                  {3 > 0 && <span className="sdNotifBadge">3</span>}
-                </button>
-              </div>
+              <NotificationDropdown type="student" />
 
               {/* Header Bar Logout Button beside Notification Bell */}
               <button
@@ -362,10 +361,10 @@ export default function BadgesPage() {
                 <div className="bpStatCard">
                   <div className="statIcon orange"><FaTrophy /></div>
                   <div>
-                    <strong>0</strong>
+                    <strong>18</strong>
                     <span>Badges Earned</span>
                     <div className="statBarTrack">
-                      <div className="statBarFill" style={{ width: "0%" }}></div>
+                      <div className="statBarFill" style={{ width: "42%" }}></div>
                     </div>
                     <span className="statSub">Out of 42</span>
                   </div>
@@ -392,7 +391,7 @@ export default function BadgesPage() {
                 <div className="bpStatCard">
                   <div className="statIcon green"><FaGem /></div>
                   <div>
-                    <strong>0</strong>
+                    <strong>3200</strong>
                     <span>Total XP from Badges</span>
                     <span className="statSubText">Amazing!</span>
                   </div>
@@ -409,7 +408,7 @@ export default function BadgesPage() {
                   {(activeTab === "all" || activeTab === "earned") && (
                     <div className="bpSectionBlock">
                       <div className="sectionHeaderRow">
-                        <h3>Earned Badges (0)</h3>
+                        <h3>Earned Badges (18)</h3>
                         <span className="viewAllLink" onClick={() => setViewMode("more-badges")}>
                           View All More Badges →
                         </span>
@@ -530,14 +529,14 @@ export default function BadgesPage() {
                       </svg>
                       <div className="gaugeCenterText">
                         <FaTrophy color="#F59E0B" style={{ fontSize: "20px" }} />
-                        <strong>0 / 42</strong>
+                        <strong>18 / 42</strong>
                         <span>Badges Collected</span>
                       </div>
                     </div>
 
                     <div className="collectorPctSub">
-                      <span><strong>0%</strong> Completed</span>
-                      <div className="collectorTrack"><div className="collectorFill" style={{ width: "0%" }}></div></div>
+                      <span><strong>42%</strong> Completed</span>
+                      <div className="collectorTrack"><div className="collectorFill" style={{ width: "42%" }}></div></div>
                     </div>
 
                     <p className="collectorSubtext">Collect more badges to unlock exclusive rewards!</p>

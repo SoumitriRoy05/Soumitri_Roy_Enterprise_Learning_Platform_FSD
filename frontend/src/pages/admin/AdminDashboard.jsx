@@ -37,6 +37,7 @@ export default function AdminDashboard() {
         
         <nav style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
           <SidebarBtn icon={<FiBook />} label="Course Management" active={activeTab === 'courses'} onClick={() => setActiveTab('courses')} />
+          <SidebarBtn icon={<FiCheck />} label="Course Approvals ⏳" active={activeTab === 'approvals'} onClick={() => setActiveTab('approvals')} />
           <SidebarBtn icon={<FiUsers />} label="Student Management" active={activeTab === 'students'} onClick={() => setActiveTab('students')} />
           <SidebarBtn icon={<FiBriefcase />} label="Workforce Management" active={activeTab === 'workforce'} onClick={() => setActiveTab('workforce')} />
           <SidebarBtn icon={<FiSettings />} label="Settings" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
@@ -58,6 +59,7 @@ export default function AdminDashboard() {
 
       <main style={{ marginLeft: '260px', padding: '40px', position: 'relative', zIndex: 10, minHeight: '100vh', overflowY: 'auto' }}>
         {activeTab === 'courses' && <CourseManagement courses={courses} addCourse={addCourse} updateCourse={updateCourse} deleteCourse={deleteCourse} />}
+        {activeTab === 'approvals' && <CourseApprovalManagement />}
         {activeTab === 'students' && <StudentManagement users={users} toggleStudentStatus={toggleStudentStatus} />}
         {activeTab === 'workforce' && <WorkforceManagement workforce={workforce} changeWorkforceStatus={changeWorkforceStatus} />}
         {activeTab === 'settings' && <SettingsPanel />}
@@ -336,6 +338,123 @@ function SettingsPanel() {
         }}>
           Save Settings (Demo)
         </button>
+      </div>
+    </div>
+  );
+}
+
+// --- Course Approvals Management ---
+function CourseApprovalManagement() {
+  const [pendingRequests, setPendingRequests] = useState(() => {
+    try {
+      const stored = localStorage.getItem("skillsphere_pending_course_requests");
+      return stored ? JSON.parse(stored) : [
+        {
+          id: "REQ-101",
+          courseId: "2",
+          courseTitle: "React.js Development",
+          studentName: "Soumitri User",
+          studentEmail: "student@skillsphere.edu",
+          fee: "₹4,999",
+          requestDate: "Today, 09:30 PM",
+          status: "pending"
+        },
+        {
+          id: "REQ-102",
+          courseId: "9",
+          courseTitle: "Fullstack Next.js 14 Masterclass",
+          studentName: "Shabira Begam",
+          studentEmail: "shabira@skillsphere.edu",
+          fee: "₹4,999",
+          requestDate: "Today, 08:15 PM",
+          status: "pending"
+        }
+      ];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  const handleApprove = (req) => {
+    const updated = pendingRequests.map(r => r.id === req.id ? { ...r, status: "approved" } : r);
+    setPendingRequests(updated);
+    try {
+      localStorage.setItem("skillsphere_pending_course_requests", JSON.stringify(updated));
+      const userKey = req.studentEmail;
+      const userEnrolled = JSON.parse(localStorage.getItem(`enrolled_courses_${userKey}`) || "[]");
+      if (!userEnrolled.includes(req.courseId)) {
+        userEnrolled.push(req.courseId.toString());
+        localStorage.setItem(`enrolled_courses_${userKey}`, JSON.stringify(userEnrolled));
+      }
+      window.dispatchEvent(new Event("storage"));
+    } catch (e) {}
+  };
+
+  const handleReject = (req) => {
+    const updated = pendingRequests.map(r => r.id === req.id ? { ...r, status: "rejected" } : r);
+    setPendingRequests(updated);
+    try {
+      localStorage.setItem("skillsphere_pending_course_requests", JSON.stringify(updated));
+      window.dispatchEvent(new Event("storage"));
+    } catch (e) {}
+  };
+
+  return (
+    <div>
+      <div style={{ marginBottom: '30px' }}>
+        <h1 style={{ margin: '0 0 8px', fontSize: '28px', fontWeight: '800', color: '#1E1B18' }}>Pending Course Approvals</h1>
+        <p style={{ color: '#64748B', margin: 0 }}>Review student course payment requests and authorize course unlocking.</p>
+      </div>
+
+      <div style={{ background: '#FFFFFF', border: "1px solid #F3EBE1", borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.02)' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+          <thead>
+            <tr style={{ background: '#FAF8F5', color: '#64748B', fontSize: '12px', textTransform: 'uppercase', fontWeight: '700', borderBottom: '1px solid #F3EBE1' }}>
+              <th style={{ padding: '16px 20px' }}>Student</th>
+              <th style={{ padding: '16px 20px' }}>Requested Course</th>
+              <th style={{ padding: '16px 20px' }}>Fee Paid</th>
+              <th style={{ padding: '16px 20px' }}>Date</th>
+              <th style={{ padding: '16px 20px' }}>Status</th>
+              <th style={{ padding: '16px 20px', textAlign: 'right' }}>Admin Decision</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pendingRequests.map(req => (
+              <tr key={req.id} style={{ borderBottom: '1px solid #F3EBE1' }}>
+                <td style={{ padding: '16px 20px' }}>
+                  <div style={{ fontWeight: '700', color: '#1E1B18', fontSize: '14px' }}>{req.studentName}</div>
+                  <div style={{ fontSize: '12px', color: '#64748B' }}>{req.studentEmail}</div>
+                </td>
+                <td style={{ padding: '16px 20px', fontWeight: '700', color: '#1E1B18' }}>
+                  {req.courseTitle}
+                </td>
+                <td style={{ padding: '16px 20px', color: '#F9572A', fontWeight: '700' }}>
+                  {req.fee}
+                </td>
+                <td style={{ padding: '16px 20px', fontSize: '12px', color: '#64748B' }}>
+                  {req.requestDate}
+                </td>
+                <td style={{ padding: '16px 20px' }}>
+                  {req.status === "approved" ? (
+                    <span style={{ background: '#ECFDF5', color: '#10B981', padding: '4px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: '700' }}>✓ Approved</span>
+                  ) : req.status === "rejected" ? (
+                    <span style={{ background: '#FEF2F2', color: '#EF4444', padding: '4px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: '700' }}>✕ Rejected</span>
+                  ) : (
+                    <span style={{ background: '#FFFBEB', color: '#F59E0B', padding: '4px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: '700' }}>⏳ Pending Admin Review</span>
+                  )}
+                </td>
+                <td style={{ padding: '16px 20px', textAlign: 'right' }}>
+                  {req.status === "pending" && (
+                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                      <button onClick={() => handleApprove(req)} style={{ background: '#10B981', color: '#FFFFFF', border: 'none', padding: '6px 14px', borderRadius: '8px', fontWeight: '700', fontSize: '12px', cursor: 'pointer' }}>✓ Approve Course</button>
+                      <button onClick={() => handleReject(req)} style={{ background: '#FEF2F2', color: '#EF4444', border: '1px solid #FCA5A5', padding: '6px 14px', borderRadius: '8px', fontWeight: '700', fontSize: '12px', cursor: 'pointer' }}>✕ Reject</button>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

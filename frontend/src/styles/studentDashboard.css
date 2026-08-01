@@ -2116,4 +2116,130 @@
   color: #E2E8F0;
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   GLOBAL DARK THEME OVERRIDES (Full Reference Dark Palette)
+   ══════════════════════════════════════════════════════════════════════════ */
+.dark-theme,
+[data-theme="dark"],
+.dark-theme .sdDashboardWrapper,
+[data-theme="dark"] .sdDashboardWrapper,
+body.dark-theme {
+  background-color: #090D16 !important;
+  color: #F8FAFC !important;
+}
+
+.dark-theme .sdLeftSidebar,
+[data-theme="dark"] .sdLeftSidebar {
+  background: #0F172A !important;
+  border-color: #1E293B !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4) !important;
+}
+
+.dark-theme .sdBrandLogo,
+[data-theme="dark"] .sdBrandLogo {
+  color: #FFFFFF !important;
+}
+
+.dark-theme .sdNavItemBtn,
+[data-theme="dark"] .sdNavItemBtn {
+  color: #94A3B8 !important;
+}
+
+.dark-theme .sdNavItemBtn:hover,
+[data-theme="dark"] .sdNavItemBtn:hover {
+  background: rgba(249, 87, 42, 0.12) !important;
+  color: #F9572A !important;
+}
+
+.dark-theme .sdNavItemBtn.active,
+[data-theme="dark"] .sdNavItemBtn.active {
+  background: #F9572A !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(249, 87, 42, 0.4) !important;
+}
+
+.dark-theme .sdTopHeaderBar,
+[data-theme="dark"] .sdTopHeaderBar {
+  background: #0F172A !important;
+  border-color: #1E293B !important;
+}
+
+.dark-theme .sdSearchWrapper,
+[data-theme="dark"] .sdSearchWrapper {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+.dark-theme .sdSearchInput,
+[data-theme="dark"] .sdSearchInput {
+  background: #1E293B !important;
+  color: #FFFFFF !important;
+  border-color: #334155 !important;
+}
+
+.dark-theme .sdSearchInput::placeholder,
+[data-theme="dark"] .sdSearchInput::placeholder {
+  color: #64748B !important;
+}
+
+.dark-theme .sdUserProfilePill,
+[data-theme="dark"] .sdUserProfilePill {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #FFFFFF !important;
+}
+
+.dark-theme .sdUserInfoText strong,
+[data-theme="dark"] .sdUserInfoText strong {
+  color: #FFFFFF !important;
+}
+
+.dark-theme .sdUserInfoText span,
+[data-theme="dark"] .sdUserInfoText span {
+  color: #94A3B8 !important;
+}
+
+.dark-theme .sdWhitePanelCard,
+[data-theme="dark"] .sdWhitePanelCard,
+.dark-theme .sdMiniStatCard,
+[data-theme="dark"] .sdMiniStatCard,
+.dark-theme .sdProgressHeroCard,
+[data-theme="dark"] .sdProgressHeroCard {
+  background: #0F172A !important;
+  border-color: #1E293B !important;
+  color: #F8FAFC !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark-theme .statLabel,
+[data-theme="dark"] .statLabel {
+  color: #94A3B8 !important;
+}
+
+.dark-theme .sdPanelHeaderRow h3,
+[data-theme="dark"] .sdPanelHeaderRow h3,
+.dark-theme .sdProgressTitle,
+[data-theme="dark"] .sdProgressTitle {
+  color: #FFFFFF !important;
+}
+
+.dark-theme .sdUserMenuDropdown,
+[data-theme="dark"] .sdUserMenuDropdown {
+  background: #0F172A !important;
+  border-color: #334155 !important;
+  color: #FFFFFF !important;
+}
+
+.dark-theme .dropdownItem,
+[data-theme="dark"] .dropdownItem {
+  color: #CBD5E1 !important;
+}
+
+.dark-theme .dropdownItem:hover,
+[data-theme="dark"] .dropdownItem:hover {
+  background: #1E293B !important;
+  color: #FFFFFF !important;
+}
+
+
 

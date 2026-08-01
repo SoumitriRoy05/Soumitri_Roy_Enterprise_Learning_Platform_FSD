@@ -22,10 +22,13 @@ import CertificatesPage from "./pages/CertificatesPage";
 import DiscussionsPage from "./pages/DiscussionsPage";
 import ProfileSettingsPage from "./pages/ProfileSettingsPage";
 import ProgressPage from "./pages/ProgressPage";
+<<<<<<< HEAD
 import Navbar from "./components/Navbar";
 import DashboardSidebar from "./components/DashboardSidebar";
 import Background from "./components/Background";
 import "./styles/dashboard.css";
+=======
+>>>>>>> c813a36 (Frontend Updates)
 import TeamSpace from "./pages/TeamSpace";
 import FloatingChatbot from "./components/FloatingChatbot";
 import HomePage from "./pages/HomePage";
@@ -143,7 +146,7 @@ function App() {
         <Route path="/workforce-features" element={<ProtectedRoute><WorkforceFeatures /></ProtectedRoute>} />
         <Route path="/discussions" element={<ProtectedRoute><DiscussionsPage /></ProtectedRoute>} />
         <Route path="/team-space"   element={<ProtectedRoute><TeamSpace /></ProtectedRoute>} />
-        <Route path="/resources" element={<ProtectedRoute><ComingSoonPage title="Resources" /></ProtectedRoute>} />
+        <Route path="/resources" element={<Navigate to="/student-home" replace />} />
         <Route path="/certificate" element={<ProtectedRoute><CertificatesPage /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><ProfileSettingsPage /></ProtectedRoute>} />
         <Route path="/progress" element={<ProtectedRoute><ProgressPage /></ProtectedRoute>} />

@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import Background from "../components/Background";
 import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
+import NotificationDropdown from "../components/NotificationDropdown";
 import FloatingChatbot from "../components/FloatingChatbot";
 
 import {
@@ -361,12 +362,7 @@ export default function OpportunityFeedPage() {
                 <FaBolt color="#F9572A" /> <span>{currentXp} XP</span>
               </div>
 
-              <div className="sdNotificationBtnWrapper">
-                <button className="sdNotificationBtn">
-                  <FaBell />
-                  
-                </button>
-              </div>
+              <NotificationDropdown type="student" />
 
               <div className="sdUserProfilePill" onClick={() => navigate("/settings")}>
                 <div className="sdUserAvatarImg">🧑‍🎓</div>

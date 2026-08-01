@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaBookOpen, FaStar, FaUsers, FaPaperPlane, FaMinus, FaTimes } from "react-icons/fa";
 import "../styles/floatingChatbot.css";
 
 export default function FloatingChatbot() {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
@@ -34,50 +36,83 @@ export default function FloatingChatbot() {
   const getDynamicSkillSphereReply = (queryText) => {
     const q = queryText.toLowerCase();
 
-    const responses = {
-      overview: [
-        "SkillSphere is an all-in-one gamified learning and workforce operations platform! It empowers developers with 12+ tech tracks, live code sandboxes, XP rewards, and blockchain-verified certificates.",
-        "Think of SkillSphere as your futuristic growth accelerator! For students, it provides structured learning roadmaps and video lessons. For teams, it offers employee directories, task assignment, and live metrics logging."
-      ],
-      courses: [
-        "SkillSphere features 12 comprehensive learning tracks including React, JavaScript, Data Structures & Algorithms, Generative AI, Machine Learning, Node.js, and Web3!",
-        "Our Learning Portal is structured into curriculum modules per course track equipped with reference notes, video tutorials, XP rewards, and assessment quizzes!"
-      ],
-      xp: [
-        "You earn XP on SkillSphere by completing chapter modules (+100 to +250 XP per chapter) and scoring high on track quizzes (+15 XP per mark). Accumulating XP levels up your profile!",
-        "Gamification is embedded into every learning action on SkillSphere! Maintaining your daily login streak grants XP multipliers!"
-      ],
-      badges: [
-        "SkillSphere features 11 unlockable badges, including React Master, Java Master, Fast Learner, Code Ninja, and Perfect Quizzer!",
-        "Badges on SkillSphere represent verified skill milestones! When you achieve high scores on quizzes, the corresponding badge is awarded to your profile."
-      ],
-      workforce: [
-        "SkillSphere Work Hub empowers team leads to oversee employee directories, assign sprint tickets, handle leave request approvals, and audit live metrics.",
-        "For enterprise teams, SkillSphere provides a robust operations hub: managers can review team productivity, track active project progress, and manage roles."
-      ],
-      general: [
-        `I'd be glad to help with your question about "${queryText}"! SkillSphere provides interactive learning tracks, real-time code sandboxes, XP rewards, and workforce management tools.`
-      ]
-    };
-
-    let category = "general";
-    if (q.includes("course") || q.includes("study") || q.includes("learn") || q.includes("react") || q.includes("java") || q.includes("dsa") || q.includes("ai")) {
-      category = "courses";
-    } else if (q.includes("xp") || q.includes("level") || q.includes("streak") || q.includes("point") || q.includes("score")) {
-      category = "xp";
-    } else if (q.includes("badge") || q.includes("achievement") || q.includes("trophy")) {
-      category = "badges";
-    } else if (q.includes("workforce") || q.includes("employee") || q.includes("manager") || q.includes("team")) {
-      category = "workforce";
-    } else if (q.includes("what is") || q.includes("skillsphere") || q.includes("about") || q.includes("overview")) {
-      category = "overview";
+    if (q.includes("course") || q.includes("enroll") || q.includes("pay") || q.includes("unlock") || q.includes("price") || q.includes("approval") || q.includes("admin approve")) {
+      return {
+        text: "SkillSphere features 16 industry-aligned courses (React, Python, Node.js, Spring Boot, DSA, Web3, AWS, GenAI, etc.).\n\n📌 How Course Unlocking & Approval Works:\n1. Browse Courses & click 'Unlock Course'.\n2. Complete the checkout payment.\n3. Your purchase request is sent to the Admin Dashboard for Admin Verification.\n4. Once approved by the Admin, the course is unlocked in your dashboard instantly!",
+        actionLabel: "📚 Browse All Courses",
+        actionPath: "/courses"
+      };
     }
 
-    const list = responses[category] || responses.general;
-    const currentIndex = responseIndicesRef.current[category] || 0;
-    const selectedReply = list[currentIndex % list.length];
-    responseIndicesRef.current[category] = (currentIndex + 1) % list.length;
-    return selectedReply;
+    if (q.includes("certificat") || q.includes("credential") || q.includes("verify") || q.includes("download") || q.includes("earned")) {
+      return {
+        text: "Certificates on SkillSphere are issued upon completing course paths or scoring 85%+ on Track Quizzes!\n\n📜 Features:\n• Official Certificate of Completion with Credential ID\n• Canvas PNG High-Res Download\n• One-click LinkedIn Sharing\n• QR/Link Verification",
+        actionLabel: "📜 View My Certificates",
+        actionPath: "/certificate"
+      };
+    }
+
+    if (q.includes("xp") || q.includes("point") || q.includes("streak") || q.includes("level") || q.includes("score")) {
+      return {
+        text: "XP (Experience Points) power your SkillSphere rank!\n\n⚡ How to Earn XP:\n• Complete Chapter Lessons: +100 to +250 XP\n• Track Quiz Questions: +15 XP per correct answer\n• Daily Login Streak: Multiplier XP bonuses\n• Daily Quests: +50 XP per completed task",
+        actionLabel: "⚡ Check Daily Quests & XP",
+        actionPath: "/daily-quests"
+      };
+    }
+
+    if (q.includes("badge") || q.includes("trophy") || q.includes("achievement") || q.includes("reward")) {
+      return {
+        text: "SkillSphere has 11+ unlockable skill badges! Earn badges like React Master, Python Ninja, FAANG DSA Specialist, and Perfect Quizzer by scoring 85%+ on Track Assessments.",
+        actionLabel: "🏆 View My Badges",
+        actionPath: "/badges"
+      };
+    }
+
+    if (q.includes("study buddy") || q.includes("ai buddy") || q.includes("gfg") || q.includes("w3school") || q.includes("question") || q.includes("doubt")) {
+      return {
+        text: "AI Study Buddy is your personal AI tutor! Ask any programming or subject question (React, JS, Python, Java, DSA, Node, etc.) and get step-by-step explanations, code examples, and GeeksforGeeks & W3Schools reference documentation!",
+        actionLabel: "🤖 Launch AI Study Buddy",
+        actionPath: "/ai-buddy"
+      };
+    }
+
+    if (q.includes("code arena") || q.includes("arena") || q.includes("battle") || q.includes("coding test")) {
+      return {
+        text: "CodeArena is SkillSphere's competitive coding environment! Test your speed against algorithmic challenges, fix buggy code snippets, and climb the global leaderboards.",
+        actionLabel: "⚔️ Enter CodeArena",
+        actionPath: "/code-arena"
+      };
+    }
+
+    if (q.includes("sandbox") || q.includes("compiler") || q.includes("ide") || q.includes("editor")) {
+      return {
+        text: "SkillSphere Live Sandbox is an in-browser code editor supporting HTML, CSS, JavaScript, and live iframe execution. Experiment with code without local setup!",
+        actionLabel: "💻 Open Live Sandbox",
+        actionPath: "/sandbox"
+      };
+    }
+
+    if (q.includes("resume") || q.includes("cv") || q.includes("job") || q.includes("opportunity")) {
+      return {
+        text: "SkillSphere provides an AI-powered Resume Builder and an Opportunity Feed for tech jobs, internships, hackathons, and freelance gigs!",
+        actionLabel: "📄 Open Resume Builder",
+        actionPath: "/resume"
+      };
+    }
+
+    if (q.includes("workforce") || q.includes("admin") || q.includes("dashboard") || q.includes("manager") || q.includes("team")) {
+      return {
+        text: "SkillSphere Workforce & Admin Dashboard enables platform administrators and team leads to approve course access, manage student accounts, assign sprint tickets, and audit live analytics.",
+        actionLabel: "📊 Admin / Workforce Hub",
+        actionPath: "/workforce-dashboard"
+      };
+    }
+
+    return {
+      text: `SkillSphere is a complete gamified learning ecosystem! You can learn 16+ tech tracks, earn certificates, practice with AI Study Buddy, compete in CodeArena, and build ATS resumes.\n\nHow can I guide your learning journey today?`,
+      actionLabel: "🚀 Go to Student Dashboard",
+      actionPath: "/student-home"
+    };
   };
 
   const handleSendMessage = (text) => {
@@ -90,7 +125,8 @@ export default function FloatingChatbot() {
 
     setTimeout(() => {
       const reply = getDynamicSkillSphereReply(text);
-      setMessages(prev => [...prev, { sender: "assistant", text: reply }]);
+      const replyObj = typeof reply === "string" ? { text: reply } : reply;
+      setMessages(prev => [...prev, { sender: "assistant", ...replyObj }]);
       setIsLoading(false);
     }, 600);
   };
@@ -146,7 +182,30 @@ export default function FloatingChatbot() {
                 )}
 
                 <div className={`chat-bubble-card ${msg.sender}`}>
-                  {msg.text}
+                  <div style={{ whiteSpace: "pre-wrap" }}>{msg.text}</div>
+                  {msg.actionPath && (
+                    <button
+                      className="chatActionBtn"
+                      onClick={() => {
+                        setIsOpen(false);
+                        navigate(msg.actionPath);
+                      }}
+                      style={{
+                        marginTop: "10px",
+                        padding: "6px 14px",
+                        borderRadius: "99px",
+                        background: "#F9572A",
+                        color: "#FFFFFF",
+                        border: "none",
+                        fontSize: "11px",
+                        fontWeight: 800,
+                        cursor: "pointer",
+                        display: "inline-block"
+                      }}
+                    >
+                      {msg.actionLabel || "Go to Page →"}
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
