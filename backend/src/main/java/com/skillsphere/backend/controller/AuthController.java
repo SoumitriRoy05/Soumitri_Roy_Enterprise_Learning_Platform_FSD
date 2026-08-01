@@ -1,7 +1,9 @@
 package com.skillsphere.backend.controller;
 
+import com.skillsphere.backend.model.PasswordResetToken;
 import com.skillsphere.backend.model.RefreshToken;
 import com.skillsphere.backend.model.User;
+import com.skillsphere.backend.repository.PasswordResetTokenRepository;
 import com.skillsphere.backend.repository.RefreshTokenRepository;
 import com.skillsphere.backend.repository.UserRepository;
 import com.skillsphere.backend.security.GoogleTokenVerifier;
@@ -20,6 +22,7 @@ public class AuthController {
 
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final JwtTokenProvider tokenProvider;
     private final GoogleTokenVerifier googleTokenVerifier;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -27,11 +30,13 @@ public class AuthController {
     public AuthController(
             UserRepository userRepository,
             RefreshTokenRepository refreshTokenRepository,
+            PasswordResetTokenRepository passwordResetTokenRepository,
             JwtTokenProvider tokenProvider,
             GoogleTokenVerifier googleTokenVerifier,
             BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.tokenProvider = tokenProvider;
         this.googleTokenVerifier = googleTokenVerifier;
         this.passwordEncoder = passwordEncoder;
@@ -413,5 +418,101 @@ public class AuthController {
         dbToken.setRevoked(false);
         dbToken.setExpiresAt(LocalDateTime.now().plusDays(7));
         refreshTokenRepository.save(dbToken);
+    }
+
+    /**
+     * Forgot Password Request
+     */
+    @PostMapping("/auth/forgot-password")
+    public ResponseEntity<Map<String, Object>> forgotPassword(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        Map<String, Object> response = new HashMap<>();
+
+        if (email == null || email.trim().isEmpty()) {
+            response.put("success", false);
+            response.put("message", "Email is required");
+            return ResponseEntity.status(400).body(response);
+        }
+
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            response.put("success", false);
+            response.put("message", "No account registered with this email address");
+            return ResponseEntity.status(404).body(response);
+        }
+
+        User user = userOpt.get();
+
+        // Delete any existing password reset tokens for this user
+        passwordResetTokenRepository.deleteByUser(user);
+
+        // Generate token and save
+        String token = UUID.randomUUID().toString();
+        LocalDateTime expiryDate = LocalDateTime.now().plusMinutes(15);
+        PasswordResetToken resetToken = new PasswordResetToken(token, user, expiryDate);
+        passwordResetTokenRepository.save(resetToken);
+
+        // Dev/Mock Reset URL structure (usually running on frontend dev port 5173)
+        String resetUrl = "http://localhost:5173/reset-password?token=" + token;
+
+        // Print to backend system logs (convenient local console check)
+        System.out.println("=================================================================");
+        System.out.println("🔑 PASSWORD RESET REQUEST DETECTED!");
+        System.out.println("User: " + user.getEmail() + " (" + user.getFullName() + ")");
+        System.out.println("Reset Link: " + resetUrl);
+        System.out.println("=================================================================");
+
+        response.put("success", true);
+        response.put("message", "A password reset link has been generated");
+        response.put("resetUrl", resetUrl); // Shared response so frontend can display for easy testing
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Reset Password Action
+     */
+    @PostMapping("/auth/reset-password")
+    public ResponseEntity<Map<String, Object>> resetPassword(@RequestBody Map<String, String> body) {
+        String token = body.get("token");
+        String newPassword = body.get("newPassword");
+        Map<String, Object> response = new HashMap<>();
+
+        if (token == null || token.trim().isEmpty() || newPassword == null || newPassword.trim().isEmpty()) {
+            response.put("success", false);
+            response.put("message", "Token and new password are required");
+            return ResponseEntity.status(400).body(response);
+        }
+
+        if (newPassword.length() < 6) {
+            response.put("success", false);
+            response.put("message", "Password must be at least 6 characters long");
+            return ResponseEntity.status(400).body(response);
+        }
+
+        Optional<PasswordResetToken> resetTokenOpt = passwordResetTokenRepository.findByToken(token);
+        if (resetTokenOpt.isEmpty()) {
+            response.put("success", false);
+            response.put("message", "Invalid or expired password reset link");
+            return ResponseEntity.status(400).body(response);
+        }
+
+        PasswordResetToken resetToken = resetTokenOpt.get();
+        if (resetToken.isExpired()) {
+            passwordResetTokenRepository.delete(resetToken);
+            response.put("success", false);
+            response.put("message", "This password reset link has expired");
+            return ResponseEntity.status(400).body(response);
+        }
+
+        User user = resetToken.getUser();
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        // Delete used token
+        passwordResetTokenRepository.delete(resetToken);
+
+        response.put("success", true);
+        response.put("message", "Password reset successfully. You can now log in.");
+        return ResponseEntity.ok(response);
     }
 }

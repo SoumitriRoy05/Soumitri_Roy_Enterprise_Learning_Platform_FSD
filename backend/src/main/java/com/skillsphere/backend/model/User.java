@@ -81,7 +81,7 @@ public class User {
     private String badges = "";
 
     @Column(name = "enrolled_courses", length = 1000)
-    private String enrolledCourses = "2,4,3,6,10";
+    private String enrolledCourses = "";
 
     @Column(name = "streak")
     private Integer streak = 1;
@@ -112,7 +112,7 @@ public class User {
             badges = "";
         }
         if (enrolledCourses == null) {
-            enrolledCourses = "2,4,3,6,10";
+            enrolledCourses = "";
         }
         if (streak == null) {
             streak = 1;

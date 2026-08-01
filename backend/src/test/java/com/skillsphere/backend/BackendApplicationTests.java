@@ -14,7 +14,12 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = {
+        "spring.jpa.hibernate.ddl-auto=create-drop"
+    }
+)
 @ActiveProfiles("test")
 class BackendApplicationTests {
 
