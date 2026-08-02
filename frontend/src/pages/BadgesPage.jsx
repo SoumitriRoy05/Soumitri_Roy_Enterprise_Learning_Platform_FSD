@@ -4,10 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import Background from "../components/Background";
 import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
-<<<<<<< HEAD
-=======
 import NotificationDropdown from "../components/NotificationDropdown";
->>>>>>> c813a36 (Frontend Updates)
 import FloatingChatbot from "../components/FloatingChatbot";
 
 import {
