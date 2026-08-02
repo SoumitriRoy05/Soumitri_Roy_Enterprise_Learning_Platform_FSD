@@ -5,6 +5,7 @@ import Background from "../components/Background";
 import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
 import FloatingChatbot from "../components/FloatingChatbot";
+import NotificationDropdown from "../components/NotificationDropdown";
 
 import {
   FaHome,
@@ -477,12 +478,7 @@ export default function DiscussionsPage() {
                 <FaBolt color="#F9572A" /> <span>{currentXp} XP</span>
               </div>
 
-              <div className="sdNotificationBtnWrapper">
-                <button className="sdNotificationBtn">
-                  <FaBell />
-                  {5 > 0 && <span className="sdNotifBadge">5</span>}
-                </button>
-              </div>
+              <NotificationDropdown type="student" />
 
               {/* Header Bar Logout Button beside Notification Bell */}
               <button

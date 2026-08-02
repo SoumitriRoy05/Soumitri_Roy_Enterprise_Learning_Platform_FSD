@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Background from "../components/Background";
 import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
 import FloatingChatbot from "../components/FloatingChatbot";
+import NotificationDropdown from "../components/NotificationDropdown";
 
 import {
   FaHome,
@@ -54,17 +55,36 @@ import "../styles/studentDashboard.css";
 import "../styles/profileSettings.css";
 
 export default function ProfileSettingsPage() {
-  const { user, xp, themeMode, toggleTheme } = useAuth();
+  const { user, xp, logout, themeMode, toggleTheme, updateUserProfile } = useAuth();
   const navigate = useNavigate();
   const isDarkMode = themeMode === "dark";
   const [activeTab, setActiveTab] = useState("profile"); // "profile" | "account" | "apps"
   const [toastMessage, setToastMessage] = useState("");
+  const photoInputRef = useRef(null);
 
   // Modals state
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
-  // Profile Form State (Anonymous Generic Data)
+  const navItems = [
+    { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
+    { id: "courses", label: "Courses", icon: <FaBook /> },
+    { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
+    { id: "assignments", label: "Assignments", icon: <FaFileAlt /> },
+    { id: "discussions", label: "Discussions", icon: <FaComments /> },
+    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
+    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
+    { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
+    { id: "badges", label: "Badges", icon: <FaAward /> },
+    { id: "certificates", label: "Certificates", icon: <FaCertificate /> },
+    { id: "progress", label: "Progress", icon: <FaChartLine /> },
+    { id: "resume", label: "Resume Builder", icon: <FaFileInvoice /> },
+    { id: "code-arena", label: "CodeArena", icon: <FaCode />, isNew: true },
+    { id: "settings", label: "Settings", icon: <FaCog /> }
+  ];
+
+  // Profile Form State
   const [profileData, setProfileData] = useState({
     fullName: "",
     username: "",
@@ -77,17 +97,47 @@ export default function ProfileSettingsPage() {
     branch: "",
     linkedin: "",
     github: "",
-    website: ""
+    website: "",
+    avatarUrl: ""
   });
 
   // Account Preferences State
   const [accountPrefs, setAccountPrefs] = useState({
-    language: "",
-    timezone: "",
-    country: "",
-    dateFormat: "",
+    language: "English (US)",
+    timezone: "(GMT+05:30) India Standard Time",
+    country: "India",
+    dateFormat: "DD/MM/YYYY",
     enable2FA: false
   });
+
+  // Sync Form State with Logged In User
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        fullName: user.full_name || user.name || user.fullName || "Soumitri Roy",
+        username: user.username || (user.email ? user.email.split("@")[0] : "soumitriroy"),
+        email: user.email || "soumitriroy@gmail.com",
+        phone: user.phone || "+91 98765 43210",
+        bio: user.bio || "Passionate learner & software developer exploring full-stack engineering and AI on SkillSphere.",
+        location: user.location || "Bhubaneswar, Odisha",
+        dob: user.dob || "2003-05-15",
+        college: user.college || "Global Institute of Technology",
+        branch: user.branch || "Computer Science & Engineering",
+        linkedin: user.linkedin || "linkedin.com/in/soumitriroy",
+        github: user.github || "github.com/soumitriroy",
+        website: user.website || "yourportfolio.dev",
+        avatarUrl: user.photoUrl || user.avatarUrl || ""
+      });
+
+      setAccountPrefs({
+        language: user.language || "English (US)",
+        timezone: user.timezone || "(GMT+05:30) India Standard Time",
+        country: user.country || "India",
+        dateFormat: user.dateFormat || "DD/MM/YYYY",
+        enable2FA: user.enable2FA || false
+      });
+    }
+  }, [user]);
 
   // Connected Apps State
   const [connectedApps, setConnectedApps] = useState([]);
@@ -107,32 +157,84 @@ export default function ProfileSettingsPage() {
 
   const currentXp = xp ?? 0;
 
-  const navItems = [
-    { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
-    { id: "courses", label: "Courses", icon: <FaBook /> },
-    { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "assignments", label: "Assignments", icon: <FaFileAlt /> },
-    { id: "discussions", label: "Discussions", icon: <FaComments /> },
-    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
-    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
-    { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
-    { id: "badges", label: "Badges", icon: <FaAward /> },
-    { id: "certificates", label: "Certificates", icon: <FaCertificate /> },
-    { id: "progress", label: "Progress", icon: <FaChartLine /> },
-    { id: "resume", label: "Resume Builder", icon: <FaFileInvoice /> },
-    { id: "code-arena", label: "CodeArena", icon: <FaCode />, isNew: true },
-    { id: "settings", label: "Settings", icon: <FaCog /> }
-  ];
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      navigate("/");
+    }
+  };
 
-  // Save Profile Handler
-  const handleSaveProfile = () => {
-    setToastMessage("💾 Profile settings saved successfully!");
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setProfileData((prev) => ({ ...prev, avatarUrl: reader.result }));
+      setToastMessage("📸 Photo updated! Click 'Save Changes' to preserve.");
+      setTimeout(() => setToastMessage(""), 4000);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Save Profile Handler with Full Storage & Context Persistence
+  const handleSaveProfile = async () => {
+    const updatedUser = {
+      ...user,
+      full_name: profileData.fullName,
+      name: profileData.fullName,
+      fullName: profileData.fullName,
+      username: profileData.username,
+      email: profileData.email,
+      phone: profileData.phone,
+      bio: profileData.bio,
+      location: profileData.location,
+      dob: profileData.dob,
+      college: profileData.college,
+      branch: profileData.branch,
+      linkedin: profileData.linkedin,
+      github: profileData.github,
+      website: profileData.website,
+      photoUrl: profileData.avatarUrl || user?.photoUrl
+    };
+
+    if (updateUserProfile) {
+      await updateUserProfile(updatedUser);
+    }
+
+    const userKey = user?.email || user?.username || "default";
+    try {
+      localStorage.setItem(`profile_override_${userKey}`, JSON.stringify(updatedUser));
+      localStorage.setItem(`skillsphere_user_profile_${userKey}`, JSON.stringify(updatedUser));
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    } catch (err) {}
+
+    window.dispatchEvent(new Event("skillsphere_sync_event"));
+
+    setToastMessage("💾 Profile settings saved successfully across your account!");
     setTimeout(() => setToastMessage(""), 4000);
   };
 
   // Save Account Prefs Handler
-  const handleSaveAccount = () => {
-    setToastMessage("🔒 Account settings and security preferences saved!");
+  const handleSaveAccount = async () => {
+    const updatedUser = {
+      ...user,
+      ...accountPrefs
+    };
+
+    if (updateUserProfile) {
+      await updateUserProfile(updatedUser);
+    }
+
+    const userKey = user?.email || user?.username || "default";
+    try {
+      localStorage.setItem(`profile_override_${userKey}`, JSON.stringify(updatedUser));
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    } catch (err) {}
+
+    setToastMessage("🔒 Account settings & security preferences saved!");
     setTimeout(() => setToastMessage(""), 4000);
   };
 
@@ -245,12 +347,7 @@ export default function ProfileSettingsPage() {
                 <FaBolt color="#F9572A" /> <span>{currentXp} XP</span>
               </div>
 
-              <div className="sdNotificationBtnWrapper">
-                <button className="sdNotificationBtn">
-                  <FaBell />
-                  
-                </button>
-              </div>
+              <NotificationDropdown type="student" />
 
               <div className="sdUserProfilePill" onClick={() => navigate("/settings")}>
                 <div className="sdUserAvatarImg">🧑‍🎓</div>
@@ -313,11 +410,22 @@ export default function ProfileSettingsPage() {
 
                 {/* Avatar Photo Section */}
                 <div className="avatarSectionRow">
-                  <div className="avatarCircleBox">
-                    <div className="avatarPlaceholder">🧑‍🎓</div>
-                    <button className="cameraBtn" title="Upload Photo">
+                  <div className="avatarCircleBox" onClick={() => photoInputRef.current?.click()} style={{ cursor: "pointer", position: "relative" }}>
+                    {profileData.avatarUrl ? (
+                      <img src={profileData.avatarUrl} alt="Avatar" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+                    ) : (
+                      <div className="avatarPlaceholder">🧑‍🎓</div>
+                    )}
+                    <button className="cameraBtn" title="Upload Photo" type="button" onClick={(e) => { e.stopPropagation(); photoInputRef.current?.click(); }}>
                       <FaCamera />
                     </button>
+                    <input
+                      type="file"
+                      ref={photoInputRef}
+                      style={{ display: "none" }}
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                    />
                   </div>
                   <span className="photoSub">JPG, PNG or WEBP. Max size 2MB</span>
                 </div>
@@ -470,7 +578,18 @@ export default function ProfileSettingsPage() {
 
                   <div className="profilePreviewCard">
                     <div className="gradientBanner"></div>
-                    <div className="avatarPreviewCircle">🧑‍🎓</div>
+                    {profileData.avatarUrl ? (
+                      <img src={profileData.avatarUrl} alt="Avatar" className="avatarPreviewCircle" style={{ objectFit: "cover", width: "70px", height: "70px", borderRadius: "50%" }} />
+                    ) : (
+                      <div className="avatarPreviewCircle">🧑‍🎓</div>
+                    )}
+
+                    <h3 style={{ margin: "10px 0 2px 0", fontSize: "16px", fontWeight: "800", color: "#0F172A" }}>
+                      {profileData.fullName || "Learner"}
+                    </h3>
+                    <p style={{ margin: "0 0 10px 0", fontSize: "12px", color: "#64748B" }}>
+                      @{profileData.username || "learner"}
+                    </p>
 
                     <div className="lvlBadgeText">Level 12 • Code Explorer</div>
 

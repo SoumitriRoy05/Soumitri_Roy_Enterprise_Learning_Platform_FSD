@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useAdmin } from "../context/AdminContext";
 import NotificationDropdown from "../components/NotificationDropdown";
 import Background from "../components/Background";
 import {
@@ -61,7 +62,8 @@ import {
   FaRocket,
   FaBalanceScale,
   FaSun,
-  FaMoon
+  FaMoon,
+  FaPaperPlane
 } from "react-icons/fa";
 
 import workforcePortalImg from "../assets/workforce_portal_illustration.png";
@@ -85,6 +87,7 @@ import "../styles/workforceDashboard.css";
 
 export default function WorkforceDashboard() {
   const { user, logout, authenticatedFetch, themeMode, toggleTheme } = useAuth();
+  const { leaveRequests, submitLeaveRequest, workforce } = useAdmin();
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -94,6 +97,46 @@ export default function WorkforceDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [overviewFilter, setOverviewFilter] = useState("This Month");
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  // Leave Request Form State
+  const [showApplyLeaveModal, setShowApplyLeaveModal] = useState(false);
+  const [newLeaveForm, setNewLeaveForm] = useState({
+    leaveType: "Sick Leave",
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0],
+    reason: ""
+  });
+
+  const handleApplyLeaveSubmit = (e) => {
+    e.preventDefault();
+    if (!newLeaveForm.reason.trim()) return;
+
+    const start = new Date(newLeaveForm.startDate);
+    const end = new Date(newLeaveForm.endDate);
+    const diffTime = Math.max(0, end - start);
+    const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    submitLeaveRequest({
+      employeeName: user?.fullName || user?.name || "Alex Vance",
+      employeeEmail: user?.email || "alex@skillsphere.com",
+      role: user?.role || "EMPLOYEE",
+      dept: "Engineering",
+      leaveType: newLeaveForm.leaveType,
+      startDate: newLeaveForm.startDate,
+      endDate: newLeaveForm.endDate,
+      days: days || 1,
+      reason: newLeaveForm.reason
+    });
+
+    setShowApplyLeaveModal(false);
+    setNewLeaveForm({
+      leaveType: "Sick Leave",
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: new Date().toISOString().split('T')[0],
+      reason: ""
+    });
+    alert("✓ Leave request submitted successfully! Admin will review your request under Leave Approvals.");
+  };
 
   // Employee tab filter & search
   const [empSearch, setEmpSearch] = useState("");
@@ -235,7 +278,7 @@ export default function WorkforceDashboard() {
   // Hover Tooltip State for SVG Line Chart
   const [hoveredPoint, setHoveredPoint] = useState(null);
 
-  // Modal States
+  // Modal & Form States
   const [selectedAttendance, setSelectedAttendance] = useState(null);
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [showExportModal, setShowExportModal] = useState(false);
@@ -243,6 +286,77 @@ export default function WorkforceDashboard() {
   const [exportFormat, setExportFormat] = useState("PDF");
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const [newEmp, setNewEmp] = useState({ name: "", role: "", dept: "Engineering", status: "Active", score: 85 });
+
+  // Additional Feature Modals
+  const [showCreateSurveyModal, setShowCreateSurveyModal] = useState(false);
+  const [newSurveyForm, setNewSurveyForm] = useState({
+    title: "",
+    type: "Survey",
+    dept: "All Departments",
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0],
+    desc: ""
+  });
+
+  const [showCustomReportModal, setShowCustomReportModal] = useState(false);
+  const [customReportForm, setCustomReportForm] = useState({
+    title: "",
+    category: "Skills",
+    frequency: "Monthly",
+    format: "PDF / Excel"
+  });
+
+  const [showCalendarModal, setShowCalendarModal] = useState(false);
+  const [showViewAllModal, setShowViewAllModal] = useState(null); // { title: string, items: Array }
+
+  // Messages & Chat Drawer State
+  const [showMessagesDrawer, setShowMessagesDrawer] = useState(false);
+  const [activeChatUser, setActiveChatUser] = useState({
+    id: 1,
+    name: "Aman Verma",
+    role: "Engineering Lead",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
+    status: "Online"
+  });
+
+  const [chatMessages, setChatMessages] = useState([
+    { id: 1, sender: "Aman Verma", text: "Hey Arjun! Did you review the microservices refactoring proposal?", time: "10:30 AM", isMe: false },
+    { id: 2, sender: "Arjun Mehta", text: "Yes Aman! The architecture plan looks solid. Let's proceed with sprint 4.", time: "10:32 AM", isMe: true },
+    { id: 3, sender: "Aman Verma", text: "Awesome! I will update the Jira tasks and notify the team.", time: "10:35 AM", isMe: false }
+  ]);
+
+  const [inputMessageText, setInputMessageText] = useState("");
+
+  const handleSendMessageSubmit = (e) => {
+    e.preventDefault();
+    if (!inputMessageText.trim()) return;
+
+    const newMsg = {
+      id: Date.now(),
+      sender: user?.full_name || user?.username || "Arjun Mehta",
+      text: inputMessageText,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      isMe: true
+    };
+
+    setChatMessages(prev => [...prev, newMsg]);
+    const currentInput = inputMessageText;
+    setInputMessageText("");
+
+    // Simulate auto response from teammate
+    setTimeout(() => {
+      setChatMessages(prev => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          sender: activeChatUser.name,
+          text: `Got it! Thanks for the update regarding "${currentInput.slice(0, 20)}..."`,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isMe: false
+        }
+      ]);
+    }, 1200);
+  };
 
   // Data states with fallback defaults matching reference image
   const [employees, setEmployees] = useState([
@@ -252,6 +366,119 @@ export default function WorkforceDashboard() {
     { empId: "EMP004", name: "Vikram Singh", dept: "Data Science", designation: "Data Analyst", status: "Active", joinDate: "22 Mar, 2024", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80" },
     { empId: "EMP005", name: "Neha Patel", dept: "Human Resources", designation: "HR Executive", status: "Inactive", joinDate: "10 Apr, 2024", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" }
   ]);
+
+  // Form Submit Handlers
+  const handleCreateSurveySubmit = (e) => {
+    e.preventDefault();
+    if (!newSurveyForm.title.trim()) return;
+    const newItem = {
+      id: Date.now(),
+      title: newSurveyForm.title,
+      date: "May 2025",
+      type: newSurveyForm.type,
+      participants: 0,
+      responseRate: "0%",
+      score: "80%",
+      scoreLbl: "Good",
+      status: "Active"
+    };
+    setEngagementInitiatives(prev => [newItem, ...prev]);
+    setShowCreateSurveyModal(false);
+    setNewSurveyForm({
+      title: "", type: "Survey", dept: "All Departments",
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: new Date().toISOString().split('T')[0],
+      desc: ""
+    });
+    alert("✓ New Survey created successfully and activated!");
+  };
+
+  const handleCustomReportSubmit = (e) => {
+    e.preventDefault();
+    if (!customReportForm.title.trim()) return;
+    const newRep = {
+      id: Date.now(),
+      title: customReportForm.title,
+      category: customReportForm.category,
+      frequency: customReportForm.frequency,
+      lastGen: "Just Now",
+      format: customReportForm.format,
+      formatType: customReportForm.format.toLowerCase().includes("pdf") ? "pdf" : "excel",
+      status: "Ready"
+    };
+    setReportsList(prev => [newRep, ...prev]);
+    setShowCustomReportModal(false);
+    setCustomReportForm({ title: "", category: "Skills", frequency: "Monthly", format: "PDF / Excel" });
+    alert("✓ Custom Report generated successfully!");
+  };
+
+  const handleExportReportSubmit = (e) => {
+    e.preventDefault();
+    const csvRows = [
+      ["SkillSphere Workforce Export Report"],
+      ["Generated At", new Date().toLocaleString()],
+      ["Format", exportFormat],
+      ["Department Filter", attendanceDeptFilter],
+      ["Total Employees", employees.length],
+      [],
+      ["Employee ID", "Name", "Department", "Designation", "Status"],
+      ...employees.map(emp => [emp.empId, emp.name, emp.dept, emp.designation, emp.status])
+    ];
+
+    const csvContent = "data:text/csv;charset=utf-8," + csvRows.map(row => row.map(cell => `"${cell}"`).join(",")).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `SkillSphere_Workforce_Export_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setShowExportModal(false);
+    alert(`✓ ${exportFormat} Report exported and downloaded successfully!`);
+  };
+
+  const handleCreateTeamSubmit = (e) => {
+    e.preventDefault();
+    if (!newTeam.name.trim()) return;
+    const teamItem = {
+      id: Date.now(),
+      name: newTeam.name,
+      desc: newTeam.desc || "New workforce team unit",
+      icon: <FaUsers />,
+      iconBg: "#e6f4ea",
+      iconColor: "#16a34a",
+      leadName: newTeam.lead || "Workforce Lead",
+      leadDept: newTeam.dept || "Engineering",
+      leadAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
+      members: parseInt(newTeam.members) || 10,
+      dept: newTeam.dept || "Engineering",
+      status: "Active"
+    };
+    setTeamsList(prev => [teamItem, ...prev]);
+    setShowCreateTeamModal(false);
+    setNewTeam({ name: "", desc: "", lead: "", dept: "Engineering", members: 10 });
+    alert("✓ New team created successfully!");
+  };
+
+  const handleAddEmployeeSubmit = (e) => {
+    e.preventDefault();
+    if (!newEmp.name.trim()) return;
+    const empId = `EMP00${employees.length + 1}`;
+    const empItem = {
+      empId,
+      name: newEmp.name,
+      dept: newEmp.dept || "Engineering",
+      designation: newEmp.role || "Software Engineer",
+      status: newEmp.status || "Active",
+      joinDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
+    };
+    setEmployees(prev => [empItem, ...prev]);
+    setShowEmployeeModal(false);
+    setNewEmp({ name: "", role: "", dept: "Engineering", status: "Active", score: 85 });
+    alert("✓ Employee added successfully!");
+  };
 
   const handleLogout = async () => {
     try {
@@ -462,12 +689,9 @@ export default function WorkforceDashboard() {
             >
               {themeMode === 'dark' ? <FaSun color="#F59E0B" /> : <FaMoon color="#6366F1" />}
             </button>
-            <button className="wf-icon-btn" title="Notifications">
-              <FaBell />
-              <span className="wf-badge-count">6</span>
-            </button>
-            <button className="wf-icon-btn" title="Messages">
+            <button className="wf-icon-btn" title="Messages & Team Chat" onClick={() => setShowMessagesDrawer(!showMessagesDrawer)}>
               <FaCommentAlt />
+              <span className="wf-badge-count">3</span>
             </button>
             <NotificationDropdown type="workforce" />
 
@@ -590,7 +814,7 @@ export default function WorkforceDashboard() {
                         <option value="Human Resources">Human Resources</option>
                       </select>
 
-                      <button className="wf-btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "12px", padding: "8px 14px" }} onClick={() => alert("Opening Create Engagement Survey Form...")}>
+                      <button className="wf-btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "12px", padding: "8px 14px" }} onClick={() => setShowCreateSurveyModal(true)}>
                         <FaPlus /> Create Survey
                       </button>
                     </div>
@@ -884,9 +1108,74 @@ export default function WorkforceDashboard() {
                         <FaFilterIcon style={{ fontSize: "13px" }} />
                       </button>
 
+                      <button className="wf-btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "12px", padding: "8px 14px", background: "var(--wf-accent-dark-brown, #5c2c19)" }} onClick={() => setShowCalendarModal(true)}>
+                        <FaCalendarAlt /> View Calendar
+                      </button>
+
+                      <button className="wf-btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "12px", padding: "8px 14px", background: "#f9572a" }} onClick={() => setShowApplyLeaveModal(true)}>
+                        <FaPlus /> Apply for Leave
+                      </button>
+
                       <button className="wf-btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "12px", padding: "8px 14px" }} onClick={() => setShowExportModal(true)}>
                         <FaFileExport /> Export Report
                       </button>
+                    </div>
+                  </div>
+
+                  {/* Leave Requests Queue */}
+                  <div style={{ padding: "16px 24px", borderBottom: "1px solid rgba(0,0,0,0.06)", background: themeMode === 'dark' ? "rgba(255,255,255,0.02)" : "#FAF8F5" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                      <h4 style={{ margin: 0, fontSize: "14px", fontWeight: "800", display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span>📋 Leave Requests & Approval Status</span>
+                        {(leaveRequests || []).length > 0 && (
+                          <span style={{ fontSize: "11px", background: "#FFF0ED", color: "#F9572A", padding: "2px 8px", borderRadius: "10px" }}>
+                            {(leaveRequests || []).length} Total
+                          </span>
+                        )}
+                      </h4>
+                      <span style={{ fontSize: "12px", color: "#64748B" }}>Synced with Admin Portal</span>
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "12px" }}>
+                      {(leaveRequests || []).map(lr => (
+                        <div key={lr.id} style={{
+                          background: themeMode === 'dark' ? '#1E293B' : '#FFFFFF',
+                          border: '1px solid rgba(0,0,0,0.08)',
+                          borderRadius: '12px',
+                          padding: '12px 14px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '6px'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontWeight: '750', fontSize: '13px' }}>{lr.employeeName}</span>
+                            <span style={{
+                              padding: '3px 10px',
+                              borderRadius: '10px',
+                              fontSize: '11px',
+                              fontWeight: '800',
+                              textTransform: 'capitalize',
+                              background: themeMode === 'dark'
+                                ? (lr.status === 'approved' ? 'rgba(16, 185, 129, 0.25)' : lr.status === 'rejected' ? 'rgba(239, 68, 68, 0.25)' : 'rgba(245, 158, 11, 0.25)')
+                                : (lr.status === 'approved' ? '#ECFDF5' : lr.status === 'rejected' ? '#FEF2F2' : '#FFFBEB'),
+                              color: themeMode === 'dark'
+                                ? (lr.status === 'approved' ? '#34D399' : lr.status === 'rejected' ? '#F87171' : '#FBBF24')
+                                : (lr.status === 'approved' ? '#047857' : lr.status === 'rejected' ? '#B91C1C' : '#B45309'),
+                              border: themeMode === 'dark'
+                                ? (lr.status === 'approved' ? '1px solid rgba(52, 211, 153, 0.35)' : lr.status === 'rejected' ? '1px solid rgba(248, 113, 113, 0.35)' : '1px solid rgba(251, 191, 36, 0.35)')
+                                : 'none'
+                            }}>
+                              {lr.status === 'approved' ? '✓ Approved' : lr.status === 'rejected' ? '✕ Rejected' : '⏳ Pending'}
+                            </span>
+                          </div>
+                          <div style={{ fontSize: '12px', color: '#64748B' }}>
+                            {lr.leaveType} • {lr.startDate} to {lr.endDate} ({lr.days}d)
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#94A3B8', fontStyle: 'italic' }}>
+                            "{lr.reason}"
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
@@ -2517,7 +2806,7 @@ export default function WorkforceDashboard() {
                           onChange={(e) => setReportSearch(e.target.value)}
                         />
                       </div>
-                      <button className="wf-btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "12px", padding: "8px 14px" }} onClick={() => setShowExportModal(true)}>
+                      <button className="wf-btn-primary" style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "12px", padding: "8px 14px" }} onClick={() => setShowCustomReportModal(true)}>
                         <FaPlus /> Generate Custom
                       </button>
                     </div>
@@ -2562,7 +2851,7 @@ export default function WorkforceDashboard() {
                             </td>
 
                             <td>
-                              <span className="wf-type-tag initiative" style={{ background: "#faf0e6", color: "var(--wf-accent-dark-brown)" }}>
+                              <span className="wf-type-tag initiative">
                                 {rep.category}
                               </span>
                             </td>
@@ -3534,6 +3823,722 @@ export default function WorkforceDashboard() {
             <div className="wf-modal-actions">
               <button className="wf-btn-primary" onClick={() => setShowReviewsModal(false)}>Close Breakdown</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Apply for Leave Modal */}
+      {showApplyLeaveModal && (
+        <div className="wf-modal-overlay" onClick={() => setShowApplyLeaveModal(false)}>
+          <div className="wf-modal-box" onClick={e => e.stopPropagation()} style={{ maxWidth: "500px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+              <h3 className="wf-modal-title" style={{ margin: 0 }}>🌴 Apply for Leave</h3>
+              <button style={{ background: "none", border: "none", cursor: "pointer", fontSize: "18px" }} onClick={() => setShowApplyLeaveModal(false)}>
+                <FaTimes />
+              </button>
+            </div>
+
+            <form onSubmit={handleApplyLeaveSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Leave Type</label>
+                <select
+                  className="wf-select-filter"
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px" }}
+                  value={newLeaveForm.leaveType}
+                  onChange={e => setNewLeaveForm({ ...newLeaveForm, leaveType: e.target.value })}
+                >
+                  <option value="Sick Leave">Sick Leave</option>
+                  <option value="Casual Leave">Casual Leave</option>
+                  <option value="Paid Time Off">Paid Time Off</option>
+                  <option value="Vacation Leave">Vacation Leave</option>
+                  <option value="Maternity / Paternity Leave">Maternity / Paternity Leave</option>
+                </select>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Start Date</label>
+                  <input
+                    type="date"
+                    required
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E1" }}
+                    value={newLeaveForm.startDate}
+                    onChange={e => setNewLeaveForm({ ...newLeaveForm, startDate: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>End Date</label>
+                  <input
+                    type="date"
+                    required
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E1" }}
+                    value={newLeaveForm.endDate}
+                    onChange={e => setNewLeaveForm({ ...newLeaveForm, endDate: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Reason for Leave</label>
+                <textarea
+                  required
+                  placeholder="Explain why leave is requested..."
+                  rows={3}
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E1", resize: "none" }}
+                  value={newLeaveForm.reason}
+                  onChange={e => setNewLeaveForm({ ...newLeaveForm, reason: e.target.value })}
+                />
+              </div>
+
+              <div className="wf-modal-actions" style={{ marginTop: "10px" }}>
+                <button type="button" className="wf-btn-secondary" onClick={() => setShowApplyLeaveModal(false)} style={{ padding: "10px 18px", borderRadius: "8px" }}>
+                  Cancel
+                </button>
+                <button type="submit" className="wf-btn-primary" style={{ padding: "10px 20px", borderRadius: "8px", background: "#f9572a" }}>
+                  Submit Leave Request
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Create Survey Modal */}
+      {showCreateSurveyModal && (
+        <div className="wf-modal-overlay" onClick={() => setShowCreateSurveyModal(false)}>
+          <div className="wf-modal-box" onClick={e => e.stopPropagation()} style={{ maxWidth: "520px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+              <h3 className="wf-modal-title" style={{ margin: 0 }}>📊 Create New Engagement Survey</h3>
+              <button style={{ background: "none", border: "none", cursor: "pointer", fontSize: "18px" }} onClick={() => setShowCreateSurveyModal(false)}>
+                <FaTimes />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateSurveySubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Survey / Initiative Title</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Q3 Workplace Culture & Wellness Survey"
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E1" }}
+                  value={newSurveyForm.title}
+                  onChange={e => setNewSurveyForm({ ...newSurveyForm, title: e.target.value })}
+                />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Initiative Type</label>
+                  <select
+                    className="wf-select-filter"
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px" }}
+                    value={newSurveyForm.type}
+                    onChange={e => setNewSurveyForm({ ...newSurveyForm, type: e.target.value })}
+                  >
+                    <option value="Survey">Survey</option>
+                    <option value="Initiative">Initiative</option>
+                    <option value="Pulse Poll">Pulse Poll</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Target Department</label>
+                  <select
+                    className="wf-select-filter"
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px" }}
+                    value={newSurveyForm.dept}
+                    onChange={e => setNewSurveyForm({ ...newSurveyForm, dept: e.target.value })}
+                  >
+                    <option value="All Departments">All Departments</option>
+                    <option value="Engineering">Engineering</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Operations">Operations</option>
+                    <option value="Human Resources">Human Resources</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Launch Date</label>
+                  <input
+                    type="date"
+                    required
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E1" }}
+                    value={newSurveyForm.startDate}
+                    onChange={e => setNewSurveyForm({ ...newSurveyForm, startDate: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Closing Date</label>
+                  <input
+                    type="date"
+                    required
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E1" }}
+                    value={newSurveyForm.endDate}
+                    onChange={e => setNewSurveyForm({ ...newSurveyForm, endDate: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Description & Goals</label>
+                <textarea
+                  placeholder="Outline the survey objective..."
+                  rows={3}
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E1", resize: "none" }}
+                  value={newSurveyForm.desc}
+                  onChange={e => setNewSurveyForm({ ...newSurveyForm, desc: e.target.value })}
+                />
+              </div>
+
+              <div className="wf-modal-actions" style={{ marginTop: "10px" }}>
+                <button type="button" className="wf-btn-secondary" onClick={() => setShowCreateSurveyModal(false)} style={{ padding: "10px 18px", borderRadius: "8px" }}>
+                  Cancel
+                </button>
+                <button type="submit" className="wf-btn-primary" style={{ padding: "10px 20px", borderRadius: "8px" }}>
+                  Launch Survey
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Generate Custom Report Modal */}
+      {showCustomReportModal && (
+        <div className="wf-modal-overlay" onClick={() => setShowCustomReportModal(false)}>
+          <div className="wf-modal-box" onClick={e => e.stopPropagation()} style={{ maxWidth: "500px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+              <h3 className="wf-modal-title" style={{ margin: 0 }}>📝 Generate Custom Report</h3>
+              <button style={{ background: "none", border: "none", cursor: "pointer", fontSize: "18px" }} onClick={() => setShowCustomReportModal(false)}>
+                <FaTimes />
+              </button>
+            </div>
+
+            <form onSubmit={handleCustomReportSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Report Title</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Q2 Workforce Velocity & Skill Gap Benchmark"
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E1" }}
+                  value={customReportForm.title}
+                  onChange={e => setCustomReportForm({ ...customReportForm, title: e.target.value })}
+                />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Category</label>
+                  <select
+                    className="wf-select-filter"
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px" }}
+                    value={customReportForm.category}
+                    onChange={e => setCustomReportForm({ ...customReportForm, category: e.target.value })}
+                  >
+                    <option value="Skills">Skills</option>
+                    <option value="Performance">Performance</option>
+                    <option value="Attendance">Attendance</option>
+                    <option value="Engagement">Engagement</option>
+                    <option value="Learning">Learning</option>
+                    <option value="Analytics">Analytics</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Frequency</label>
+                  <select
+                    className="wf-select-filter"
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px" }}
+                    value={customReportForm.frequency}
+                    onChange={e => setCustomReportForm({ ...customReportForm, frequency: e.target.value })}
+                  >
+                    <option value="Weekly">Weekly</option>
+                    <option value="Bi-Weekly">Bi-Weekly</option>
+                    <option value="Monthly">Monthly</option>
+                    <option value="Quarterly">Quarterly</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Export Format</label>
+                <select
+                  className="wf-select-filter"
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px" }}
+                  value={customReportForm.format}
+                  onChange={e => setCustomReportForm({ ...customReportForm, format: e.target.value })}
+                >
+                  <option value="PDF / Excel">PDF / Excel</option>
+                  <option value="PDF">PDF Only</option>
+                  <option value="CSV / Excel">CSV / Excel</option>
+                </select>
+              </div>
+
+              <div className="wf-modal-actions" style={{ marginTop: "10px" }}>
+                <button type="button" className="wf-btn-secondary" onClick={() => setShowCustomReportModal(false)} style={{ padding: "10px 18px", borderRadius: "8px" }}>
+                  Cancel
+                </button>
+                <button type="submit" className="wf-btn-primary" style={{ padding: "10px 20px", borderRadius: "8px" }}>
+                  Generate Report
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Export Report Modal */}
+      {showExportModal && (
+        <div className="wf-modal-overlay" onClick={() => setShowExportModal(false)}>
+          <div className="wf-modal-box" onClick={e => e.stopPropagation()} style={{ maxWidth: "480px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+              <h3 className="wf-modal-title" style={{ margin: 0 }}>📥 Export Workforce Report</h3>
+              <button style={{ background: "none", border: "none", cursor: "pointer", fontSize: "18px" }} onClick={() => setShowExportModal(false)}>
+                <FaTimes />
+              </button>
+            </div>
+
+            <form onSubmit={handleExportReportSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Select Export Format</label>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px" }}>
+                  {["CSV", "PDF", "Excel"].map(fmt => (
+                    <button
+                      key={fmt}
+                      type="button"
+                      style={{
+                        padding: "10px", borderRadius: "8px", fontWeight: "800", fontSize: "13px",
+                        border: exportFormat === fmt ? "2px solid #e07a5f" : "1px solid #CBD5E1",
+                        background: exportFormat === fmt ? "rgba(224, 122, 95, 0.15)" : "transparent",
+                        color: exportFormat === fmt ? "#e07a5f" : "inherit",
+                        cursor: "pointer"
+                      }}
+                      onClick={() => setExportFormat(fmt)}
+                    >
+                      {fmt}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Department Scope</label>
+                <select
+                  className="wf-select-filter"
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px" }}
+                  value={attendanceDeptFilter}
+                  onChange={e => setAttendanceDeptFilter(e.target.value)}
+                >
+                  <option value="All Departments">All Departments (512 Employees)</option>
+                  <option value="Engineering">Engineering</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Operations">Operations</option>
+                  <option value="Data Science">Data Science</option>
+                  <option value="Human Resources">Human Resources</option>
+                </select>
+              </div>
+
+              <div className="wf-modal-actions" style={{ marginTop: "10px" }}>
+                <button type="button" className="wf-btn-secondary" onClick={() => setShowExportModal(false)} style={{ padding: "10px 18px", borderRadius: "8px" }}>
+                  Cancel
+                </button>
+                <button type="submit" className="wf-btn-primary" style={{ padding: "10px 20px", borderRadius: "8px", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                  <FaFileExport /> Export & Download
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Create Team Modal */}
+      {showCreateTeamModal && (
+        <div className="wf-modal-overlay" onClick={() => setShowCreateTeamModal(false)}>
+          <div className="wf-modal-box" onClick={e => e.stopPropagation()} style={{ maxWidth: "500px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+              <h3 className="wf-modal-title" style={{ margin: 0 }}>👥 Create New Workforce Team</h3>
+              <button style={{ background: "none", border: "none", cursor: "pointer", fontSize: "18px" }} onClick={() => setShowCreateTeamModal(false)}>
+                <FaTimes />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateTeamSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Team Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. AI & Cloud Architecture Unit"
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E1" }}
+                  value={newTeam.name}
+                  onChange={e => setNewTeam({ ...newTeam, name: e.target.value })}
+                />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Department</label>
+                  <select
+                    className="wf-select-filter"
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px" }}
+                    value={newTeam.dept}
+                    onChange={e => setNewTeam({ ...newTeam, dept: e.target.value })}
+                  >
+                    <option value="Engineering">Engineering</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Operations">Operations</option>
+                    <option value="Data Science">Data Science</option>
+                    <option value="Human Resources">Human Resources</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Team Lead</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Aman Verma"
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E1" }}
+                    value={newTeam.lead}
+                    onChange={e => setNewTeam({ ...newTeam, lead: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Initial Team Members</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="100"
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E1" }}
+                  value={newTeam.members}
+                  onChange={e => setNewTeam({ ...newTeam, members: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Team Mission / Description</label>
+                <textarea
+                  rows={2}
+                  placeholder="Outline the team's responsibility..."
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E1", resize: "none" }}
+                  value={newTeam.desc}
+                  onChange={e => setNewTeam({ ...newTeam, desc: e.target.value })}
+                />
+              </div>
+
+              <div className="wf-modal-actions" style={{ marginTop: "10px" }}>
+                <button type="button" className="wf-btn-secondary" onClick={() => setShowCreateTeamModal(false)} style={{ padding: "10px 18px", borderRadius: "8px" }}>
+                  Cancel
+                </button>
+                <button type="submit" className="wf-btn-primary" style={{ padding: "10px 20px", borderRadius: "8px" }}>
+                  Create Team
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Employee Modal */}
+      {showEmployeeModal && (
+        <div className="wf-modal-overlay" onClick={() => setShowEmployeeModal(false)}>
+          <div className="wf-modal-box" onClick={e => e.stopPropagation()} style={{ maxWidth: "500px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+              <h3 className="wf-modal-title" style={{ margin: 0 }}>👤 Add New Employee</h3>
+              <button style={{ background: "none", border: "none", cursor: "pointer", fontSize: "18px" }} onClick={() => setShowEmployeeModal(false)}>
+                <FaTimes />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddEmployeeSubmit} style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Full Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Rahul Sharma"
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E1" }}
+                  value={newEmp.name}
+                  onChange={e => setNewEmp({ ...newEmp, name: e.target.value })}
+                />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Department</label>
+                  <select
+                    className="wf-select-filter"
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px" }}
+                    value={newEmp.dept}
+                    onChange={e => setNewEmp({ ...newEmp, dept: e.target.value })}
+                  >
+                    <option value="Engineering">Engineering</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Operations">Operations</option>
+                    <option value="Data Science">Data Science</option>
+                    <option value="Human Resources">Human Resources</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Designation / Role</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Senior Frontend Engineer"
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E1" }}
+                    value={newEmp.role}
+                    onChange={e => setNewEmp({ ...newEmp, role: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div>
+                  <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Employment Status</label>
+                  <select
+                    className="wf-select-filter"
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px" }}
+                    value={newEmp.status}
+                    onChange={e => setNewEmp({ ...newEmp, status: e.target.value })}
+                  >
+                    <option value="Active">Active</option>
+                    <option value="On Leave">On Leave</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: "block", fontSize: "12px", fontWeight: "750", marginBottom: "6px" }}>Initial Skill Score</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E1" }}
+                    value={newEmp.score}
+                    onChange={e => setNewEmp({ ...newEmp, score: parseInt(e.target.value) || 85 })}
+                  />
+                </div>
+              </div>
+
+              <div className="wf-modal-actions" style={{ marginTop: "10px" }}>
+                <button type="button" className="wf-btn-secondary" onClick={() => setShowEmployeeModal(false)} style={{ padding: "10px 18px", borderRadius: "8px" }}>
+                  Cancel
+                </button>
+                <button type="submit" className="wf-btn-primary" style={{ padding: "10px 20px", borderRadius: "8px" }}>
+                  Add Employee
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* View Calendar Modal */}
+      {showCalendarModal && (
+        <div className="wf-modal-overlay" onClick={() => setShowCalendarModal(false)}>
+          <div className="wf-modal-box" onClick={e => e.stopPropagation()} style={{ maxWidth: "680px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+              <h3 className="wf-modal-title" style={{ margin: 0 }}>📅 Workforce Attendance & Event Calendar (May 2025)</h3>
+              <button style={{ background: "none", border: "none", cursor: "pointer", fontSize: "18px" }} onClick={() => setShowCalendarModal(false)}>
+                <FaTimes />
+              </button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "8px", textAlign: "center", marginBottom: "16px" }}>
+              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(day => (
+                <div key={day} style={{ fontWeight: "800", fontSize: "12px", color: "var(--wf-text-muted)" }}>{day}</div>
+              ))}
+              {Array.from({ length: 31 }).map((_, idx) => {
+                const dayNum = idx + 1;
+                const isHoliday = dayNum === 1 || dayNum === 25;
+                const hasLeave = dayNum === 5 || dayNum === 6 || dayNum === 7;
+                return (
+                  <div
+                    key={dayNum}
+                    style={{
+                      padding: "10px 4px", borderRadius: "8px", fontSize: "12px", fontWeight: "700",
+                      background: isHoliday ? "rgba(239, 68, 68, 0.15)" : hasLeave ? "rgba(245, 158, 11, 0.15)" : "rgba(0,0,0,0.03)",
+                      color: isHoliday ? "#EF4444" : hasLeave ? "#D97706" : "inherit",
+                      border: dayNum === 15 ? "2px solid #e07a5f" : "none"
+                    }}
+                  >
+                    <div>{dayNum}</div>
+                    <div style={{ fontSize: "9px", fontWeight: "600", marginTop: "2px" }}>
+                      {isHoliday ? "Holiday" : hasLeave ? "Leave" : "83% Pres"}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="wf-modal-actions">
+              <button className="wf-btn-primary" onClick={() => setShowCalendarModal(false)}>Close Calendar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MESSAGES / TEAM CHAT DRAWER ── */}
+      {showMessagesDrawer && (
+        <div className="wf-modal-overlay" onClick={() => setShowMessagesDrawer(false)}>
+          <div
+            className="wf-modal-box"
+            onClick={e => e.stopPropagation()}
+            style={{
+              position: "fixed",
+              top: "70px",
+              right: "20px",
+              width: "380px",
+              maxWidth: "92vw",
+              height: "540px",
+              maxHeight: "80vh",
+              display: "flex",
+              flexDirection: "column",
+              padding: "0",
+              borderRadius: "16px",
+              overflow: "hidden",
+              boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
+              background: themeMode === 'dark' ? "#0f172a" : "#ffffff",
+              border: "1px solid rgba(255,255,255,0.1)"
+            }}
+          >
+            {/* Chat Header */}
+            <div style={{
+              padding: "14px 16px",
+              background: "var(--wf-accent-brown, #8c5338)",
+              color: "#ffffff",
+              display: "flex",
+              justify: "space-between",
+              alignItems: "center"
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <img src={activeChatUser.avatar} alt={activeChatUser.name} style={{ width: "38px", height: "38px", borderRadius: "50%", objectFit: "cover" }} />
+                <div>
+                  <h4 style={{ margin: 0, fontSize: "14px", fontWeight: "800" }}>{activeChatUser.name}</h4>
+                  <span style={{ fontSize: "11px", opacity: 0.85 }}>● {activeChatUser.status} • {activeChatUser.role}</span>
+                </div>
+              </div>
+              <button
+                style={{ background: "none", border: "none", color: "#ffffff", cursor: "pointer", fontSize: "18px" }}
+                onClick={() => setShowMessagesDrawer(false)}
+              >
+                <FaTimes />
+              </button>
+            </div>
+
+            {/* Teammates Quick Switcher */}
+            <div style={{
+              padding: "8px 12px",
+              background: themeMode === 'dark' ? "rgba(255,255,255,0.05)" : "#FAF8F5",
+              borderBottom: "1px solid rgba(0,0,0,0.08)",
+              display: "flex",
+              gap: "8px",
+              overflowX: "auto"
+            }}>
+              {[
+                { id: 1, name: "Aman Verma", role: "Engineering Lead", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80", status: "Online" },
+                { id: 2, name: "Sneha Iyer", role: "Marketing Specialist", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80", status: "Online" },
+                { id: 3, name: "Riya Sharma", role: "Operations Manager", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80", status: "Away" },
+                { id: 4, name: "Vikram Singh", role: "Data Analyst", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80", status: "Online" }
+              ].map(u => (
+                <button
+                  key={u.id}
+                  type="button"
+                  onClick={() => setActiveChatUser(u)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: "6px", padding: "4px 8px", borderRadius: "20px",
+                    border: activeChatUser.id === u.id ? "2px solid #e07a5f" : "1px solid transparent",
+                    background: activeChatUser.id === u.id ? "rgba(224,122,95,0.18)" : "transparent",
+                    color: activeChatUser.id === u.id ? "#e07a5f" : "inherit",
+                    cursor: "pointer", fontSize: "11px", fontWeight: "700", whiteSpace: "nowrap"
+                  }}
+                >
+                  <img src={u.avatar} alt={u.name} style={{ width: "20px", height: "20px", borderRadius: "50%" }} />
+                  <span>{u.name.split(' ')[0]}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Chat Messages */}
+            <div style={{
+              flex: 1,
+              padding: "16px",
+              overflowY: "auto",
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+              background: themeMode === 'dark' ? "#0f172a" : "#ffffff"
+            }}>
+              {chatMessages.map(msg => (
+                <div
+                  key={msg.id}
+                  style={{
+                    alignSelf: msg.isMe ? "flex-end" : "flex-start",
+                    maxWidth: "82%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: msg.isMe ? "flex-end" : "flex-start"
+                  }}
+                >
+                  <div style={{
+                    padding: "10px 14px",
+                    borderRadius: msg.isMe ? "14px 14px 2px 14px" : "14px 14px 14px 2px",
+                    background: msg.isMe ? "#e07a5f" : (themeMode === 'dark' ? "#1e293b" : "#f1f5f9"),
+                    color: msg.isMe ? "#ffffff" : (themeMode === 'dark' ? "#f8fafc" : "#334155"),
+                    fontSize: "12px",
+                    lineHeight: "1.4",
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.06)"
+                  }}>
+                    {msg.text}
+                  </div>
+                  <span style={{ fontSize: "10px", color: "var(--wf-text-muted)", marginTop: "4px", padding: "0 4px" }}>
+                    {msg.time}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Chat Input */}
+            <form onSubmit={handleSendMessageSubmit} style={{
+              padding: "12px",
+              borderTop: "1px solid rgba(0,0,0,0.08)",
+              display: "flex",
+              gap: "8px",
+              background: themeMode === 'dark' ? "#1e293b" : "#FAF8F5"
+            }}>
+              <input
+                type="text"
+                placeholder={`Message ${activeChatUser.name.split(' ')[0]}...`}
+                style={{
+                  flex: 1,
+                  padding: "10px 14px",
+                  borderRadius: "20px",
+                  border: "1px solid rgba(0,0,0,0.12)",
+                  outline: "none",
+                  fontSize: "12px",
+                  background: themeMode === 'dark' ? "#0f172a" : "#ffffff",
+                  color: themeMode === 'dark' ? "#ffffff" : "#000000"
+                }}
+                value={inputMessageText}
+                onChange={e => setInputMessageText(e.target.value)}
+              />
+              <button
+                type="submit"
+                className="wf-btn-primary"
+                style={{
+                  width: "36px", height: "36px", borderRadius: "50%", padding: "0",
+                  display: "flex", alignItems: "center", justifyContent: "center"
+                }}
+              >
+                <FaPaperPlane style={{ fontSize: "12px" }} />
+              </button>
+            </form>
           </div>
         </div>
       )}

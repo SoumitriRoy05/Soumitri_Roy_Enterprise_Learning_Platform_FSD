@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Background from "../components/Background";
@@ -48,9 +48,11 @@ import {
 } from "react-icons/fa";
 
 import "../styles/courses.css";
+import { useAdmin } from "../context/AdminContext";
 
 export default function CoursesPage() {
   const { user, xp, logout, themeMode, toggleTheme, enrolledCourses, enrollCourse, completedTopics, earnXp } = useAuth();
+  const { courses: adminCourses, pendingCourseRequests } = useAdmin();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("courses");
   const [filter, setFilter] = useState("all");
@@ -58,6 +60,18 @@ export default function CoursesPage() {
   const [sortBy, setSortBy] = useState("recent");
   const isDarkMode = themeMode === "dark";
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  // Live state sync ticker
+  const [, setSyncTick] = useState(0);
+  useEffect(() => {
+    const handleSync = () => setSyncTick(t => t + 1);
+    window.addEventListener('storage', handleSync);
+    window.addEventListener('skillsphere_sync_event', handleSync);
+    return () => {
+      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('skillsphere_sync_event', handleSync);
+    };
+  }, []);
 
   // Course Checkout Modal State
   const [selectedCheckoutCourse, setSelectedCheckoutCourse] = useState(null);
@@ -463,6 +477,11 @@ export default function CoursesPage() {
     if (!currentReqs.some(r => r.courseId === cidStr && r.studentEmail === userKey && r.status === "pending")) {
       currentReqs.unshift(newReq);
       localStorage.setItem("skillsphere_pending_course_requests", JSON.stringify(currentReqs));
+      try {
+        window.dispatchEvent(new CustomEvent("skillsphere_sync_event"));
+      } catch (e) {
+        console.warn("Sync dispatch error:", e);
+      }
     }
 
     if (earnXp) earnXp(100);

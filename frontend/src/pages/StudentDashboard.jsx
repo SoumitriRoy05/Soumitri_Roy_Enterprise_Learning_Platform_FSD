@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useAdmin } from "../context/AdminContext";
 import Navbar from "../components/Navbar";
 import Background from "../components/Background";
 import Footer from "../components/Footer";
@@ -9,8 +10,21 @@ import "../styles/dashboard.css";
 
 export default function StudentDashboard() {
   const { user, xp, earnXp, completedTopics, completeTopic } = useAuth();
+  const { certificates, users, pendingCourseRequests } = useAdmin();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Live state sync ticker
+  const [, setSyncTick] = useState(0);
+  useEffect(() => {
+    const handleSync = () => setSyncTick(t => t + 1);
+    window.addEventListener('storage', handleSync);
+    window.addEventListener('skillsphere_sync_event', handleSync);
+    return () => {
+      window.removeEventListener('storage', handleSync);
+      window.removeEventListener('skillsphere_sync_event', handleSync);
+    };
+  }, []);
   
 
   const reactCompleted = completedTopics ? completedTopics.filter(id => id.startsWith('react_')).length : 0;

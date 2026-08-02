@@ -15,7 +15,8 @@ export default function AdminDashboard() {
     users, addStudent, toggleStudentStatus, deleteStudent, 
     workforce, addWorkforce, changeWorkforceStatus, 
     certificates, addCertificate, deleteCertificate,
-    pendingCourseRequests, approveCourseRequest, rejectCourseRequest, refreshPendingRequests
+    pendingCourseRequests, approveCourseRequest, rejectCourseRequest, refreshPendingRequests,
+    leaveRequests, approveLeaveRequest, rejectLeaveRequest, refreshLeaveRequests
   } = useAdmin();
   
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ export default function AdminDashboard() {
   // Dropdown menus for rows
   const [activeRowMenu, setActiveRowMenu] = useState(null); // { type: 'student'|'workforce', id: number }
 
-  // Notifications state — merge static + live pending approval notifications
+  // Notifications state — merge static + live pending approval notifications + leave notifications
   const [baseNotifications] = useState([
     { id: 1, text: "Aarav Sharma completed Frontend System Design", time: "10 mins ago", read: false },
     { id: 2, text: "New registration request: Frank Mentor (Workforce)", time: "1 hour ago", read: false },
@@ -55,7 +56,17 @@ export default function AdminDashboard() {
       isApproval: true
     }));
 
-  const notifications = [...pendingApprovalNotifs, ...baseNotifications.map(n => ({ ...n, read: readIds.includes(n.id) }))];
+  const pendingLeaveNotifs = (leaveRequests || [])
+    .filter(r => r.status === 'pending')
+    .map(r => ({
+      id: `leave-${r.id}`,
+      text: `Leave request: ${r.employeeName} (${r.leaveType}, ${r.days}d)`,
+      time: r.requestDate || 'Recently',
+      read: readIds.includes(`leave-${r.id}`),
+      isLeaveApproval: true
+    }));
+
+  const notifications = [...pendingApprovalNotifs, ...pendingLeaveNotifs, ...baseNotifications.map(n => ({ ...n, read: readIds.includes(n.id) }))];
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -130,6 +141,13 @@ export default function AdminDashboard() {
             onClick={() => { setActiveTab('approvals'); refreshPendingRequests(); }}
             badge={pendingCourseRequests.filter(r => r.status === 'pending').length}
           />
+          <SidebarBtn 
+            icon={<FiCalendar />} 
+            label="Leave Approvals" 
+            active={activeTab === 'leaveApprovals'} 
+            onClick={() => { setActiveTab('leaveApprovals'); refreshLeaveRequests(); }}
+            badge={(leaveRequests || []).filter(r => r.status === 'pending').length}
+          />
           <SidebarBtn icon={<FiAward />} label="Certifications" active={activeTab === 'certifications'} onClick={() => setActiveTab('certifications')} />
           <SidebarBtn icon={<FiSettings />} label="Settings" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
         </nav>
@@ -189,6 +207,7 @@ export default function AdminDashboard() {
               {activeTab === 'workforce' && 'Workforce Management'}
               {activeTab === 'courses' && 'Course Management'}
               {activeTab === 'approvals' && 'Course Pending Approvals'}
+              {activeTab === 'leaveApprovals' && 'Workforce Leave Approvals'}
               {activeTab === 'certifications' && 'Certifications'}
               {activeTab === 'settings' && 'Platform Settings'}
             </h1>
@@ -682,6 +701,17 @@ export default function AdminDashboard() {
               onApprove={approveCourseRequest}
               onReject={rejectCourseRequest}
               onRefresh={refreshPendingRequests}
+              formatDate={formatDate}
+            />
+          )}
+
+          {/* ─── VIEW 4C: WORKFORCE LEAVE APPROVALS ─── */}
+          {activeTab === 'leaveApprovals' && (
+            <LeaveApprovalsView
+              requests={leaveRequests || []}
+              onApprove={approveLeaveRequest}
+              onReject={rejectLeaveRequest}
+              onRefresh={refreshLeaveRequests}
               formatDate={formatDate}
             />
           )}
@@ -1505,3 +1535,140 @@ function SettingsPanel() {
     </div>
   );
 }
+
+function LeaveApprovalsView({ requests, onApprove, onReject, onRefresh, formatDate }) {
+  const pending = (requests || []).filter(r => r.status === 'pending');
+  const processed = (requests || []).filter(r => r.status !== 'pending');
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+        <div>
+          <h2 style={{ margin: 0, fontWeight: '850', color: '#1E1B18' }}>Workforce Leave Approvals</h2>
+          <p style={{ margin: '4px 0 0', color: '#64748B', fontSize: '14px' }}>
+            Review, approve, or reject leave requests submitted by workforce employees and managers in real-time.
+          </p>
+        </div>
+        <button
+          onClick={onRefresh}
+          style={{
+            background: '#FAF8F5', border: '1px solid #F3EBE1', padding: '9px 16px',
+            borderRadius: '99px', fontWeight: '750', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer'
+          }}
+        >
+          <FiRefreshCw /> Sync Requests
+        </button>
+      </div>
+
+      {/* Pending Leave Requests */}
+      <div style={{ marginBottom: '36px' }}>
+        <h3 style={{ fontSize: '16px', fontWeight: '800', margin: '0 0 16px', color: '#1E1B18', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span>⏳ Pending Leave Requests</span>
+          {pending.length > 0 && (
+            <span style={{ background: '#FFF0ED', color: '#F9572A', fontSize: '12px', padding: '2px 8px', borderRadius: '12px' }}>
+              {pending.length} pending
+            </span>
+          )}
+        </h3>
+
+        {pending.length === 0 ? (
+          <div style={{ background: '#FFFFFF', border: '1px dashed #E2E8F0', borderRadius: '16px', padding: '36px', textAlign: 'center', color: '#64748B' }}>
+            <FiCheck style={{ fontSize: '28px', color: '#10B981', marginBottom: '8px' }} />
+            <p style={{ margin: 0, fontWeight: '700' }}>All caught up! No pending leave requests to review.</p>
+          </div>
+        ) : (
+          <div style={{ background: '#FFFFFF', border: '1px solid #F3EBE1', borderRadius: '16px', overflow: 'hidden' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ background: '#FAF8F5', color: '#64748B', fontSize: '11px', textTransform: 'uppercase', fontWeight: '800', borderBottom: '1px solid #F3EBE1' }}>
+                  <th style={{ padding: '16px 20px' }}>Employee</th>
+                  <th style={{ padding: '16px 20px' }}>Leave Type</th>
+                  <th style={{ padding: '16px 20px' }}>Dates & Duration</th>
+                  <th style={{ padding: '16px 20px' }}>Reason</th>
+                  <th style={{ padding: '16px 20px', textAlign: 'right' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pending.map(r => (
+                  <tr key={r.id} style={{ borderBottom: '1px solid #F3EBE1' }}>
+                    <td style={{ padding: '16px 20px' }}>
+                      <div style={{ fontWeight: '750', color: '#1E1B18', fontSize: '14px' }}>{r.employeeName}</div>
+                      <div style={{ fontSize: '12px', color: '#64748B' }}>{r.employeeEmail} • {r.dept || 'Engineering'}</div>
+                    </td>
+                    <td style={{ padding: '16px 20px' }}>
+                      <span style={{ background: '#FFF5F2', color: '#F9572A', padding: '4px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '750' }}>
+                        {r.leaveType}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px 20px' }}>
+                      <div style={{ fontWeight: '700', fontSize: '13px', color: '#1E1B18' }}>{r.startDate} to {r.endDate}</div>
+                      <div style={{ fontSize: '12px', color: '#64748B' }}>{r.days} {r.days === 1 ? 'day' : 'days'}</div>
+                    </td>
+                    <td style={{ padding: '16px 20px', fontSize: '13px', color: '#475569', maxWidth: '240px' }}>
+                      {r.reason}
+                    </td>
+                    <td style={{ padding: '16px 20px', textAlign: 'right' }}>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                        <button
+                          onClick={() => onApprove(r.id)}
+                          style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#10B981', padding: '7px 14px', borderRadius: '8px', cursor: 'pointer', fontWeight: '750', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                        >
+                          <FiCheck /> Approve
+                        </button>
+                        <button
+                          onClick={() => onReject(r.id)}
+                          style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#EF4444', padding: '7px 14px', borderRadius: '8px', cursor: 'pointer', fontWeight: '750', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                        >
+                          <FiX /> Reject
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Processed Leave History */}
+      <div>
+        <h3 style={{ fontSize: '16px', fontWeight: '800', margin: '0 0 16px', color: '#1E1B18' }}>📋 Processed Leave History</h3>
+        <div style={{ background: '#FFFFFF', border: '1px solid #F3EBE1', borderRadius: '16px', overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ background: '#FAF8F5', color: '#64748B', fontSize: '11px', textTransform: 'uppercase', fontWeight: '800', borderBottom: '1px solid #F3EBE1' }}>
+                <th style={{ padding: '16px 20px' }}>Employee</th>
+                <th style={{ padding: '16px 20px' }}>Leave Type</th>
+                <th style={{ padding: '16px 20px' }}>Dates</th>
+                <th style={{ padding: '16px 20px' }}>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {processed.map(r => (
+                <tr key={r.id} style={{ borderBottom: '1px solid #F3EBE1' }}>
+                  <td style={{ padding: '16px 20px' }}>
+                    <div style={{ fontWeight: '750', color: '#1E1B18', fontSize: '13.5px' }}>{r.employeeName}</div>
+                    <div style={{ fontSize: '11px', color: '#64748B' }}>{r.employeeEmail}</div>
+                  </td>
+                  <td style={{ padding: '16px 20px', fontSize: '13px', fontWeight: '600', color: '#475569' }}>{r.leaveType}</td>
+                  <td style={{ padding: '16px 20px', fontSize: '13px', color: '#64748B' }}>{r.startDate} to {r.endDate} ({r.days}d)</td>
+                  <td style={{ padding: '16px 20px' }}>
+                    <span style={{
+                      background: r.status === 'approved' ? '#ECFDF5' : '#FEF2F2',
+                      color: r.status === 'approved' ? '#10B981' : '#EF4444',
+                      padding: '4px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: '750', textTransform: 'capitalize'
+                    }}>
+                      {r.status === 'approved' ? '✓ Approved' : '✕ Rejected'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+

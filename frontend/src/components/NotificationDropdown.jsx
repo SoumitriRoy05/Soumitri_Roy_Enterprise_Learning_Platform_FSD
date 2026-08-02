@@ -1,9 +1,23 @@
 import React, { useState } from "react";
 import { FaBell, FaCheckCircle, FaTimes, FaAward, FaHourglassHalf, FaBolt, FaRobot, FaBriefcase, FaUserCheck, FaChartLine } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext";
 
 export default function NotificationDropdown({ type = "student" }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(type === "student" ? 4 : 4);
+  const [unreadCount, setUnreadCount] = useState(4);
+
+  // Read theme mode safely from AuthContext
+  let themeMode = "light";
+  try {
+    const auth = useAuth();
+    if (auth && auth.themeMode) {
+      themeMode = auth.themeMode;
+    }
+  } catch (e) {
+    themeMode = "light";
+  }
+
+  const isLight = themeMode === "light";
 
   const studentNotifications = [
     {
@@ -83,13 +97,14 @@ export default function NotificationDropdown({ type = "student" }) {
 
   return (
     <div style={{ position: "relative", display: "inline-block" }}>
-      {/* Bell Button Icon */}
+      {/* Bell Button Icon - Highly visible in both light & dark theme */}
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         style={{
-          background: "rgba(255,255,255,0.06)",
-          border: "1px solid rgba(255,255,255,0.12)",
-          color: "#FFFFFF",
+          background: isLight ? "#FFFFFF" : "rgba(255,255,255,0.08)",
+          border: isLight ? "1px solid #CBD5E1" : "1px solid rgba(255,255,255,0.18)",
+          color: isLight ? "#F9572A" : "#FFFFFF",
           width: "42px",
           height: "42px",
           borderRadius: "50%",
@@ -99,7 +114,8 @@ export default function NotificationDropdown({ type = "student" }) {
           fontSize: "16px",
           cursor: "pointer",
           position: "relative",
-          transition: "all 0.2s ease"
+          transition: "all 0.2s ease",
+          boxShadow: isLight ? "0 2px 8px rgba(0, 0, 0, 0.08)" : "0 2px 8px rgba(0, 0, 0, 0.3)"
         }}
         title="Notifications"
       >
@@ -120,7 +136,8 @@ export default function NotificationDropdown({ type = "student" }) {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 2px 8px rgba(249, 87, 42, 0.5)"
+              boxShadow: "0 2px 8px rgba(249, 87, 42, 0.5)",
+              border: isLight ? "2px solid #FFFFFF" : "2px solid #0F172A"
             }}
           >
             {unreadCount}
@@ -128,7 +145,7 @@ export default function NotificationDropdown({ type = "student" }) {
         )}
       </button>
 
-      {/* Floating Notification Popover Dropdown */}
+      {/* Floating Notification Popover Dropdown - Fully Theme-Aware */}
       {isOpen && (
         <div
           style={{
@@ -136,10 +153,10 @@ export default function NotificationDropdown({ type = "student" }) {
             top: "52px",
             right: "0",
             width: "360px",
-            background: "#0F172A",
-            border: "1px solid #334155",
+            background: isLight ? "#FFFFFF" : "#0F172A",
+            border: isLight ? "1px solid #E2E8F0" : "1px solid #334155",
             borderRadius: "16px",
-            boxShadow: "0 12px 40px rgba(0,0,0,0.5)",
+            boxShadow: isLight ? "0 12px 35px rgba(0, 0, 0, 0.12)" : "0 12px 40px rgba(0,0,0,0.6)",
             zIndex: 9999,
             overflow: "hidden",
             fontFamily: "'Plus Jakarta Sans', sans-serif"
@@ -149,8 +166,8 @@ export default function NotificationDropdown({ type = "student" }) {
           <div
             style={{
               padding: "14px 18px",
-              background: "#1E293B",
-              borderBottom: "1px solid #334155",
+              background: isLight ? "#F8FAFC" : "#1E293B",
+              borderBottom: isLight ? "1px solid #E2E8F0" : "1px solid #334155",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between"
@@ -158,7 +175,7 @@ export default function NotificationDropdown({ type = "student" }) {
           >
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <FaBell color="#F9572A" />
-              <strong style={{ fontSize: "14px", color: "#F8FAFC" }}>
+              <strong style={{ fontSize: "14px", color: isLight ? "#0F172A" : "#F8FAFC" }}>
                 {type === "workforce" ? "Workforce Notifications" : "Notifications"}
               </strong>
               {unreadCount > 0 && (
@@ -183,7 +200,7 @@ export default function NotificationDropdown({ type = "student" }) {
                   onClick={handleMarkAllRead}
                   style={{
                     fontSize: "11px",
-                    color: "#38BDF8",
+                    color: "#F9572A",
                     cursor: "pointer",
                     fontWeight: 700
                   }}
@@ -192,11 +209,12 @@ export default function NotificationDropdown({ type = "student" }) {
                 </span>
               )}
               <button
+                type="button"
                 onClick={() => setIsOpen(false)}
                 style={{
                   background: "none",
                   border: "none",
-                  color: "#94A3B8",
+                  color: isLight ? "#64748B" : "#94A3B8",
                   cursor: "pointer",
                   fontSize: "14px"
                 }}
@@ -206,19 +224,20 @@ export default function NotificationDropdown({ type = "student" }) {
             </div>
           </div>
 
-          {/* List */}
-          <div style={{ maxHeight: "340px", overflowY: "auto", padding: "8px 0" }}>
+          {/* Notification List */}
+          <div style={{ maxHeight: "340px", overflowY: "auto", padding: "4px 0" }}>
             {notifications.map((item) => (
               <div
                 key={item.id}
                 style={{
                   padding: "12px 18px",
-                  borderBottom: "1px solid #1E293B",
+                  borderBottom: isLight ? "1px solid #F1F5F9" : "1px solid #1E293B",
                   display: "flex",
                   gap: "12px",
                   alignItems: "flex-start",
                   transition: "background 0.2s ease",
-                  cursor: "pointer"
+                  cursor: "pointer",
+                  background: isLight ? "#FFFFFF" : "#0F172A"
                 }}
               >
                 <div
@@ -226,7 +245,7 @@ export default function NotificationDropdown({ type = "student" }) {
                     width: "36px",
                     height: "36px",
                     borderRadius: "10px",
-                    background: "#1E293B",
+                    background: isLight ? "#F1F5F9" : "#1E293B",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -238,13 +257,13 @@ export default function NotificationDropdown({ type = "student" }) {
                 </div>
 
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: "12px", fontWeight: 700, color: "#F8FAFC", marginBottom: "2px" }}>
+                  <div style={{ fontSize: "12px", fontWeight: 700, color: isLight ? "#0F172A" : "#F8FAFC", marginBottom: "2px" }}>
                     {item.title}
                   </div>
-                  <div style={{ fontSize: "11px", color: "#94A3B8", lineHeight: "1.4", marginBottom: "4px" }}>
+                  <div style={{ fontSize: "11px", color: isLight ? "#475569" : "#94A3B8", lineHeight: "1.4", marginBottom: "4px" }}>
                     {item.desc}
                   </div>
-                  <span style={{ fontSize: "10px", color: "#64748B", fontWeight: 600 }}>
+                  <span style={{ fontSize: "10px", color: isLight ? "#94A3B8" : "#64748B", fontWeight: 600 }}>
                     {item.time}
                   </span>
                 </div>
@@ -256,12 +275,12 @@ export default function NotificationDropdown({ type = "student" }) {
           <div
             style={{
               padding: "10px",
-              background: "#1E293B",
-              borderTop: "1px solid #334155",
+              background: isLight ? "#F8FAFC" : "#1E293B",
+              borderTop: isLight ? "1px solid #E2E8F0" : "1px solid #334155",
               textAlign: "center"
             }}
           >
-            <span style={{ fontSize: "11px", color: "#94A3B8", fontWeight: 600 }}>
+            <span style={{ fontSize: "11px", color: isLight ? "#64748B" : "#94A3B8", fontWeight: 600 }}>
               SkillSphere Real-Time Notification Center ✓
             </span>
           </div>

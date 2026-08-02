@@ -902,6 +902,15 @@ body {
 .wf-type-tag.survey { background: #e0f2fe; color: #0284c7; }
 .wf-type-tag.initiative { background: #fef3c7; color: #b45309; }
 
+/* Dark mode overrides for engagement pills & tags */
+[data-theme="dark"] .wf-type-tag.survey,
+.dark-theme .wf-type-tag.survey,
+.dark .wf-type-tag.survey { background: rgba(2, 132, 199, 0.25); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+
+[data-theme="dark"] .wf-type-tag.initiative,
+.dark-theme .wf-type-tag.initiative,
+.dark .wf-type-tag.initiative { background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
+
 .wf-score-badge {
   display: inline-flex;
   align-items: center;
@@ -920,8 +929,32 @@ body {
 .wf-score-lbl.good { background: #e0f2fe; color: #0284c7; }
 .wf-score-lbl.average { background: #ffedd5; color: #c2410c; }
 
+[data-theme="dark"] .wf-score-lbl.excellent,
+.dark-theme .wf-score-lbl.excellent,
+.dark .wf-score-lbl.excellent { background: rgba(34, 197, 94, 0.25); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
+
+[data-theme="dark"] .wf-score-lbl.good,
+.dark-theme .wf-score-lbl.good,
+.dark .wf-score-lbl.good { background: rgba(2, 132, 199, 0.25); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+
+[data-theme="dark"] .wf-score-lbl.average,
+.dark-theme .wf-score-lbl.average,
+.dark .wf-score-lbl.average { background: rgba(249, 115, 22, 0.25); color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.3); }
+
 .wf-status-pill.active-status { background: #f3e8ff; color: #7e22ce; }
 .wf-status-pill.ongoing { background: #e0f2fe; color: #0284c7; }
+
+[data-theme="dark"] .wf-status-pill.active-status,
+.dark-theme .wf-status-pill.active-status,
+.dark .wf-status-pill.active-status { background: rgba(168, 85, 247, 0.25); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.3); }
+
+[data-theme="dark"] .wf-status-pill.ongoing,
+.dark-theme .wf-status-pill.ongoing,
+.dark .wf-status-pill.ongoing { background: rgba(2, 132, 199, 0.25); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+
+[data-theme="dark"] .wf-status-pill.completed,
+.dark-theme .wf-status-pill.completed,
+.dark .wf-status-pill.completed { background: rgba(34, 197, 94, 0.25); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
 
 .wf-driver-list {
   display: flex;
@@ -3153,6 +3186,137 @@ input:checked + .wf-toggle-slider:before {
   background: rgba(245, 158, 11, 0.18) !important;
   color: #fbbf24 !important;
   border: 1px solid rgba(245, 158, 11, 0.35) !important;
+}
+
+/* 7. Department Performance Row Styling */
+.wf-dept-perf-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--wf-card-bg, #faf4ee);
+  border: 1px solid var(--wf-card-border, #eee5dd);
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.wf-dept-perf-row:hover {
+  transform: translateY(-2px);
+}
+.wf-dept-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  color: var(--wf-text-primary);
+}
+
+[data-theme="dark"] .wf-dept-perf-row,
+.dark-theme .wf-dept-perf-row,
+.dark .wf-dept-perf-row {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+}
+[data-theme="dark"] .wf-dept-name-cell span,
+.dark-theme .wf-dept-name-cell span,
+.dark .wf-dept-name-cell span {
+  color: #f8fafc !important;
+}
+
+/* 8. AI Analytics Insights Cards Styling */
+.wf-insight-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.wf-insight-card:hover {
+  transform: translateY(-1px);
+}
+.wf-insight-icon {
+  font-size: 18px;
+  color: #d97706;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.wf-insight-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--wf-text-primary);
+}
+
+[data-theme="dark"] .wf-insight-card,
+.dark-theme .wf-insight-card,
+.dark .wf-insight-card {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #f1f5f9 !important;
+}
+[data-theme="dark"] .wf-insight-text,
+.dark-theme .wf-insight-text,
+.dark .wf-insight-text {
+  color: #f1f5f9 !important;
+}
+[data-theme="dark"] .wf-insight-icon,
+.dark-theme .wf-insight-icon,
+.dark .wf-insight-icon {
+  color: #fbbf24 !important;
+}
+
+/* 9. Report Format & Category Pills Styling */
+.wf-report-format-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #f1f5f9;
+  color: #475569;
+}
+[data-theme="dark"] .wf-report-format-pill,
+.dark-theme .wf-report-format-pill,
+.dark .wf-report-format-pill {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.wf-cat-pill {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #f1f5f9;
+  color: #64748b;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.wf-cat-pill.active {
+  background: var(--wf-accent-brown, #8c5338);
+  color: #ffffff;
+}
+[data-theme="dark"] .wf-cat-pill,
+.dark-theme .wf-cat-pill,
+.dark .wf-cat-pill {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #94a3b8 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+[data-theme="dark"] .wf-cat-pill.active,
+.dark-theme .wf-cat-pill.active,
+.dark .wf-cat-pill.active {
+  background: var(--wf-accent-brown, #e07a5f) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
 }
 
 

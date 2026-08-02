@@ -5,6 +5,7 @@ import Background from "../components/Background";
 import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
 import FloatingChatbot from "../components/FloatingChatbot";
+import NotificationDropdown from "../components/NotificationDropdown";
 
 import {
   FaHome,
@@ -45,7 +46,9 @@ import {
   FaRegCircle,
   FaUserFriends,
   FaRegClock,
-  FaDownload
+  FaDownload,
+  FaBookmark,
+  FaRegBookmark
 } from "react-icons/fa";
 
 import studentHeroImg from "../assets/student_dashboard_hero_illustration.png";
@@ -126,6 +129,158 @@ export default function LearningPathsPage() {
     setToastMsg(msg);
     setTimeout(() => setToastMsg(""), 3500);
   };
+
+  // ── Saved Paths Persistent State ──
+  const [savedPathIds, setSavedPathIds] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`skillsphere_saved_paths_${userKey}`);
+      return saved ? JSON.parse(saved) : ["cloud-devops", "ml-ai"];
+    } catch (e) {
+      return ["cloud-devops", "ml-ai"];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(`skillsphere_saved_paths_${userKey}`, JSON.stringify(savedPathIds));
+    } catch (e) {}
+  }, [savedPathIds, userKey]);
+
+  const toggleSavePath = (pathId, e) => {
+    if (e) e.stopPropagation();
+    if (savedPathIds.includes(pathId)) {
+      setSavedPathIds(prev => prev.filter(id => id !== pathId));
+      showToast("🔖 Learning path removed from Saved!");
+    } else {
+      setSavedPathIds(prev => [...prev, pathId]);
+      showToast("🔖 Learning path saved for later!");
+    }
+  };
+
+  // Master Learning Paths Dataset
+  const allLearningPaths = [
+    {
+      id: "react-dev",
+      title: "React Developer Path",
+      levelInfo: "Intermediate • 6 Modules • 24.5K Learners",
+      bannerType: "react",
+      logoBg: "#E0F2FE",
+      logoText: "⚛️",
+      status: "in-progress",
+      statusText: "In Progress",
+      progress: Math.min(100, Math.round(((completedSubLessonIds || []).length / 18) * 100)) || 10,
+      completedModules: `${(completedSubLessonIds || []).length >= 18 ? 6 : Math.max(1, Math.floor((completedSubLessonIds || []).length / 3))}/6`,
+      modules: `${(completedSubLessonIds || []).length >= 18 ? 6 : Math.max(1, Math.floor((completedSubLessonIds || []).length / 3))}/6`,
+      lastAccessed: "Today",
+      actionText: "Continue Learning",
+      isEnrolled: true,
+      progressColor: "#F9572A"
+    },
+    {
+      id: "python-ds",
+      title: "Python for Data Science",
+      levelInfo: "Beginner • 6 Modules • 18.7K Learners",
+      bannerType: "python",
+      logoBg: "#FEF3C7",
+      logoText: "🐍",
+      status: "in-progress",
+      statusText: "In Progress",
+      progress: 40,
+      completedModules: "2/6",
+      modules: "2/6",
+      lastAccessed: "Yesterday",
+      actionText: "Continue Learning",
+      isEnrolled: true,
+      progressColor: "#3B82F6"
+    },
+    {
+      id: "node-fs",
+      title: "Fullstack with Node.js",
+      levelInfo: "Intermediate • 3 Modules • 12.1K Learners",
+      bannerType: "node",
+      logoBg: "#DCFCE7",
+      logoText: "🟩 Node.js",
+      status: "in-progress",
+      statusText: "In Progress",
+      progress: 65,
+      completedModules: "2/3",
+      modules: "2/3",
+      lastAccessed: "3 days ago",
+      actionText: "Continue Learning",
+      isEnrolled: true,
+      progressColor: "#10B981"
+    },
+    {
+      id: "ui-ux",
+      title: "UI/UX Design Masterclass",
+      levelInfo: "Beginner • 6 Modules • 9.8K Learners",
+      bannerType: "figma",
+      logoBg: "#FEE2E2",
+      logoText: "🎨",
+      status: "completed",
+      statusText: "Completed",
+      progress: 100,
+      completedModules: "6/6",
+      modules: "6/6",
+      lastAccessed: "1 week ago",
+      actionText: "Review Track",
+      isEnrolled: true,
+      progressColor: "#10B981"
+    },
+    {
+      id: "cloud-devops",
+      title: "Cloud Architect & DevOps Mastery",
+      levelInfo: "Advanced • 8 Modules • 14.2K Learners",
+      bannerType: "cloud",
+      logoBg: "#E0E7FF",
+      logoText: "☁️",
+      status: "saved",
+      statusText: "Saved",
+      progress: 0,
+      completedModules: "0/8",
+      modules: "0/8",
+      lastAccessed: "Not Started",
+      actionText: "Start Learning",
+      isEnrolled: false,
+      progressColor: "#6366F1"
+    },
+    {
+      id: "ml-ai",
+      title: "Machine Learning & AI Engineering",
+      levelInfo: "Advanced • 10 Modules • 31.0K Learners",
+      bannerType: "ai",
+      logoBg: "#F3E8FF",
+      logoText: "🤖",
+      status: "saved",
+      statusText: "Saved",
+      progress: 0,
+      completedModules: "0/10",
+      modules: "0/10",
+      lastAccessed: "Not Started",
+      actionText: "Start Learning",
+      isEnrolled: false,
+      progressColor: "#A855F7"
+    }
+  ];
+
+  // Dynamic filter computation
+  const filteredLearningPaths = allLearningPaths.filter(path => {
+    if (filter === "all") return path.isEnrolled;
+    if (filter === "in-progress") return path.isEnrolled && path.status === "in-progress";
+    if (filter === "completed") return path.isEnrolled && path.status === "completed";
+    if (filter === "saved") return savedPathIds.includes(path.id);
+    return true;
+  });
+
+  const sortedLearningPaths = [...filteredLearningPaths].sort((a, b) => {
+    if (sortBy === "progress") return b.progress - a.progress;
+    return 0;
+  });
+
+  const enrolledCount = allLearningPaths.filter(p => p.isEnrolled).length;
+  const inProgressCount = allLearningPaths.filter(p => p.isEnrolled && p.status === "in-progress").length;
+  const completedCount = allLearningPaths.filter(p => p.isEnrolled && p.status === "completed").length;
+  const savedCount = savedPathIds.length;
 
   const modulesList = [
     {
@@ -1524,12 +1679,7 @@ function AnalyticsDashboard() {
                 <FaBolt color="#F9572A" /> <span>{currentXp} XP</span>
               </div>
 
-              <div className="sdNotificationBtnWrapper">
-                <button className="sdNotificationBtn">
-                  <FaBell />
-                  
-                </button>
-              </div>
+              <NotificationDropdown type="student" />
 
               <div className="sdUserProfilePill" onClick={() => navigate("/settings")}>
                 <div className="sdUserAvatarImg">🧑‍🎓</div>
@@ -2749,25 +2899,25 @@ function AnalyticsDashboard() {
                         className={`lpPill ${filter === "all" ? "active" : ""}`}
                         onClick={() => setFilter("all")}
                       >
-                        My Enrolled Paths (4)
+                        My Enrolled Paths ({enrolledCount})
                       </button>
                       <button
                         className={`lpPill ${filter === "in-progress" ? "active" : ""}`}
                         onClick={() => setFilter("in-progress")}
                       >
-                        In Progress (3)
+                        In Progress ({inProgressCount})
                       </button>
                       <button
                         className={`lpPill ${filter === "completed" ? "active" : ""}`}
                         onClick={() => setFilter("completed")}
                       >
-                        Completed (1)
+                        Completed ({completedCount})
                       </button>
                       <button
                         className={`lpPill ${filter === "saved" ? "active" : ""}`}
                         onClick={() => setFilter("saved")}
                       >
-                        Saved (2)
+                        Saved ({savedCount})
                       </button>
                     </div>
 
@@ -2783,48 +2933,78 @@ function AnalyticsDashboard() {
                     </div>
                   </div>
 
-                  {/* 4 Learning Path Cards Grid */}
+                  {/* Learning Path Cards Grid */}
                   <div className="lpCardsCarouselRow">
-                    {pathCards.map((card) => (
-                      <div
-                        key={card.id}
-                        className="lpPathCard"
-                        onClick={() => openPathDetail(card.title)}
-                      >
-                        <div className={`lpCardBanner ${card.bannerType}`}>
-                          <FaEllipsisH className="mcDotsMenu" />
-                          <span className={`lpStatusBadge ${card.status}`}>
-                            {card.statusText}
-                          </span>
-
-                          {card.bannerType === "react" && <div className="bannerIconReact">⚛️</div>}
-                          {card.bannerType === "python" && <div className="bannerIconPython">🐍</div>}
-                          {card.bannerType === "node" && <div className="bannerIconNode">🟩 Node.js</div>}
-                          {card.bannerType === "figma" && <div className="bannerIconFigma">🎨</div>}
-                        </div>
-
-                        <div className="lpCardBody">
-                          <h4>{card.title}</h4>
-                          <span className="lpLevelInfoText">{card.levelInfo}</span>
-
-                          <div className="lpCardProgressBarTrack">
-                            <div
-                              className="lpCardProgressBarFill"
-                              style={{ width: `${card.progress}%` }}
-                            ></div>
-                          </div>
-
-                          <div className="lpCardFooterRow">
-                            <span className="lpPctText">{card.progress}%</span>
-                            <span className="lpModulesCompletedText">{card.completedModules} Modules Completed</span>
-                          </div>
-                        </div>
+                    {sortedLearningPaths.length === 0 ? (
+                      <div style={{ padding: "30px", textAlign: "center", width: "100%", color: "#64748B" }}>
+                        <p style={{ margin: 0, fontSize: "14px", fontWeight: 700 }}>
+                          No learning paths found under "{filter === "all" ? "My Enrolled Paths" : filter === "in-progress" ? "In Progress" : filter === "completed" ? "Completed" : "Saved"}".
+                        </p>
                       </div>
-                    ))}
+                    ) : (
+                      sortedLearningPaths.map((card) => {
+                        const isSaved = savedPathIds.includes(card.id);
+                        return (
+                          <div
+                            key={card.id}
+                            className="lpPathCard"
+                            onClick={() => openPathDetail(card.title)}
+                          >
+                            <div className={`lpCardBanner ${card.bannerType}`}>
+                              <div style={{ position: "absolute", top: "12px", right: "12px", display: "flex", gap: "8px", zIndex: 5 }}>
+                                <button
+                                  type="button"
+                                  onClick={(e) => toggleSavePath(card.id, e)}
+                                  title={isSaved ? "Remove from Saved" : "Save for later"}
+                                  style={{
+                                    background: "rgba(0,0,0,0.3)",
+                                    border: "none",
+                                    borderRadius: "50%",
+                                    width: "28px",
+                                    height: "28px",
+                                    color: isSaved ? "#F59E0B" : "#FFFFFF",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center"
+                                  }}
+                                >
+                                  {isSaved ? <FaBookmark size={12} /> : <FaRegBookmark size={12} />}
+                                </button>
+                              </div>
 
-                    <button className="lpCarouselArrowRight" title="Scroll Right">
-                      <FaChevronRight />
-                    </button>
+                              <span className={`lpStatusBadge ${card.status}`}>
+                                {card.statusText}
+                              </span>
+
+                              {card.bannerType === "react" && <div className="bannerIconReact">⚛️</div>}
+                              {card.bannerType === "python" && <div className="bannerIconPython">🐍</div>}
+                              {card.bannerType === "node" && <div className="bannerIconNode">🟩 Node.js</div>}
+                              {card.bannerType === "figma" && <div className="bannerIconFigma">🎨</div>}
+                              {card.bannerType === "cloud" && <div className="bannerIconNode">☁️ Cloud</div>}
+                              {card.bannerType === "ai" && <div className="bannerIconReact">🤖 AI</div>}
+                            </div>
+
+                            <div className="lpCardBody">
+                              <h4>{card.title}</h4>
+                              <span className="lpLevelInfoText">{card.levelInfo}</span>
+
+                              <div className="lpCardProgressBarTrack">
+                                <div
+                                  className="lpCardProgressBarFill"
+                                  style={{ width: `${card.progress}%`, background: card.progressColor }}
+                                ></div>
+                              </div>
+
+                              <div className="lpCardFooterRow">
+                                <span className="lpPctText">{card.progress}%</span>
+                                <span className="lpModulesCompletedText">{card.completedModules} Modules Completed</span>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
                   </div>
 
                   {/* Your Learning Paths Data Table */}
@@ -2843,7 +3023,7 @@ function AnalyticsDashboard() {
                           </tr>
                         </thead>
                         <tbody>
-                          {tablePaths.map((row) => (
+                          {sortedLearningPaths.map((row) => (
                             <tr key={row.id}>
                               <td>
                                 <div className="lpTableNameCell">
@@ -2893,7 +3073,6 @@ function AnalyticsDashboard() {
                                   >
                                     {row.actionText}
                                   </button>
-                                  <FaEllipsisH className="tblDots" />
                                 </div>
                               </td>
                             </tr>

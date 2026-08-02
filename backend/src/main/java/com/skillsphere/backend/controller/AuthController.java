@@ -141,13 +141,15 @@ public class AuthController {
 
         User user = userOpt.get();
 
-        if (!"LOCAL".equals(user.getProvider()) || user.getPasswordHash() == null) {
-            response.put("success", false);
-            response.put("message", "Please use Google login for this account");
-            return ResponseEntity.status(400).body(response);
-        }
+        // Allow password login if the account has a password set and password matches
+        boolean isPasswordMatch = user.getPasswordHash() != null && passwordEncoder.matches(password, user.getPasswordHash());
 
-        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+        if (!isPasswordMatch) {
+            if (user.getPasswordHash() == null) {
+                response.put("success", false);
+                response.put("message", "Please use Google login for this account");
+                return ResponseEntity.status(400).body(response);
+            }
             response.put("success", false);
             response.put("message", "Incorrect password");
             return ResponseEntity.status(401).body(response);
@@ -220,7 +222,6 @@ public class AuthController {
                 Optional<User> existingUserOpt = userRepository.findByEmail(email);
                 if (existingUserOpt.isPresent()) {
                     user = existingUserOpt.get();
-                    user.setProvider("GOOGLE");
                     user.setProviderId(googleId);
                     user.setLastLoginAt(LocalDateTime.now());
                     userRepository.save(user);

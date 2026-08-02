@@ -5,6 +5,7 @@ import Background from "../components/Background";
 import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
 import FloatingChatbot from "../components/FloatingChatbot";
+import NotificationDropdown from "../components/NotificationDropdown";
 
 import {
   FaHome,
@@ -526,10 +527,7 @@ export default function CodeArenaPage() {
               <div className="caXpBadge">
                 <FaStar color="#F59E0B" /> <span>{userXp.toLocaleString()} XP</span>
               </div>
-              <div className="caNotifBtn" onClick={() => showToast("🔔 3 New Coding Challenges Available!")}>
-                <FaBell />
-                <span className="notifDot">3</span>
-              </div>
+              <NotificationDropdown type="student" />
               <div className="caUserProfilePill">
                 <div className="avatarCircle">👩‍🎓</div>
                 <div className="userText">

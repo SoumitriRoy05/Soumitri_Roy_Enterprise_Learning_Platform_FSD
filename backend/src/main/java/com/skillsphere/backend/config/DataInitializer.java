@@ -116,7 +116,8 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void createTestUserIfMissing(String username, String fullName, String email, String password, String role) {
-        if (userRepository.findByEmail(email).isEmpty()) {
+        Optional<User> opt = userRepository.findByEmail(email);
+        if (opt.isEmpty()) {
             User user = new User();
             user.setUsername(username);
             user.setFullName(fullName);
@@ -128,6 +129,14 @@ public class DataInitializer implements CommandLineRunner {
             user.setLastLoginAt(LocalDateTime.now());
             userRepository.save(user);
             System.out.println("✅ DataInitializer: Created test user -> " + email);
+        } else {
+            User user = opt.get();
+            if (user.getPasswordHash() == null || !passwordEncoder.matches(password, user.getPasswordHash())) {
+                user.setPasswordHash(passwordEncoder.encode(password));
+                user.setProvider("LOCAL");
+                userRepository.save(user);
+                System.out.println("✅ DataInitializer: Reset password and provider for test user -> " + email);
+            }
         }
     }
 

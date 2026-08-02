@@ -149,14 +149,14 @@ const initialUsersData = [
 ];
 
 const initialWorkforceData = [
-  { id: 201, name: "Neha Singh", email: "neha@skillsphere.com", role: "EMPLOYEE", status: "Approved", createdAt: "2025-05-20T10:30:00" },
-  { id: 202, name: "Vikram Joshi", email: "vikram@skillsphere.com", role: "EMPLOYEE", status: "Approved", createdAt: "2025-05-20T08:45:00" },
-  { id: 203, name: "Anjali Desai", email: "anjali@skillsphere.com", role: "EMPLOYEE", status: "Approved", createdAt: "2025-05-19T17:15:00" },
-  { id: 204, name: "Rahul Kumar", email: "rahul@skillsphere.com", role: "EMPLOYEE", status: "Approved", createdAt: "2025-05-19T13:10:00" },
-  { id: 205, name: "Pooja Nair", email: "pooja@skillsphere.com", role: "EMPLOYEE", status: "Approved", createdAt: "2025-05-18T15:00:00" },
-  { id: 206, name: "Eve Trainer", email: "eve@skillsphere.com", role: "MANAGER", status: "Approved", createdAt: "2025-05-15T11:00:00" },
-  { id: 207, name: "Frank Mentor", email: "frank@skillsphere.com", role: "EMPLOYEE", status: "Pending", createdAt: "2025-05-14T09:30:00" },
-  { id: 208, name: "Grace Guide", email: "grace@skillsphere.com", role: "EMPLOYEE", status: "Rejected", createdAt: "2025-05-12T14:45:00" }
+  { id: 201, name: "Alex Vance", email: "alex@skillsphere.com", role: "EMPLOYEE", status: "Approved", dept: "Engineering", createdAt: "2025-05-20T10:30:00" },
+  { id: 202, name: "Neha Singh", email: "neha@skillsphere.com", role: "EMPLOYEE", status: "Approved", dept: "Product", createdAt: "2025-05-20T10:30:00" },
+  { id: 203, name: "Vikram Joshi", email: "vikram@skillsphere.com", role: "EMPLOYEE", status: "Approved", dept: "Design", createdAt: "2025-05-20T08:45:00" },
+  { id: 204, name: "Riya Sharma", email: "riya@skillsphere.com", role: "EMPLOYEE", status: "Approved", dept: "Operations", createdAt: "2025-05-19T17:15:00" },
+  { id: 205, name: "Rahul Kumar", email: "rahul@skillsphere.com", role: "EMPLOYEE", status: "Approved", dept: "Engineering", createdAt: "2025-05-19T13:10:00" },
+  { id: 206, name: "Pooja Nair", email: "pooja@skillsphere.com", role: "EMPLOYEE", status: "Approved", dept: "HR", createdAt: "2025-05-18T15:00:00" },
+  { id: 207, name: "Eve Trainer", email: "eve@skillsphere.com", role: "MANAGER", status: "Approved", dept: "Engineering", createdAt: "2025-05-15T11:00:00" },
+  { id: 208, name: "Frank Mentor", email: "frank@skillsphere.com", role: "EMPLOYEE", status: "Pending", dept: "Support", createdAt: "2025-05-14T09:30:00" }
 ];
 
 const initialCertificatesData = [
@@ -165,6 +165,12 @@ const initialCertificatesData = [
   { id: 303, studentName: "Rohan Verma", studentEmail: "rohan@example.com", title: "JavaScript Deep Dive", issuedAt: "2025-05-19T14:30:00", verificationCode: "CERT-JS-542" },
   { id: 304, studentName: "Sneha Iyer", studentEmail: "sneha@example.com", title: "Cloud Computing with AWS", issuedAt: "2025-05-19T11:00:00", verificationCode: "CERT-AWS-871" },
   { id: 305, studentName: "Karan Mehta", studentEmail: "karan@example.com", title: "Machine Learning Foundations", issuedAt: "2025-05-18T16:45:00", verificationCode: "CERT-ML-304" }
+];
+
+const initialLeaveRequestsData = [
+  { id: 1, empId: "EMP001", employeeName: "Alex Vance", employeeEmail: "alex@skillsphere.com", role: "EMPLOYEE", dept: "Engineering", leaveType: "Sick Leave", startDate: "2026-08-05", endDate: "2026-08-07", days: 3, reason: "High fever and doctor advised rest", status: "pending", requestDate: "2026-08-02" },
+  { id: 2, empId: "EMP003", employeeName: "Riya Sharma", employeeEmail: "riya@skillsphere.com", role: "EMPLOYEE", dept: "Operations", leaveType: "Casual Leave", startDate: "2026-08-02", endDate: "2026-08-03", days: 2, reason: "Attending family milestone function", status: "approved", requestDate: "2026-08-01" },
+  { id: 3, empId: "EMP004", employeeName: "David Miller", employeeEmail: "david@skillsphere.com", role: "EMPLOYEE", dept: "Marketing", leaveType: "Paid Time Off", startDate: "2026-08-10", endDate: "2026-08-12", days: 3, reason: "Personal annual trip", status: "pending", requestDate: "2026-08-02" }
 ];
 
 export function AdminProvider({ children }) {
@@ -198,10 +204,28 @@ export function AdminProvider({ children }) {
       return [];
     }
   });
+
+  // ── Workforce Leave Requests ──
+  const [leaveRequests, setLeaveRequests] = useState(() => {
+    try {
+      const local = localStorage.getItem('skillsphere_leave_requests');
+      return local ? JSON.parse(local) : initialLeaveRequestsData;
+    } catch {
+      return initialLeaveRequestsData;
+    }
+  });
   
   const [isAdminAuth, setIsAdminAuth] = useState(() => {
     return localStorage.getItem('admin_session') === 'true';
   });
+
+  const notifyStateChanged = () => {
+    try {
+      window.dispatchEvent(new CustomEvent('skillsphere_sync_event'));
+    } catch (e) {
+      console.warn("Event dispatch failed:", e);
+    }
+  };
 
   useEffect(() => {
     localStorage.setItem('admin_courses', JSON.stringify(courses));
@@ -219,19 +243,59 @@ export function AdminProvider({ children }) {
     localStorage.setItem('admin_certificates', JSON.stringify(certificates));
   }, [certificates]);
 
-  // Keep pendingCourseRequests in sync with localStorage (written by CoursesPage)
   useEffect(() => {
-    const sync = () => {
+    localStorage.setItem('skillsphere_pending_course_requests', JSON.stringify(pendingCourseRequests));
+  }, [pendingCourseRequests]);
+
+  useEffect(() => {
+    localStorage.setItem('skillsphere_leave_requests', JSON.stringify(leaveRequests));
+  }, [leaveRequests]);
+
+  // Sync across tabs and windows safely without triggering infinite re-render loops
+  useEffect(() => {
+    const syncAll = () => {
       try {
-        const fresh = JSON.parse(localStorage.getItem('skillsphere_pending_course_requests') || '[]');
-        setPendingCourseRequests(fresh);
-      } catch {}
+        const localCourses = localStorage.getItem('admin_courses');
+        if (localCourses && localCourses !== JSON.stringify(courses)) {
+          setCourses(JSON.parse(localCourses));
+        }
+
+        const localUsers = localStorage.getItem('admin_users');
+        if (localUsers && localUsers !== JSON.stringify(users)) {
+          setUsers(JSON.parse(localUsers));
+        }
+
+        const localWf = localStorage.getItem('admin_workforce');
+        if (localWf && localWf !== JSON.stringify(workforce)) {
+          setWorkforce(JSON.parse(localWf));
+        }
+
+        const localCerts = localStorage.getItem('admin_certificates');
+        if (localCerts && localCerts !== JSON.stringify(certificates)) {
+          setCertificates(JSON.parse(localCerts));
+        }
+
+        const localCourseReqs = localStorage.getItem('skillsphere_pending_course_requests');
+        if (localCourseReqs && localCourseReqs !== JSON.stringify(pendingCourseRequests)) {
+          setPendingCourseRequests(JSON.parse(localCourseReqs));
+        }
+
+        const localLeaveReqs = localStorage.getItem('skillsphere_leave_requests');
+        if (localLeaveReqs && localLeaveReqs !== JSON.stringify(leaveRequests)) {
+          setLeaveRequests(JSON.parse(localLeaveReqs));
+        }
+      } catch (err) {
+        console.error("Failed syncing context from storage:", err);
+      }
     };
-    // Sync on mount and on storage events
-    sync();
-    window.addEventListener('storage', sync);
-    return () => window.removeEventListener('storage', sync);
-  }, []);
+
+    window.addEventListener('storage', syncAll);
+    window.addEventListener('skillsphere_sync_event', syncAll);
+    return () => {
+      window.removeEventListener('storage', syncAll);
+      window.removeEventListener('skillsphere_sync_event', syncAll);
+    };
+  }, [courses, users, workforce, certificates, pendingCourseRequests, leaveRequests]);
 
   const fetchCourses = async () => {
     try {
@@ -247,9 +311,31 @@ export function AdminProvider({ children }) {
     }
   };
 
+  const fetchLeaves = async () => {
+    try {
+      const token = localStorage.getItem('skillsphere_token') || localStorage.getItem('token');
+      if (!token) return;
+
+      const leavesRes = await fetch(`${API_URL}/api/workforce/leaves`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      if (leavesRes.ok) {
+        const leavesData = await leavesRes.json();
+        if (leavesData.success && leavesData.leaveRequests) {
+          setLeaveRequests(leavesData.leaveRequests);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch leaves:", err);
+    }
+  };
+
   const fetchData = async () => {
     try {
       await fetchCourses();
+      await fetchLeaves();
 
       const usersRes = await fetch(`${API_URL}/api/admin/users`);
       if (usersRes.ok) {
@@ -268,7 +354,6 @@ export function AdminProvider({ children }) {
               createdAt: u.createdAt || new Date().toISOString()
             }));
             setUsers(prev => {
-              // Merge: keep local ones if not present in backend
               const merged = [...students];
               prev.forEach(p => {
                 if (!merged.some(m => m.email === p.email)) {
@@ -339,8 +424,6 @@ export function AdminProvider({ children }) {
     setCourses(prev => [...prev, newCourse]);
 
     try {
-      // New courses must not include the temporary browser id. The server assigns
-      // the persisted id, which is then used for future edits and deletes.
       const { id: temporaryId, ...coursePayload } = newCourse;
       const response = await fetch(`${API_URL}/api/admin/courses`, {
         method: "POST",
@@ -390,7 +473,6 @@ export function AdminProvider({ children }) {
       }
     } catch (err) {
       console.error("Failed to delete course API call:", err);
-      // Keep the local catalog intact when a persisted course could not be deleted.
       if (deletedCourse) {
         setCourses(prev => prev.some(c => c.id === id) ? prev : [...prev, deletedCourse]);
       }
@@ -441,6 +523,7 @@ export function AdminProvider({ children }) {
       name: member.name,
       email: member.email,
       role: member.role || "EMPLOYEE",
+      dept: member.dept || "Engineering",
       status: member.status || "Approved",
       createdAt: member.createdAt || new Date().toISOString()
     };
@@ -482,12 +565,9 @@ export function AdminProvider({ children }) {
       r.id === requestId ? { ...r, status: 'approved' } : r
     );
     setPendingCourseRequests(updated);
-    localStorage.setItem('skillsphere_pending_course_requests', JSON.stringify(updated));
 
-    // Enroll the student: write to their enrolled courses key
     const req = pendingCourseRequests.find(r => r.id === requestId);
     if (req) {
-      // The student's enrolled courses are stored under 'enrolledCourses_{userKey}'
       const userKey = req.studentEmail || 'default';
       const storageKey = `enrolledCourses_${userKey}`;
       try {
@@ -498,13 +578,13 @@ export function AdminProvider({ children }) {
         }
       } catch {}
 
-      // Also update courses list enrollment count
       setCourses(prev => prev.map(c =>
-        c.id.toString() === req.courseId
+        c.id.toString() === req.courseId.toString()
           ? { ...c, enrollments: (c.enrollments || 0) + 1 }
           : c
       ));
     }
+    notifyStateChanged();
   };
 
   const rejectCourseRequest = (requestId) => {
@@ -512,7 +592,7 @@ export function AdminProvider({ children }) {
       r.id === requestId ? { ...r, status: 'rejected' } : r
     );
     setPendingCourseRequests(updated);
-    localStorage.setItem('skillsphere_pending_course_requests', JSON.stringify(updated));
+    notifyStateChanged();
   };
 
   const refreshPendingRequests = () => {
@@ -522,13 +602,90 @@ export function AdminProvider({ children }) {
     } catch {}
   };
 
+  // ── Workforce Leave Requests ──
+  const submitLeaveRequest = (newLeave) => {
+    const leaveItem = {
+      id: newLeave.id || Date.now(),
+      empId: newLeave.empId || `EMP${Math.floor(100 + Math.random() * 900)}`,
+      employeeName: newLeave.employeeName || "Workforce Member",
+      employeeEmail: newLeave.employeeEmail || "employee@skillsphere.com",
+      role: newLeave.role || "EMPLOYEE",
+      dept: newLeave.dept || "Engineering",
+      leaveType: newLeave.leaveType || "Casual Leave",
+      startDate: newLeave.startDate,
+      endDate: newLeave.endDate,
+      days: newLeave.days || 1,
+      reason: newLeave.reason || "Personal leave request",
+      status: "pending",
+      requestDate: new Date().toISOString().split('T')[0]
+    };
+
+    setLeaveRequests(prev => [leaveItem, ...prev]);
+    notifyStateChanged();
+  };
+
+  const approveLeaveRequest = async (requestId) => {
+    const leaveReq = leaveRequests.find(r => r.id === requestId);
+    setLeaveRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: 'approved' } : r));
+
+    if (leaveReq) {
+      setWorkforce(prev => prev.map(w =>
+        w.name.toLowerCase() === leaveReq.employeeName.toLowerCase() || w.email.toLowerCase() === leaveReq.employeeEmail.toLowerCase()
+          ? { ...w, status: "On Leave" }
+          : w
+      ));
+    }
+    notifyStateChanged();
+
+    try {
+      const token = localStorage.getItem('skillsphere_token') || localStorage.getItem('token');
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      await fetch(`${API_URL}/api/workforce/leaves/${requestId}/decision`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ decision: "APPROVED" })
+      });
+    } catch (err) {
+      console.error("Failed approve leave API call:", err);
+    }
+  };
+
+  const rejectLeaveRequest = async (requestId) => {
+    setLeaveRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: 'rejected' } : r));
+    notifyStateChanged();
+
+    try {
+      const token = localStorage.getItem('skillsphere_token') || localStorage.getItem('token');
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      await fetch(`${API_URL}/api/workforce/leaves/${requestId}/decision`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ decision: "REJECTED" })
+      });
+    } catch (err) {
+      console.error("Failed reject leave API call:", err);
+    }
+  };
+
+  const refreshLeaveRequests = () => {
+    try {
+      const fresh = JSON.parse(localStorage.getItem('skillsphere_leave_requests') || '[]');
+      if (fresh.length > 0) setLeaveRequests(fresh);
+    } catch {}
+  };
+
   const value = {
     isAdminAuth, loginAdmin, logoutAdmin,
     courses, addCourse, updateCourse, deleteCourse,
     users, addStudent, toggleStudentStatus, deleteStudent,
     workforce, addWorkforce, changeWorkforceStatus,
     certificates, addCertificate, deleteCertificate,
-    pendingCourseRequests, approveCourseRequest, rejectCourseRequest, refreshPendingRequests
+    pendingCourseRequests, approveCourseRequest, rejectCourseRequest, refreshPendingRequests,
+    leaveRequests, submitLeaveRequest, approveLeaveRequest, rejectLeaveRequest, refreshLeaveRequests
   };
 
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;

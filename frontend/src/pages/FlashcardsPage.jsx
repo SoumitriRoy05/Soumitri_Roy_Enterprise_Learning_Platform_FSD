@@ -5,6 +5,7 @@ import Background from "../components/Background";
 import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
 import FloatingChatbot from "../components/FloatingChatbot";
+import NotificationDropdown from "../components/NotificationDropdown";
 
 import {
   FaHome,
@@ -452,9 +453,7 @@ export default function FlashcardsPage() {
                 {isDarkMode ? <FaSun color="#F59E0B" /> : <FaMoon color="#6366F1" />}
               </button>
 
-              <button className="fcpIconHeaderBtn" title="Notifications">
-                <FaBell />
-              </button>
+              <NotificationDropdown type="student" />
 
               <div className="fcpXpBadgePill">
                 <FaBolt /> {currentXp} XP

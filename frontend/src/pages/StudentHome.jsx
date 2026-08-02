@@ -75,45 +75,51 @@ export default function StudentHome() {
 
   const userKey = user?.email || user?.username || "default";
 
+  const isDemoUser = userKey === "soumitriroy@gmail.com" || userKey === "soumitriroy" || userKey === "default" || user?.isDemo;
+
   // Real Dynamic Enrolled Courses Count
   const localEnrolled = (() => {
     try {
-      const stored = localStorage.getItem(`enrolled_courses_${userKey}`);
-      return stored ? JSON.parse(stored) : ["1", "2", "3"];
+      const stored = localStorage.getItem(`enrolledCourses_${userKey}`) || localStorage.getItem(`enrolled_courses_${userKey}`);
+      return stored ? JSON.parse(stored) : (isDemoUser ? ["1", "2", "3", "6"] : []);
     } catch (e) {
-      return ["1", "2", "3"];
+      return isDemoUser ? ["1", "2", "3", "6"] : [];
     }
   })();
-  const userEnrolledCount = Math.max(3, (enrolledCourses || []).length, localEnrolled.length);
+  const activeEnrolledIds = (enrolledCourses && enrolledCourses.length > 0)
+    ? enrolledCourses
+    : localEnrolled;
+
+  const userEnrolledCount = activeEnrolledIds.length;
 
   // Real Dynamic Earned Certificates Count
   const localEarnedCerts = (() => {
     try {
       const stored = localStorage.getItem(`skillsphere_earned_certs_${userKey}`);
-      return stored ? JSON.parse(stored) : ["react_", "react"];
+      return stored ? JSON.parse(stored) : (isDemoUser ? ["react_"] : []);
     } catch (e) {
-      return ["react_"];
+      return isDemoUser ? ["react_"] : [];
     }
   })();
-  const completedSubLessons = (() => {
+  const earnedCertsCount = localEarnedCerts.length;
+
+  // Real Dynamic Badges Earned Count
+  const localEarnedBadges = (() => {
     try {
-      return JSON.parse(localStorage.getItem(`skillsphere_completed_sub_lessons_${userKey}`) || "[]");
+      const stored = localStorage.getItem(`skillsphere_earned_badges_${userKey}`);
+      return stored ? JSON.parse(stored) : (isDemoUser ? Array.from({ length: 18 }) : (user?.badges || []));
     } catch (e) {
-      return [];
+      return isDemoUser ? Array.from({ length: 18 }) : (user?.badges || []);
     }
   })();
-  const hasReactCert = completedSubLessons.length > 0 || localEarnedCerts.length > 0 || localStorage.getItem(`certificate_react_earned`) === "true";
-  const earnedCertsCount = hasReactCert ? Math.max(1, localEarnedCerts.length) : 0;
+  const earnedBadgesCount = localEarnedBadges.length;
 
-  // Real Dynamic Badges Earned Count (Synchronized to 18 Badges Earned across platform)
-  const earnedBadgesCount = 18;
-
-  const userName = user?.full_name || user?.username || "Learner";
-  const currentXp = Math.max(1500, xp ?? 1500);
+  const userName = user?.full_name || user?.name || user?.username || "Learner";
+  const currentXp = xp ?? user?.xp ?? (isDemoUser ? 1500 : 0);
   const level = Math.floor(currentXp / 2000) + 1;
   const xpInCurrentLevel = currentXp % 2000;
   const xpToNext = 2000 - xpInCurrentLevel;
-  const progressPct = Math.min(100, Math.round((xpInCurrentLevel / 2000) * 100));
+  const progressPct = currentXp > 0 ? Math.min(100, Math.round((xpInCurrentLevel / 2000) * 100)) : 0;
 
   // ── COURSE CATALOG (mirrors CoursesPage) ─────────────────────────────
   const COURSE_CATALOG = [
@@ -129,11 +135,12 @@ export default function StudentHome() {
 
   // Build enrolled course cards with real progress
   const enrolledCourseCards = COURSE_CATALOG
-    .filter(c => (enrolledCourses || []).some(id => id.toString() === c.id.toString()))
+    .filter(c => activeEnrolledIds.some(id => id.toString() === c.id.toString()))
     .map(c => {
-      const done = (completedTopics || []).filter(id => id.startsWith(c.topicPrefix)).length;
-      const pct  = Math.min(100, Math.round((done / c.lessons) * 100));
-      return { ...c, done, pct };
+      const doneCount = (completedTopics || []).filter(id => id.startsWith(c.topicPrefix)).length;
+      const initialDone = doneCount > 0 ? doneCount : (isDemoUser ? (c.id === 2 ? 7 : c.id === 1 ? 5 : c.id === 3 ? 4 : 3) : 0);
+      const pct = Math.min(100, Math.round((initialDone / c.lessons) * 100));
+      return { ...c, done: initialDone, pct };
     });
 
   // ── STREAK CALCULATION ────────────────────────────────────────────────

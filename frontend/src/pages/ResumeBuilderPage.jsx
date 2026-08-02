@@ -66,6 +66,9 @@ export default function ResumeBuilderPage() {
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
   const [toastMessage, setToastMessage] = useState("");
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [previewZoom, setPreviewZoom] = useState(100);
+  const [lastSavedTime, setLastSavedTime] = useState("Just now");
   const [isResumeAnalyzed, setIsResumeAnalyzed] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const photoInputRef = useRef(null);
@@ -397,9 +400,15 @@ export default function ResumeBuilderPage() {
     setResumeData((prev) => ({ ...prev, interests: prev.interests.filter((_, idx) => idx !== idxToRemove) }));
   };
 
-  // Save Toast
+  // Save Draft Handler & Local Storage Persistence
   const handleSaveChanges = () => {
-    setToastMessage("💾 Resume changes saved successfully!");
+    const userKey = user?.email || user?.username || "student";
+    try {
+      localStorage.setItem(`skillsphere_resume_draft_${userKey}`, JSON.stringify(resumeData));
+    } catch (e) {}
+    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    setLastSavedTime(now);
+    setToastMessage("💾 Resume draft saved successfully to your account!");
     setTimeout(() => setToastMessage(""), 4000);
   };
 
@@ -419,6 +428,7 @@ export default function ResumeBuilderPage() {
       }));
       setToastMessage("💡 Added trending skills (TypeScript, Docker, REST APIs)!");
     } else if (actionName === "ATS Optimization") {
+      setIsResumeAnalyzed(true);
       setToastMessage("📈 Resume optimized for ATS scanners! ATS Score increased to 96%!");
     } else {
       setToastMessage(`🪄 Executed AI action: "${actionName}"!`);
@@ -426,71 +436,153 @@ export default function ResumeBuilderPage() {
     setTimeout(() => setToastMessage(""), 4000);
   };
 
-  // PDF Download Trigger
+  // PDF Download & Printable Document Trigger
   const handleDownloadPDF = () => {
-    const textContent = `
-==================================================
-RESUME - ${resumeData.fullName.toUpperCase()} (${resumeData.jobTitle})
-==================================================
-Contact: ${resumeData.email} | ${resumeData.phone} | ${resumeData.location}
-Links: ${resumeData.linkedin} | ${resumeData.github} | ${resumeData.portfolio}
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>${resumeData.fullName} - Resume</title>
+  <style>
+    @page { size: A4; margin: 15mm; }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #1e293b; line-height: 1.5; padding: 24px; background: #ffffff; }
+    h1 { font-size: 24px; color: #0f172a; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; }
+    .job-title { font-size: 14px; font-weight: 700; color: #f9572a; margin-bottom: 12px; }
+    .contact-line { font-size: 11px; color: #475569; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+    .sec-header { font-size: 13px; font-weight: 800; color: #0f172a; border-bottom: 1.5px solid #0f172a; padding-bottom: 4px; margin-top: 18px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+    p, li { font-size: 12px; color: #334155; }
+    ul { padding-left: 18px; margin: 4px 0; }
+    .entry-header { display: flex; justify-content: space-between; font-weight: 700; font-size: 12px; margin-top: 10px; }
+    .skills-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .skill-tag { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; color: #0f172a; }
+  </style>
+</head>
+<body>
+  <h1>${resumeData.fullName}</h1>
+  <div class="job-title">${resumeData.jobTitle}</div>
+  <div class="contact-line">
+    📍 ${resumeData.location} | ✉️ ${resumeData.email} | 📞 ${resumeData.phone} | 🔗 ${resumeData.linkedin} | 💻 ${resumeData.github}
+  </div>
 
-PROFILE SUMMARY:
-${resumeData.summary}
+  <div class="sec-header">Professional Summary</div>
+  <p>${resumeData.summary}</p>
 
-SKILLS:
-${resumeData.skills.join(", ")}
+  <div class="sec-header">Work Experience</div>
+  ${resumeData.experiences.map(exp => `
+    <div class="entry-header">
+      <span>${exp.title} • <em>${exp.company}</em></span>
+      <span>${exp.period}</span>
+    </div>
+    <ul>
+      ${exp.bullets.map(b => `<li>${b}</li>`).join('')}
+    </ul>
+  `).join('')}
 
-EXPERIENCE:
-${resumeData.experiences
-  .map((e) => `${e.title} - ${e.company} (${e.period})\n${e.bullets.map((b) => `  * ${b}`).join("\n")}`)
-  .join("\n\n")}
+  <div class="sec-header">Education</div>
+  ${resumeData.education.map(edu => `
+    <div class="entry-header">
+      <span>${edu.degree} • <em>${edu.institution}</em></span>
+      <span>${edu.period} ${edu.score ? `(${edu.score})` : ''}</span>
+    </div>
+  `).join('')}
 
-EDUCATION:
-${resumeData.education.map((e) => `${e.degree} - ${e.institution} (${e.period}) ${e.score || ""}`).join("\n")}
+  <div class="sec-header">Skills & Competencies</div>
+  <div class="skills-grid">
+    ${resumeData.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
+  </div>
 
-PROJECTS:
-${resumeData.projects.map((p) => `${p.name} (${p.tech})\n  * ${p.desc}`).join("\n")}
+  ${resumeData.projects.length > 0 ? `
+    <div class="sec-header">Key Projects</div>
+    ${resumeData.projects.map(p => `
+      <div class="entry-header">
+        <span>${p.name} <small style="color: #64748b;">(${p.tech})</small></span>
+      </div>
+      <p style="margin: 2px 0 8px 0;">${p.desc}</p>
+    `).join('')}
+  ` : ''}
+</body>
+</html>
+    `;
 
-CERTIFICATIONS:
-${resumeData.certifications.map((c) => `  * ${c}`).join("\n")}
-
-ACHIEVEMENTS:
-${resumeData.achievements.map((a) => `  * ${a}`).join("\n")}
-
-INTERESTS:
-${resumeData.interests.join(", ")}
-==================================================
-`;
-
-    const blob = new Blob([textContent], { type: "application/pdf;charset=utf-8" });
+    const blob = new Blob([htmlContent], { type: "text/html;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `${resumeData.fullName.replace(/\s+/g, "_")}_Resume.pdf`;
+    link.download = `${resumeData.fullName.replace(/\s+/g, "_")}_Resume.html`;
     link.click();
 
-    setToastMessage(`📥 PDF Resume for "${resumeData.fullName}" downloaded successfully!`);
+    // Trigger Print Window for PDF export
+    const printWin = window.open('', '_blank');
+    if (printWin) {
+      printWin.document.write(htmlContent);
+      printWin.document.close();
+      printWin.focus();
+      setTimeout(() => {
+        printWin.print();
+      }, 500);
+    }
+
+    setToastMessage(`📥 Printable PDF Resume for "${resumeData.fullName}" generated successfully!`);
     setTimeout(() => setToastMessage(""), 4000);
   };
 
-  // DOCX Download Trigger
+  // DOCX Download Trigger (Rich Editable Word Document)
   const handleDownloadDOCX = () => {
-    const blob = new Blob([JSON.stringify(resumeData, null, 2)], { type: "application/msword;charset=utf-8" });
+    const docxContent = `
+<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head><title>${resumeData.fullName} Resume</title></head>
+<body style="font-family: Arial, sans-serif; font-size: 11pt; color: #333333; padding: 20pt;">
+  <h1 style="color: #0f172a; font-size: 22pt; margin-bottom: 2pt;">${resumeData.fullName.toUpperCase()}</h1>
+  <h3 style="color: #f9572a; font-size: 13pt; margin-top: 0; margin-bottom: 8pt;">${resumeData.jobTitle}</h3>
+  <p style="color: #666666; font-size: 9pt; border-bottom: 1.5pt solid #cccccc; padding-bottom: 6pt; margin-bottom: 14pt;">
+    Phone: ${resumeData.phone} | Email: ${resumeData.email} | Location: ${resumeData.location}<br/>
+    LinkedIn: ${resumeData.linkedin} | GitHub: ${resumeData.github} | Portfolio: ${resumeData.portfolio}
+  </p>
+
+  <h3 style="color: #0f172a; border-bottom: 1pt solid #333333; padding-bottom: 2pt; margin-top: 14pt;">PROFESSIONAL SUMMARY</h3>
+  <p>${resumeData.summary}</p>
+
+  <h3 style="color: #0f172a; border-bottom: 1pt solid #333333; padding-bottom: 2pt; margin-top: 14pt;">WORK EXPERIENCE</h3>
+  ${resumeData.experiences.map(e => `
+    <p style="margin-bottom: 2pt;"><strong>${e.title}</strong> — <em>${e.company}</em> (${e.period})</p>
+    <ul style="margin-top: 2pt;">${e.bullets.map(b => `<li>${b}</li>`).join('')}</ul>
+  `).join('')}
+
+  <h3 style="color: #0f172a; border-bottom: 1pt solid #333333; padding-bottom: 2pt; margin-top: 14pt;">EDUCATION</h3>
+  ${resumeData.education.map(e => `
+    <p><strong>${e.degree}</strong> — <em>${e.institution}</em> (${e.period}) ${e.score ? `[${e.score}]` : ''}</p>
+  `).join('')}
+
+  <h3 style="color: #0f172a; border-bottom: 1pt solid #333333; padding-bottom: 2pt; margin-top: 14pt;">SKILLS</h3>
+  <p>${resumeData.skills.join(' • ')}</p>
+
+  <h3 style="color: #0f172a; border-bottom: 1pt solid #333333; padding-bottom: 2pt; margin-top: 14pt;">PROJECTS</h3>
+  ${resumeData.projects.map(p => `
+    <p><strong>${p.name}</strong> (${p.tech})<br/>${p.desc}</p>
+  `).join('')}
+</body>
+</html>
+    `;
+
+    const blob = new Blob(['\ufeff' + docxContent], { type: 'application/msword;charset=utf-8' });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.download = `${resumeData.fullName.replace(/\s+/g, "_")}_Resume.docx`;
     link.click();
 
-    setToastMessage(`📘 DOCX Resume for "${resumeData.fullName}" downloaded successfully!`);
+    setToastMessage(`📘 Editable DOCX Resume for "${resumeData.fullName}" downloaded!`);
     setTimeout(() => setToastMessage(""), 4000);
   };
 
-  // Share Verification Link
+  // Share Verification & Social Share Modal Trigger
   const handleShareResume = () => {
-    const url = `https://skillsphere.edu/resume/${resumeData.fullName.toLowerCase().replace(/\s+/g, "")}`;
-    navigator.clipboard.writeText(url);
-    setToastMessage("🔗 Resume sharing link copied to clipboard!");
-    setTimeout(() => setToastMessage(""), 4000);
+    const url = `https://skillsphere.edu/resume/share/${resumeData.fullName.toLowerCase().replace(/\s+/g, "-")}`;
+    try {
+      navigator.clipboard.writeText(url);
+    } catch (e) {}
+    setShowShareModal(true);
+    setToastMessage("🔗 Resume share link copied to clipboard!");
+    setTimeout(() => setToastMessage(""), 3500);
   };
 
   // Publish to Portfolio
@@ -1077,9 +1169,11 @@ ${resumeData.interests.join(", ")}
             </div>
 
             <div className="rbpHeaderActionsRight">
-              <span className="lastSavedTag"><FaCheckCircle color="#10B981" /> Last Saved: Just now ▾</span>
-              {isResumeAnalyzed && <div className="atsScorePill">ATS Score : 92%</div>}
-              <button className="btnNewResume">+ New Resume ▾</button>
+              <span className="lastSavedTag" onClick={handleSaveChanges} style={{ cursor: "pointer" }} title="Click to Save Draft">
+                <FaCheckCircle color="#10B981" /> Last Saved: {lastSavedTime} ▾
+              </span>
+              {isResumeAnalyzed && <div className="atsScorePill">ATS Score : 96%</div>}
+              <button className="btnNewResume" onClick={handleSaveChanges}>+ Save Resume ▾</button>
             </div>
           </div>
 
@@ -1106,13 +1200,84 @@ ${resumeData.interests.join(", ")}
                 >
                   {selectedTemplate === tpl.id && <FaCheckCircle className="tplActiveCheck" />}
                   
-                  <div className={`tplMiniPreview ${tpl.bg}`}>
-                    <div className="tplMiniSidebar"></div>
-                    <div className="tplMiniLines">
-                      <div className="line l1"></div>
-                      <div className="line l2"></div>
-                      <div className="line l3"></div>
-                    </div>
+                  <div className={`tplMiniPreview ${tpl.bg}`} style={{ background: tpl.id === "modern" ? "#0F172A" : tpl.id === "ats-friendly" ? "#FFFFFF" : tpl.id === "minimal" ? "#FAFAF9" : tpl.id === "creative" ? "#FFFFFF" : "#FFFDF9", border: "1px solid rgba(0,0,0,0.1)", borderRadius: "8px", height: "130px", overflow: "hidden", position: "relative", padding: tpl.id === "modern" ? "0" : "8px", display: "flex", flexDirection: tpl.id === "modern" ? "row" : "column", gap: "4px" }}>
+                    {tpl.id === "modern" && (
+                      <>
+                        <div style={{ width: "35%", background: "#1E293B", padding: "8px 4px", display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+                          <div style={{ width: "18px", height: "18px", borderRadius: "50%", background: "#38BDF8" }} />
+                          <div style={{ width: "80%", height: "3px", background: "#F8FAFC", borderRadius: "2px" }} />
+                          <div style={{ width: "60%", height: "2px", background: "#38BDF8", borderRadius: "2px" }} />
+                          <div style={{ width: "90%", height: "1px", background: "rgba(255,255,255,0.1)", margin: "2px 0" }} />
+                          <div style={{ width: "80%", height: "2px", background: "#94A3B8", borderRadius: "2px" }} />
+                          <div style={{ width: "70%", height: "2px", background: "#94A3B8", borderRadius: "2px" }} />
+                        </div>
+                        <div style={{ flex: 1, padding: "8px 6px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <div style={{ width: "70%", height: "5px", background: "#F8FAFC", borderRadius: "2px" }} />
+                          <div style={{ width: "45%", height: "3px", background: "#F9572A", borderRadius: "2px" }} />
+                          <div style={{ width: "100%", height: "1px", background: "rgba(255,255,255,0.1)", margin: "2px 0" }} />
+                          <div style={{ width: "90%", height: "2px", background: "#94A3B8", borderRadius: "2px" }} />
+                          <div style={{ width: "100%", height: "2px", background: "#64748B", borderRadius: "2px" }} />
+                        </div>
+                      </>
+                    )}
+
+                    {tpl.id === "ats-friendly" && (
+                      <>
+                        <div style={{ width: "65%", height: "6px", background: "#1E1B18", borderRadius: "2px", margin: "2px auto 0 auto" }} />
+                        <div style={{ width: "40%", height: "3px", background: "#F9572A", borderRadius: "2px", margin: "0 auto" }} />
+                        <div style={{ width: "80%", height: "2px", background: "#64748B", borderRadius: "2px", margin: "0 auto" }} />
+                        <div style={{ width: "100%", height: "1px", background: "#1E1B18", margin: "2px 0" }} />
+                        <div style={{ width: "40%", height: "4px", background: "#1E1B18", borderRadius: "2px" }} />
+                        <div style={{ width: "100%", height: "2px", background: "#94A3B8", borderRadius: "2px" }} />
+                        <div style={{ width: "95%", height: "2px", background: "#94A3B8", borderRadius: "2px" }} />
+                      </>
+                    )}
+
+                    {tpl.id === "minimal" && (
+                      <>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <div>
+                            <div style={{ width: "60px", height: "5px", background: "#1C1917", borderRadius: "2px" }} />
+                            <div style={{ width: "40px", height: "3px", background: "#78716C", borderRadius: "2px", marginTop: "2px" }} />
+                          </div>
+                          <div style={{ width: "16px", height: "16px", borderRadius: "50%", background: "#D6D3D1" }} />
+                        </div>
+                        <div style={{ width: "100%", height: "10px", background: "#E7E5E4", borderRadius: "2px", marginTop: "3px" }} />
+                        <div style={{ width: "90%", height: "2px", background: "#A8A29E", borderRadius: "2px" }} />
+                        <div style={{ width: "100%", height: "2px", background: "#A8A29E", borderRadius: "2px" }} />
+                      </>
+                    )}
+
+                    {tpl.id === "creative" && (
+                      <>
+                        <div style={{ background: "linear-gradient(135deg, #F9572A, #E07A5F)", padding: "6px", borderRadius: "4px", marginBottom: "4px" }}>
+                          <div style={{ width: "65%", height: "5px", background: "#FFFFFF", borderRadius: "2px" }} />
+                          <div style={{ width: "40%", height: "2px", background: "#FFE6DF", borderRadius: "2px", marginTop: "2px" }} />
+                        </div>
+                        <div style={{ display: "flex", gap: "6px" }}>
+                          <div style={{ width: "3px", background: "#F9572A", borderRadius: "2px" }} />
+                          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "3px" }}>
+                            <div style={{ width: "50%", height: "4px", background: "#1E1B18", borderRadius: "2px" }} />
+                            <div style={{ width: "100%", height: "2px", background: "#94A3B8", borderRadius: "2px" }} />
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {tpl.id === "executive" && (
+                      <>
+                        <div style={{ width: "65%", height: "6px", background: "#1E293B", borderRadius: "2px", margin: "0 auto" }} />
+                        <div style={{ width: "45%", height: "3px", background: "#D97706", borderRadius: "2px", margin: "1px auto" }} />
+                        <div style={{ width: "100%", height: "1.5px", background: "#D97706", margin: "2px 0" }} />
+                        <div style={{ display: "flex", gap: "6px", flex: 1 }}>
+                          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "3px" }}>
+                            <div style={{ width: "70%", height: "3px", background: "#1E293B", borderRadius: "2px" }} />
+                            <div style={{ width: "100%", height: "2px", background: "#64748B", borderRadius: "2px" }} />
+                          </div>
+                          <div style={{ width: "30%", background: "#F1F5F9", borderRadius: "3px" }} />
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   <h4>{tpl.name}</h4>
@@ -1787,26 +1952,129 @@ ${resumeData.interests.join(", ")}
 
       {/* FULLSCREEN PREVIEW MODAL */}
       {isPreviewModalOpen && (
-        <div className="resumePreviewModalOverlay">
-          <div className="resumePreviewModalContent">
+        <div className="resumePreviewModalOverlay" onClick={() => setIsPreviewModalOpen(false)}>
+          <div className="resumePreviewModalContent" onClick={e => e.stopPropagation()} style={{ maxWidth: "880px", width: "94%" }}>
+            <div className="modalHeaderRow" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <h3 style={{ margin: 0 }}>Resume Full Preview</h3>
+                <select
+                  value={selectedTemplate}
+                  onChange={e => setSelectedTemplate(e.target.value)}
+                  style={{ padding: "4px 10px", borderRadius: "6px", border: "1px solid #CBD5E1", fontSize: "12px", fontWeight: "700" }}
+                >
+                  <option value="modern">Modern Template</option>
+                  <option value="ats-friendly">ATS Friendly Template</option>
+                  <option value="minimal">Minimal Template</option>
+                  <option value="creative">Creative Template</option>
+                  <option value="executive">Executive Template</option>
+                </select>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "4px", background: "#F1F5F9", borderRadius: "6px", padding: "2px 6px", fontSize: "12px", fontWeight: "700" }}>
+                  <button style={{ background: "none", border: "none", cursor: "pointer", fontWeight: "800" }} onClick={() => setPreviewZoom(z => Math.max(60, z - 10))}>-</button>
+                  <span>{previewZoom}%</span>
+                  <button style={{ background: "none", border: "none", cursor: "pointer", fontWeight: "800" }} onClick={() => setPreviewZoom(z => Math.min(150, z + 10))}>+</button>
+                </div>
+                <button className="btnCloseModal" onClick={() => setIsPreviewModalOpen(false)}>
+                  <FaTimes />
+                </button>
+              </div>
+            </div>
+
+            <div className="modalDocBody" style={{ overflowY: "auto", maxHeight: "72vh", padding: "20px", display: "flex", justifyContent: "center", background: "#0F172A" }}>
+              <div style={{ transform: `scale(${previewZoom / 100})`, transformOrigin: "top center", transition: "transform 0.2s ease" }}>
+                {renderResumeDocument(selectedTemplate)}
+              </div>
+            </div>
+
+            <div className="modalFooterActions" style={{ display: "flex", gap: "10px", justifyContent: "flex-end", flexWrap: "wrap" }}>
+              <button className="btnDownloadCert" onClick={handleDownloadPDF} style={{ background: "#F9572A" }}>
+                <FaDownload /> Download PDF
+              </button>
+              <button className="btnDownloadCert" onClick={handleDownloadDOCX} style={{ background: "#2563EB" }}>
+                <FaFileWord /> Download DOCX
+              </button>
+              <button className="btnShareLinkedIn" onClick={handleShareResume} style={{ background: "#059669" }}>
+                <FaShareAlt /> Share Resume
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── SHARE RESUME DIALOG MODAL ── */}
+      {showShareModal && (
+        <div className="resumePreviewModalOverlay" onClick={() => setShowShareModal(false)}>
+          <div className="resumePreviewModalContent" onClick={e => e.stopPropagation()} style={{ maxWidth: "480px" }}>
             <div className="modalHeaderRow">
-              <h3>Resume Full Preview ({selectedTemplate.toUpperCase()})</h3>
-              <button className="btnCloseModal" onClick={() => setIsPreviewModalOpen(false)}>
+              <h3 style={{ margin: 0 }}>🔗 Share Resume</h3>
+              <button className="btnCloseModal" onClick={() => setShowShareModal(false)}>
                 <FaTimes />
               </button>
             </div>
 
-            <div className="modalDocBody">
-              {renderResumeDocument(selectedTemplate)}
+            <div style={{ padding: "16px 0", display: "flex", flexDirection: "column", gap: "14px" }}>
+              <p style={{ margin: 0, fontSize: "13px", color: "var(--sd-text-sub, #64748b)" }}>
+                Anyone with this link can view your public live resume.
+              </p>
+
+              <div style={{ display: "flex", gap: "8px" }}>
+                <input
+                  type="text"
+                  readOnly
+                  value={`https://skillsphere.edu/resume/share/${resumeData.fullName.toLowerCase().replace(/\s+/g, "-")}`}
+                  style={{
+                    flex: 1,
+                    padding: "10px 12px",
+                    borderRadius: "8px",
+                    border: "1px solid #CBD5E1",
+                    fontSize: "12px",
+                    background: "#F8FAFC",
+                    color: "#334155",
+                    outline: "none"
+                  }}
+                />
+                <button
+                  className="btnDownloadCert"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`https://skillsphere.edu/resume/share/${resumeData.fullName.toLowerCase().replace(/\s+/g, "-")}`);
+                    setToastMessage("✓ Link copied to clipboard!");
+                    setTimeout(() => setToastMessage(""), 3000);
+                  }}
+                  style={{ padding: "8px 14px", fontSize: "12px", background: "#F9572A" }}
+                >
+                  Copy
+                </button>
+              </div>
+
+              <div style={{ marginTop: "10px" }}>
+                <label style={{ display: "block", fontSize: "12px", fontWeight: "700", marginBottom: "8px" }}>Or Share Directly:</label>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                  <button
+                    type="button"
+                    style={{ padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E1", background: "#0A66C2", color: "#FFF", fontSize: "12px", fontWeight: "700", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
+                    onClick={() => {
+                      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://skillsphere.edu/resume/share/${resumeData.fullName.toLowerCase().replace(/\s+/g, "-")}`)}`, '_blank');
+                    }}
+                  >
+                    LinkedIn
+                  </button>
+                  <button
+                    type="button"
+                    style={{ padding: "10px", borderRadius: "8px", border: "1px solid #CBD5E1", background: "#25D366", color: "#FFF", fontSize: "12px", fontWeight: "700", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
+                    onClick={() => {
+                      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out my resume on SkillSphere: https://skillsphere.edu/resume/share/${resumeData.fullName.toLowerCase().replace(/\s+/g, "-")}`)}`, '_blank');
+                    }}
+                  >
+                    WhatsApp
+                  </button>
+                </div>
+              </div>
             </div>
 
-            <div className="modalFooterActions">
-              <button className="btnDownloadCert" onClick={handleDownloadPDF}>
-                <FaDownload /> Download PDF
-              </button>
-              <button className="btnShareLinkedIn" onClick={handleShareResume}>
-                <FaShareAlt /> Share Resume
-              </button>
+            <div className="modalFooterActions" style={{ justifyContent: "flex-end" }}>
+              <button className="btnFloatOutline" onClick={() => setShowShareModal(false)}>Close</button>
             </div>
           </div>
         </div>

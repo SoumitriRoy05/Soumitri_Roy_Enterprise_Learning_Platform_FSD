@@ -114,12 +114,26 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (user) {
-      setXp(user.xp !== undefined ? user.xp : 0);
-      setCompletedTopics(user.completed_topics || []);
-      
-      // Sync enrolled courses (ensure IDs are string types for consistent matching)
-      const coursesFromDb = user.enrolled_courses || [];
-      setEnrolledCourses(coursesFromDb.map(id => id.toString()));
+      const userKey = user.email || user.username || user.id || 'default';
+
+      const savedXp = localStorage.getItem(`xp_${userKey}`);
+      const initialXp = user.xp !== undefined && user.xp !== null ? user.xp : (savedXp ? parseInt(savedXp) : 0);
+      setXp(initialXp);
+
+      const savedTopics = localStorage.getItem(`completed_topics_${userKey}`);
+      const initialTopics = (user.completed_topics && user.completed_topics.length > 0)
+        ? user.completed_topics
+        : (savedTopics ? JSON.parse(savedTopics) : []);
+      setCompletedTopics(initialTopics);
+
+      const savedCourses = localStorage.getItem(`enrolledCourses_${userKey}`) || localStorage.getItem(`enrolled_courses_${userKey}`);
+      // For new users, default to empty list []. Demo accounts default to demo courses if not set.
+      const isDemoUser = userKey === "soumitriroy@gmail.com" || userKey === "soumitriroy" || userKey === "default" || user.isDemo;
+      const defaultCourses = isDemoUser ? ["1", "2", "3", "6"] : [];
+      const initialCourses = (user.enrolled_courses && user.enrolled_courses.length > 0)
+        ? user.enrolled_courses
+        : (savedCourses ? JSON.parse(savedCourses) : defaultCourses);
+      setEnrolledCourses(initialCourses.map(id => id.toString()));
     } else {
       setXp(0);
       setCompletedTopics([]);
@@ -267,7 +281,18 @@ export function AuthProvider({ children }) {
         throw new Error(data.message || 'Failed to fetch profile');
       }
 
-      setUser(data.user);
+      let finalUser = data.user;
+      if (finalUser) {
+        const userKey = finalUser.email || finalUser.username || finalUser.id || 'default';
+        try {
+          const savedOverride = localStorage.getItem(`profile_override_${userKey}`) || localStorage.getItem(`skillsphere_user_profile_${userKey}`);
+          if (savedOverride) {
+            finalUser = { ...finalUser, ...JSON.parse(savedOverride) };
+          }
+        } catch (e) {}
+      }
+
+      setUser(finalUser);
     } catch (err) {
       console.error('Session restore failed:', err.message);
       clearSession();
@@ -277,24 +302,25 @@ export function AuthProvider({ children }) {
 
   const updateUserProfile = async (details) => {
     if (!user) return;
+    const userKey = user.email || user.username || user.id || 'default';
+    const updated = { ...user, ...details };
+
     try {
-      const response = await authenticatedFetch(`${API_URL}/api/profile/update`, {
+      localStorage.setItem(`profile_override_${userKey}`, JSON.stringify(updated));
+      localStorage.setItem(`skillsphere_user_profile_${userKey}`, JSON.stringify(updated));
+      localStorage.setItem('user', JSON.stringify(updated));
+    } catch (e) {}
+
+    setUser(updated);
+
+    try {
+      await authenticatedFetch(`${API_URL}/api/profile/update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(details),
       });
-      const data = await response.json();
-      if (response.ok && data.success) {
-        setUser(prev => ({ ...prev, ...details }));
-      }
     } catch (err) {
       console.error('Failed to update profile in database:', err);
-      // Fallback local storage
-      setUser(prev => {
-        const updated = { ...prev, ...details };
-        localStorage.setItem(`profile_override_${prev.email || prev.username}`, JSON.stringify(updated));
-        return updated;
-      });
     }
   };
 
