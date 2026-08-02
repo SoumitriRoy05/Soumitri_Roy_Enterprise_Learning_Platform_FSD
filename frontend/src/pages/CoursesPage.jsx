@@ -326,30 +326,82 @@ export default function CoursesPage() {
   const userEnrolled = enrolledCourses || [];
   const userCompletedTopics = completedTopics || [];
 
-  // Read local pending course approval requests
+  // Also read admin-approved enrollments from localStorage (set by admin when approving a request)
+  const localApprovedEnrolled = (() => {
+    try {
+      return JSON.parse(localStorage.getItem(`enrolledCourses_${userKey}`) || "[]");
+    } catch {
+      return [];
+    }
+  })();
+
+  // Merge both enrollment sources
+  const allEnrolled = [
+    ...userEnrolled.map(id => id.toString()),
+    ...localApprovedEnrolled.map(id => id.toString())
+  ].filter((v, i, arr) => arr.indexOf(v) === i); // deduplicate
+
+  // Read pending course approval requests (for the current user)
   const pendingRequests = (() => {
     try {
-      return JSON.parse(localStorage.getItem("skillsphere_pending_course_requests") || "[]");
+      const all = JSON.parse(localStorage.getItem("skillsphere_pending_course_requests") || "[]");
+      // Only show requests for this user
+      return all.filter(r => r.studentEmail === userKey || r.studentEmail === user?.email);
     } catch (e) {
       return [];
     }
   })();
 
-  const courseList = rawCourses.map((c) => {
+  // Read admin-added courses from localStorage and merge with rawCourses (admin may add new ones)
+  const adminCatalogCourses = (() => {
+    try {
+      const adminCourses = JSON.parse(localStorage.getItem('admin_courses') || '[]');
+      // Map admin courses to the CoursesPage course format
+      return adminCourses
+        .filter(ac => !rawCourses.some(rc => rc.id === ac.id || rc.title === ac.title))
+        .map(ac => ({
+          id: ac.id,
+          title: ac.title,
+          subtitle: ac.description || '',
+          logoText: ac.title.slice(0, 2).toUpperCase(),
+          logoBg: '#FFF0EB',
+          logoColor: '#F9572A',
+          rating: ac.rating || '4.5',
+          reviews: ac.reviews || '0',
+          lessons: '10 Lessons',
+          bannerType: 'general',
+          topicPrefix: `admin_${ac.id}_`,
+          imgSrc: ac.image || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&auto=format&fit=crop&q=80',
+          isPremium: ac.isPremium,
+          price: ac.price,
+          isAdminAdded: true
+        }));
+    } catch {
+      return [];
+    }
+  })();
+
+  // Combined course list: base courses + admin-added courses
+  const allRawCourses = [...rawCourses, ...adminCatalogCourses];
+
+  const courseList = allRawCourses.map((c) => {
     const cidStr = c.id.toString();
-    const isEnrolled = userEnrolled.includes(cidStr) || userEnrolled.includes(c.id);
+    const isEnrolled = allEnrolled.includes(cidStr) || allEnrolled.includes(c.id);
     const topicsDone = userCompletedTopics.filter((id) => id.startsWith(c.topicPrefix || "")).length;
     const progress = isEnrolled ? Math.min(100, Math.round((topicsDone / 6) * 100)) : 0;
 
+    // Check pending approval for THIS user only
     const isPendingApproval = pendingRequests.some(r => r.courseId === cidStr && r.status === "pending");
+    // Check if admin approved (status = 'approved') — even if not in DB yet
+    const isAdminApproved = pendingRequests.some(r => r.courseId === cidStr && r.status === "approved");
 
     let status = "locked";
     let statusText = "Locked";
 
-    if (isPendingApproval && !isEnrolled) {
+    if (isPendingApproval && !isEnrolled && !isAdminApproved) {
       status = "pending-approval";
       statusText = "⏳ Pending Admin Approval";
-    } else if (isEnrolled) {
+    } else if (isEnrolled || isAdminApproved) {
       if (progress >= 100) {
         status = "completed";
         statusText = "Completed";
@@ -361,7 +413,7 @@ export default function CoursesPage() {
 
     return {
       ...c,
-      isEnrolled,
+      isEnrolled: isEnrolled || isAdminApproved,
       isPendingApproval,
       progress,
       status,
