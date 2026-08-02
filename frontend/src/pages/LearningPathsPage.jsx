@@ -2737,7 +2737,7 @@ function AnalyticsDashboard() {
               </div>
 
               {/* Main 2-Column Content Grid */}
-              <div className="lpGridContainer">
+              <div className="lpGridContainer" style={{ gridTemplateColumns: "minmax(0, 1fr)" }}>
                 
                 {/* Center Main Column */}
                 <div className="lpCenterColumn">
@@ -2917,7 +2917,7 @@ function AnalyticsDashboard() {
                 </div>
 
                 {/* ── RIGHT COLUMN SIDEBAR WIDGETS ── */}
-                <div className="lpRightSidebar">
+                <div className="lpRightSidebar" style={{ display: "none" }}>
                   
                   {/* Overall Progress Gauge Widget */}
                   <div className="lpWidgetCard">

@@ -141,6 +141,10 @@
   gap: 20px;
 }
 
+/* Student dashboard: discussion sidebar widgets are currently disabled. */
+.dpWorkspaceGrid { grid-template-columns: minmax(0, 1fr) !important; }
+.dpRightWidgetsCol { display: none !important; }
+
 .dpLeftContentCol {
   display: flex;
   flex-direction: column;

@@ -209,7 +209,7 @@
   display: grid;
   grid-template-columns: 1fr 340px;
   gap: 20px;
-  margin-bottom: 80px;
+  margin-bottom: 28px;
 }
 
 .rbpLeftFormCol { display: flex; flex-direction: column; gap: 20px; }
@@ -267,7 +267,9 @@
 .photoUploadRow span { font-size: 11px; font-weight: 700; color: #64748B; width: 50px; }
 .photoBox { display: flex; align-items: center; gap: 14px; }
 .userPhotoAvatar { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid #F9572A; }
-.uploadBtnBox { border: 1px dashed #CBD5E1; border-radius: 12px; padding: 8px 16px; text-align: center; cursor: pointer; background: #FFFFFF; }
+.uploadBtnBox { border: 1px dashed #CBD5E1; border-radius: 12px; padding: 8px 16px; text-align: center; cursor: pointer; background: #FFFFFF; font: inherit; }
+.uploadBtnBox:hover { border-color: #F9572A; background: #FFF7F4; }
+.uploadBtnBox:focus-visible { outline: 2px solid #F9572A; outline-offset: 2px; }
 .uploadBtnBox span { font-size: 10px; font-weight: 800; color: #F9572A; display: block; }
 .uploadBtnBox small { font-size: 8px; color: #94A3B8; }
 
@@ -497,25 +499,36 @@
 .execSkillRatingItem { display: flex; justify-content: space-between; align-items: center; background: #FFF; border: 1px solid #F1F5F9; padding: 2px 6px; border-radius: 4px; }
 .redDots { font-size: 6px; }
 
-/* ── SECTION 5: BOTTOM FLOATING ACTION BAR ── */
+/* ── SECTION 5: PAGE-BOTTOM ACTION BAR ── */
 .rbpFloatingActionBar {
-  position: fixed;
-  bottom: 24px; left: 50%;
-  transform: translateX(-50%);
-  background: #FFFFFF;
-  border: 1px solid #F3EBE1;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+  position: relative;
+  bottom: auto;
+  left: auto;
+  transform: none;
+  width: fit-content;
+  margin: 0 auto 32px;
+  background: linear-gradient(135deg, #FFF9F5 0%, #FFF1EB 100%);
+  border: 1px solid #FAD6C8;
+  box-shadow: 0 12px 30px rgba(249, 87, 42, 0.12);
   border-radius: 99px;
   padding: 8px 16px;
   display: flex;
   align-items: center;
   gap: 10px;
-  z-index: 100;
+  z-index: 1;
+}
+
+.rbpLeftFormCol .rbpFloatingActionBar {
+  align-self: flex-start;
+  max-width: 100%;
+  margin: 0;
+  border-radius: 20px;
+  flex-wrap: wrap;
 }
 
 .btnFloatOutline {
-  background: #FFFFFF;
-  border: 1px solid #CBD5E1;
+  background: #FFFCFA;
+  border: 1px solid #E8D6CF;
   color: #475569;
   padding: 8px 16px;
   border-radius: 99px;

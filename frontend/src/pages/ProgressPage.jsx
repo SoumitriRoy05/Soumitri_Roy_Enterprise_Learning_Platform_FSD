@@ -338,7 +338,7 @@ export default function ProgressPage() {
             </div>
 
             {/* Card 5: Time Learned */}
-            <div className="ppStatCard">
+            <div className="ppStatCard" style={{ display: "none" }}>
               <div className="statIcon gold"><FaClock /></div>
               <div>
                 <span className="lbl">Time Learned</span>
@@ -610,7 +610,7 @@ export default function ProgressPage() {
               </div>
 
               {/* BOTTOM ROW: Recent Activity Horizontal Timeline */}
-              <div className="ppCardBlock">
+              <div className="ppCardBlock ppRecentActivity" style={{ display: "none" }}>
                 <div className="chartTitleRow">
                   <h4>⏱️ Recent Activity</h4>
                   <span className="viewAllLink">View All Activity</span>
@@ -678,7 +678,7 @@ export default function ProgressPage() {
             <div className="ppRightSidebar">
               
               {/* Monthly Goal Arch Gauge Widget */}
-              <div className="ppWidgetCard">
+              <div className="ppWidgetCard" style={{ display: "none" }}>
                 <div className="widgetTitleRow">
                   <h4>🎯 Monthly Goal</h4>
                   <span className="editGoalLink">Edit Goal</span>
@@ -733,7 +733,7 @@ export default function ProgressPage() {
               </div>
 
               {/* Next Milestone Trophy Widget */}
-              <div className="ppWidgetCard">
+              <div className="ppWidgetCard" style={{ display: "none" }}>
                 <div className="widgetTitleRow">
                   <h4>🚀 Next Milestone</h4>
                 </div>

@@ -409,6 +409,9 @@
 
 /* RIGHT COLUMN SIDEBAR WIDGETS */
 .asRightSidebar { display: flex; flex-direction: column; gap: 20px; }
+
+/* Student dashboard: the assignment help widget is currently disabled. */
+.asRightSidebar .asWidgetCard:last-child { display: none !important; }
 .asWidgetCard { background: #FFFFFF; border: 1px solid #F3EBE1; border-radius: 24px; padding: 20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02); }
 .asWidgetCard h4 { font-size: 14px; font-weight: 800; margin: 0 0 14px 0; }
 

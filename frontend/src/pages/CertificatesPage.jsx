@@ -944,7 +944,7 @@ export default function CertificatesPage() {
               </div>
 
               {/* Certificate Benefits Checklist Widget */}
-              <div className="cpWidgetCard">
+              <div className="cpWidgetCard" style={{ display: "none" }}>
                 <h4>Certificate Benefits</h4>
 
                 <ul className="benefitsList">
@@ -996,7 +996,7 @@ export default function CertificatesPage() {
               </div>
 
               {/* Show off your achievement! Banner Widget */}
-              <div className="shareLinkedInBanner">
+              <div className="shareLinkedInBanner" style={{ display: "none" }}>
                 <div>
                   <h5>Show off your achievement! 🚀</h5>
                   <p>Share your certificate on LinkedIn and inspire your network.</p>

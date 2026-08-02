@@ -628,7 +628,7 @@ export default function CoursesPage() {
           </div>
 
           {/* Main 2-Column Content Grid */}
-          <div className="mcGridContainer">
+          <div className="mcGridContainer" style={{ gridTemplateColumns: "minmax(0, 1fr)" }}>
             
             {/* Center Main Column */}
             <div className="mcCenterColumn">
@@ -791,7 +791,7 @@ export default function CoursesPage() {
             </div>
 
             {/* ── RIGHT COLUMN SIDEBAR (MY LEARNING OVERVIEW) ── */}
-            <div className="mcRightSidebar">
+            <div className="mcRightSidebar" style={{ display: "none" }}>
               
               {/* My Learning Overview 2x2 Grid */}
               <div className="mcOverviewCard">

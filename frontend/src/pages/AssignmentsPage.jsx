@@ -675,7 +675,7 @@ export default function AssignmentsPage() {
               </div>
 
               {/* Need Help? Widget */}
-              <div className="asWidgetCard">
+              <div className="asWidgetCard" style={{ display: "none" }}>
                 <h4>Need Help?</h4>
 
                 <div className="helpLinksList">

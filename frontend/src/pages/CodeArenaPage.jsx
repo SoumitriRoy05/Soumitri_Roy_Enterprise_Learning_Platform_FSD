@@ -541,7 +541,7 @@ export default function CodeArenaPage() {
           </header>
 
           {/* Main 2-Column Grid */}
-          <div className="caDashboardGrid">
+          <div className="caDashboardGrid" style={{ gridTemplateColumns: "minmax(0, 1fr)" }}>
             
             {/* ── LEFT MAIN COLUMN ── */}
             <div className="caCenterCol">
@@ -877,7 +877,7 @@ export default function CodeArenaPage() {
             </div>
 
             {/* ── RIGHT SIDEBAR WIDGETS COLUMN ── */}
-            <div className="caRightCol">
+            <div className="caRightCol" style={{ display: "none" }}>
               
               {/* 1. Weekly Contest Card */}
               <div className="caWidgetCard contestCard">

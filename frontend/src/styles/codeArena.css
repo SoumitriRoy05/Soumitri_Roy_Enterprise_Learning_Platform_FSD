@@ -415,6 +415,10 @@
   gap: 24px;
 }
 
+/* Student dashboard: CodeArena sidebar widgets are currently disabled. */
+.caDashboardGrid { grid-template-columns: minmax(0, 1fr) !important; }
+.caRightCol { display: none !important; }
+
 /* ── CENTER MAIN COLUMN ── */
 .caCenterCol {
   display: flex;

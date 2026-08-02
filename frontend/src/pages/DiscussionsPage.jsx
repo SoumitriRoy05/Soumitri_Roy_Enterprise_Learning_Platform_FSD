@@ -586,7 +586,7 @@ export default function DiscussionsPage() {
           </div>
 
           {/* ── TWO-COLUMN MAIN CONTENT WORKSPACE ── */}
-          <div className="dpWorkspaceGrid">
+          <div className="dpWorkspaceGrid" style={{ gridTemplateColumns: "minmax(0, 1fr)" }}>
             
             {/* LEFT COLUMN: SUB-TABS & THREAD CARDS STACK */}
             <div className="dpLeftContentCol">
@@ -700,7 +700,7 @@ export default function DiscussionsPage() {
             </div>
 
             {/* RIGHT COLUMN: 3 WIDGET CARDS */}
-            <aside className="dpRightWidgetsCol">
+            <aside className="dpRightWidgetsCol" style={{ display: "none" }}>
               
               {/* Card 1: Upcoming Discussions */}
               <div className="dpWidgetCard">

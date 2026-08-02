@@ -385,7 +385,7 @@ export default function DailyQuestsPage() {
           </div>
 
           {/* 2-COLUMN MAIN WORKSPACE GRID */}
-          <div className="dqpGridContainer">
+          <div className="dqpGridContainer" style={{ gridTemplateColumns: "minmax(0, 1fr)" }}>
             
             {/* CENTER COLUMN: TODAY'S QUESTS LIST */}
             <div className="dqpCenterColumn">
@@ -457,7 +457,7 @@ export default function DailyQuestsPage() {
             </div>
 
             {/* RIGHT COLUMN SIDEBAR WIDGETS */}
-            <div className="dqpRightSidebar">
+            <div className="dqpRightSidebar" style={{ display: "none" }}>
               {/* Leaderboard Widget */}
 
               {/* Leaderboard Widget */}

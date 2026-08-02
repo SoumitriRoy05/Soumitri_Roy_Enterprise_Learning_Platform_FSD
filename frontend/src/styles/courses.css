@@ -409,6 +409,10 @@
 /* RIGHT COLUMN SIDEBAR WIDGETS */
 .mcRightSidebar { display: flex; flex-direction: column; gap: 20px; }
 
+/* Student dashboard: course overview widgets are currently disabled. */
+.mcGridContainer { grid-template-columns: minmax(0, 1fr) !important; }
+.mcRightSidebar { display: none !important; }
+
 .mcOverviewCard {
   background: #FFFFFF;
   border: 1px solid #F3EBE1;

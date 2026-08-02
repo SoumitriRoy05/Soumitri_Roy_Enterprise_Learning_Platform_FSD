@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Background from "../components/Background";
@@ -68,6 +68,7 @@ export default function ResumeBuilderPage() {
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [isResumeAnalyzed, setIsResumeAnalyzed] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const photoInputRef = useRef(null);
 
   const handleLogout = async () => {
     try {
@@ -213,6 +214,32 @@ export default function ResumeBuilderPage() {
   // Helper Input Handler for Top-Level Fields
   const handleInputChange = (field, value) => {
     setResumeData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handlePhotoUpload = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setToastMessage("Please choose a JPG, PNG, or other image file.");
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setToastMessage("Please choose an image smaller than 2 MB.");
+      event.target.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setResumeData((prev) => ({ ...prev, photoUrl: reader.result }));
+      setToastMessage("Profile photo updated in your resume preview.");
+      setTimeout(() => setToastMessage(""), 4000);
+    };
+    reader.readAsDataURL(file);
+    event.target.value = "";
   };
 
   // ── EDUCATION HANDLERS ──
@@ -1203,11 +1230,22 @@ ${resumeData.interests.join(", ")}
                           <span>Photo</span>
                           <div className="photoBox">
                             <img src={resumeData.photoUrl} alt="Avatar" className="userPhotoAvatar" />
-                            <div className="uploadBtnBox">
+                            <input
+                              ref={photoInputRef}
+                              type="file"
+                              accept="image/jpeg,image/png,image/webp"
+                              onChange={handlePhotoUpload}
+                              hidden
+                            />
+                            <button
+                              type="button"
+                              className="uploadBtnBox"
+                              onClick={() => photoInputRef.current?.click()}
+                            >
                               <FaCamera color="#F9572A" />
                               <span>Upload Photo</span>
                               <small>JPG, PNG (max 2MB)</small>
-                            </div>
+                            </button>
                           </div>
                         </div>
 
@@ -1703,6 +1741,28 @@ ${resumeData.interests.join(", ")}
                   </div>
 
                 </div>
+
+                {/* Resume actions stay directly below the editor's Save Changes button. */}
+                <div className="rbpFloatingActionBar">
+                  <button className="btnFloatOutline" onClick={handleSaveChanges}>
+                    Save Draft
+                  </button>
+                  <button className="btnFloatOutline" onClick={() => setIsPreviewModalOpen(true)}>
+                    <FaEye /> Preview
+                  </button>
+                  <button className="btnFloatOutline orange" onClick={handleDownloadPDF}>
+                    <FaDownload /> Download PDF
+                  </button>
+                  <button className="btnFloatOutline blue" onClick={handleDownloadDOCX}>
+                    <FaFileWord /> Download DOCX
+                  </button>
+                  <button className="btnFloatOutline" onClick={handleShareResume}>
+                    <FaShareAlt /> Share Resume
+                  </button>
+                  <button className="btnFloatPrimary" onClick={handlePublishPortfolio}>
+                    🚀 Publish to Portfolio
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -1720,28 +1780,6 @@ ${resumeData.interests.join(", ")}
               </div>
             </div>
 
-          </div>
-
-          {/* ── SECTION 5: BOTTOM FLOATING ACTION BAR ── */}
-          <div className="rbpFloatingActionBar">
-            <button className="btnFloatOutline" onClick={handleSaveChanges}>
-              Save Draft
-            </button>
-            <button className="btnFloatOutline" onClick={() => setIsPreviewModalOpen(true)}>
-              <FaEye /> Preview
-            </button>
-            <button className="btnFloatOutline orange" onClick={handleDownloadPDF}>
-              <FaDownload /> Download PDF
-            </button>
-            <button className="btnFloatOutline blue" onClick={handleDownloadDOCX}>
-              <FaFileWord /> Download DOCX
-            </button>
-            <button className="btnFloatOutline" onClick={handleShareResume}>
-              <FaShareAlt /> Share Resume
-            </button>
-            <button className="btnFloatPrimary" onClick={handlePublishPortfolio}>
-              🚀 Publish to Portfolio
-            </button>
           </div>
 
         </div>
