@@ -57,8 +57,6 @@ export default function QuestMapPage() {
     { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
     { id: "courses", label: "My Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "assignments", label: "Assignments", icon: <FaFileAlt /> },
-    { id: "discussions", label: "Discussions", icon: <FaComments /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
     { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
     { id: "quest-map", label: "Quest Map", icon: <FaMapMarkedAlt />, isNew: true },

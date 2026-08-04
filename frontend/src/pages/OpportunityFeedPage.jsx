@@ -75,8 +75,6 @@ export default function OpportunityFeedPage() {
     { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "assignments", label: "Assignments", icon: <FaFileAlt /> },
-    { id: "discussions", label: "Discussions", icon: <FaComments /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
     { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
     { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },

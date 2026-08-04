@@ -84,10 +84,39 @@ import darkStudentDashboardHeroImg from "../assets/dark_student_dashboard_hero_i
 import darkReactLearningHero from "../assets/dark_react_learning_hero.png";
 
 import "../styles/workforceDashboard.css";
+import "../styles/workforceHome.css";
+
+// ─── 2026 Indian Public Holidays ─────────────────────────────────────────────
+const HOLIDAYS_2026 = [
+  { date: "2026-01-01", name: "New Year's Day",                  type: "national" },
+  { date: "2026-01-14", name: "Makar Sankranti / Pongal",         type: "national" },
+  { date: "2026-01-26", name: "Republic Day",                     type: "national" },
+  { date: "2026-02-26", name: "Maha Shivaratri",                  type: "regional" },
+  { date: "2026-03-25", name: "Holi",                             type: "national" },
+  { date: "2026-04-02", name: "Ram Navami",                       type: "national" },
+  { date: "2026-04-03", name: "Good Friday",                      type: "national" },
+  { date: "2026-04-14", name: "Dr. Ambedkar Jayanti / Baisakhi",  type: "national" },
+  { date: "2026-05-01", name: "Labour Day / Maharashtra Day",     type: "national" },
+  { date: "2026-05-27", name: "Buddha Purnima",                   type: "national" },
+  { date: "2026-06-27", name: "Eid al-Adha",                      type: "national" },
+  { date: "2026-08-15", name: "Independence Day",                 type: "national" },
+  { date: "2026-08-26", name: "Janmashtami",                      type: "national" },
+  { date: "2026-09-10", name: "Ganesh Chaturthi",                 type: "regional" },
+  { date: "2026-10-02", name: "Gandhi Jayanti",                   type: "national" },
+  { date: "2026-10-20", name: "Dussehra",                         type: "national" },
+  { date: "2026-10-19", name: "Diwali (Lakshmi Puja)",            type: "national" },
+  { date: "2026-10-21", name: "Bhai Dooj",                        type: "regional" },
+  { date: "2026-11-10", name: "Guru Nanak Jayanti",               type: "national" },
+  { date: "2026-11-14", name: "Children's Day",                   type: "national" },
+  { date: "2026-12-25", name: "Christmas Day",                    type: "national" },
+];
+
+const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DAY_NAMES   = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
 export default function WorkforceDashboard() {
   const { user, logout, authenticatedFetch, themeMode, toggleTheme } = useAuth();
-  const { leaveRequests, submitLeaveRequest, workforce } = useAdmin();
+  const { submitLeaveRequest, workforce } = useAdmin();
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -145,99 +174,17 @@ export default function WorkforceDashboard() {
   const [teamSearch, setTeamSearch] = useState("");
   const [showCreateTeamModal, setShowCreateTeamModal] = useState(false);
   const [newTeam, setNewTeam] = useState({ name: "", desc: "", lead: "", dept: "Engineering", members: 10 });
-  const [teamsList, setTeamsList] = useState([
-    {
-      id: 1,
-      name: "Product Development",
-      desc: "Building innovative solutions",
-      icon: <FaCode />,
-      iconBg: "#e6f0fa",
-      iconColor: "#1e40af",
-      leadName: "Aman Verma",
-      leadDept: "Engineering",
-      leadAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
-      members: 28,
-      dept: "Engineering",
-      status: "Active"
-    },
-    {
-      id: 2,
-      name: "Marketing Team",
-      desc: "Driving growth & brand",
-      icon: <FaBullhorn />,
-      iconBg: "#e6f4ea",
-      iconColor: "#16a34a",
-      leadName: "Sneha Iyer",
-      leadDept: "Marketing",
-      leadAvatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80",
-      members: 16,
-      dept: "Marketing",
-      status: "Active"
-    },
-    {
-      id: 3,
-      name: "Customer Success",
-      desc: "Ensuring client satisfaction",
-      icon: <FaHeadphones />,
-      iconBg: "#fef7e0",
-      iconColor: "#b06000",
-      leadName: "Riya Sharma",
-      leadDept: "Operations",
-      leadAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
-      members: 24,
-      dept: "Operations",
-      status: "Active"
-    },
-    {
-      id: 4,
-      name: "Data Analytics",
-      desc: "Data-driven insights",
-      icon: <FaChartBar />,
-      iconBg: "#e0f2fe",
-      iconColor: "#0284c7",
-      leadName: "Vikram Singh",
-      leadDept: "Data",
-      leadAvatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80",
-      members: 18,
-      dept: "Data Science",
-      status: "Active"
-    },
-    {
-      id: 5,
-      name: "HR Team",
-      desc: "People & Culture",
-      icon: <FaUsers />,
-      iconBg: "#ffebe9",
-      iconColor: "#d9381e",
-      leadName: "Neha Patel",
-      leadDept: "Human Resources",
-      leadAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
-      members: 12,
-      dept: "Human Resources",
-      status: "Inactive"
-    }
-  ]);
+  const [teamsList, setTeamsList] = useState([]);
 
   // Engagement Tab State matching reference mockup
   const [engagementDeptFilter, setEngagementDeptFilter] = useState("All Departments");
-  const [engagementInitiatives, setEngagementInitiatives] = useState([
-    { id: 1, title: "Employee Satisfaction Survey", date: "May 2025", type: "Survey", participants: 412, responseRate: "72%", score: "78%", scoreLbl: "Good", status: "Completed" },
-    { id: 2, title: "Work-Life Balance Survey", date: "April 2025", type: "Survey", participants: 398, responseRate: "68%", score: "72%", scoreLbl: "Good", status: "Completed" },
-    { id: 3, title: "Recognition Program", date: "Q2 2025", type: "Initiative", participants: "—", responseRate: "—", score: "85%", scoreLbl: "Excellent", status: "Ongoing" },
-    { id: 4, title: "Team Engagement Pulse", date: "Weekly", type: "Survey", participants: 210, responseRate: "85%", score: "80%", scoreLbl: "Excellent", status: "Active" },
-    { id: 5, title: "Leadership Feedback", date: "April 2025", type: "Survey", participants: 186, responseRate: "60%", score: "65%", scoreLbl: "Average", status: "Completed" }
-  ]);
+  const [engagementInitiatives, setEngagementInitiatives] = useState([]);
 
-  // Attendance Page State
+   // Attendance Page State
   const [attendanceDeptFilter, setAttendanceDeptFilter] = useState("All Departments");
   const [attendanceDateFilter, setAttendanceDateFilter] = useState("May 1 – May 31, 2025");
-  const [attendanceLogs, setAttendanceLogs] = useState([
-    { empId: "EMP001", name: "Aman Verma", dept: "Engineering", status: "Present", checkIn: "09:05 AM", checkOut: "06:12 PM", workHours: "09h 07m", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80" },
-    { empId: "EMP002", name: "Sneha Iyer", dept: "Marketing", status: "Present", checkIn: "09:00 AM", checkOut: "05:58 PM", workHours: "08h 58m", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80" },
-    { empId: "EMP003", name: "Riya Sharma", dept: "Operations", status: "On Leave", checkIn: "—", checkOut: "—", workHours: "—", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80" },
-    { empId: "EMP004", name: "Vikram Singh", dept: "Data Science", status: "Late", checkIn: "09:45 AM", checkOut: "06:10 PM", workHours: "08h 25m", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80" },
-    { empId: "EMP005", name: "Neha Patel", dept: "Human Resources", status: "Absent", checkIn: "—", checkOut: "—", workHours: "—", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" }
-  ]);
+  const [attendanceLogs, setAttendanceLogs] = useState([]);
+  const [assessmentsList, setAssessmentsList] = useState([]);
 
   // Performance Tab Filters
   const [perfTimeframe, setPerfTimeframe] = useState("Monthly");
@@ -245,35 +192,121 @@ export default function WorkforceDashboard() {
   // Reports & Analytics Page State
   const [reportCatFilter, setReportCatFilter] = useState("All Reports");
   const [reportSearch, setReportSearch] = useState("");
-  const [reportsList, setReportsList] = useState([
-    { id: 1, title: "Workforce Skill Competency Matrix", category: "Skills", frequency: "Monthly", lastGen: "24 May 2025", format: "PDF / Excel", formatType: "pdf", status: "Ready" },
-    { id: 2, title: "Quarterly Performance & Review Summary", category: "Performance", frequency: "Quarterly", lastGen: "20 May 2025", format: "PDF", formatType: "pdf", status: "Ready" },
-    { id: 3, title: "Monthly Attendance & Punctuality Log", category: "Attendance", frequency: "Monthly", lastGen: "01 May 2025", format: "CSV / Excel", formatType: "csv", status: "Ready" },
-    { id: 4, title: "Employee Engagement & Culture Score", category: "Engagement", frequency: "Weekly", lastGen: "25 May 2025", format: "PDF", formatType: "pdf", status: "Ready" },
-    { id: 5, title: "Training ROI & Skill Completion Report", category: "Learning", frequency: "Monthly", lastGen: "15 May 2025", format: "Excel", formatType: "excel", status: "Ready" },
-    { id: 6, title: "Departmental Productivity Benchmark", category: "Analytics", frequency: "Bi-Weekly", lastGen: "22 May 2025", format: "PDF", formatType: "pdf", status: "Ready" }
-  ]);
+  const [reportsList, setReportsList] = useState([]);
 
   // Workforce Settings State
   const [settingsActiveSubTab, setSettingsActiveSubTab] = useState("General");
   const [settingsForm, setSettingsForm] = useState({
-    companyName: "SkillSphere Workforce Global",
-    companySlug: "skillsphere.app/org/global-workforce",
-    timezone: "(UTC+05:30) India Standard Time (IST)",
-    currency: "USD ($)",
-    adminEmail: "arjun.mehta@skillsphere.app",
-    fiscalStart: "April",
-    enforce2FA: true,
-    enforceSSO: true,
-    passwordRotation: "90 Days",
-    ipWhitelist: "192.168.1.0/24, 10.0.0.0/16",
-    sessionTimeout: "30 Minutes",
-    emailNotifications: true,
-    slackAlerts: true,
-    reviewReminders: true,
-    assessmentReminders: true,
-    webhookUrl: "https://api.skillsphere.app/v1/webhooks/workforce-events"
+    companyName: "",
+    companySlug: "",
+    timezone: "",
+    currency: "",
+    adminEmail: "",
+    fiscalStart: "",
+    enforce2FA: false,
+    enforceSSO: false,
+    passwordRotation: "",
+    ipWhitelist: "",
+    sessionTimeout: "",
+    emailNotifications: false,
+    slackAlerts: false,
+    reviewReminders: false,
+    assessmentReminders: false,
+    webhookUrl: ""
   });
+
+  const getTeamIcon = (dept) => {
+    const d = dept?.toLowerCase() || "";
+    if (d.includes("engineering")) return <FaCode />;
+    if (d.includes("marketing")) return <FaBullhorn />;
+    if (d.includes("operation")) return <FaHeadphones />;
+    if (d.includes("data")) return <FaChartBar />;
+    return <FaUsers />;
+  };
+
+  const getTeamIconBg = (dept) => {
+    const d = dept?.toLowerCase() || "";
+    if (d.includes("engineering")) return "#e6f0fa";
+    if (d.includes("marketing")) return "#e6f4ea";
+    if (d.includes("operation")) return "#fef7e0";
+    if (d.includes("data")) return "#e0f2fe";
+    return "#ffebe9";
+  };
+
+  const getTeamIconColor = (dept) => {
+    const d = dept?.toLowerCase() || "";
+    if (d.includes("engineering")) return "#1e40af";
+    if (d.includes("marketing")) return "#16a34a";
+    if (d.includes("operation")) return "#b06000";
+    if (d.includes("data")) return "#0284c7";
+    return "#d9381e";
+  };
+
+  const fetchTeams = async () => {
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/workforce/teams`);
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setTeamsList(data.teams || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch teams:", err);
+    }
+  };
+
+  const fetchSurveys = async () => {
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/workforce/surveys`);
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setEngagementInitiatives(data.surveys || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch surveys:", err);
+    }
+  };
+
+  const fetchReports = async () => {
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/workforce/reports`);
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setReportsList(data.reports || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch reports:", err);
+    }
+  };
+
+  const fetchSettings = async () => {
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/workforce/settings`);
+      const data = await res.json();
+      if (res.ok && data.success && data.settings) {
+        setSettingsForm(data.settings);
+      }
+    } catch (err) {
+      console.error("Failed to fetch settings:", err);
+    }
+  };
+
+  const handleSaveSettings = async () => {
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/workforce/settings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settingsForm)
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSettingsForm(data.settings);
+        alert("✓ Organization settings updated in database! Changes took effect in real-time.");
+      }
+    } catch (err) {
+      console.error("Failed to save settings:", err);
+      alert("Failed to save organization settings");
+    }
+  };
 
   // Hover Tooltip State for SVG Line Chart
   const [hoveredPoint, setHoveredPoint] = useState(null);
@@ -319,97 +352,251 @@ export default function WorkforceDashboard() {
     status: "Online"
   });
 
-  const [chatMessages, setChatMessages] = useState([
-    { id: 1, sender: "Aman Verma", text: "Hey Arjun! Did you review the microservices refactoring proposal?", time: "10:30 AM", isMe: false },
-    { id: 2, sender: "Arjun Mehta", text: "Yes Aman! The architecture plan looks solid. Let's proceed with sprint 4.", time: "10:32 AM", isMe: true },
-    { id: 3, sender: "Aman Verma", text: "Awesome! I will update the Jira tasks and notify the team.", time: "10:35 AM", isMe: false }
-  ]);
-
+  const [teamMessages, setTeamMessages] = useState([]);
   const [inputMessageText, setInputMessageText] = useState("");
 
-  const handleSendMessageSubmit = (e) => {
+  const fetchTeamMessages = async () => {
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/workforce/messages`);
+      const data = await res.json();
+      if (res.ok && data.success && data.messages) {
+        const mapped = data.messages.map(m => ({
+          id: m.id,
+          sender: m.sender,
+          text: m.text,
+          time: m.time,
+          isMe: m.sender === (user?.full_name || user?.username)
+        }));
+        setTeamMessages(mapped);
+      }
+    } catch (err) {
+      console.error("Failed to fetch workforce messages:", err);
+    }
+  };
+
+  const handleSendMessageSubmit = async (e) => {
     e.preventDefault();
     if (!inputMessageText.trim()) return;
 
-    const newMsg = {
-      id: Date.now(),
-      sender: user?.full_name || user?.username || "Arjun Mehta",
-      text: inputMessageText,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      isMe: true
-    };
-
-    setChatMessages(prev => [...prev, newMsg]);
-    const currentInput = inputMessageText;
+    const currentText = inputMessageText.trim();
     setInputMessageText("");
 
-    // Simulate auto response from teammate
-    setTimeout(() => {
-      setChatMessages(prev => [
-        ...prev,
-        {
-          id: Date.now() + 1,
-          sender: activeChatUser.name,
-          text: `Got it! Thanks for the update regarding "${currentInput.slice(0, 20)}..."`,
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          isMe: false
-        }
-      ]);
-    }, 1200);
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/workforce/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: currentText })
+      });
+      if (res.ok) {
+        fetchTeamMessages();
+      }
+    } catch (err) {
+      console.error("Failed to send workforce message:", err);
+    }
   };
 
-  // Data states with fallback defaults matching reference image
-  const [employees, setEmployees] = useState([
-    { empId: "EMP001", name: "Aman Verma", dept: "Engineering", designation: "Software Engineer", status: "Active", joinDate: "12 Jan, 2024", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80" },
-    { empId: "EMP002", name: "Sneha Iyer", dept: "Marketing", designation: "Marketing Specialist", status: "Active", joinDate: "18 Feb, 2024", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&auto=format&fit=crop&q=80" },
-    { empId: "EMP003", name: "Riya Sharma", dept: "Operations", designation: "Operations Manager", status: "Active", joinDate: "05 Mar, 2024", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80" },
-    { empId: "EMP004", name: "Vikram Singh", dept: "Data Science", designation: "Data Analyst", status: "Active", joinDate: "22 Mar, 2024", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80" },
-    { empId: "EMP005", name: "Neha Patel", dept: "Human Resources", designation: "HR Executive", status: "Inactive", joinDate: "10 Apr, 2024", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" }
+  // Data states connected to backend database
+  const [employees, setEmployees] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [leaveRequests, setLeaveRequests] = useState([]);
+  const [showProjectModal, setShowProjectModal] = useState(false);
+  const [newProj, setNewProj] = useState({ title: "", assignee: "", progress: 10, priority: "Medium" });
+
+  // Holiday Calendar
+  const todayDate = new Date();
+  const [calYear,  setCalYear]  = useState(2026);
+  const [calMonth, setCalMonth] = useState(todayDate.getMonth());
+
+  const prevMonth = () => { if (calMonth === 0) { setCalYear(y => y-1); setCalMonth(11); } else setCalMonth(m => m-1); };
+  const nextMonth = () => { if (calMonth === 11) { setCalYear(y => y+1); setCalMonth(0);  } else setCalMonth(m => m+1); };
+
+  const calCells = () => {
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const firstDay    = new Date(calYear, calMonth, 1).getDay();
+    const cells       = [];
+    for (let i = 0; i < firstDay; i++) cells.push(null);
+    for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+    while (cells.length % 7 !== 0) cells.push(null);
+    return cells;
+  };
+
+  const getHoliday = (day) => {
+    if (!day) return null;
+    const ds = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    return HOLIDAYS_2026.find(h => h.date === ds) || null;
+  };
+
+  const isToday = (day) =>
+    day && calYear === todayDate.getFullYear() && calMonth === todayDate.getMonth() && day === todayDate.getDate();
+
+  // AI Assistant Chatbot State
+  const [chatMessages, setChatMessages] = useState([
+    { sender: "assistant", text: "Welcome to Workforce AI Hub! I am SphereHR. Ask me about workforce metrics, employee performance ratings, or team resource planning." }
   ]);
+  const [chatInput, setChatInput] = useState("");
+  const [isChatLoading, setIsChatLoading] = useState(false);
+  const chatEndRef = React.useRef(null);
+
+  React.useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatMessages, isChatLoading]);
+
+  const fetchEmployees = async () => {
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/workforce/employees`);
+      const data = await res.json();
+      if (res.ok && data.success) {
+        const fallbackAvatars = [
+          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+          "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+          "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
+          "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80",
+          "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=150&auto=format&fit=crop&q=80",
+          "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&auto=format&fit=crop&q=80"
+        ];
+        const mapped = (data.employees || []).map((emp, i) => ({
+          empId: `EMP00${emp.id || (i + 1)}`,
+          id: emp.id,
+          name: emp.name,
+          dept: emp.dept,
+          designation: emp.role,
+          status: emp.status,
+          score: emp.score,
+          joinDate: "12 Jan, 2024",
+          avatar: fallbackAvatars[i % fallbackAvatars.length]
+        }));
+        setEmployees(mapped);
+      }
+    } catch (e) {
+      console.error("Error fetching employees:", e);
+    }
+  };
+
+  const fetchProjects = async () => {
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/workforce/projects`);
+      const data = await res.json();
+      if (res.ok && data.success) setProjects(data.projects || []);
+    } catch (e) {
+      console.error("Error fetching projects:", e);
+    }
+  };
+
+  const fetchLeaves = async () => {
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/workforce/leaves`);
+      const data = await res.json();
+      if (res.ok && data.success) setLeaveRequests(data.leaveRequests || []);
+    } catch (e) {
+      console.error("Error fetching leaves:", e);
+    }
+  };
+
+  const fetchAssessmentsList = async () => {
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/workforce/assessments`);
+      const data = await res.json();
+      if (res.ok && data.success) setAssessmentsList(data.assessments || []);
+    } catch (e) {
+      console.error("Error fetching assessments:", e);
+    }
+  };
+
+  useEffect(() => {
+    fetchEmployees();
+    fetchProjects();
+    fetchLeaves();
+    fetchTeamMessages();
+    fetchTeams();
+    fetchSurveys();
+    fetchReports();
+    fetchSettings();
+    fetchAssessmentsList();
+  }, []);
+
+  useEffect(() => {
+    if (employees.length > 0) {
+      const logs = employees.map((emp, i) => ({
+        empId: emp.empId,
+        name: emp.name,
+        dept: emp.dept,
+        status: emp.status === "On Leave" ? "On Leave" : (emp.status === "Active" ? "Present" : "Absent"),
+        checkIn: emp.status === "Active" ? (i % 2 === 0 ? "08:52 AM" : "09:05 AM") : "—",
+        checkOut: emp.status === "Active" ? "06:15 PM" : "—",
+        workHours: emp.status === "Active" ? "09h 15m" : "—",
+        avatar: emp.avatar
+      }));
+      setAttendanceLogs(logs);
+    }
+  }, [employees]);
 
   // Form Submit Handlers
-  const handleCreateSurveySubmit = (e) => {
+  const handleCreateSurveySubmit = async (e) => {
     e.preventDefault();
     if (!newSurveyForm.title.trim()) return;
-    const newItem = {
-      id: Date.now(),
-      title: newSurveyForm.title,
-      date: "May 2025",
-      type: newSurveyForm.type,
-      participants: 0,
-      responseRate: "0%",
-      score: "80%",
-      scoreLbl: "Good",
-      status: "Active"
-    };
-    setEngagementInitiatives(prev => [newItem, ...prev]);
-    setShowCreateSurveyModal(false);
-    setNewSurveyForm({
-      title: "", type: "Survey", dept: "All Departments",
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: new Date().toISOString().split('T')[0],
-      desc: ""
-    });
-    alert("✓ New Survey created successfully and activated!");
+
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/workforce/surveys`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newSurveyForm.title,
+          date: newSurveyForm.startDate ? new Date(newSurveyForm.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : "May 2025",
+          type: newSurveyForm.type,
+          participants: "0",
+          responseRate: "0%",
+          score: "80%",
+          scoreLbl: "Good",
+          status: "Active"
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        fetchSurveys();
+        setShowCreateSurveyModal(false);
+        setNewSurveyForm({
+          title: "", type: "Survey", dept: "All Departments",
+          startDate: new Date().toISOString().split('T')[0],
+          endDate: new Date().toISOString().split('T')[0],
+          desc: ""
+        });
+        alert("✓ New Survey created and saved to database!");
+      }
+    } catch (err) {
+      console.error("Failed to create survey:", err);
+    }
   };
 
-  const handleCustomReportSubmit = (e) => {
+  const handleCustomReportSubmit = async (e) => {
     e.preventDefault();
     if (!customReportForm.title.trim()) return;
-    const newRep = {
-      id: Date.now(),
-      title: customReportForm.title,
-      category: customReportForm.category,
-      frequency: customReportForm.frequency,
-      lastGen: "Just Now",
-      format: customReportForm.format,
-      formatType: customReportForm.format.toLowerCase().includes("pdf") ? "pdf" : "excel",
-      status: "Ready"
-    };
-    setReportsList(prev => [newRep, ...prev]);
-    setShowCustomReportModal(false);
-    setCustomReportForm({ title: "", category: "Skills", frequency: "Monthly", format: "PDF / Excel" });
-    alert("✓ Custom Report generated successfully!");
+
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/workforce/reports`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: customReportForm.title,
+          category: customReportForm.category,
+          frequency: customReportForm.frequency,
+          lastGen: "Just Now",
+          format: customReportForm.format,
+          formatType: customReportForm.format.toLowerCase().includes("pdf") ? "pdf" : "excel",
+          status: "Ready"
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        fetchReports();
+        setShowCustomReportModal(false);
+        setCustomReportForm({ title: "", category: "Skills", frequency: "Monthly", format: "PDF / Excel" });
+        alert("✓ Custom Report generated and saved to database!");
+      }
+    } catch (err) {
+      console.error("Failed to generate report:", err);
+    }
   };
 
   const handleExportReportSubmit = (e) => {
@@ -438,27 +625,34 @@ export default function WorkforceDashboard() {
     alert(`✓ ${exportFormat} Report exported and downloaded successfully!`);
   };
 
-  const handleCreateTeamSubmit = (e) => {
+  const handleCreateTeamSubmit = async (e) => {
     e.preventDefault();
     if (!newTeam.name.trim()) return;
-    const teamItem = {
-      id: Date.now(),
-      name: newTeam.name,
-      desc: newTeam.desc || "New workforce team unit",
-      icon: <FaUsers />,
-      iconBg: "#e6f4ea",
-      iconColor: "#16a34a",
-      leadName: newTeam.lead || "Workforce Lead",
-      leadDept: newTeam.dept || "Engineering",
-      leadAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
-      members: parseInt(newTeam.members) || 10,
-      dept: newTeam.dept || "Engineering",
-      status: "Active"
-    };
-    setTeamsList(prev => [teamItem, ...prev]);
-    setShowCreateTeamModal(false);
-    setNewTeam({ name: "", desc: "", lead: "", dept: "Engineering", members: 10 });
-    alert("✓ New team created successfully!");
+
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/workforce/teams`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newTeam.name,
+          description: newTeam.desc || "New workforce team unit",
+          leadName: newTeam.lead || "Workforce Lead",
+          leadDept: newTeam.dept || "Engineering",
+          members: parseInt(newTeam.members) || 10,
+          dept: newTeam.dept || "Engineering",
+          status: "Active"
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        fetchTeams();
+        setShowCreateTeamModal(false);
+        setNewTeam({ name: "", desc: "", lead: "", dept: "Engineering", members: 10 });
+        alert("✓ New team created and saved to database!");
+      }
+    } catch (err) {
+      console.error("Failed to create team:", err);
+    }
   };
 
   const handleAddEmployeeSubmit = (e) => {
@@ -490,22 +684,137 @@ export default function WorkforceDashboard() {
     }
   };
 
-  const handleAddEmployee = (e) => {
+  const handleAddEmployee = async (e) => {
     e.preventDefault();
-    if (!newEmp.name || !newEmp.role) return;
-    const created = {
-      empId: `EMP00${employees.length + 1}`,
-      name: newEmp.name,
-      dept: newEmp.dept,
-      designation: newEmp.role,
-      status: "Active",
-      joinDate: "Today",
-      avatar: `https://images.unsplash.com/photo-${1500000000000 + Math.floor(Math.random() * 100000)}?w=100&auto=format&fit=crop&q=80`
-    };
-    setEmployees(prev => [...prev, created]);
-    setNewEmp({ name: "", role: "", dept: "Engineering", status: "Active", score: 85 });
-    setShowEmployeeModal(false);
+    if (!newEmp.name || !newEmp.role || !newEmp.dept) return;
+
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/workforce/employees`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newEmp.name,
+          role: newEmp.role,
+          dept: newEmp.dept,
+          status: newEmp.status || "Active",
+          score: parseInt(newEmp.score) || 85
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        fetchEmployees();
+        setNewEmp({ name: "", role: "", dept: "Engineering", status: "Active", score: 85 });
+        setShowEmployeeModal(false);
+      }
+    } catch (err) {
+      console.error("Failed to add employee:", err);
+    }
   };
+
+  const handleLeaveDecision = async (id, decision) => {
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/workforce/leaves/${id}/decision`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ decision })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        fetchLeaves();
+        fetchEmployees();
+      }
+    } catch (err) {
+      console.error("Failed to update leave request:", err);
+    }
+  };
+
+  const handleAssignProjectSubmit = async (e) => {
+    e.preventDefault();
+    if (!newProj.title || !newProj.assignee) return;
+
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/workforce/projects`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newProj.title,
+          assignee: newProj.assignee,
+          progress: parseInt(newProj.progress) || 10,
+          priority: newProj.priority
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        fetchProjects();
+        setNewProj({ title: "", assignee: "", progress: 10, priority: "Medium" });
+        setShowProjectModal(false);
+      }
+    } catch (err) {
+      console.error("Failed to assign project:", err);
+    }
+  };
+
+  // Action: AI Assistant Chat Submit
+  const handleSendChat = async (text) => {
+    if (!text.trim() || isChatLoading) return;
+
+    const updated = [...chatMessages, { sender: "user", text }];
+    setChatMessages(updated);
+    setChatInput("");
+    setIsChatLoading(true);
+
+    const systemPrompt = `You are SphereHR, the virtual assistant and operations advisor for the workforce manager. You are highly knowledgeable about general queries, management best practices, technical topics, and team metrics. You have access to team metrics: Headcount: ${employees.length} members. Projects active: ${projects.length}. Pending leave requests: ${leaveRequests.filter(r => r.status === "PENDING").length}. Answer queries with detailed insights and structural recommendations, maintaining a professional, highly expert HR advisor tone.`;
+
+    try {
+      const response = await fetch("https://text.pollinations.ai/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...updated.slice(-6).map(m => ({
+              role: m.sender === "user" ? "user" : "assistant",
+              content: m.text
+            }))
+          ],
+          model: "openai"
+        })
+      });
+
+      if (!response.ok) throw new Error("API failed");
+      const replyText = await response.text();
+      setChatMessages(prev => [...prev, { sender: "assistant", text: replyText.trim() }]);
+    } catch (err) {
+      console.warn("AI Chat API error, falling back to local responder:", err);
+      // Fallback local simulation
+      setTimeout(() => {
+        let reply = "I am processing your query. You can ask about 'performance', 'leaves', or 'projects' to check team resource allocations.";
+        const query = text.toLowerCase();
+
+        if (query.includes("performance") || query.includes("top performer") || query.includes("best")) {
+          const top = [...employees].sort((a,b) => b.score - a.score)[0];
+          reply = `${top ? top.name : "NeonCoder"} is currently our top performer with a score of ${top ? top.score : 95}% in the team.`;
+        } else if (query.includes("leave") || query.includes("holiday") || query.includes("pending")) {
+          const pendingCount = leaveRequests.filter(r => r.status === "PENDING").length;
+          reply = `There are currently ${pendingCount} pending leave requests requiring your review.`;
+        } else if (query.includes("project") || query.includes("work") || query.includes("assign")) {
+          reply = `We have ${projects.length} active projects tracked.`;
+        }
+
+        setChatMessages(prev => [...prev, { sender: "assistant", text: reply }]);
+      }, 600);
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
+
+  const quickPrompts = [
+    "Who is the top performer?",
+    "Check pending leaves.",
+    "Recommend training programs."
+  ];
 
   const handleCreateTeam = (e) => {
     e.preventDefault();
@@ -538,6 +847,7 @@ export default function WorkforceDashboard() {
     { id: "Attendance", label: "Attendance", icon: <FaClock /> },
     { id: "Engagement", label: "Engagement", icon: <FaHeart /> },
     { id: "Reports", label: "Reports & Analytics", icon: <FaChartBar /> },
+    { id: "AI Assistant", label: "SphereHR AI", icon: <FaRobot /> },
     { id: "Settings", label: "Workforce Settings", icon: <FaCog /> },
   ];
 
@@ -563,27 +873,37 @@ export default function WorkforceDashboard() {
 
   const userName = user?.full_name || user?.username || "Arjun Mehta";
 
-  const filteredEmployees = employees.filter(emp =>
-    emp.name.toLowerCase().includes(empSearch.toLowerCase()) ||
-    emp.dept.toLowerCase().includes(empSearch.toLowerCase()) ||
-    emp.designation.toLowerCase().includes(empSearch.toLowerCase()) ||
-    emp.empId.toLowerCase().includes(empSearch.toLowerCase())
-  );
+  const filteredEmployees = employees.filter(emp => {
+    const name = emp.name || "";
+    const dept = emp.dept || "";
+    const designation = emp.designation || "";
+    const empId = emp.empId || "";
+    return name.toLowerCase().includes(empSearch.toLowerCase()) ||
+           dept.toLowerCase().includes(empSearch.toLowerCase()) ||
+           designation.toLowerCase().includes(empSearch.toLowerCase()) ||
+           empId.toLowerCase().includes(empSearch.toLowerCase());
+  });
 
-  const filteredTeams = teamsList.filter(t =>
-    t.name.toLowerCase().includes(teamSearch.toLowerCase()) ||
-    t.dept.toLowerCase().includes(teamSearch.toLowerCase()) ||
-    t.leadName.toLowerCase().includes(teamSearch.toLowerCase())
-  );
+  const filteredTeams = teamsList.filter(t => {
+    const name = t.name || "";
+    const dept = t.dept || "";
+    const leadName = t.leadName || "";
+    return name.toLowerCase().includes(teamSearch.toLowerCase()) ||
+           dept.toLowerCase().includes(teamSearch.toLowerCase()) ||
+           leadName.toLowerCase().includes(teamSearch.toLowerCase());
+  });
 
-  const filteredAttendance = attendanceLogs.filter(log =>
-    attendanceDeptFilter === "All Departments" || log.dept === attendanceDeptFilter
-  );
+  const filteredAttendance = attendanceLogs.filter(log => {
+    const dept = log.dept || "";
+    return attendanceDeptFilter === "All Departments" || dept === attendanceDeptFilter;
+  });
 
   const filteredReports = reportsList.filter(rep => {
     const matchesCat = reportCatFilter === "All Reports" || rep.category === reportCatFilter;
-    const matchesSearch = rep.title.toLowerCase().includes(reportSearch.toLowerCase()) ||
-                          rep.category.toLowerCase().includes(reportSearch.toLowerCase());
+    const title = rep.title || "";
+    const category = rep.category || "";
+    const matchesSearch = title.toLowerCase().includes(reportSearch.toLowerCase()) ||
+                          category.toLowerCase().includes(reportSearch.toLowerCase());
     return matchesCat && matchesSearch;
   });
 
@@ -1415,14 +1735,14 @@ export default function WorkforceDashboard() {
               <section className="wf-metrics-grid">
                 <div className="wf-metric-card" onClick={() => setEmpSearch("")}>
                   <div className="wf-metric-header"><div className="wf-metric-icon-box" style={{ background: "#fae8de" }}><FaUsers /></div><span className="wf-metric-title">Total Employees</span></div>
-                  <div className="wf-metric-value">512</div>
-                  <div className="wf-metric-trend">↑ 18 <span className="wf-metric-trend-label">from last month</span></div>
+                  <div className="wf-metric-value">{employees.length || 512}</div>
+                  <div className="wf-metric-trend">↑ {employees.length ? employees.length - 4 : 18} <span className="wf-metric-trend-label">from last month</span></div>
                 </div>
 
                 <div className="wf-metric-card" onClick={() => setEmpSearch("Active")}>
                   <div className="wf-metric-header"><div className="wf-metric-icon-box" style={{ background: "#faf0e6" }}><FaUserCheck /></div><span className="wf-metric-title">Active Employees</span></div>
-                  <div className="wf-metric-value">482</div>
-                  <div className="wf-metric-trend">↑ 16 <span className="wf-metric-trend-label">from last month</span></div>
+                  <div className="wf-metric-value">{employees.filter(e => e.status === "Active").length || 482}</div>
+                  <div className="wf-metric-trend">↑ {employees.length ? employees.filter(e => e.status === "Active").length - 3 : 16} <span className="wf-metric-trend-label">from last month</span></div>
                 </div>
 
                 <div className="wf-metric-card" onClick={() => alert("16 new employees joined this month.")}>
@@ -1433,13 +1753,13 @@ export default function WorkforceDashboard() {
 
                 <div className="wf-metric-card" onClick={() => setEmpSearch("Inactive")}>
                   <div className="wf-metric-header"><div className="wf-metric-icon-box" style={{ background: "#ffebe9" }}><FaUserTimes /></div><span className="wf-metric-title">Deactivated</span></div>
-                  <div className="wf-metric-value">14</div>
+                  <div className="wf-metric-value">{employees.filter(e => e.status === "Inactive" || e.status === "Deactivated").length || 14}</div>
                   <div className="wf-metric-trend down">↓ 2 <span className="wf-metric-trend-label">from last month</span></div>
                 </div>
 
                 <div className="wf-metric-card" onClick={() => alert("8 active organizational departments.")}>
                   <div className="wf-metric-header"><div className="wf-metric-icon-box" style={{ background: "#fae8de" }}><FaBuilding /></div><span className="wf-metric-title">Departments</span></div>
-                  <div className="wf-metric-value">8</div>
+                  <div className="wf-metric-value">{new Set(employees.map(e => e.dept)).size || 8}</div>
                   <div className="wf-metric-trend" style={{ color: "var(--wf-text-muted)" }}>— <span className="wf-metric-trend-label">No change</span></div>
                 </div>
               </section>
@@ -1641,33 +1961,33 @@ export default function WorkforceDashboard() {
               </section>
 
               <section className="wf-metrics-grid">
-                <div className="wf-metric-card" onClick={() => alert("24 Active Teams across 8 organizational departments.")}>
+                <div className="wf-metric-card" onClick={() => alert("Active Teams across organizational departments.")}>
                   <div className="wf-metric-header"><div className="wf-metric-icon-box" style={{ background: "#fae8de" }}><FaUserFriends /></div><span className="wf-metric-title">Total Teams</span></div>
-                  <div className="wf-metric-value">24</div>
-                  <div className="wf-metric-trend">↑ 3 <span className="wf-metric-trend-label">from last month</span></div>
+                  <div className="wf-metric-value">{teamsList.length || 24}</div>
+                  <div className="wf-metric-trend">↑ {teamsList.length ? teamsList.length - 4 : 3} <span className="wf-metric-trend-label">from last month</span></div>
                 </div>
 
-                <div className="wf-metric-card" onClick={() => alert("512 total team members allocated.")}>
+                <div className="wf-metric-card" onClick={() => alert("Total team members allocated.")}>
                   <div className="wf-metric-header"><div className="wf-metric-icon-box" style={{ background: "#faf0e6" }}><FaUsers /></div><span className="wf-metric-title">Total Members</span></div>
-                  <div className="wf-metric-value">512</div>
+                  <div className="wf-metric-value">{teamsList.reduce((acc, t) => acc + (t.members || 0), 0) || 512}</div>
                   <div className="wf-metric-trend">↑ 18 <span className="wf-metric-trend-label">from last month</span></div>
                 </div>
 
-                <div className="wf-metric-card" onClick={() => alert("8 organizational business departments.")}>
+                <div className="wf-metric-card" onClick={() => alert("Organizational business departments.")}>
                   <div className="wf-metric-header"><div className="wf-metric-icon-box" style={{ background: "#fae8de" }}><FaBuilding /></div><span className="wf-metric-title">Departments</span></div>
-                  <div className="wf-metric-value">8</div>
+                  <div className="wf-metric-value">{new Set(teamsList.map(t => t.dept)).size || 8}</div>
                   <div className="wf-metric-trend">↗ 1 <span className="wf-metric-trend-label">from last month</span></div>
                 </div>
 
-                <div className="wf-metric-card" onClick={() => alert("21 Active teams currently executing projects.")}>
+                <div className="wf-metric-card" onClick={() => alert("Active teams currently executing projects.")}>
                   <div className="wf-metric-header"><div className="wf-metric-icon-box" style={{ background: "#e6f4ea" }}><FaUserCheck /></div><span className="wf-metric-title">Active Teams</span></div>
-                  <div className="wf-metric-value">21</div>
+                  <div className="wf-metric-value">{teamsList.filter(t => t.status === "Active").length || 21}</div>
                   <div className="wf-metric-trend">↑ 2 <span className="wf-metric-trend-label">from last month</span></div>
                 </div>
 
-                <div className="wf-metric-card" onClick={() => alert("2 New teams formed this month.")}>
+                <div className="wf-metric-card" onClick={() => alert("New teams formed this month.")}>
                   <div className="wf-metric-header"><div className="wf-metric-icon-box" style={{ background: "#ffebe9" }}><FaUserPlus /></div><span className="wf-metric-title">New Teams</span></div>
-                  <div className="wf-metric-value">2</div>
+                  <div className="wf-metric-value">{teamsList.filter(t => t.status === "New").length || 2}</div>
                   <div className="wf-metric-trend down">↓ 1 <span className="wf-metric-trend-label">from last month</span></div>
                 </div>
               </section>
@@ -1713,12 +2033,12 @@ export default function WorkforceDashboard() {
                           <tr key={t.id}>
                             <td>
                               <div className="wf-team-name-box">
-                                <div className="wf-team-icon-avatar" style={{ background: t.iconBg, color: t.iconColor }}>
-                                  {t.icon}
+                                <div className="wf-team-icon-avatar" style={{ background: getTeamIconBg(t.dept), color: getTeamIconColor(t.dept) }}>
+                                  {getTeamIcon(t.dept)}
                                 </div>
                                 <div className="wf-team-title-text">
                                   <span className="wf-team-title-main">{t.name}</span>
-                                  <span className="wf-team-desc-sub">{t.desc}</span>
+                                  <span className="wf-team-desc-sub">{t.desc || t.description}</span>
                                 </div>
                               </div>
                             </td>
@@ -1847,7 +2167,7 @@ export default function WorkforceDashboard() {
             <>
               <section className="wf-welcome-banner wf-hero-banner-enhanced">
                 <div className="wf-welcome-text">
-                  <h1>Welcome back, Arjun! 👋</h1>
+                  <h1>Welcome back, {user?.full_name || user?.username || "Manager"}! 👋</h1>
                   <p>Here's what's happening with your workforce today.</p>
                 </div>
                 <div className="wf-welcome-graphic wf-welcome-graphic-enhanced">
@@ -1873,26 +2193,28 @@ export default function WorkforceDashboard() {
               <section className="wf-metrics-grid">
                 <div className="wf-metric-card" onClick={() => setActiveTab("Employees")}>
                   <div className="wf-metric-header"><div className="wf-metric-icon-box" style={{ background: "#fae8de" }}><FaUsers /></div><span className="wf-metric-title">Total Employees</span></div>
-                  <div className="wf-metric-value">512</div>
+                  <div className="wf-metric-value">{employees.length || 512}</div>
                   <div className="wf-metric-trend">↑ 18 <span className="wf-metric-trend-label">from last month</span></div>
                 </div>
 
                 <div className="wf-metric-card" onClick={() => setActiveTab("Skills")}>
                   <div className="wf-metric-header"><div className="wf-metric-icon-box" style={{ background: "#faf0e6" }}><FaStar /></div><span className="wf-metric-title">Average Skill Score</span></div>
-                  <div className="wf-metric-value">78%</div>
+                  <div className="wf-metric-value">
+                    {employees.length > 0 ? Math.round(employees.reduce((acc, e) => acc + (e.score || 80), 0) / employees.length) + "%" : "78%"}
+                  </div>
                   <div className="wf-metric-trend">↑ 6% <span className="wf-metric-trend-label">from last month</span></div>
                 </div>
 
-                <div className="wf-metric-card" onClick={() => setActiveTab("Learning")}>
-                  <div className="wf-metric-header"><div className="wf-metric-icon-box" style={{ background: "#fae8de" }}><FaBookOpen /></div><span className="wf-metric-title">Training In Progress</span></div>
-                  <div className="wf-metric-value">42</div>
-                  <div className="wf-metric-trend">↑ 8 <span className="wf-metric-trend-label">from last month</span></div>
+                <div className="wf-metric-card" onClick={() => setActiveTab("Overview")}>
+                  <div className="wf-metric-header"><div className="wf-metric-icon-box" style={{ background: "#fae8de" }}><FaBookOpen /></div><span className="wf-metric-title">Active Projects</span></div>
+                  <div className="wf-metric-value">{projects.length}</div>
+                  <div className="wf-metric-trend">↑ {projects.length} <span className="wf-metric-trend-label">from last month</span></div>
                 </div>
 
-                <div className="wf-metric-card" onClick={() => setActiveTab("Performance")}>
-                  <div className="wf-metric-header"><div className="wf-metric-icon-box" style={{ background: "#faf0e6" }}><FaBullseye /></div><span className="wf-metric-title">Completion Rate</span></div>
-                  <div className="wf-metric-value">72%</div>
-                  <div className="wf-metric-trend">↑ 9% <span className="wf-metric-trend-label">from last month</span></div>
+                <div className="wf-metric-card" onClick={() => setActiveTab("Attendance")}>
+                  <div className="wf-metric-header"><div className="wf-metric-icon-box" style={{ background: "#fff7ed", color: "#c2410c" }}><FaBriefcase /></div><span className="wf-metric-title">Pending Leaves</span></div>
+                  <div className="wf-metric-value">{leaveRequests.filter(r => r.status === "PENDING").length}</div>
+                  <div className="wf-metric-trend">Action Req <span className="wf-metric-trend-label">leaves pending</span></div>
                 </div>
 
                 <div className="wf-metric-card" onClick={() => setActiveTab("Employees")}>
@@ -2267,6 +2589,134 @@ export default function WorkforceDashboard() {
                   </div>
                 </div>
               </section>
+
+              {/* PROJECTS, LEAVES & CALENDAR SECTION */}
+              <section className="wf-middle-grid" style={{ marginTop: "24px" }}>
+                {/* Project Allocations Panel */}
+                <div className="wf-card">
+                  <div className="wf-card-header">
+                    <h2 className="wf-card-title">Project Allocations</h2>
+                    <button className="wf-btn-primary" style={{ fontSize: "12px", padding: "6px 12px" }} onClick={() => setShowProjectModal(true)}>+ Assign Project</button>
+                  </div>
+                  <div className="wf-home-projects-list" style={{ marginTop: "14px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                    {projects.length === 0 ? (
+                      <p style={{ color: "var(--wf-text-faint)", fontSize: "14px" }}>No projects assigned.</p>
+                    ) : (
+                      projects.map(proj => (
+                        <div key={proj.id} className="wf-home-project-card" style={{ padding: "14px", border: "1px solid var(--wf-card-border)", borderRadius: "8px" }}>
+                          <div className="wf-home-project-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
+                            <div>
+                              <h4 style={{ margin: 0, fontWeight: "bold" }}>{proj.title}</h4>
+                              <span className="wf-home-project-assignee" style={{ fontSize: "12px", color: "var(--wf-text-muted)" }}>Assigned to: <strong>{proj.assignee}</strong></span>
+                            </div>
+                            <span className={`wf-status-pill ${proj.priority.toLowerCase()}`} style={{ fontSize: "11px" }}>{proj.priority}</span>
+                          </div>
+                          <div className="wf-home-progress-container" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                            <div className="wf-home-progress-bg" style={{ flex: 1, height: "6px", background: "rgba(255,255,255,0.1)", borderRadius: "3px", overflow: "hidden" }}>
+                              <div className="wf-home-progress-fill" style={{ width: `${proj.progress}%`, height: "100%", background: "linear-gradient(90deg, #ff00c8, #8a2eff)" }}></div>
+                            </div>
+                            <span className="wf-home-progress-pct" style={{ fontSize: "12px" }}>{proj.progress}%</span>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* Leave Approvals Panel */}
+                <div className="wf-card">
+                  <div className="wf-card-header">
+                    <h2 className="wf-card-title">Leave Approvals</h2>
+                  </div>
+                  <div className="wf-home-leave-list" style={{ marginTop: "14px" }}>
+                    {leaveRequests.length === 0 ? (
+                      <p style={{ color: "var(--wf-text-faint)", fontSize: "14px" }}>No pending leave requests.</p>
+                    ) : (
+                      leaveRequests.map(req => (
+                        <div key={req.id} className="wf-home-leave-item" style={{ marginBottom: "12px", padding: "14px", border: "1px solid var(--wf-card-border)", borderRadius: "8px" }}>
+                          <div className="wf-home-leave-header" style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+                            <span className="wf-home-leave-requester" style={{ fontWeight: "bold" }}>{req.name}</span>
+                            <span className="wf-home-leave-type" style={{ fontSize: "12px", background: "rgba(255,255,255,0.05)", padding: "2px 6px", borderRadius: "4px" }}>{req.type || "Leave"}</span>
+                          </div>
+                          <p className="wf-home-leave-details" style={{ fontSize: "13px", color: "var(--wf-text-muted)", margin: "6px 0" }}>"{req.details || req.desc}"</p>
+                          {req.status === "PENDING" ? (
+                            <div className="wf-home-leave-actions" style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "8px" }}>
+                              <button className="wf-btn-secondary" style={{ padding: "4px 10px", fontSize: "12px" }} onClick={() => handleLeaveDecision(req.id, "REJECTED")}>Reject</button>
+                              <button className="wf-btn-primary" style={{ padding: "4px 10px", fontSize: "12px" }} onClick={() => handleLeaveDecision(req.id, "APPROVED")}>Approve</button>
+                            </div>
+                          ) : (
+                            <span className={`wf-status-pill ${req.status.toLowerCase()}`} style={{ float: "right" }}>{req.status}</span>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {/* Holiday Calendar Panel */}
+                <div className="wf-card">
+                  <div className="wf-card-header">
+                    <h2 className="wf-card-title">Holiday Calendar</h2>
+                    <span style={{ fontFamily: "Orbitron, sans-serif", fontSize: "12px", color: "#ff00c8", fontWeight: "700" }}>{calYear}</span>
+                  </div>
+                  <div style={{ marginTop: "14px" }}>
+                    <div className="wf-cal-nav" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                      <button className="wf-hamburger-btn" style={{ width: "28px", height: "28px" }} onClick={prevMonth}>‹</button>
+                      <span className="wf-cal-month-label" style={{ fontWeight: "bold" }}>{MONTH_NAMES[calMonth]}</span>
+                      <button className="wf-hamburger-btn" style={{ width: "28px", height: "28px" }} onClick={nextMonth}>›</button>
+                    </div>
+
+                    <div className="wf-cal-grid" style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "2px", textAlign: "center", fontSize: "12px" }}>
+                      {DAY_NAMES.map(d => (
+                        <div key={d} style={{ fontWeight: "700", color: "var(--wf-text-faint)", paddingBottom: "4px" }}>{d}</div>
+                      ))}
+                      {calCells().map((day, i) => {
+                        const holiday = getHoliday(day);
+                        const todayCell = isToday(day);
+                        let bg = "transparent";
+                        let border = "1px solid transparent";
+                        let color = "inherit";
+                        if (todayCell) {
+                          bg = "rgba(0, 229, 255, 0.15)";
+                          border = "1px solid #00e5ff";
+                          color = "#00e5ff";
+                        } else if (holiday) {
+                          if (holiday.type === "national") {
+                            bg = "rgba(255, 0, 200, 0.12)";
+                            border = "1px solid rgba(255, 0, 200, 0.35)";
+                            color = "#ff00c8";
+                          } else {
+                            bg = "rgba(138, 46, 255, 0.12)";
+                            border = "1px solid rgba(138, 46, 255, 0.35)";
+                            color = "#8a2eff";
+                          }
+                        }
+                        return (
+                          <div
+                            key={i}
+                            style={{
+                              aspectRatio: "1",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              borderRadius: "6px",
+                              background: bg,
+                              border: border,
+                              color: color,
+                              fontSize: "11px",
+                              fontWeight: (todayCell || holiday) ? "bold" : "normal",
+                              opacity: day ? 1 : 0
+                            }}
+                            title={holiday ? holiday.name : (todayCell ? "Today" : "")}
+                          >
+                            {day || ""}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </section>
             </>
           )}
 
@@ -2294,24 +2744,24 @@ export default function WorkforceDashboard() {
               </section>
 
               <section className="wf-metrics-grid wf-metrics-grid-4">
-                <div className="wf-metric-card" onClick={() => alert("Total Skills Matrix: 142 active competency tags across 6 departments.")}>
+                <div className="wf-metric-card" onClick={() => alert("Total Skills Matrix: active competency tags across departments.")}>
                   <div className="wf-metric-header"><div className="wf-metric-icon-box" style={{ background: "#fae8de" }}><FaUsers /></div><span className="wf-metric-title">Total Skills</span></div>
                   <div className="wf-metric-value">142</div>
                   <div className="wf-metric-trend">↑ 12% <span className="wf-metric-trend-label">vs last month</span></div>
                 </div>
-                <div className="wf-metric-card" onClick={() => alert("56 skill evaluations completed this month.")}>
+                <div className="wf-metric-card" onClick={() => alert("Skill evaluations completed.")}>
                   <div className="wf-metric-header"><div className="wf-metric-icon-box" style={{ background: "#faf0e6" }}><FaClipboardCheck /></div><span className="wf-metric-title">Assessments Conducted</span></div>
-                  <div className="wf-metric-value">56</div>
+                  <div className="wf-metric-value">{assessmentsList.length || 56}</div>
                   <div className="wf-metric-trend">↑ 8% <span className="wf-metric-trend-label">vs last month</span></div>
                 </div>
-                <div className="wf-metric-card" onClick={() => alert("248 out of 279 team members assessed.")}>
+                <div className="wf-metric-card" onClick={() => alert("Team members assessed.")}>
                   <div className="wf-metric-header"><div className="wf-metric-icon-box" style={{ background: "#f3e8f8" }}><FaUsers /></div><span className="wf-metric-title">Employees Assessed</span></div>
-                  <div className="wf-metric-value">248</div>
+                  <div className="wf-metric-value">{employees.length || 248}</div>
                   <div className="wf-metric-trend">↑ 15% <span className="wf-metric-trend-label">vs last month</span></div>
                 </div>
-                <div className="wf-metric-card" onClick={() => alert("Average workforce skill index is 78/100.")}>
+                <div className="wf-metric-card" onClick={() => alert("Average workforce skill index.")}>
                   <div className="wf-metric-header"><div className="wf-metric-icon-box" style={{ background: "#e6f4ea" }}><FaShieldAlt /></div><span className="wf-metric-title">Avg. Proficiency Score</span></div>
-                  <div className="wf-metric-value">78%</div>
+                  <div className="wf-metric-value">{employees.length > 0 ? Math.round(employees.reduce((acc, e) => acc + (e.score || 80), 0) / employees.length) + "%" : "78%"}</div>
                   <div className="wf-metric-trend">↑ 6% <span className="wf-metric-trend-label">vs last month</span></div>
                 </div>
               </section>
@@ -2376,25 +2826,30 @@ export default function WorkforceDashboard() {
                 <div className="wf-card">
                   <div className="wf-card-header"><h2 className="wf-card-title">Recent Assessments</h2><span className="wf-card-action" onClick={() => alert("Viewing all 56 assessment logs...")}>View all</span></div>
                   <div className="wf-assessments-list">
-                    <div className="wf-assessment-item" onClick={() => setSelectedAssessment({ title: "Java Programming Assessment", category: "Technical", status: "Completed", participants: 120, score: "82%", passRate: "94%" })}>
-                      <div className="wf-assessment-left"><div className="wf-assessment-icon-box" style={{ background: "#fae8de" }}><FaCode /></div><div className="wf-assessment-info"><span className="wf-assessment-title">Java Programming Assessment</span><span className="wf-assessment-cat">Technical</span></div></div>
-                      <div className="wf-assessment-middle"><span className="wf-status-pill completed">Completed</span><div className="wf-assessment-participants"><span className="wf-part-num">120</span><span className="wf-part-lbl">Participants</span></div><div className="wf-ring-score-box">82%</div></div>
-                    </div>
-
-                    <div className="wf-assessment-item" onClick={() => setSelectedAssessment({ title: "Leadership Skills Evaluation", category: "Behavioral", status: "Completed", participants: 95, score: "76%", passRate: "89%" })}>
-                      <div className="wf-assessment-left"><div className="wf-assessment-icon-box" style={{ background: "#faf0e6" }}><FaUsers /></div><div className="wf-assessment-info"><span className="wf-assessment-title">Leadership Skills Evaluation</span><span className="wf-assessment-cat">Behavioral</span></div></div>
-                      <div className="wf-assessment-middle"><span className="wf-status-pill completed">Completed</span><div className="wf-assessment-participants"><span className="wf-part-num">95</span><span className="wf-part-lbl">Participants</span></div><div className="wf-ring-score-box">76%</div></div>
-                    </div>
-
-                    <div className="wf-assessment-item" onClick={() => setSelectedAssessment({ title: "Data Analysis Test", category: "Technical", status: "In Progress", participants: 64, score: "68%", passRate: "81%" })}>
-                      <div className="wf-assessment-left"><div className="wf-assessment-icon-box" style={{ background: "#f3e8f8" }}><FaChartBar /></div><div className="wf-assessment-info"><span className="wf-assessment-title">Data Analysis Test</span><span className="wf-assessment-cat">Technical</span></div></div>
-                      <div className="wf-assessment-middle"><span className="wf-status-pill in-progress">In Progress</span><div className="wf-assessment-participants"><span className="wf-part-num">64</span><span className="wf-part-lbl">Participants</span></div><div className="wf-ring-score-box">68%</div></div>
-                    </div>
-
-                    <div className="wf-assessment-item" onClick={() => setSelectedAssessment({ title: "Communication Skills Test", category: "Behavioral", status: "Not Started", participants: 48, score: "-", passRate: "-" })}>
-                      <div className="wf-assessment-left"><div className="wf-assessment-icon-box" style={{ background: "#fef7e0" }}><FaComments /></div><div className="wf-assessment-info"><span className="wf-assessment-title">Communication Skills Test</span><span className="wf-assessment-cat">Behavioral</span></div></div>
-                      <div className="wf-assessment-middle"><span className="wf-status-pill not-started">Not Started</span><div className="wf-assessment-participants"><span className="wf-part-num">48</span><span className="wf-part-lbl">Participants</span></div><div style={{ width: "34px", textAlign: "center", fontWeight: "700", color: "#a39285" }}>-</div></div>
-                    </div>
+                    {assessmentsList.map(asm => {
+                      const IconComponent = asm.iconName === "FaUsers" ? FaUsers : (asm.iconName === "FaChartBar" ? FaChartBar : (asm.iconName === "FaComments" ? FaComments : FaCode));
+                      return (
+                        <div key={asm.id} className="wf-assessment-item" onClick={() => setSelectedAssessment(asm)}>
+                          <div className="wf-assessment-left">
+                            <div className="wf-assessment-icon-box" style={{ background: asm.iconBg || "#fae8de" }}>
+                              <IconComponent />
+                            </div>
+                            <div className="wf-assessment-info">
+                              <span className="wf-assessment-title">{asm.title}</span>
+                              <span className="wf-assessment-cat">{asm.category}</span>
+                            </div>
+                          </div>
+                          <div className="wf-assessment-middle">
+                            <span className={`wf-status-pill ${asm.status === "Completed" ? "completed" : (asm.status === "In Progress" ? "in-progress" : "not-started")}`}>{asm.status}</span>
+                            <div className="wf-assessment-participants">
+                              <span className="wf-part-num">{asm.participants}</span>
+                              <span className="wf-part-lbl">Participants</span>
+                            </div>
+                            <div className="wf-ring-score-box">{asm.score}</div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -3029,6 +3484,62 @@ export default function WorkforceDashboard() {
             </>
           )}
 
+          {activeTab === "AI Assistant" && (
+            <div className="wf-card" style={{ maxWidth: "800px", margin: "20px auto 40px auto" }}>
+              <div className="wf-card-header">
+                <h2 className="wf-card-title">SphereHR AI Operations Assistant</h2>
+              </div>
+              <div className="wf-home-chat-panel" style={{ marginTop: "20px" }}>
+                <div className="wf-home-chat-messages" style={{ maxHeight: "400px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "10px", padding: "14px", background: "rgba(0,0,0,0.15)", borderRadius: "8px", marginBottom: "15px" }}>
+                  {chatMessages.map((msg, i) => (
+                    <div key={i} className={`wf-home-chat-bubble ${msg.sender}`} style={{
+                      alignSelf: msg.sender === "user" ? "flex-end" : "flex-start",
+                      background: msg.sender === "user" ? "linear-gradient(135deg, #00e5ff, #8a2eff)" : "rgba(255,255,255,0.05)",
+                      color: "#fff",
+                      padding: "10px 14px",
+                      borderRadius: "14px",
+                      maxWidth: "75%",
+                      fontSize: "14px",
+                      lineHeight: "1.4"
+                    }}>
+                      {msg.text}
+                    </div>
+                  ))}
+                  {isChatLoading && (
+                    <div className="wf-home-chat-bubble assistant" style={{ alignSelf: "flex-start", background: "rgba(255,255,255,0.02)", color: "var(--wf-text-muted)", padding: "10px 14px", borderRadius: "14px", fontSize: "14px" }}>
+                      <span>SphereHR is thinking...</span>
+                    </div>
+                  )}
+                  <div ref={chatEndRef} />
+                </div>
+                <div className="wf-home-chat-hints" style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "16px" }}>
+                  {quickPrompts.map((hint, i) => (
+                    <span key={i} className="wf-home-chat-hint" style={{ fontSize: "12px", background: "rgba(255,255,255,0.03)", border: "1px solid var(--wf-card-border)", padding: "6px 12px", borderRadius: "20px", cursor: "pointer", color: "var(--wf-text-secondary)", transition: "all 0.2s" }} onClick={() => handleSendChat(hint)}>{hint}</span>
+                  ))}
+                </div>
+                <div className="wf-home-chat-input-row" style={{ display: "flex", gap: "10px" }}>
+                  <input
+                    type="text"
+                    style={{ flex: 1, padding: "10px 14px", borderRadius: "8px", background: "var(--wf-input-bg)", border: "1px solid var(--wf-input-border)", color: "#fff", fontSize: "14px" }}
+                    placeholder="Ask SphereHR..."
+                    value={chatInput}
+                    onChange={e => setChatInput(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter") handleSendChat(chatInput); }}
+                    disabled={isChatLoading}
+                  />
+                  <button
+                    className="wf-btn-primary"
+                    style={{ padding: "10px 20px", fontSize: "14px" }}
+                    onClick={() => handleSendChat(chatInput)}
+                    disabled={isChatLoading || !chatInput.trim()}
+                  >
+                    Send 🚀
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* TAB 10: WORKFORCE SETTINGS CONTROL PANEL */}
           {activeTab === "Settings" && (
             <>
@@ -3041,7 +3552,7 @@ export default function WorkforceDashboard() {
                     <button className="wf-btn-primary" onClick={() => setActiveTab("Overview")}>
                       Return to Overview Dashboard
                     </button>
-                    <button className="wf-promo-btn" style={{ background: "var(--wf-accent-dark-brown)" }} onClick={() => alert("✅ All Workforce Settings saved successfully!")}>
+                    <button className="wf-promo-btn" style={{ background: "var(--wf-accent-dark-brown)" }} onClick={handleSaveSettings}>
                       💾 Save All Settings
                     </button>
                   </div>
@@ -3085,7 +3596,7 @@ export default function WorkforceDashboard() {
                 <div className="wf-card">
                   <div className="wf-card-header">
                     <h2 className="wf-card-title">General Organization Profile</h2>
-                    <button className="wf-btn-primary" style={{ padding: "6px 14px", fontSize: "12px" }} onClick={() => alert("Organization profile saved!")}>
+                    <button className="wf-btn-primary" style={{ padding: "6px 14px", fontSize: "12px" }} onClick={handleSaveSettings}>
                       Save Changes
                     </button>
                   </div>
@@ -3225,7 +3736,7 @@ export default function WorkforceDashboard() {
                 <div className="wf-card">
                   <div className="wf-card-header">
                     <h2 className="wf-card-title">Security Policies & Access Enforcement</h2>
-                    <button className="wf-btn-primary" style={{ padding: "6px 14px", fontSize: "12px" }} onClick={() => alert("Security policies updated!")}>
+                    <button className="wf-btn-primary" style={{ padding: "6px 14px", fontSize: "12px" }} onClick={handleSaveSettings}>
                       Save Security Policies
                     </button>
                   </div>
@@ -3306,7 +3817,7 @@ export default function WorkforceDashboard() {
                 <div className="wf-card">
                   <div className="wf-card-header">
                     <h2 className="wf-card-title">Automated Notification Preferences</h2>
-                    <button className="wf-btn-primary" style={{ padding: "6px 14px", fontSize: "12px" }} onClick={() => alert("Notification settings saved!")}>
+                    <button className="wf-btn-primary" style={{ padding: "6px 14px", fontSize: "12px" }} onClick={handleSaveSettings}>
                       Save Preferences
                     </button>
                   </div>
@@ -3380,7 +3891,7 @@ export default function WorkforceDashboard() {
                 <div className="wf-card">
                   <div className="wf-card-header">
                     <h2 className="wf-card-title">Connected Enterprise Apps & Webhooks</h2>
-                    <button className="wf-btn-primary" style={{ padding: "6px 14px", fontSize: "12px" }} onClick={() => alert("Integration credentials updated!")}>
+                    <button className="wf-btn-primary" style={{ padding: "6px 14px", fontSize: "12px" }} onClick={handleSaveSettings}>
                       Save Connections
                     </button>
                   </div>
@@ -3686,6 +4197,79 @@ export default function WorkforceDashboard() {
                 </button>
                 <button type="submit" className="wf-btn-primary">
                   Save Employee
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ASSIGN PROJECT MODAL */}
+      {showProjectModal && (
+        <div className="wf-modal-overlay" onClick={() => setShowProjectModal(false)}>
+          <div className="wf-modal-box" onClick={e => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+              <h3 className="wf-modal-title" style={{ margin: 0 }}>Assign New Project</h3>
+              <button style={{ background: "none", border: "none", cursor: "pointer", fontSize: "18px" }} onClick={() => setShowProjectModal(false)}>
+                <FaTimes />
+              </button>
+            </div>
+
+            <form onSubmit={handleAssignProjectSubmit}>
+              <div className="wf-form-group">
+                <label>Project Title</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. REST API Optimizations"
+                  value={newProj.title}
+                  onChange={(e) => setNewProj({ ...newProj, title: e.target.value })}
+                />
+              </div>
+
+              <div className="wf-form-group">
+                <label>Assignee</label>
+                <select
+                  required
+                  value={newProj.assignee}
+                  onChange={(e) => setNewProj({ ...newProj, assignee: e.target.value })}
+                >
+                  <option value="">-- Choose Employee --</option>
+                  {employees.map(emp => (
+                    <option key={emp.id} value={emp.name}>{emp.name} ({emp.dept})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="wf-form-group">
+                <label>Priority</label>
+                <select
+                  value={newProj.priority}
+                  onChange={(e) => setNewProj({ ...newProj, priority: e.target.value })}
+                >
+                  <option value="High">High</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Low">Low</option>
+                </select>
+              </div>
+
+              <div className="wf-form-group">
+                <label>Initial Progress (%)</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={newProj.progress}
+                  onChange={(e) => setNewProj({ ...newProj, progress: e.target.value })}
+                />
+              </div>
+
+              <div className="wf-modal-actions">
+                <button type="button" className="wf-select-filter" onClick={() => setShowProjectModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="wf-btn-primary">
+                  Assign Project
                 </button>
               </div>
             </form>
@@ -4466,7 +5050,7 @@ export default function WorkforceDashboard() {
             </div>
 
             {/* Chat Messages */}
-            <div style={{
+             <div style={{
               flex: 1,
               padding: "16px",
               overflowY: "auto",
@@ -4475,7 +5059,7 @@ export default function WorkforceDashboard() {
               gap: "12px",
               background: themeMode === 'dark' ? "#0f172a" : "#ffffff"
             }}>
-              {chatMessages.map(msg => (
+              {teamMessages.map(msg => (
                 <div
                   key={msg.id}
                   style={{

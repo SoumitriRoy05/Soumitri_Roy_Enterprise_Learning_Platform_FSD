@@ -71,8 +71,6 @@ export default function CertificatesPage() {
     { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "assignments", label: "Assignments", icon: <FaFileAlt /> },
-    { id: "discussions", label: "Discussions", icon: <FaComments /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
     { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
     { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
@@ -282,24 +280,66 @@ export default function CertificatesPage() {
 
   const userKey = user?.email || user?.username || "default";
   const userCompletedTopics = completedTopics || [];
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   // Persistent storage for manually earned or unlocked certificates
-  const [earnedCertKeys, setEarnedCertKeys] = useState(() => {
-    try {
-      const stored = localStorage.getItem(`skillsphere_earned_certs_${userKey}`);
-      return stored ? JSON.parse(stored) : ["react_", "react", 1, "react_cert"];
-    } catch (e) {
-      return ["react_", "react", 1, "react_cert"];
-    }
-  });
+  const [earnedCertKeys, setEarnedCertKeys] = useState(["react_", "react", 1, "react_cert"]);
 
-  const handleClaimCertificate = (cert) => {
+  const fetchClaimedCertificates = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) return;
+      const res = await fetch(`${API_URL}/api/certificates`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok && data.certificates) {
+        const claimedKeys = [];
+        data.certificates.forEach(c => {
+          claimedKeys.push(c.title);
+          
+          const matchedDef = allCertificateDefs.find(def => 
+            c.title.toLowerCase().includes(def.title.toLowerCase()) || 
+            def.title.toLowerCase().includes(c.title.toLowerCase())
+          );
+          if (matchedDef) {
+            claimedKeys.push(matchedDef.topicPrefix);
+            claimedKeys.push(matchedDef.id);
+            claimedKeys.push(matchedDef.topicPrefix.replace("_", ""));
+          }
+        });
+        setEarnedCertKeys(prev => [...new Set([...prev, ...claimedKeys])]);
+      }
+    } catch (err) {
+      console.error("Failed to fetch certificates:", err);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchClaimedCertificates();
+  }, [user]);
+
+  const handleClaimCertificate = async (cert) => {
     const updated = [...new Set([...earnedCertKeys, cert.topicPrefix, cert.id, cert.topicPrefix.replace("_", "")])];
     setEarnedCertKeys(updated);
+
     try {
-      localStorage.setItem(`skillsphere_earned_certs_${userKey}`, JSON.stringify(updated));
-      localStorage.setItem(`certificate_${cert.topicPrefix.replace("_", "")}_earned`, "true");
-    } catch (e) {}
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        await fetch(`${API_URL}/api/certificates/claim`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ title: cert.title })
+        });
+        await fetchClaimedCertificates();
+      }
+    } catch (err) {
+      console.error("Failed to claim certificate in database:", err);
+    }
+    
     setToastMessage(`🏆 Certificate for "${cert.title}" verified & added to Earned Certificates!`);
   };
 

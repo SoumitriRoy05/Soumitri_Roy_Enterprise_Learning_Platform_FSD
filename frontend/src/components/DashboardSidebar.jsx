@@ -32,11 +32,6 @@ const DashboardSidebar = ({ isOpen, toggleSidebar }) => {
           <span>Courses</span>
         </NavLink>
         
-        <NavLink to="/discussions" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
-          <FiMessageSquare className="sidebar-icon" />
-          <span>Discussions</span>
-        </NavLink>
-        
         <NavLink to="/certificate" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
           <FiAward className="sidebar-icon" />
           <span>Certificate</span>

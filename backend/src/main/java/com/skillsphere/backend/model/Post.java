@@ -42,11 +42,15 @@ public class Post {
     private List<Comment> comments = new ArrayList<>();
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "posted_at", nullable = false, updatable = false)
+    private LocalDateTime postedAt = LocalDateTime.now();
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        postedAt = LocalDateTime.now();
         if (upvotes == null) {
             upvotes = 0;
         }
@@ -159,5 +163,13 @@ public class Post {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getPostedAt() {
+        return postedAt;
+    }
+
+    public void setPostedAt(LocalDateTime postedAt) {
+        this.postedAt = postedAt;
     }
 }

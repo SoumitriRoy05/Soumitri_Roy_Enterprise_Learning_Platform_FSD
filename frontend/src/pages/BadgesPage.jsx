@@ -86,8 +86,6 @@ export default function BadgesPage() {
     { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "assignments", label: "Assignments", icon: <FaFileAlt /> },
-    { id: "discussions", label: "Discussions", icon: <FaComments /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
     { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
     { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
@@ -99,19 +97,21 @@ export default function BadgesPage() {
     { id: "settings", label: "Settings", icon: <FaCog /> }
   ];
 
+  const userBadges = user?.badges || [];
+
   const earnedBadges = [
-    { id: 1, title: "Getting Started", desc: "Complete your first lesson", xp: "+50 XP", date: "Earned on 12 Apr 2025", icon: <FaTrophy />, color: "orange", isEarned: true },
-    { id: 2, title: "Lesson Learner", desc: "Complete 10 lessons", xp: "+100 XP", date: "Earned on 18 Apr 2025", icon: <FaBook />, color: "green", isEarned: true },
-    { id: 3, title: "Quiz Master", desc: "Score 90% or more in a quiz", xp: "+150 XP", date: "Earned on 22 Apr 2025", icon: <FaQuestionCircle />, color: "purple", isEarned: true },
-    { id: 4, title: "Code Explorer", desc: "Solve 20 coding problems", xp: "+200 XP", date: "Earned on 22 Apr 2025", icon: <FaCode />, color: "brown", isEarned: true },
-    { id: 5, title: "Streak Starter", desc: "Maintain a 3-day streak", xp: "+75 XP", date: "Earned on 27 Apr 2025", icon: <FaFire />, color: "red", isEarned: true },
-    { id: 6, title: "Consistent Learner", desc: "Maintain a 7-day streak", xp: "+150 XP", date: "Earned on 30 Apr 2025", icon: <FaCalendarAlt />, color: "blue", isEarned: true },
-    { id: 7, title: "Assignment Ace", desc: "Submit 5 assignments", xp: "+100 XP", date: "Earned on 02 May 2025", icon: <FaClipboardList />, color: "teal", isEarned: true },
-    { id: 8, title: "Discussion Star", desc: "Make 5 helpful discussions", xp: "+50 XP", date: "Earned on 04 May 2025", icon: <FaStar />, color: "yellow", isEarned: true },
-    { id: 9, title: "Early Bird", desc: "Complete a lesson before 9 AM", xp: "+30 XP", date: "Earned on 05 May 2025", icon: <FaSun />, color: "gold", isEarned: true },
-    { id: 10, title: "Weekend Warrior", desc: "Complete 5 lessons on weekend", xp: "+75 XP", date: "Earned on 06 May 2025", icon: <FaBullseye />, color: "indigo", isEarned: true },
-    { id: 11, title: "Project Builder", desc: "Complete a hands-on project", xp: "+250 XP", date: "Earned on 08 May 2025", icon: <FaCubes />, color: "emerald", isEarned: true },
-    { id: 12, title: "Path Pioneer", desc: "Complete your first learning path", xp: "+300 XP", date: "Earned on 10 May 2025", icon: <FaMountain />, color: "violet", isEarned: true }
+    { id: 1, title: "Getting Started", desc: "Complete your first lesson", xp: "+50 XP", date: "Earned", icon: <FaTrophy />, color: "orange", isEarned: true },
+    { id: 2, title: "Lesson Learner", desc: "Complete 10 lessons", xp: "+100 XP", date: "Earned", icon: <FaBook />, color: "green", isEarned: userBadges.includes("Lesson Learner") || userBadges.includes("2") || (user?.completed_topics || []).length >= 1 },
+    { id: 3, title: "Quiz Master", desc: "Score 90% or more in a quiz", xp: "+150 XP", date: "Earned", icon: <FaQuestionCircle />, color: "purple", isEarned: userBadges.includes("Quiz Master") || userBadges.includes("3") },
+    { id: 4, title: "Code Explorer", desc: "Solve 20 coding problems", xp: "+200 XP", date: "Earned", icon: <FaCode />, color: "brown", isEarned: userBadges.includes("Code Explorer") || userBadges.includes("4") },
+    { id: 5, title: "Streak Starter", desc: "Maintain a 3-day streak", xp: "+75 XP", date: "Earned", icon: <FaFire />, color: "red", isEarned: (user?.streak || 0) >= 3 || userBadges.includes("Streak Starter") },
+    { id: 6, title: "Consistent Learner", desc: "Maintain a 7-day streak", xp: "+150 XP", date: "Earned", icon: <FaCalendarAlt />, color: "blue", isEarned: (user?.streak || 0) >= 7 || userBadges.includes("Consistent Learner") },
+    { id: 7, title: "Assignment Ace", desc: "Submit 5 assignments", xp: "+100 XP", date: "Earned", icon: <FaClipboardList />, color: "teal", isEarned: userBadges.includes("Assignment Ace") },
+    { id: 8, title: "Discussion Star", desc: "Make 5 helpful discussions", xp: "+50 XP", date: "Earned", icon: <FaStar />, color: "yellow", isEarned: userBadges.includes("Discussion Star") },
+    { id: 9, title: "Early Bird", desc: "Complete a lesson before 9 AM", xp: "+30 XP", date: "Earned", icon: <FaSun />, color: "gold", isEarned: userBadges.includes("Early Bird") },
+    { id: 10, title: "Weekend Warrior", desc: "Complete 5 lessons on weekend", xp: "+75 XP", date: "Earned", icon: <FaBullseye />, color: "indigo", isEarned: userBadges.includes("Weekend Warrior") },
+    { id: 11, title: "Project Builder", desc: "Complete a hands-on project", xp: "+250 XP", date: "Earned", icon: <FaCubes />, color: "emerald", isEarned: userBadges.includes("Project Builder") },
+    { id: 12, title: "Path Pioneer", desc: "Complete your first learning path", xp: "+300 XP", date: "Earned", icon: <FaMountain />, color: "violet", isEarned: userBadges.includes("Path Pioneer") || (user?.completed_topics || []).length >= 5 }
   ];
 
   // 24 MORE DISCOVERABLE LOCKED BADGES DATA (Matching Screenshot 1-to-1)

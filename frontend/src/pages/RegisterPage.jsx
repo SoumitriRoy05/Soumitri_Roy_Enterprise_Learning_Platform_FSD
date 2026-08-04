@@ -50,6 +50,55 @@ export default function RegisterPage() {
     roleRef.current = role;
   }, [role]);
 
+  useEffect(() => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId || clientId === 'google_mock_client_id_for_testing') {
+      return;
+    }
+    const initGoogleSignUp = () => {
+      if (window.google) {
+        try {
+          window.google.accounts.id.initialize({
+            client_id: clientId,
+            callback: async (response) => {
+              try {
+                setError('');
+                const registeredUser = await loginWithGoogle(response.credential, roleRef.current);
+                if (registeredUser) {
+                  if (roleRef.current === 'EMPLOYEE' && (registeredUser.email.toLowerCase().includes('student') || registeredUser.email.toLowerCase().endsWith('.edu'))) {
+                    setError('Enter valid workplace email id');
+                    await logout();
+                    return;
+                  }
+                  if (registeredUser.role === 'STUDENT') {
+                    navigate('/student-home');
+                  } else {
+                    navigate('/workforce-home');
+                  }
+                }
+              } catch (err) {
+                setError(err.message || 'Google registration failed');
+              }
+            }
+          });
+          if (googleBtnRef.current) {
+            window.google.accounts.id.renderButton(
+              googleBtnRef.current,
+              { theme: 'outline', size: 'large', width: '100%' }
+            );
+          }
+        } catch (err) {
+          console.warn('Google accounts initialization warning:', err);
+        }
+      } else {
+        setTimeout(initGoogleSignUp, 100);
+      }
+    };
+    if (step === 2) {
+      initGoogleSignUp();
+    }
+  }, [step, loginWithGoogle]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (role === 'EMPLOYEE' && (email.toLowerCase().includes('student') || email.toLowerCase().endsWith('.edu'))) {
@@ -261,17 +310,9 @@ export default function RegisterPage() {
               </div>
 
               {/* Sign up with Google */}
-              <button
-                type="button"
-                className="btnGoogleLogin"
-                onClick={handleDevBypass}
-              >
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
-                  alt="Google logo"
-                />
-                Sign up with Google
-              </button>
+              <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '8px 0' }}>
+                <div ref={googleBtnRef} style={{ width: '100%' }}></div>
+              </div>
 
               {/* Mock Dev Mode Bypass Box */}
               <div className="mockDevModeBox">

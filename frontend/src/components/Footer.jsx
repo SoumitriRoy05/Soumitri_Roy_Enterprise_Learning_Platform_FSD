@@ -38,7 +38,6 @@ export default function Footer() {
               <li><Link to="/features" onClick={handleScrollTop}>Features</Link></li>
               <li><Link to="/student-features" onClick={handleScrollTop}>Students Hub</Link></li>
               <li><Link to="/workforce" onClick={handleScrollTop}>Work Hub</Link></li>
-              <li><Link to="/sandbox" onClick={handleScrollTop}>Sandbox</Link></li>
             </ul>
           </div>
 
@@ -49,7 +48,6 @@ export default function Footer() {
               <li><Link to="/workforce" onClick={handleScrollTop}>Why SkillSphere</Link></li>
               <li><Link to="/workforce-features" onClick={handleScrollTop}>Solutions</Link></li>
               <li><Link to="/admin-login" onClick={handleScrollTop}>Admin Portal</Link></li>
-              <li><Link to="/sandbox" onClick={handleScrollTop}>Sandbox Environment</Link></li>
             </ul>
           </div>
         </div>

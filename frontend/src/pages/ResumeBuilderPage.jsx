@@ -59,9 +59,10 @@ import "../styles/studentDashboard.css";
 import "../styles/resumeBuilderPage.css";
 
 export default function ResumeBuilderPage() {
-  const { user, xp, logout, themeMode, toggleTheme } = useAuth();
+  const { user, xp, logout, themeMode, toggleTheme, authenticatedFetch } = useAuth();
   const navigate = useNavigate();
   const isDarkMode = themeMode === "dark";
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
   const [activeTab, setActiveTab] = useState("personal");
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
   const [toastMessage, setToastMessage] = useState("");
@@ -72,6 +73,7 @@ export default function ResumeBuilderPage() {
   const [isResumeAnalyzed, setIsResumeAnalyzed] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const photoInputRef = useRef(null);
+  const [lastSaved, setLastSaved] = useState("Just now");
 
   const handleLogout = async () => {
     try {
@@ -85,30 +87,21 @@ export default function ResumeBuilderPage() {
 
   const currentXp = xp ?? 0;
 
+  const userSkills = user?.skills ? user.skills.split(",").map(s => s.trim()) : ["React", "Java", "Spring Boot"];
+
   // Real-time Resume Form State (Fully Editable Across All 9 Tabs)
   const [resumeData, setResumeData] = useState({
-    fullName: "Soumitri Roy",
-    jobTitle: "Software Engineer",
-    email: "soumitriroy@gmail.com",
-    phone: "+91 98765 43210",
-    location: "Bhubaneswar, Odisha",
-    linkedin: "linkedin.com/in/soumitriroy",
-    github: "github.com/soumitriroy",
-    portfolio: "yourportfolio.dev",
+    fullName: user?.full_name || user?.username || "Learner",
+    jobTitle: user?.role === "STUDENT" ? "Student & Software Developer" : "Software Engineer",
+    email: user?.contact_email || user?.email || "",
+    phone: user?.phone || "",
+    location: user?.location || "",
+    linkedin: user?.linkedin || "",
+    github: user?.github || "",
+    portfolio: user?.portfolio || "",
     photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-    summary:
-      "I am a software engineer with experience in a variety of programming languages and a track record of delivering high-quality code. I am skilled in problem-solving and have a strong background in computer science. I am a strong communicator and enjoy working collaboratively with others.",
-    skills: [
-      "Java",
-      "Python",
-      "JavaScript (ES6+)",
-      "React.js",
-      "Node.js",
-      "SQL / MySQL",
-      "Git & GitHub",
-      "Data Structures & Algorithms",
-      "Problem Solving"
-    ],
+    summary: user?.bio || "I am a software engineer with experience in a variety of programming languages and a track record of delivering high-quality code.",
+    skills: userSkills,
     languages: [
       { id: 1, name: "English", level: "•••••" },
       { id: 2, name: "Hindi", level: "•••••" },
@@ -193,8 +186,6 @@ export default function ResumeBuilderPage() {
     { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "assignments", label: "Assignments", icon: <FaFileAlt /> },
-    { id: "discussions", label: "Discussions", icon: <FaComments /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
     { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
     { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
@@ -400,16 +391,79 @@ export default function ResumeBuilderPage() {
     setResumeData((prev) => ({ ...prev, interests: prev.interests.filter((_, idx) => idx !== idxToRemove) }));
   };
 
-  // Save Draft Handler & Local Storage Persistence
-  const handleSaveChanges = () => {
-    const userKey = user?.email || user?.username || "student";
+  const isLoadedRef = React.useRef(false);
+
+  // Fetch resume from backend
+  const fetchResume = async () => {
     try {
-      localStorage.setItem(`skillsphere_resume_draft_${userKey}`, JSON.stringify(resumeData));
-    } catch (e) {}
-    const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    setLastSavedTime(now);
-    setToastMessage("💾 Resume draft saved successfully to your account!");
-    setTimeout(() => setToastMessage(""), 4000);
+      const res = await authenticatedFetch(`${API_URL}/api/resume`);
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (data.selectedTemplate) {
+          setSelectedTemplate(data.selectedTemplate);
+        }
+        if (data.content) {
+          const parsed = JSON.parse(data.content);
+          setResumeData(parsed);
+        }
+        if (data.updatedAt) {
+          const savedDate = new Date(data.updatedAt);
+          setLastSaved(savedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+        }
+        setTimeout(() => {
+          isLoadedRef.current = true;
+        }, 200);
+      } else {
+        isLoadedRef.current = true;
+      }
+    } catch (err) {
+      console.error("Failed to fetch resume:", err);
+      isLoadedRef.current = true;
+    }
+  };
+
+  React.useEffect(() => {
+    fetchResume();
+  }, []);
+
+  const autoSaveResume = async () => {
+    try {
+      setLastSaved("Saving...");
+      const res = await authenticatedFetch(`${API_URL}/api/resume/save`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          selectedTemplate: selectedTemplate,
+          content: JSON.stringify(resumeData)
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setLastSaved(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      } else {
+        setLastSaved("Failed");
+      }
+    } catch (err) {
+      console.error("Autosave error:", err);
+      setLastSaved("Error");
+    }
+  };
+
+  React.useEffect(() => {
+    if (!isLoadedRef.current) return;
+
+    const delayDebounce = setTimeout(() => {
+      autoSaveResume();
+    }, 1500);
+
+    return () => clearTimeout(delayDebounce);
+  }, [resumeData, selectedTemplate]);
+
+  // Save changes to database (Manual fallback button)
+  const handleSaveChanges = async () => {
+    await autoSaveResume();
+    setToastMessage("💾 Resume changes saved to database successfully!");
+    setTimeout(() => setToastMessage(""), 3000);
   };
 
   // AI Assistant Action Handlers
@@ -1170,9 +1224,9 @@ export default function ResumeBuilderPage() {
 
             <div className="rbpHeaderActionsRight">
               <span className="lastSavedTag" onClick={handleSaveChanges} style={{ cursor: "pointer" }} title="Click to Save Draft">
-                <FaCheckCircle color="#10B981" /> Last Saved: {lastSavedTime} ▾
+                <FaCheckCircle color="#10B981" /> Last Saved: {lastSaved} ▾
               </span>
-              {isResumeAnalyzed && <div className="atsScorePill">ATS Score : 96%</div>}
+              <div className="atsScorePill">ATS Score : {isResumeAnalyzed ? "96%" : "92%"}</div>
               <button className="btnNewResume" onClick={handleSaveChanges}>+ Save Resume ▾</button>
             </div>
           </div>

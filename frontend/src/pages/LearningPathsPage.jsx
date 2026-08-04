@@ -2222,6 +2222,57 @@ function AnalyticsDashboard() {
                             </ul>
                           </div>
                         )}
+
+                        {/* GeeksforGeeks (GFG) Reference Notes & Revision Module */}
+                        <div className="gfg-notes-section" style={{
+                          marginTop: '16px',
+                          background: '#f8fafc',
+                          border: '1px solid #2ecc71',
+                          borderRadius: '14px',
+                          padding: '18px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ fontSize: '18px' }}>📖</span>
+                              <h5 style={{ margin: 0, color: '#2ecc71', fontSize: '13px', fontWeight: 800 }}>
+                                GeeksforGeeks (GFG) Full Revision Notes & Article Reference
+                              </h5>
+                            </div>
+                            <span style={{
+                              fontSize: '9px',
+                              fontWeight: '700',
+                              background: 'rgba(46, 204, 113, 0.1)',
+                              color: '#2ecc71',
+                              border: '1px solid rgba(46, 204, 113, 0.3)',
+                              padding: '2px 8px',
+                              borderRadius: '20px'
+                            }}>
+                              GFG Verified
+                            </span>
+                          </div>
+                          <p style={{ color: '#475569', fontSize: '12px', lineHeight: '1.5', margin: '0 0 10px 0' }}>
+                            Full conceptual guides, time-complexity analysis, and interview prep cheat sheets compiled from GeeksforGeeks articles for <strong>{activeSubLesson.title}</strong>.
+                          </p>
+                          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                            <a 
+                              href={
+                                activePath.title?.toLowerCase().includes("python")
+                                  ? "https://www.geeksforgeeks.org/python-programming-language/"
+                                  : activePath.title?.toLowerCase().includes("node")
+                                  ? "https://www.geeksforgeeks.org/nodejs/"
+                                  : activePath.title?.toLowerCase().includes("figma") || activePath.title?.toLowerCase().includes("ux")
+                                  ? "https://www.geeksforgeeks.org/ui-ux-design-basics/"
+                                  : "https://www.geeksforgeeks.org/reactjs-tutorials/"
+                              } 
+                              target="_blank" 
+                              rel="noreferrer" 
+                              style={{ color: '#2ecc71', fontSize: '12px', fontWeight: '700', textDecoration: 'none' }}
+                            >
+                              🔗 View Full GeeksforGeeks Article Notes ↗
+                            </a>
+                          </div>
+                        </div>
                       </div>
                     ) : (
                       /* Video Player View (Final sub-lesson step) */

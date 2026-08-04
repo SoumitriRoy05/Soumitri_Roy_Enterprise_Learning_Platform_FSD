@@ -118,7 +118,7 @@ export default function Hero() {
             Explore Courses <FiArrowRight />
           </button>
 
-          <button className="secondaryHeroBtn" onClick={() => navigate('/workforce')}>
+          <button className="secondaryHeroBtn" onClick={() => navigate('/login', { state: { role: 'EMPLOYEE' } })}>
             For Organizations 🏛
           </button>
         </div>

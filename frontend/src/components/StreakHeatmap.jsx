@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
 import {
   FaFire,
   FaCalendarAlt,
@@ -10,29 +11,67 @@ import {
 
 export default function StreakHeatmap() {
   const [hoveredDay, setHoveredDay] = useState(null);
+  const { user, refreshProfile } = useAuth();
 
-  // Generate 52 weeks x 7 days (364 days mock data)
+  useEffect(() => {
+    if (refreshProfile) {
+      refreshProfile();
+    }
+  }, []);
+
+  // Parse activity map safely from user context
+  let activityMap = {};
+  if (user && user.activity_map) {
+    try {
+      activityMap = typeof user.activity_map === "string" ? JSON.parse(user.activity_map) : user.activity_map;
+    } catch (e) {
+      console.error("Error parsing activity map:", e);
+    }
+  }
+  if (!activityMap) activityMap = {};
+
+  // Generate 52 weeks x 7 days ending today, aligned by day of week
   const generateHeatmapData = () => {
     const data = [];
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     
-    // Seed consistent pattern with high recent activity
+    const todayDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(todayDate.getDate() - 363); // 52 weeks ago
+    
+    // Aligns to nearest Sunday
+    const startDayOfWeek = startDate.getDay();
+    startDate.setDate(startDate.getDate() - startDayOfWeek);
+    
+    let currentDate = new Date(startDate);
+    
     for (let w = 0; w < 52; w++) {
       const week = [];
       for (let d = 0; d < 7; d++) {
-        const dayOffset = w * 7 + d;
-        let count = 0;
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const day = String(currentDate.getDate()).padStart(2, '0');
+        const dateKey = `${year}-${month}-${day}`;
+        
+        const count = activityMap[dateKey] || 0;
         let level = 0;
-
-        // Default to 0 streak
 
         if (count === 1) level = 1;
         else if (count === 2) level = 2;
         else if (count >= 3 && count < 5) level = 3;
         else if (count >= 5) level = 4;
-
-        const dateStr = `Day ${dayOffset + 1}`;
+        
+        const dateFormatted = currentDate.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric"
+        });
+        
+        const dateStr = `${dateFormatted}`;
+        
         week.push({ count, level, dateStr, weekIndex: w, dayIndex: d });
+        
+        currentDate.setDate(currentDate.getDate() + 1);
       }
       data.push(week);
     }
@@ -40,6 +79,17 @@ export default function StreakHeatmap() {
   };
 
   const { data: weeks, months } = generateHeatmapData();
+
+  // Compute stat card calculations dynamically
+  const currentStreak = user?.streak || 0;
+  const longestStreak = user?.longest_streak || 0;
+  
+  const totalStudyTimeMins = user?.total_study_time || 0;
+  const totalStudyTimeText = totalStudyTimeMins < 60 
+    ? `${totalStudyTimeMins} Mins` 
+    : `${Math.round(totalStudyTimeMins / 60)} Hours`;
+
+  const activeDays = Object.keys(activityMap).filter(k => activityMap[k] > 0).length;
 
   return (
     <div className="heatmapContainer">
@@ -53,7 +103,7 @@ export default function StreakHeatmap() {
         <div className="streakBadgePill">
           <FaFire className="flameIcon" />
           <div>
-            <strong>0 Days Streak!</strong>
+            <strong>{currentStreak} Days Streak!</strong>
             <span>Active Today</span>
           </div>
         </div>
@@ -66,7 +116,7 @@ export default function StreakHeatmap() {
             <FaFire />
           </div>
           <div>
-            <strong>0 Days</strong>
+            <strong>{currentStreak} Days</strong>
             <span>Current Streak</span>
           </div>
         </div>
@@ -76,7 +126,7 @@ export default function StreakHeatmap() {
             <FaTrophy />
           </div>
           <div>
-            <strong>0 Days</strong>
+            <strong>{longestStreak} Days</strong>
             <span>Longest Streak</span>
           </div>
         </div>
@@ -86,7 +136,7 @@ export default function StreakHeatmap() {
             <FaClock />
           </div>
           <div>
-            <strong>0 Hours</strong>
+            <strong>{totalStudyTimeText}</strong>
             <span>Total Study Time</span>
           </div>
         </div>
@@ -96,7 +146,7 @@ export default function StreakHeatmap() {
             <FaChartLine />
           </div>
           <div>
-            <strong>0 Days</strong>
+            <strong>{activeDays} Days</strong>
             <span>Active Learning Days</span>
           </div>
         </div>

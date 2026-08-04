@@ -110,10 +110,6 @@ export default function FeaturePage() {
               <button className="primaryHeroBtn" onClick={() => navigate('/register')}>
                 Explore Features <FaArrowRight />
               </button>
-
-              <button className="secondaryHeroBtn" onClick={() => navigate('/sandbox')}>
-                Watch Demo <FaPlayCircle className="playIconCircle" />
-              </button>
             </div>
           </div>
 

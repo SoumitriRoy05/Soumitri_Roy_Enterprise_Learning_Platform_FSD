@@ -116,23 +116,18 @@ export function AuthProvider({ children }) {
     if (user) {
       const userKey = user.email || user.username || user.id || 'default';
 
-      const savedXp = localStorage.getItem(`xp_${userKey}`);
-      const initialXp = user.xp !== undefined && user.xp !== null ? user.xp : (savedXp ? parseInt(savedXp) : 0);
+      const initialXp = user.xp !== undefined && user.xp !== null ? user.xp : 0;
       setXp(initialXp);
 
-      const savedTopics = localStorage.getItem(`completed_topics_${userKey}`);
       const initialTopics = (user.completed_topics && user.completed_topics.length > 0)
         ? user.completed_topics
-        : (savedTopics ? JSON.parse(savedTopics) : []);
+        : [];
       setCompletedTopics(initialTopics);
 
-      const savedCourses = localStorage.getItem(`enrolledCourses_${userKey}`) || localStorage.getItem(`enrolled_courses_${userKey}`);
-      // For new users, default to empty list []. Demo accounts default to demo courses if not set.
-      const isDemoUser = userKey === "soumitriroy@gmail.com" || userKey === "soumitriroy" || userKey === "default" || user.isDemo;
-      const defaultCourses = isDemoUser ? ["1", "2", "3", "6"] : [];
+      const defaultCourses = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"];
       const initialCourses = (user.enrolled_courses && user.enrolled_courses.length > 0)
         ? user.enrolled_courses
-        : (savedCourses ? JSON.parse(savedCourses) : defaultCourses);
+        : defaultCourses;
       setEnrolledCourses(initialCourses.map(id => id.toString()));
     } else {
       setXp(0);
@@ -152,7 +147,14 @@ export function AuthProvider({ children }) {
       const data = await response.json();
       if (response.ok && data.success) {
         setXp(data.xp);
-        setUser(prev => ({ ...prev, xp: data.xp }));
+        setUser(prev => ({
+          ...prev,
+          xp: data.xp,
+          streak: data.streak !== undefined ? data.streak : prev.streak,
+          longest_streak: data.longestStreak !== undefined ? data.longestStreak : prev.longest_streak,
+          total_study_time: data.totalStudyTime !== undefined ? data.totalStudyTime : prev.total_study_time,
+          activity_map: data.activityMap !== undefined ? data.activityMap : prev.activity_map,
+        }));
       }
     } catch (err) {
       console.error('Failed to save XP to database:', err);
@@ -216,7 +218,15 @@ export function AuthProvider({ children }) {
         setUser(prev => {
           const currentTopics = prev.completed_topics || [];
           const updatedTopics = currentTopics.includes(topicId) ? currentTopics : [...currentTopics, topicId];
-          return { ...prev, xp: data.xp, completed_topics: updatedTopics };
+          return {
+            ...prev,
+            xp: data.xp,
+            completed_topics: updatedTopics,
+            streak: data.streak !== undefined ? data.streak : prev.streak,
+            longest_streak: data.longestStreak !== undefined ? data.longestStreak : prev.longest_streak,
+            total_study_time: data.totalStudyTime !== undefined ? data.totalStudyTime : prev.total_study_time,
+            activity_map: data.activityMap !== undefined ? data.activityMap : prev.activity_map,
+          };
         });
       }
     } catch (err) {
@@ -282,16 +292,6 @@ export function AuthProvider({ children }) {
       }
 
       let finalUser = data.user;
-      if (finalUser) {
-        const userKey = finalUser.email || finalUser.username || finalUser.id || 'default';
-        try {
-          const savedOverride = localStorage.getItem(`profile_override_${userKey}`) || localStorage.getItem(`skillsphere_user_profile_${userKey}`);
-          if (savedOverride) {
-            finalUser = { ...finalUser, ...JSON.parse(savedOverride) };
-          }
-        } catch (e) {}
-      }
-
       setUser(finalUser);
     } catch (err) {
       console.error('Session restore failed:', err.message);
@@ -300,16 +300,16 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const refreshProfile = async () => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      await fetchProfile(token);
+    }
+  };
+
   const updateUserProfile = async (details) => {
     if (!user) return;
-    const userKey = user.email || user.username || user.id || 'default';
     const updated = { ...user, ...details };
-
-    try {
-      localStorage.setItem(`profile_override_${userKey}`, JSON.stringify(updated));
-      localStorage.setItem(`skillsphere_user_profile_${userKey}`, JSON.stringify(updated));
-      localStorage.setItem('user', JSON.stringify(updated));
-    } catch (e) {}
 
     setUser(updated);
 
@@ -451,6 +451,7 @@ export function AuthProvider({ children }) {
     enrolledCourses, enrollCourse,
     updateUserProfile,
     unlockBadge,
+    refreshProfile,
     themeMode, themeAccent, toggleTheme, setThemeMode, updateTheme,
     workforceTheme, updateWorkforceTheme,
   };

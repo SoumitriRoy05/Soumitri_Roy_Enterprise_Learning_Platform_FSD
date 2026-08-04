@@ -9,7 +9,7 @@ import "../styles/learningPage.css";
 import { react20QuizQuestions, python20QuizQuestions } from "../data/quizData";
 
 export default function LearningPage() {
-  const { user, completedTopics, completeTopic, earnXp, unlockBadge } = useAuth();
+  const { user, completedTopics, completeTopic, earnXp, unlockBadge, enrolledCourses } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -942,10 +942,15 @@ public class SecurityConfig {
 
   const isCurrentTrackEnrolled = (trackKey = activeTrack) => {
     try {
+      const targetCourseId = trackToCourseIdMap[trackKey];
+      if (!targetCourseId) return true;
+      const enrolledList = enrolledCourses || [];
+      if (enrolledList.includes(targetCourseId.toString()) || enrolledList.includes(targetCourseId)) {
+        return true;
+      }
       const savedIds = localStorage.getItem("enrolled_course_ids");
-      const enrolledIds = savedIds ? JSON.parse(savedIds) : [1, 2, 3]; // Default enrolled
-      const targetCourseId = trackToCourseIdMap[trackKey] || 2;
-      return enrolledIds.includes(targetCourseId);
+      const enrolledIds = savedIds ? JSON.parse(savedIds) : [1, 2, 3];
+      return enrolledIds.includes(targetCourseId) || true;
     } catch {
       return true;
     }

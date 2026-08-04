@@ -163,7 +163,7 @@ const INITIAL_DECKS = [
 ];
 
 export default function FlashcardsPage() {
-  const { user, xp, themeMode, toggleTheme } = useAuth();
+  const { user, xp, themeMode, toggleTheme, authenticatedFetch } = useAuth();
   const navigate = useNavigate();
   const isDarkMode = themeMode === "dark";
 
@@ -171,10 +171,36 @@ export default function FlashcardsPage() {
   const [currentXp, setCurrentXp] = useState(xp ?? 120);
 
   // Core State
-  const [decks, setDecks] = useState(INITIAL_DECKS);
+  const [decks, setDecks] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [toastMessage, setToastMessage] = useState("");
+
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+  const fetchDecks = async () => {
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/flashcards`);
+      const data = await res.json();
+      if (data.success) {
+        const parsed = data.decks.map(d => ({
+          ...d,
+          cards: JSON.parse(d.cardsJson || "[]"),
+          desc: d.description
+        }));
+        setDecks(parsed);
+      }
+    } catch (err) {
+      console.error("Failed to load flashcard decks:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDecks();
+  }, []);
 
   // Study Mode State
   const [activeDeck, setActiveDeck] = useState(null);
@@ -278,7 +304,7 @@ export default function FlashcardsPage() {
     setCardIndex((prev) => prev - 1);
   };
 
-  const handleSelfRating = (rating) => {
+  const handleSelfRating = async (rating) => {
     // Rating: 'again' | 'good' | 'easy'
     if (!activeDeck) return;
 
@@ -291,85 +317,121 @@ export default function FlashcardsPage() {
       showToast("🔄 Saved for Review");
     }
 
+    let nextMastery = activeDeck.mastery;
+    if (rating === "easy") nextMastery = Math.min(nextMastery + 10, 100);
+    else if (rating === "good") nextMastery = Math.min(nextMastery + 5, 100);
+
+    try {
+      await authenticatedFetch(`${API_URL}/api/flashcards/${activeDeck.id}/review`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mastery: nextMastery })
+      });
+      setDecks(prev => prev.map(d => d.id === activeDeck.id ? { ...d, mastery: nextMastery, lastReviewed: "Just now" } : d));
+    } catch (err) {
+      console.error("Failed to save review session:", err);
+    }
+
     handleNextCard();
   };
 
   // AI Generator Handler
-  const handleGenerateAiDeck = () => {
+  const handleGenerateAiDeck = async () => {
     if (!aiPromptTopic.trim()) return;
     setIsGeneratingAi(true);
-    setTimeout(() => {
-      const generatedDeck = {
-        id: `ai-deck-${Date.now()}`,
-        title: `AI Flashcards: ${aiPromptTopic}`,
-        desc: `AI-generated study pack covering core principles of ${aiPromptTopic}.`,
-        category: "ai",
-        categoryLabel: "AI Generated",
-        cardsCount: 4,
-        mastery: 0,
-        lastReviewed: "Just now",
-        cards: [
-          {
-            id: `ai-1`,
-            question: `What is the key objective of ${aiPromptTopic}?`,
-            answer: `${aiPromptTopic} aims to optimize performance, improve software modularity, and solve fundamental domain challenges efficiently.`,
-            difficulty: "easy"
-          },
-          {
-            id: `ai-2`,
-            question: `Explain a common best practice when implementing ${aiPromptTopic}.`,
-            answer: `Always maintain modular design, write comprehensive unit tests, and leverage asynchronous processing where applicable.`,
-            difficulty: "medium"
-          },
-          {
-            id: `ai-3`,
-            question: `What are common trade-offs in ${aiPromptTopic}?`,
-            answer: `Trade-offs usually involve balancing memory footprint vs computational latency, and architectural simplicity vs flexibility.`,
-            difficulty: "hard"
-          }
-        ]
-      };
 
-      setDecks([generatedDeck, ...decks]);
+    const cardsArray = [
+      {
+        id: `ai-${Date.now()}-1`,
+        question: `What is the key objective of ${aiPromptTopic}?`,
+        answer: `${aiPromptTopic} aims to optimize performance, improve software modularity, and solve fundamental domain challenges efficiently.`,
+        difficulty: "easy"
+      },
+      {
+        id: `ai-${Date.now()}-2`,
+        question: `Explain a common best practice when implementing ${aiPromptTopic}.`,
+        answer: `Always maintain modular design, write comprehensive unit tests, and leverage asynchronous processing where applicable.`,
+        difficulty: "medium"
+      },
+      {
+        id: `ai-${Date.now()}-3`,
+        question: `What are common trade-offs in ${aiPromptTopic}?`,
+        answer: `Trade-offs usually involve balancing memory footprint vs computational latency, and architectural simplicity vs flexibility.`,
+        difficulty: "hard"
+      }
+    ];
+
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/flashcards`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: `AI Flashcards: ${aiPromptTopic}`,
+          description: `AI-generated study pack covering core principles of ${aiPromptTopic}.`,
+          category: "ai",
+          categoryLabel: "AI Generated",
+          cardsCount: cardsArray.length,
+          cardsJson: JSON.stringify(cardsArray)
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`✨ Created AI Deck for '${aiPromptTopic}'! (+30 XP)`);
+        setCurrentXp((prev) => prev + 30);
+        fetchDecks();
+      }
+    } catch (err) {
+      console.error("Failed to generate AI deck:", err);
+      showToast("❌ Failed to generate AI deck");
+    } finally {
       setIsGeneratingAi(false);
       setIsAiModalOpen(false);
       setAiPromptTopic("");
-      showToast(`✨ Created AI Deck for '${aiPromptTopic}'! (+30 XP)`);
-      setCurrentXp((prev) => prev + 30);
-    }, 1200);
+    }
   };
 
   // Custom Deck Form Handler
-  const handleCreateDeckSubmit = (e) => {
+  const handleCreateDeckSubmit = async (e) => {
     e.preventDefault();
     if (!newDeckTitle.trim() || !newCardQuestion.trim() || !newCardAnswer.trim()) return;
 
-    const newDeckObj = {
-      id: `custom-deck-${Date.now()}`,
-      title: newDeckTitle,
-      desc: newDeckDesc || "Custom created flashcard deck.",
-      category: newDeckCategory,
-      categoryLabel: newDeckCategory.toUpperCase(),
-      cardsCount: 1,
-      mastery: 0,
-      lastReviewed: "Just now",
-      cards: [
-        {
-          id: `c-new-1`,
-          question: newCardQuestion,
-          answer: newCardAnswer,
-          difficulty: "medium"
-        }
-      ]
-    };
+    const cardsArray = [
+      {
+        id: `c-${Date.now()}-1`,
+        question: newCardQuestion,
+        answer: newCardAnswer,
+        difficulty: "medium"
+      }
+    ];
 
-    setDecks([newDeckObj, ...decks]);
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/flashcards`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newDeckTitle,
+          description: newDeckDesc || "Custom created flashcard deck.",
+          category: newDeckCategory,
+          categoryLabel: newDeckCategory.toUpperCase(),
+          cardsCount: cardsArray.length,
+          cardsJson: JSON.stringify(cardsArray)
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`⚡ New Deck '${data.deck.title}' created successfully!`);
+        fetchDecks();
+      }
+    } catch (err) {
+      console.error("Failed to create custom deck:", err);
+      showToast("❌ Failed to create deck");
+    }
+
     setIsCreateDeckModalOpen(false);
     setNewDeckTitle("");
     setNewDeckDesc("");
     setNewCardQuestion("");
     setNewCardAnswer("");
-    showToast(`⚡ New Deck '${newDeckObj.title}' created successfully!`);
   };
 
   const currentCard = activeDeck ? activeDeck.cards[cardIndex] : null;

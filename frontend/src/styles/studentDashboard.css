@@ -2123,6 +2123,30 @@
 [data-theme="dark"],
 .dark-theme .sdDashboardWrapper,
 [data-theme="dark"] .sdDashboardWrapper,
+.dark-theme .mcCoursesWrapper,
+[data-theme="dark"] .mcCoursesWrapper,
+.dark-theme .lpWrapper,
+[data-theme="dark"] .lpWrapper,
+.dark-theme .asWrapper,
+[data-theme="dark"] .asWrapper,
+.dark-theme .aisbpWrapper,
+[data-theme="dark"] .aisbpWrapper,
+.dark-theme .bpWrapper,
+[data-theme="dark"] .bpWrapper,
+.dark-theme .cpWrapper,
+[data-theme="dark"] .cpWrapper,
+.dark-theme .dqpWrapper,
+[data-theme="dark"] .dqpWrapper,
+.dark-theme .ofpWrapper,
+[data-theme="dark"] .ofpWrapper,
+.dark-theme .psWrapper,
+[data-theme="dark"] .psWrapper,
+.dark-theme .ppWrapper,
+[data-theme="dark"] .ppWrapper,
+.dark-theme .qmpWrapper,
+[data-theme="dark"] .qmpWrapper,
+.dark-theme .rbpWrapper,
+[data-theme="dark"] .rbpWrapper,
 body.dark-theme {
   background-color: #090D16 !important;
   color: #F8FAFC !important;
@@ -2241,5 +2265,90 @@ body.dark-theme {
   color: #FFFFFF !important;
 }
 
+/* -- INLINE TAB OVERRIDES TO HIDE NESTED SIDEBARS, HEADERS, AND FOOTERS -- */
+.sd-inline-tab-wrapper .aisbpLeftSidebar,
+.sd-inline-tab-wrapper .asLeftSidebar,
+.sd-inline-tab-wrapper .bpLeftSidebar,
+.sd-inline-tab-wrapper .cpLeftSidebar,
+.sd-inline-tab-wrapper .mcLeftSidebar,
+.sd-inline-tab-wrapper .dqpLeftSidebar,
+.sd-inline-tab-wrapper .lpLeftSidebar,
+.sd-inline-tab-wrapper .ofpLeftSidebar,
+.sd-inline-tab-wrapper .psLeftSidebar,
+.sd-inline-tab-wrapper .ppLeftSidebar,
+.sd-inline-tab-wrapper .qmpLeftSidebar,
+.sd-inline-tab-wrapper .rbpLeftSidebar,
+.sd-inline-tab-wrapper .sdLeftSidebar,
+.sd-inline-tab-wrapper .sdTopHeaderBar,
+.sd-inline-tab-wrapper .aisbpHeaderBar,
+.sd-inline-tab-wrapper .caHeaderBar,
+.sd-inline-tab-wrapper .bgWrapper,
+.sd-inline-tab-wrapper .paper-plane-cursor,
+.sd-inline-tab-wrapper .floatingChatbotBtn,
+.sd-inline-tab-wrapper footer,
+.sd-inline-tab-wrapper .sdFooter,
+.sd-inline-tab-wrapper .studentFooterWrapper {
+  display: none !important;
+}
 
+.sd-inline-tab-wrapper .mcCoursesWrapper,
+.sd-inline-tab-wrapper .lpWrapper,
+.sd-inline-tab-wrapper .asWrapper,
+.sd-inline-tab-wrapper .sdDashboardWrapper,
+.sd-inline-tab-wrapper .aisbpWrapper,
+.sd-inline-tab-wrapper .bpWrapper,
+.sd-inline-tab-wrapper .cpWrapper,
+.sd-inline-tab-wrapper .dqpWrapper,
+.sd-inline-tab-wrapper .ofpWrapper,
+.sd-inline-tab-wrapper .psWrapper,
+.sd-inline-tab-wrapper .ppWrapper,
+.sd-inline-tab-wrapper .qmpWrapper,
+.sd-inline-tab-wrapper .rbpWrapper {
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  min-height: auto !important;
+  box-shadow: none !important;
+}
 
+.sd-inline-tab-wrapper .mcMainContainer,
+.sd-inline-tab-wrapper .lpMainContainer,
+.sd-inline-tab-wrapper .asMainContainer,
+.sd-inline-tab-wrapper .sdMainContainer,
+.sd-inline-tab-wrapper .aisbpMainContainer,
+.sd-inline-tab-wrapper .bpMainContainer,
+.sd-inline-tab-wrapper .cpMainContainer,
+.sd-inline-tab-wrapper .dqpMainContainer,
+.sd-inline-tab-wrapper .ofpMainContainer,
+.sd-inline-tab-wrapper .psMainContainer,
+.sd-inline-tab-wrapper .ppMainContainer,
+.sd-inline-tab-wrapper .qmpMainContainer,
+.sd-inline-tab-wrapper .rbpMainContainer {
+  display: block !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  grid-template-columns: 1fr !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.sd-inline-tab-wrapper .mcRightBodyArea,
+.sd-inline-tab-wrapper .lpRightBodyArea,
+.sd-inline-tab-wrapper .asRightBodyArea,
+.sd-inline-tab-wrapper .sdRightBodyArea,
+.sd-inline-tab-wrapper .aisbpRightBodyArea,
+.sd-inline-tab-wrapper .bpRightBodyArea,
+.sd-inline-tab-wrapper .cpRightBodyArea,
+.sd-inline-tab-wrapper .dqpRightBodyArea,
+.sd-inline-tab-wrapper .ofpRightBodyArea,
+.sd-inline-tab-wrapper .psRightBodyArea,
+.sd-inline-tab-wrapper .ppRightBodyArea,
+.sd-inline-tab-wrapper .qmpRightBodyArea,
+.sd-inline-tab-wrapper .rbpRightBodyArea {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}

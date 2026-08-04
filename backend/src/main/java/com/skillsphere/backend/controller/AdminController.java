@@ -9,16 +9,21 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+import com.skillsphere.backend.model.CourseRequest;
+import com.skillsphere.backend.repository.CourseRequestRepository;
+
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
 
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
+    private final CourseRequestRepository courseRequestRepository;
 
-    public AdminController(CourseRepository courseRepository, UserRepository userRepository) {
+    public AdminController(CourseRepository courseRepository, UserRepository userRepository, CourseRequestRepository courseRequestRepository) {
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
+        this.courseRequestRepository = courseRequestRepository;
     }
 
     // Courses Endpoints
@@ -137,5 +142,57 @@ public class AdminController {
         response.put("success", false);
         response.put("message", "User not found");
         return ResponseEntity.status(404).body(response);
+    }
+
+    @GetMapping("/course-requests")
+    public ResponseEntity<Map<String, Object>> getCourseRequests() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("requests", courseRequestRepository.findAll());
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/course-requests/{id}/decision")
+    public ResponseEntity<Map<String, Object>> handleCourseRequestDecision(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+        Map<String, Object> response = new HashMap<>();
+        String decision = body.get("decision"); // "APPROVED" or "REJECTED"
+
+        if (decision == null || (!decision.equals("APPROVED") && !decision.equals("REJECTED"))) {
+            response.put("success", false);
+            response.put("message", "Decision must be APPROVED or REJECTED");
+            return ResponseEntity.status(400).body(response);
+        }
+
+        Optional<CourseRequest> reqOpt = courseRequestRepository.findById(id);
+        if (!reqOpt.isPresent()) {
+            response.put("success", false);
+            response.put("message", "Course request not found");
+            return ResponseEntity.status(404).body(response);
+        }
+
+        CourseRequest req = reqOpt.get();
+        req.setStatus(decision);
+        courseRequestRepository.save(req);
+
+        if (decision.equals("APPROVED")) {
+            Optional<User> userOpt = userRepository.findById(req.getUserId());
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                String enrolled = user.getEnrolledCourses() != null ? user.getEnrolledCourses() : "";
+                List<String> enrolledList = enrolled.isEmpty() ? new ArrayList<>() : new ArrayList<>(Arrays.asList(enrolled.split(",")));
+                
+                if (!enrolledList.contains(req.getCourseId())) {
+                    enrolledList.add(req.getCourseId());
+                    user.setEnrolledCourses(String.join(",", enrolledList));
+                    userRepository.save(user);
+                }
+            }
+        }
+
+        response.put("success", true);
+        response.put("message", "Course request processed successfully");
+        return ResponseEntity.ok(response);
     }
 }

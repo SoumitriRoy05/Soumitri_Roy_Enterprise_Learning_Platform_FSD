@@ -216,8 +216,6 @@ export default function StudentHome() {
     { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "assignments", label: "Assignments", icon: <FaFileAlt /> },
-    { id: "discussions", label: "Discussions", icon: <FaComments /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
     { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
     { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
@@ -317,7 +315,7 @@ export default function StudentHome() {
               <input
                 type="text"
                 className="sdSearchInput"
-                placeholder="Search for courses, skills, discussions..."
+                placeholder="Search for courses, skills..."
               />
             </div>
 
@@ -770,11 +768,6 @@ export default function StudentHome() {
                         <span>Browse Courses</span>
                       </div>
 
-                      <div className="sdQuickActionItem" onClick={() => navigate("/discussions")}>
-                        <div className="sdQuickActionIcon"><FaComments /></div>
-                        <span>Join Discussion</span>
-                      </div>
-
                       <div className="sdQuickActionItem" onClick={() => navigate("/settings")}>
                         <div className="sdQuickActionIcon"><FaFileInvoice /></div>
                         <span>Resume Builder</span>
@@ -783,11 +776,6 @@ export default function StudentHome() {
                       <div className="sdQuickActionItem" onClick={() => navigate("/progress")}>
                         <div className="sdQuickActionIcon"><FaChartLine /></div>
                         <span>Progress</span>
-                      </div>
-
-                      <div className="sdQuickActionItem" onClick={() => navigate("/assignments")}>
-                        <div className="sdQuickActionIcon"><FaUpload /></div>
-                        <span>Upload Assignment</span>
                       </div>
 
                       <div className="sdQuickActionItem" onClick={() => navigate("/certificate")}>

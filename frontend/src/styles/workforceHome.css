@@ -1,10 +1,10 @@
 /* ============================================================
    Workforce Home — Full Dashboard CSS
-   Dark / Light Theme System via [data-wf-theme="light"]
+   Dark / Light Theme System via [data-theme="light"]
    ============================================================ */
 
 /* ── Theme Tokens (Dark default) ── */
-:root {
+[data-theme="dark"] {
   --wf-bg:           #05060b;
   --wf-panel-bg:     rgba(18,18,30,0.60);
   --wf-panel-border: rgba(255,255,255,0.06);
@@ -24,7 +24,7 @@
 }
 
 /* ── Light Theme Overrides ── */
-[data-wf-theme="light"] {
+[data-theme="light"] {
   --wf-bg:           #f0f4f8;
   --wf-panel-bg:     rgba(255,255,255,0.85);
   --wf-panel-border: rgba(0,0,0,0.08);
@@ -44,72 +44,72 @@
 }
 
 /* ── Light Theme Button & Component Overrides ── */
-[data-wf-theme="light"] .wf-theme-toggle {
+[data-theme="light"] .wf-theme-toggle {
   background: rgba(217, 119, 6, 0.12);
   border-color: rgba(217, 119, 6, 0.35);
   color: #78350f;
 }
 
-[data-wf-theme="light"] .wf-theme-toggle:hover {
+[data-theme="light"] .wf-theme-toggle:hover {
   background: rgba(217, 119, 6, 0.22);
   box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
 }
 
-[data-wf-theme="light"] .wf-edit-profile-btn {
+[data-theme="light"] .wf-edit-profile-btn {
   background: linear-gradient(135deg, #0284c7, #7c3aed);
   color: #ffffff;
   box-shadow: 0 4px 16px rgba(2, 132, 199, 0.3);
 }
 
-[data-wf-theme="light"] .wf-edit-profile-btn:hover {
+[data-theme="light"] .wf-edit-profile-btn:hover {
   box-shadow: 0 6px 22px rgba(2, 132, 199, 0.45);
 }
 
-[data-wf-theme="light"] .wf-home-btn-add {
+[data-theme="light"] .wf-home-btn-add {
   background: linear-gradient(135deg, #0284c7, #7c3aed);
   color: #ffffff;
   box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25);
 }
 
-[data-wf-theme="light"] .wf-home-chat-send {
+[data-theme="light"] .wf-home-chat-send {
   background: linear-gradient(135deg, #7c3aed, #0284c7);
   color: #ffffff;
 }
 
-[data-wf-theme="light"] .wf-home-chat-hint {
+[data-theme="light"] .wf-home-chat-hint {
   background: rgba(124, 58, 237, 0.08);
   border-color: rgba(124, 58, 237, 0.25);
   color: #7c3aed;
 }
 
-[data-wf-theme="light"] .wf-home-chat-hint:hover {
+[data-theme="light"] .wf-home-chat-hint:hover {
   background: rgba(124, 58, 237, 0.18);
 }
 
-[data-wf-theme="light"] .wf-home-chat-bubble.assistant {
+[data-theme="light"] .wf-home-chat-bubble.assistant {
   background: rgba(255, 255, 255, 0.95);
   border-color: rgba(124, 58, 237, 0.2);
   color: #0f172a;
 }
 
-[data-wf-theme="light"] .wf-home-chat-bubble.user {
+[data-theme="light"] .wf-home-chat-bubble.user {
   background: rgba(2, 132, 199, 0.12);
   border-color: rgba(2, 132, 199, 0.25);
   color: #0f172a;
 }
 
-[data-wf-theme="light"] .wf-home-shortcut-card {
+[data-theme="light"] .wf-home-shortcut-card {
   background: rgba(255, 255, 255, 0.85);
   border-color: rgba(0, 0, 0, 0.08);
 }
 
-[data-wf-theme="light"] .wf-home-shortcut-card:hover {
+[data-theme="light"] .wf-home-shortcut-card:hover {
   background: #ffffff;
   border-color: #0284c7;
   box-shadow: 0 6px 20px rgba(2, 132, 199, 0.15);
 }
 
-[data-wf-theme="light"] .wf-home-modal {
+[data-theme="light"] .wf-home-modal {
   background: #ffffff;
   border-color: rgba(124, 58, 237, 0.3);
   color: #0f172a;
@@ -1162,7 +1162,7 @@
   padding: 20px;
 }
 
-[data-wf-theme="light"] .wf-home-modal-overlay {
+[data-theme="light"] .wf-home-modal-overlay {
   background: rgba(0,0,0,0.50);
 }
 
@@ -1245,34 +1245,34 @@
 /* ══════════════════════════════════════════
    LIGHT THEME TWEAKS
 ══════════════════════════════════════════ */
-[data-wf-theme="light"] .wf-home-welcome-card {
+[data-theme="light"] .wf-home-welcome-card {
   border-color: rgba(138,46,255,0.18);
   box-shadow: 0 8px 30px rgba(0,0,0,0.10);
 }
 
-[data-wf-theme="light"] .wf-home-panel {
+[data-theme="light"] .wf-home-panel {
   box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
-[data-wf-theme="light"] .wf-home-log-card {
+[data-theme="light"] .wf-home-log-card {
   border-left-color: #ff00c8;
 }
 
-[data-wf-theme="light"] .wf-home-user-avatar {
+[data-theme="light"] .wf-home-user-avatar {
   background: linear-gradient(135deg, #8a2eff, #00e5ff);
 }
 
-[data-wf-theme="light"] .wf-home-section-title {
+[data-theme="light"] .wf-home-section-title {
   color: #0f172a;
 }
 
-[data-wf-theme="light"] .wf-home-chat-bubble.assistant {
+[data-theme="light"] .wf-home-chat-bubble.assistant {
   background: rgba(138,46,255,0.07);
   border-color: rgba(138,46,255,0.14);
   color: #0f172a;
 }
 
-[data-wf-theme="light"] .wf-home-chat-bubble.user {
+[data-theme="light"] .wf-home-chat-bubble.user {
   background: rgba(0,229,255,0.07);
   border-color: rgba(0,229,255,0.14);
   color: #0f172a;
@@ -1506,7 +1506,7 @@
 }
 
 /* Light-mode calendar tweaks */
-[data-wf-theme="light"] .wf-cal-cell.holiday-national { background: rgba(255, 0, 200, 0.08); }
-[data-wf-theme="light"] .wf-cal-cell.holiday-regional { background: rgba(138, 46, 255, 0.08); }
-[data-wf-theme="light"] .wf-cal-cell.today            { background: rgba(0, 229, 255, 0.10) !important; }
+[data-theme="light"] .wf-cal-cell.holiday-national { background: rgba(255, 0, 200, 0.08); }
+[data-theme="light"] .wf-cal-cell.holiday-regional { background: rgba(138, 46, 255, 0.08); }
+[data-theme="light"] .wf-cal-cell.today            { background: rgba(0, 229, 255, 0.10) !important; }
 

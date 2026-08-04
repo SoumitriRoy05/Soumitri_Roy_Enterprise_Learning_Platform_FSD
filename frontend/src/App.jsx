@@ -19,7 +19,6 @@ import WorkforceFeatures from "./pages/WorkforceFeatures";
 import SandboxPage from "./pages/SandboxPage";
 import CoursesPage from "./pages/CoursesPage";
 import CertificatesPage from "./pages/CertificatesPage";
-import DiscussionsPage from "./pages/DiscussionsPage";
 import ProfileSettingsPage from "./pages/ProfileSettingsPage";
 import ProgressPage from "./pages/ProgressPage";
 import TeamSpace from "./pages/TeamSpace";
@@ -31,7 +30,6 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import { useAdmin } from "./context/AdminContext";
 
 import LearningPathsPage from "./pages/LearningPathsPage";
-import AssignmentsPage from "./pages/AssignmentsPage";
 import AIStudyBuddyPage from "./pages/AIStudyBuddyPage";
 import OpportunityFeedPage from "./pages/OpportunityFeedPage";
 import BadgesPage from "./pages/BadgesPage";
@@ -111,14 +109,14 @@ function App() {
         <Route path="/workforce-home" element={<ProtectedRoute><WorkforceHome /></ProtectedRoute>} />
         <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
         <Route path="/workforce-features" element={<ProtectedRoute><WorkforceFeatures /></ProtectedRoute>} />
-        <Route path="/discussions" element={<ProtectedRoute><DiscussionsPage /></ProtectedRoute>} />
+        <Route path="/discussions" element={<Navigate to="/student-home" replace />} />
         <Route path="/team-space"   element={<ProtectedRoute><TeamSpace /></ProtectedRoute>} />
         <Route path="/resources" element={<Navigate to="/student-home" replace />} />
         <Route path="/certificate" element={<ProtectedRoute><CertificatesPage /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><ProfileSettingsPage /></ProtectedRoute>} />
         <Route path="/progress" element={<ProtectedRoute><ProgressPage /></ProtectedRoute>} />
         <Route path="/learning-paths" element={<ProtectedRoute><LearningPathsPage /></ProtectedRoute>} />
-        <Route path="/assignments" element={<ProtectedRoute><AssignmentsPage /></ProtectedRoute>} />
+        <Route path="/assignments" element={<Navigate to="/student-home" replace />} />
         <Route path="/ai-buddy" element={<ProtectedRoute><AIStudyBuddyPage /></ProtectedRoute>} />
         <Route path="/ai-study-buddy" element={<ProtectedRoute><AIStudyBuddyPage /></ProtectedRoute>} />
         <Route path="/opportunity-feed" element={<ProtectedRoute><OpportunityFeedPage /></ProtectedRoute>} />

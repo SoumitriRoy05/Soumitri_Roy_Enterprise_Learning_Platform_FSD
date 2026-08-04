@@ -55,10 +55,10 @@ import "../styles/studentDashboard.css";
 import "../styles/profileSettings.css";
 
 export default function ProfileSettingsPage() {
-  const { user, xp, logout, themeMode, toggleTheme, updateUserProfile } = useAuth();
+  const { user, xp, themeMode, toggleTheme, updateUserProfile, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const isDarkMode = themeMode === "dark";
-  const [activeTab, setActiveTab] = useState("profile"); // "profile" | "account" | "apps"
+  const [activeTab, setActiveTab] = useState("profile"); // "profile" | "account"
   const [toastMessage, setToastMessage] = useState("");
   const photoInputRef = useRef(null);
 
@@ -86,55 +86,53 @@ export default function ProfileSettingsPage() {
 
   // Profile Form State
   const [profileData, setProfileData] = useState({
-    fullName: "",
-    username: "",
-    email: "",
-    phone: "",
-    bio: "",
-    location: "",
-    dob: "",
-    college: "",
-    branch: "",
-    linkedin: "",
-    github: "",
-    website: "",
+    fullName: user?.full_name || "Alex Morgan",
+    username: user?.username || "alex_student",
+    email: user?.email || "alex.morgan@skillsphere.edu",
+    phone: "+1 (555) 019-2834",
+    bio: "Passionate Computer Science student learning Fullstack Web Development & AI engineering.",
+    location: "San Francisco, CA",
+    dob: "2003-05-15",
+    college: "Global Institute of Technology",
+    branch: "Computer Science & Engineering",
+    linkedin: "https://linkedin.com/in/alexmorgan",
+    github: "https://github.com/alexmorgan",
+    website: user?.portfolio || "",
     avatarUrl: ""
   });
 
   // Account Preferences State
   const [accountPrefs, setAccountPrefs] = useState({
-    language: "English (US)",
-    timezone: "(GMT+05:30) India Standard Time",
-    country: "India",
-    dateFormat: "DD/MM/YYYY",
-    enable2FA: false
+    language: user?.preferred_language || "English",
+    timezone: user?.timezone || "(GMT+05:30) Asia/Kolkata",
+    country: user?.country || "India",
+    dateFormat: user?.date_format || "DD MMM YYYY",
+    enable2FA: !!user?.enable_2fa
   });
 
-  // Sync Form State with Logged In User
-  useEffect(() => {
+  React.useEffect(() => {
     if (user) {
       setProfileData({
-        fullName: user.full_name || user.name || user.fullName || "Soumitri Roy",
-        username: user.username || (user.email ? user.email.split("@")[0] : "soumitriroy"),
-        email: user.email || "soumitriroy@gmail.com",
-        phone: user.phone || "+91 98765 43210",
-        bio: user.bio || "Passionate learner & software developer exploring full-stack engineering and AI on SkillSphere.",
+        fullName: user.full_name || "",
+        username: user.username || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        bio: user.bio || "",
         location: user.location || "Bhubaneswar, Odisha",
-        dob: user.dob || "2003-05-15",
-        college: user.college || "Global Institute of Technology",
-        branch: user.branch || "Computer Science & Engineering",
-        linkedin: user.linkedin || "linkedin.com/in/soumitriroy",
-        github: user.github || "github.com/soumitriroy",
-        website: user.website || "yourportfolio.dev",
-        avatarUrl: user.photoUrl || user.avatarUrl || ""
+        dob: user.date_of_birth || "",
+        college: user.college || "",
+        branch: user.branch || "",
+        linkedin: user.linkedin || "",
+        github: user.github || "",
+        website: user.portfolio || "",
+        avatarUrl: ""
       });
-
       setAccountPrefs({
-        language: user.language || "English (US)",
-        timezone: user.timezone || "(GMT+05:30) India Standard Time",
+        language: user.preferred_language || "English",
+        timezone: user.timezone || "(GMT+05:30) Asia/Kolkata",
         country: user.country || "India",
-        dateFormat: user.dateFormat || "DD/MM/YYYY",
-        enable2FA: user.enable2FA || false
+        dateFormat: user.date_format || "DD MMM YYYY",
+        enable2FA: !!user.enable_2fa
       });
     }
   }, [user]);
@@ -179,62 +177,56 @@ export default function ProfileSettingsPage() {
     reader.readAsDataURL(file);
   };
 
-  // Save Profile Handler with Full Storage & Context Persistence
+  // Save Profile Handler
   const handleSaveProfile = async () => {
-    const updatedUser = {
-      ...user,
-      full_name: profileData.fullName,
-      name: profileData.fullName,
-      fullName: profileData.fullName,
-      username: profileData.username,
-      email: profileData.email,
-      phone: profileData.phone,
-      bio: profileData.bio,
-      location: profileData.location,
-      dob: profileData.dob,
-      college: profileData.college,
-      branch: profileData.branch,
-      linkedin: profileData.linkedin,
-      github: profileData.github,
-      website: profileData.website,
-      photoUrl: profileData.avatarUrl || user?.photoUrl
-    };
-
-    if (updateUserProfile) {
-      await updateUserProfile(updatedUser);
-    }
-
-    const userKey = user?.email || user?.username || "default";
     try {
-      localStorage.setItem(`profile_override_${userKey}`, JSON.stringify(updatedUser));
-      localStorage.setItem(`skillsphere_user_profile_${userKey}`, JSON.stringify(updatedUser));
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-    } catch (err) {}
-
-    window.dispatchEvent(new Event("skillsphere_sync_event"));
-
-    setToastMessage("💾 Profile settings saved successfully across your account!");
+      await updateUserProfile({
+        full_name: profileData.fullName,
+        username: profileData.username,
+        email: profileData.email,
+        phone: profileData.phone,
+        bio: profileData.bio,
+        location: profileData.location,
+        date_of_birth: profileData.dob,
+        college: profileData.college,
+        branch: profileData.branch,
+        linkedin: profileData.linkedin,
+        github: profileData.github,
+        portfolio: profileData.website
+      });
+      setToastMessage("💾 Profile settings saved successfully!");
+      if (refreshProfile) {
+        await refreshProfile();
+      }
+    } catch (e) {
+      console.error(e);
+      setToastMessage("❌ Failed to save profile settings.");
+    }
     setTimeout(() => setToastMessage(""), 4000);
   };
 
   // Save Account Prefs Handler
   const handleSaveAccount = async () => {
-    const updatedUser = {
-      ...user,
-      ...accountPrefs
-    };
-
-    if (updateUserProfile) {
-      await updateUserProfile(updatedUser);
-    }
-
-    const userKey = user?.email || user?.username || "default";
     try {
-      localStorage.setItem(`profile_override_${userKey}`, JSON.stringify(updatedUser));
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-    } catch (err) {}
-
-    setToastMessage("🔒 Account settings & security preferences saved!");
+      await updateUserProfile({
+        full_name: profileData.fullName,
+        username: profileData.username,
+        email: profileData.email,
+        phone: profileData.phone,
+        preferred_language: accountPrefs.language,
+        timezone: accountPrefs.timezone,
+        country: accountPrefs.country,
+        date_format: accountPrefs.dateFormat,
+        enable_2fa: String(accountPrefs.enable2FA)
+      });
+      setToastMessage("🔒 Account settings and preferences saved successfully!");
+      if (refreshProfile) {
+        await refreshProfile();
+      }
+    } catch (e) {
+      console.error(e);
+      setToastMessage("❌ Failed to save account settings.");
+    }
     setTimeout(() => setToastMessage(""), 4000);
   };
 
@@ -249,6 +241,45 @@ export default function ProfileSettingsPage() {
     }
     setTimeout(() => setToastMessage(""), 4000);
   };
+
+  // Profile Completion Calculation
+  const getProfileCompletion = () => {
+    let score = 0;
+    let total = 7;
+    const checks = {
+      fullName: !!user?.full_name,
+      bio: !!user?.bio,
+      location: !!user?.location,
+      socials: !!(user?.linkedin || user?.github || user?.portfolio),
+      dob: !!user?.date_of_birth,
+      college: !!user?.college,
+      branch: !!user?.branch
+    };
+    if (checks.fullName) score++;
+    if (checks.bio) score++;
+    if (checks.location) score++;
+    if (checks.socials) score++;
+    if (checks.dob) score++;
+    if (checks.college) score++;
+    if (checks.branch) score++;
+
+    const percent = Math.round((score / total) * 100);
+    return { percent, checks };
+  };
+
+  const { percent: compPercent, checks: compChecks } = getProfileCompletion();
+
+  const earnedBadgesCount = Array.isArray(user?.badges)
+    ? user.badges.filter(Boolean).length
+    : typeof user?.badges === "string"
+    ? user.badges.split(",").filter(Boolean).length
+    : 0;
+
+  const enrolledCoursesCount = Array.isArray(user?.enrolled_courses)
+    ? user.enrolled_courses.filter(Boolean).length
+    : typeof user?.enrolled_courses === "string"
+    ? user.enrolled_courses.split(',').filter(Boolean).length
+    : 0;
 
   return (
     <div className={`psWrapper ${isDarkMode ? "dark-theme" : ""}`}>
@@ -375,7 +406,7 @@ export default function ProfileSettingsPage() {
             </div>
           )}
 
-          {/* SUB-TABS BAR (ONLY 3 TABS AS REQUESTED) */}
+          {/* SUB-TABS BAR (ONLY 2 TABS AS REQUESTED) */}
           <div className="psSubTabsRow">
             <button
               className={`psTab ${activeTab === "profile" ? "active" : ""}`}
@@ -389,13 +420,6 @@ export default function ProfileSettingsPage() {
               onClick={() => setActiveTab("account")}
             >
               <FaLock /> Account Settings
-            </button>
-
-            <button
-              className={`psTab ${activeTab === "apps" ? "active" : ""}`}
-              onClick={() => setActiveTab("apps")}
-            >
-              <FaLink /> Connected Apps
             </button>
           </div>
 
@@ -591,12 +615,12 @@ export default function ProfileSettingsPage() {
                       @{profileData.username || "learner"}
                     </p>
 
-                    <div className="lvlBadgeText">Level 12 • Code Explorer</div>
+                    <div className="lvlBadgeText">Level {Math.floor((user?.xp || 0) / 2000) + 1} • {user?.role === "STUDENT" ? "Student" : "Developer"}</div>
 
                     <div className="stats3Grid">
-                      <div><strong>18</strong><span>Badges</span></div>
-                      <div><strong>6,450</strong><span>XP Points</span></div>
-                      <div><strong>12</strong><span>Courses</span></div>
+                      <div><strong>{earnedBadgesCount}</strong><span>Badges</span></div>
+                      <div><strong>{(user?.xp || 0).toLocaleString()}</strong><span>XP Points</span></div>
+                      <div><strong>{enrolledCoursesCount}</strong><span>Courses</span></div>
                     </div>
                   </div>
                 </div>
@@ -605,18 +629,18 @@ export default function ProfileSettingsPage() {
                 <div className="psWidgetCard">
                   <div className="widgetTitleRow">
                     <h4>Profile Completion</h4>
-                    <span className="pctGreen">80% Completed</span>
+                    <span className="pctGreen">{compPercent}% Completed</span>
                   </div>
-                  <div className="pTrack"><div className="pFill" style={{ width: "80%" }}></div></div>
+                  <div className="pTrack"><div className="pFill" style={{ width: `${compPercent}%` }}></div></div>
 
                   <ul className="completionChecklist">
-                    <li><FaCheckCircle color="#10B981" /> <span>Profile Picture</span> <strong className="cmp">Completed</strong></li>
-                    <li><FaCheckCircle color="#10B981" /> <span>Full Name</span> <strong className="cmp">Completed</strong></li>
-                    <li><FaCheckCircle color="#10B981" /> <span>Bio</span> <strong className="cmp">Completed</strong></li>
-                    <li><FaCheckCircle color="#10B981" /> <span>Location</span> <strong className="cmp">Completed</strong></li>
-                    <li><FaCheckCircle color="#10B981" /> <span>Social Links</span> <strong className="cmp">Completed</strong></li>
-                    <li><FaCheckCircle color="#10B981" /> <span>Date of Birth</span> <strong className="cmp">Completed</strong></li>
-                    <li><FaExclamationTriangle color="#F59E0B" /> <span>Add a cover photo</span> <strong className="pnd">Pending</strong></li>
+                    <li>{compChecks.fullName ? <FaCheckCircle color="#10B981" /> : <FaExclamationTriangle color="#F59E0B" />} <span>Full Name</span> <strong className={compChecks.fullName ? "cmp" : "pnd"}>{compChecks.fullName ? "Completed" : "Pending"}</strong></li>
+                    <li>{compChecks.bio ? <FaCheckCircle color="#10B981" /> : <FaExclamationTriangle color="#F59E0B" />} <span>Bio</span> <strong className={compChecks.bio ? "cmp" : "pnd"}>{compChecks.bio ? "Completed" : "Pending"}</strong></li>
+                    <li>{compChecks.location ? <FaCheckCircle color="#10B981" /> : <FaExclamationTriangle color="#F59E0B" />} <span>Location</span> <strong className={compChecks.location ? "cmp" : "pnd"}>{compChecks.location ? "Completed" : "Pending"}</strong></li>
+                    <li>{compChecks.socials ? <FaCheckCircle color="#10B981" /> : <FaExclamationTriangle color="#F59E0B" />} <span>Social Links</span> <strong className={compChecks.socials ? "cmp" : "pnd"}>{compChecks.socials ? "Completed" : "Pending"}</strong></li>
+                    <li>{compChecks.dob ? <FaCheckCircle color="#10B981" /> : <FaExclamationTriangle color="#F59E0B" />} <span>Date of Birth</span> <strong className={compChecks.dob ? "cmp" : "pnd"}>{compChecks.dob ? "Completed" : "Pending"}</strong></li>
+                    <li>{compChecks.college ? <FaCheckCircle color="#10B981" /> : <FaExclamationTriangle color="#F59E0B" />} <span>College</span> <strong className={compChecks.college ? "cmp" : "pnd"}>{compChecks.college ? "Completed" : "Pending"}</strong></li>
+                    <li>{compChecks.branch ? <FaCheckCircle color="#10B981" /> : <FaExclamationTriangle color="#F59E0B" />} <span>Branch</span> <strong className={compChecks.branch ? "cmp" : "pnd"}>{compChecks.branch ? "Completed" : "Pending"}</strong></li>
                   </ul>
                 </div>
 
@@ -667,24 +691,40 @@ export default function ProfileSettingsPage() {
                   <div className="psForm2Col">
                     <div className="inputGroup">
                       <label>Full Name</label>
-                      <input type="text" value={profileData.fullName} readOnly />
+                      <input
+                        type="text"
+                        value={profileData.fullName}
+                        onChange={(e) => setProfileData({ ...profileData, fullName: e.target.value })}
+                      />
                     </div>
 
                     <div className="inputGroup">
                       <label>Username</label>
-                      <input type="text" value={profileData.username} readOnly />
+                      <input
+                        type="text"
+                        value={profileData.username}
+                        onChange={(e) => setProfileData({ ...profileData, username: e.target.value })}
+                      />
                     </div>
                   </div>
 
                   <div className="psForm2Col">
                     <div className="inputGroup">
                       <label>Email Address</label>
-                      <input type="email" value={profileData.email} readOnly />
+                      <input
+                        type="email"
+                        value={profileData.email}
+                        onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                      />
                     </div>
 
                     <div className="inputGroup">
                       <label>Phone Number</label>
-                      <input type="text" value={profileData.phone} readOnly />
+                      <input
+                        type="text"
+                        value={profileData.phone}
+                        onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                      />
                     </div>
                   </div>
 
@@ -814,40 +854,7 @@ export default function ProfileSettingsPage() {
                   </button>
                 </div>
 
-                {/* Recent Account Activity */}
-                <div className="psWidgetCard">
-                  <div className="widgetTitleRow">
-                    <h4>Recent Account Activity</h4>
-                  </div>
 
-                  <div className="activityList">
-                    <div className="actItem">
-                      <FaLaptop className="aIcon" />
-                      <div>
-                        <h5>Logged in from Web</h5>
-                        <span>Kolkata, India • Today, 10:30 AM</span>
-                      </div>
-                    </div>
-
-                    <div className="actItem">
-                      <FaMobileAlt className="aIcon" />
-                      <div>
-                        <h5>Logged in from Mobile</h5>
-                        <span>Kolkata, India • Yesterday, 9:15 PM</span>
-                      </div>
-                    </div>
-
-                    <div className="actItem">
-                      <FaKey className="aIcon" />
-                      <div>
-                        <h5>Password changed</h5>
-                        <span>Kolkata, India • 3 days ago</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <span className="viewAllActivityLink">View All Activity →</span>
-                </div>
 
                 {/* Need Help? Widget */}
                 <div className="helpCenterBox">
@@ -866,125 +873,7 @@ export default function ProfileSettingsPage() {
             </div>
           )}
 
-          {/* ── TAB 3: CONNECTED APPS (IMAGE 3) ── */}
-          {activeTab === "apps" && (
-            <div className="psWorkspaceGrid">
-              
-              {/* Left Workspace Block */}
-              <div className="psFormBlock">
-                <h3>Connected Apps</h3>
-                <p className="subText">Manage third-party apps and services connected to your SkillSphere account.</p>
 
-                {/* Connected Apps List */}
-                <div className="connectedSection">
-                  <h4>Connected Apps ({connectedApps.length})</h4>
-
-                  {connectedApps.length === 0 ? (
-                    <div className="emptyAppsBox">
-                      <div className="emptyLinkIcon">🔗</div>
-                      <h5>No apps connected yet</h5>
-                      <p>Connect your favorite tools and platforms to enhance your learning experience.</p>
-                      <button className="btnExploreApps" onClick={() => setToastMessage("Choose a tool below to connect!")}>
-                        Explore Apps
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="connectedAppsGrid">
-                      {connectedApps.map((app) => (
-                        <div key={app.id} className="activeConnectedCard">
-                          <span className="appIcon">{app.icon}</span>
-                          <div>
-                            <h5>{app.name}</h5>
-                            <span className="statusConnected">✓ Connected</span>
-                          </div>
-                          <button className="btnDisconnect" onClick={() => toggleAppConnection(app)}>
-                            Disconnect
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Popular Apps Grid */}
-                <div className="popularAppsSection">
-                  <h4>Popular Apps</h4>
-                  <p className="subText">Connect with tools you already use</p>
-
-                  <div className="popularAppsGrid">
-                    {popularApps.map((app) => {
-                      const isConnected = connectedApps.some((a) => a.id === app.id);
-                      return (
-                        <div key={app.id} className="appCard">
-                          <div className="appHeaderRow">
-                            <span className="appLogoIcon">{app.icon}</span>
-                            <div>
-                              <h5>{app.name}</h5>
-                              <p>{app.desc}</p>
-                            </div>
-                            <button
-                              className={`btnConnectApp ${isConnected ? "connected" : ""}`}
-                              onClick={() => toggleAppConnection(app)}
-                            >
-                              {isConnected ? "Connected" : "Connect"}
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <div className="showMoreRow">
-                    <button className="btnShowMore">Show More Apps ▾</button>
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Right Sidebar Widgets */}
-              <div className="psRightSidebarCol">
-                
-                {/* About Connected Apps Widget */}
-                <div className="psWidgetCard">
-                  <h4>About Connected Apps</h4>
-
-                  <div className="aboutAppsBox">
-                    <div className="appShieldIcon">📲</div>
-                    <p>Connected apps help you streamline your workflow, track progress, and access your important data all in one place.</p>
-                  </div>
-
-                  <ul className="secChecklist">
-                    <li><FaCheckCircle color="#10B981" /> Secure and encrypted connections</li>
-                    <li><FaCheckCircle color="#10B981" /> Control what data is shared</li>
-                    <li><FaCheckCircle color="#10B981" /> Disconnect anytime you want</li>
-                  </ul>
-                </div>
-
-                {/* Connection Security Widget */}
-                <div className="psWidgetCard">
-                  <div className="widgetTitleRow">
-                    <h4><FaLock color="#F59E0B" /> Connection Security</h4>
-                  </div>
-                  <p className="secSubtext">Your data is safe with us. We never share your data with third-party apps without your permission.</p>
-                  <span className="learnSecurityLink">Learn more about security</span>
-                </div>
-
-                {/* Need Help? Widget */}
-                <div className="helpCenterBox">
-                  <FaHeadset className="headsetIcon" />
-                  <div>
-                    <h5>Need Help?</h5>
-                    <p>Having trouble connecting an app? Visit our Help Center for step-by-step guides and support.</p>
-                  </div>
-                  <button className="btnGoHelpCenter" onClick={() => navigate("/discussions")}>
-                    Go to Help Center
-                  </button>
-                </div>
-
-              </div>
-
-            </div>
-          )}
 
         </div>
       </div>

@@ -100,7 +100,7 @@ export default function UserSelection() {
 
             <button
               className="portalActionBtn"
-              onClick={() => navigate('/register', { state: { role: 'EMPLOYEE', step: 2 } })}
+              onClick={() => navigate('/login', { state: { role: 'EMPLOYEE' } })}
             >
               Manage Workforce <FaArrowRight />
             </button>

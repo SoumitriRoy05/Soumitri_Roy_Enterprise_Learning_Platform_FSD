@@ -47,14 +47,270 @@ import {
 import "../styles/studentDashboard.css";
 import "../styles/progressPage.css";
 
+const allPathLessons = [
+  // React Path (starts with digits: 1-1, 1-2, etc. up to 6-1)
+  { id: "1-1", title: "React Overview & Setup", type: "reading", subjectId: "react" },
+  { id: "1-2", title: "Create React App & Vite", type: "reading", subjectId: "react" },
+  { id: "1-3", title: "React Folder Structure", type: "reading", subjectId: "react" },
+  { id: "1-4", title: "Virtual DOM & Reconciliation", type: "reading", subjectId: "react" },
+  { id: "1-5", title: "React Masterclass Setup Video", type: "video", subjectId: "react" },
+  { id: "2-1", title: "JSX Syntax Rules", type: "reading", subjectId: "react" },
+  { id: "2-2", title: "Rendering Expressions in JSX", type: "reading", subjectId: "react" },
+  { id: "2-3", title: "Conditional Rendering", type: "reading", subjectId: "react" },
+  { id: "2-4", title: "List Rendering & Keys", type: "reading", subjectId: "react" },
+  { id: "2-5", title: "Figma to JSX Workflow Video", type: "video", subjectId: "react" },
+  { id: "3-1", title: "React Components (Functional)", type: "reading", subjectId: "react" },
+  { id: "3-2", title: "Props vs State", type: "reading", subjectId: "react" },
+  { id: "3-3", title: "Component Lifecycle Basics", type: "reading", subjectId: "react" },
+  { id: "3-4", title: "Handling UI Events", type: "reading", subjectId: "react" },
+  { id: "3-5", title: "Building Reusable Buttons Video", type: "video", subjectId: "react" },
+  { id: "4-1", title: "React useState Hook", type: "reading", subjectId: "react" },
+  { id: "4-2", title: "React useEffect Hook", type: "reading", subjectId: "react" },
+  { id: "4-3", title: "Custom Hooks Creation", type: "reading", subjectId: "react" },
+  { id: "4-4", title: "Rules of Hooks", type: "reading", subjectId: "react" },
+  { id: "4-5", title: "Interactive Quiz Dashboard Video", type: "video", subjectId: "react" },
+  { id: "5-1", title: "React Context API", type: "reading", subjectId: "react" },
+  { id: "5-2", title: "useContext & Global State", type: "reading", subjectId: "react" },
+  { id: "5-3", title: "State Management Libraries", type: "reading", subjectId: "react" },
+  { id: "5-4", title: "Redux Toolkit Overview", type: "reading", subjectId: "react" },
+  { id: "5-5", title: "Dark/Light Theme Switcher Video", type: "video", subjectId: "react" },
+  { id: "6-1", title: "React Production Deployment", type: "video", subjectId: "react" },
+  { id: "6-2", title: "Vercel & Netlify Hosting", type: "reading", subjectId: "react" },
+  { id: "6-3", title: "React Router Navigation", type: "reading", subjectId: "react" },
+  { id: "6-4", title: "Lazy Loading & Suspense", type: "reading", subjectId: "react" },
+  { id: "6-5", title: "Complete Portfolio Deploy Video", type: "video", subjectId: "react" },
+
+  // Python Path (py-1-1, etc.)
+  { id: "py-1-1", title: "Python Overview & Setup", type: "reading", subjectId: "python" },
+  { id: "py-1-2", title: "Lists, Tuples & Dictionaries", type: "reading", subjectId: "python" },
+  { id: "py-2-1", title: "N-Dimensional Arrays", type: "reading", subjectId: "python" },
+  { id: "py-3-1", title: "DataFrames & Series", type: "reading", subjectId: "python" },
+  { id: "py-4-1", title: "Plotting Line & Bar Charts", type: "reading", subjectId: "python" },
+  { id: "py-5-1", title: "Supervised Regression Models", type: "reading", subjectId: "python" },
+  { id: "py-6-1", title: "Python Masterclass Video", type: "video", subjectId: "python" },
+
+  // Node Path (node-1-1, etc.)
+  { id: "node-1-1", title: "Node.js Architecture", type: "reading", subjectId: "node" },
+  { id: "node-2-1", title: "Express REST Routes", type: "reading", subjectId: "node" },
+  { id: "node-3-1", title: "Mongoose Schema Models", type: "reading", subjectId: "node" },
+  { id: "node-4-1", title: "JWT Authentication Security", type: "reading", subjectId: "node" },
+  { id: "node-5-1", title: "Socket.IO Event Emitters", type: "reading", subjectId: "node" },
+  { id: "node-6-1", title: "Node.js Video Masterclass", type: "video", subjectId: "node" },
+
+  // UI/UX Path (ui-1-1, etc.)
+  { id: "ui-1-1", title: "UX Heuristics & Personas", type: "reading", subjectId: "uiux" },
+  { id: "ui-2-1", title: "8pt Layout Grid System", type: "reading", subjectId: "uiux" },
+  { id: "ui-3-1", title: "Responsive Components in Figma", type: "reading", subjectId: "uiux" },
+  { id: "ui-4-1", title: "Smart Animate Micro-interactions", type: "reading", subjectId: "uiux" },
+  { id: "ui-5-1", title: "Figma Variables & Tokens", type: "reading", subjectId: "uiux" },
+  { id: "ui-6-1", title: "Figma Video Masterclass", type: "video", subjectId: "uiux" },
+
+  // Java Path (java-1-1, etc.)
+  { id: "java-1-1", title: "Java JVM Architecture", type: "reading", subjectId: "java" },
+  { id: "java-2-1", title: "Classes & Inheritance", type: "reading", subjectId: "java" },
+  { id: "java-3-1", title: "Try-Catch & Lists", type: "reading", subjectId: "java" },
+  { id: "java-4-1", title: "Runnable & Synchronization", type: "reading", subjectId: "java" },
+  { id: "java-5-1", title: "Functional Programming", type: "reading", subjectId: "java" },
+  { id: "java-6-1", title: "Java Backend Masterclass Video", type: "video", subjectId: "java" },
+
+  // Spring Boot Path (sb-1-1, etc.)
+  { id: "sb-1-1", title: "Core Concepts of Spring", type: "reading", subjectId: "springboot" },
+  { id: "sb-2-1", title: "Creating RESTful Endpoints", type: "reading", subjectId: "springboot" },
+  { id: "sb-3-1", title: "Autowired & Component Scanning", type: "reading", subjectId: "springboot" },
+  { id: "sb-4-1", title: "Repository Interfaces & Hibernate", type: "reading", subjectId: "springboot" },
+  { id: "sb-5-1", title: "Securing Endpoints with JWT", type: "reading", subjectId: "springboot" },
+  { id: "sb-6-1", title: "Microservices & Cloud Deployment", type: "video", subjectId: "springboot" },
+
+  // JavaScript Path (js-1-1, etc.)
+  { id: "js-1-1", title: "Call Stack & Global Memory", type: "reading", subjectId: "js" },
+  { id: "js-2-1", title: "Closures & Scope Chain", type: "reading", subjectId: "js" },
+  { id: "js-3-1", title: "Task Queue vs Microtask Queue", type: "reading", subjectId: "js" },
+  { id: "js-4-1", title: "Promise Methods & Async/Await", type: "reading", subjectId: "js" },
+  { id: "js-5-1", title: "Prototypal Chain & Delegation", type: "reading", subjectId: "js" },
+  { id: "js-6-1", title: "Advanced Javascript V8 Masterclass", type: "video", subjectId: "js" },
+
+  // DSA Path (dsa-1-1, etc.)
+  { id: "dsa-1-1", title: "Big O Notation & Logarithms", type: "reading", subjectId: "dsa" },
+  { id: "dsa-2-1", title: "Linear Data Structures", type: "reading", subjectId: "dsa" },
+  { id: "dsa-3-1", title: "LIFO vs FIFO Operations", type: "reading", subjectId: "dsa" },
+  { id: "dsa-4-1", title: "Solving Recursive Subproblems", type: "reading", subjectId: "dsa" }
+];
+
 export default function ProgressPage() {
-  const { user, xp, logout, themeMode, toggleTheme } = useAuth();
+  const { user, xp, logout, themeMode, toggleTheme, enrolledCourses, completedTopics } = useAuth();
   const navigate = useNavigate();
   const isDarkMode = themeMode === "dark";
   const [activeTab, setActiveTab] = useState("overview");
   const [timeFilter, setTimeFilter] = useState("This Month");
   const [toastMessage, setToastMessage] = useState("");
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  const userName = user?.full_name || user?.username || "Learner";
+  const currentXp = xp ?? 0;
+
+  const getLevelInfo = (totalXp) => {
+    const level = Math.floor(totalXp / 2000) + 1;
+    const currentLevelXp = totalXp % 2000;
+    const nextLevelRequiredXp = 2000;
+    const remainingXp = nextLevelRequiredXp - currentLevelXp;
+    const pct = Math.round((currentLevelXp / nextLevelRequiredXp) * 100);
+    
+    let badge = "Active Learner";
+    if (totalXp >= 3000) badge = "React Master";
+    else if (totalXp >= 2500) badge = "Component Wizard";
+    else if (totalXp >= 2000) badge = "Hook Specialist";
+    else if (totalXp >= 1500) badge = "UI Architect";
+    else if (totalXp >= 1000) badge = "State Guru";
+
+    return {
+      level,
+      currentLevelXp,
+      nextLevelRequiredXp,
+      remainingXp,
+      pct,
+      badge
+    };
+  };
+
+  const getHeatmapCells = () => {
+    const today = new Date();
+    const currentDayOfWeek = today.getDay();
+    const daysToSubtract = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
+    const startMonday = new Date(today);
+    startMonday.setDate(today.getDate() - daysToSubtract - (14 * 7));
+    
+    let activityMap = {};
+    if (user && user.activity_map) {
+      try {
+        activityMap = typeof user.activity_map === 'string' ? JSON.parse(user.activity_map) : user.activity_map;
+      } catch (e) {}
+    }
+    
+    const cells = [];
+    for (let idx = 0; idx < 105; idx++) {
+      const cellDate = new Date(startMonday);
+      cellDate.setDate(startMonday.getDate() + idx);
+      
+      const year = cellDate.getFullYear();
+      const month = String(cellDate.getMonth() + 1).padStart(2, '0');
+      const dateVal = String(cellDate.getDate()).padStart(2, '0');
+      const dateKey = `${year}-${month}-${dateVal}`;
+      
+      const count = activityMap[dateKey] || 0;
+      
+      let level = 0;
+      if (count > 0 && count <= 2) level = 1;
+      else if (count > 2 && count <= 5) level = 2;
+      else if (count > 5 && count <= 10) level = 3;
+      else if (count > 10) level = 4;
+      
+      const formattedDate = cellDate.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+      cells.push({
+        idx,
+        level,
+        title: `${formattedDate}: ${count} activities`
+      });
+    }
+    return cells;
+  };
+
+  const getMonthHeaders = () => {
+    const today = new Date();
+    const currentDayOfWeek = today.getDay();
+    const daysToSubtract = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
+    const startMonday = new Date(today);
+    startMonday.setDate(today.getDate() - daysToSubtract - (14 * 7));
+    
+    const months = [];
+    const temp = new Date(startMonday);
+    while (temp <= today) {
+      const monthName = temp.toLocaleDateString([], { month: 'short' });
+      if (!months.includes(monthName)) {
+        months.push(monthName);
+      }
+      temp.setDate(temp.getDate() + 7);
+    }
+    return months;
+  };
+
+  const getSubjectProgressData = () => {
+    const subjects = [
+      { id: "react", name: "Fullstack Web Development", icon: <FaCode />, colorClass: "green" },
+      { id: "dsa", name: "Data Structures & Algorithms", icon: <FaCode />, colorClass: "blue" },
+      { id: "node", name: "Fullstack with Node.js", icon: <FaCode />, colorClass: "purple" },
+      { id: "uiux", name: "UI/UX Design Masterclass", icon: <FaPenNib />, colorClass: "pink" },
+      { id: "java", name: "Java Programming Path", icon: <FaInfinity />, colorClass: "teal" },
+      { id: "springboot", name: "Spring Boot Framework Path", icon: <FaCode />, colorClass: "green" },
+      { id: "js", name: "Advanced JavaScript Path", icon: <FaCode />, colorClass: "purple" },
+      { id: "python", name: "Python for Data Science", icon: <FaCode />, colorClass: "blue" }
+    ];
+
+    const completedSet = new Set(completedTopics || []);
+
+    return subjects.map(sub => {
+      const subjectLessons = allPathLessons.filter(l => l.subjectId === sub.id);
+      const total = subjectLessons.length || 6;
+      const completedCount = subjectLessons.filter(l => completedSet.has(l.id)).length;
+      const pct = Math.round((completedCount / total) * 100);
+      
+      return {
+        ...sub,
+        completed: completedCount,
+        total: total,
+        pct: pct
+      };
+    });
+  };
+
+  const getRecentActivities = () => {
+    const completedSet = new Set(completedTopics || []);
+    const activities = [];
+
+    allPathLessons.forEach(les => {
+      if (completedSet.has(les.id)) {
+        activities.push({
+          title: les.title,
+          heading: les.type === "video" ? "Masterclass Video" : "Completed Lesson",
+          type: les.type === "video" ? "Video Completed" : "Lesson Completed",
+          icon: les.type === "video" ? <FaGraduationCap /> : <FaCheckCircle />,
+          colorClass: les.type === "video" ? "purple" : "green",
+          xp: les.type === "video" ? "+25 XP" : "+20 XP",
+          time: "Recently"
+        });
+      }
+    });
+
+    const activeActivities = activities.slice(0, 5);
+
+    if (activeActivities.length < 5) {
+      const fallbacks = [
+        { title: "Node.js - Event Loop", heading: "Asynchronous I/O", type: "Completed Lesson", icon: <FaCheckCircle />, colorClass: "green", xp: "+20 XP", time: "Today, 10:30 AM" },
+        { title: "Arrays - Easy", heading: "CodeArena Problem", type: "Solved 2 Problems", icon: <FaCode />, colorClass: "purple", xp: "+40 XP", time: "Today, 09:15 AM" },
+        { title: "Build REST API", heading: "Course Assignment", type: "Submitted Assignment", icon: <FaFileAlt />, colorClass: "orange", xp: "+100 XP", time: "Yesterday, 08:45 PM" },
+        { title: "JavaScript Basics", heading: "Quick Quiz", type: "Quiz Completed", icon: <FaAward />, colorClass: "red", xp: "+25 XP", time: "Yesterday, 07:30 PM" },
+        { title: "Express.js - Routing", heading: "Completed Lesson", type: "Completed Lesson", icon: <FaBook />, colorClass: "blue", xp: "+20 XP", time: "Yesterday, 06:10 PM" }
+      ];
+      return [...activeActivities, ...fallbacks.slice(0, 5 - activeActivities.length)];
+    }
+    return activeActivities;
+  };
+
+  const getXpDistribution = () => {
+    return {
+      courses: Math.round(currentXp * 0.45),
+      projects: Math.round(currentXp * 0.25),
+      quizzes: Math.round(currentXp * 0.15),
+      assignments: Math.round(currentXp * 0.10),
+      others: Math.round(currentXp * 0.05)
+    };
+  };
+
+  const goalTarget = 3000;
+  const goalPct = Math.min(100, Math.round((currentXp / goalTarget) * 100));
+  const dashArray = 125.6;
+  const dashOffset = dashArray - (goalPct / 100) * dashArray;
+
+  const lvlInfo = getLevelInfo(currentXp);
 
   const handleLogout = async () => {
     try {
@@ -66,15 +322,10 @@ export default function ProgressPage() {
     }
   };
 
-  const userName = user?.full_name || user?.username || "Learner";
-  const currentXp = xp ?? 0;
-
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "assignments", label: "Assignments", icon: <FaFileAlt /> },
-    { id: "discussions", label: "Discussions", icon: <FaComments /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
     { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
     { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
@@ -298,7 +549,7 @@ export default function ProgressPage() {
               <div className="statIcon orange"><FaTrophy /></div>
               <div>
                 <span className="lbl">Total XP Earned</span>
-                <strong>6,450 XP</strong>
+                <strong>{currentXp} XP</strong>
                 <span className="pctUp green"><FaArrowUp /> 18% vs last month</span>
               </div>
             </div>
@@ -308,8 +559,8 @@ export default function ProgressPage() {
               <div className="statIcon brown"><FaBook /></div>
               <div>
                 <span className="lbl">Courses Enrolled</span>
-                <strong>7</strong>
-                <span className="blueSub">3 In Progress</span>
+                <strong>{enrolledCourses?.length || 0}</strong>
+                <span className="blueSub">Active Catalog</span>
               </div>
             </div>
 
@@ -318,8 +569,8 @@ export default function ProgressPage() {
               <div className="statIcon black"><FaGraduationCap /></div>
               <div>
                 <span className="lbl">Lessons Completed</span>
-                <strong>48</strong>
-                <span className="pctUp green"><FaArrowUp /> 12 vs last month</span>
+                <strong>{completedTopics?.length || 0}</strong>
+                <span className="pctUp green"><FaArrowUp /> Live Database</span>
               </div>
             </div>
 
@@ -328,8 +579,8 @@ export default function ProgressPage() {
               <div className="statIcon red"><FaFire /></div>
               <div>
                 <span className="lbl">Study Streak</span>
-                <strong>12 Days</strong>
-                <span className="streakBest">Best: 18 Days 🔥</span>
+                <strong>{user?.streak || 0} Days</strong>
+                <span className="streakBest">Best: {user?.longest_streak || 1} Days 🔥</span>
               </div>
             </div>
 
@@ -338,8 +589,8 @@ export default function ProgressPage() {
               <div className="statIcon gold"><FaClock /></div>
               <div>
                 <span className="lbl">Time Learned</span>
-                <strong>36h 45m</strong>
-                <span className="pctUp green"><FaArrowUp /> 20% vs last month</span>
+                <strong>{user?.total_study_time || 0} Mins</strong>
+                <span className="pctUp green"><FaArrowUp /> Active Study</span>
               </div>
             </div>
 
@@ -443,7 +694,7 @@ export default function ProgressPage() {
                     </svg>
 
                     <div className="donutCenterText">
-                      <strong>6,450</strong>
+                      <strong>{currentXp}</strong>
                       <span>Total XP</span>
                     </div>
                   </div>
@@ -453,31 +704,31 @@ export default function ProgressPage() {
                     <div className="legItem">
                       <span className="dot orange"></span>
                       <span className="name">Courses</span>
-                      <strong>45%</strong>
+                      <strong>{getXpDistribution().courses} XP (45%)</strong>
                     </div>
 
                     <div className="legItem">
                       <span className="dot green"></span>
                       <span className="name">Projects</span>
-                      <strong>25%</strong>
+                      <strong>{getXpDistribution().projects} XP (25%)</strong>
                     </div>
 
                     <div className="legItem">
                       <span className="dot purple"></span>
                       <span className="name">Quizzes</span>
-                      <strong>15%</strong>
+                      <strong>{getXpDistribution().quizzes} XP (15%)</strong>
                     </div>
 
                     <div className="legItem">
                       <span className="dot blue"></span>
                       <span className="name">Assignments</span>
-                      <strong>10%</strong>
+                      <strong>{getXpDistribution().assignments} XP (10%)</strong>
                     </div>
 
                     <div className="legItem">
                       <span className="dot brown"></span>
                       <span className="name">Others</span>
-                      <strong>5%</strong>
+                      <strong>{getXpDistribution().others} XP (5%)</strong>
                     </div>
                   </div>
                 </div>
@@ -495,9 +746,9 @@ export default function ProgressPage() {
 
                   <div className="heatmapContainer">
                     <div className="monthsHeader">
-                      <span>Apr</span>
-                      <span>May</span>
-                      <span>Jun</span>
+                      {getMonthHeaders().map((m, i) => (
+                        <span key={i}>{m}</span>
+                      ))}
                     </div>
 
                     <div className="heatmapGrid">
@@ -512,13 +763,9 @@ export default function ProgressPage() {
                       </div>
 
                       <div className="heatmapCellsMatrix">
-                        {/* Generate 15x7 GitHub-style Heatmap cells */}
-                        {Array.from({ length: 105 }).map((_, idx) => {
-                          const level = (idx % 7 === 2 || idx % 5 === 0 || idx % 11 === 1) ? (idx % 4) + 1 : 0;
-                          return (
-                            <div key={idx} className={`hmCell level-${level}`} title={`Activity: Level ${level}`} />
-                          );
-                        })}
+                        {getHeatmapCells().map(cell => (
+                          <div key={cell.idx} className={`hmCell level-${cell.level}`} title={cell.title} />
+                        ))}
                       </div>
                     </div>
 
@@ -540,66 +787,21 @@ export default function ProgressPage() {
                 <div className="ppCardBlock">
                   <div className="chartTitleRow">
                     <h4>📚 Subject Progress</h4>
-                    <span className="viewAllLink">View All</span>
+                    <span className="viewAllLink" style={{ cursor: "pointer" }} onClick={() => setActiveTab("courses")}>View All</span>
                   </div>
 
                   <div className="subjectProgressStack">
-                    
-                    {/* Item 1 */}
-                    <div className="subjProgItem">
-                      <div className="subjIcon green"><FaCode /></div>
-                      <div className="subjInfo">
-                        <h5>Fullstack Web Development</h5>
-                        <div className="subjTrack"><div className="subjFill" style={{ width: "62%" }}></div></div>
+                    {getSubjectProgressData().slice(0, 5).map(sub => (
+                      <div key={sub.id} className="subjProgItem">
+                        <div className={`subjIcon ${sub.colorClass}`}>{sub.icon}</div>
+                        <div className="subjInfo">
+                          <h5>{sub.name}</h5>
+                          <div className="subjTrack"><div className="subjFill" style={{ width: `${sub.pct}%` }}></div></div>
+                        </div>
+                        <span className="subjPct">{sub.pct}%</span>
+                        <span className="subjMods">{sub.completed} / {sub.total} Lessons</span>
                       </div>
-                      <span className="subjPct">62%</span>
-                      <span className="subjMods">5 / 8 Modules</span>
-                    </div>
-
-                    {/* Item 2 */}
-                    <div className="subjProgItem">
-                      <div className="subjIcon blue"><FaCode /></div>
-                      <div className="subjInfo">
-                        <h5>Data Structures & Algorithms</h5>
-                        <div className="subjTrack"><div className="subjFill" style={{ width: "48%" }}></div></div>
-                      </div>
-                      <span className="subjPct">48%</span>
-                      <span className="subjMods">5 / 10 Modules</span>
-                    </div>
-
-                    {/* Item 3 */}
-                    <div className="subjProgItem">
-                      <div className="subjIcon purple"><FaDatabase /></div>
-                      <div className="subjInfo">
-                        <h5>Database Management</h5>
-                        <div className="subjTrack"><div className="subjFill" style={{ width: "35%" }}></div></div>
-                      </div>
-                      <span className="subjPct">35%</span>
-                      <span className="subjMods">3 / 8 Modules</span>
-                    </div>
-
-                    {/* Item 4 */}
-                    <div className="subjProgItem">
-                      <div className="subjIcon pink"><FaPenNib /></div>
-                      <div className="subjInfo">
-                        <h5>UI/UX Design</h5>
-                        <div className="subjTrack"><div className="subjFill" style={{ width: "20%" }}></div></div>
-                      </div>
-                      <span className="subjPct">20%</span>
-                      <span className="subjMods">2 / 10 Modules</span>
-                    </div>
-
-                    {/* Item 5 */}
-                    <div className="subjProgItem">
-                      <div className="subjIcon teal"><FaInfinity /></div>
-                      <div className="subjInfo">
-                        <h5>DevOps Fundamentals</h5>
-                        <div className="subjTrack"><div className="subjFill" style={{ width: "10%" }}></div></div>
-                      </div>
-                      <span className="subjPct">10%</span>
-                      <span className="subjMods">1 / 10 Modules</span>
-                    </div>
-
+                    ))}
                   </div>
                 </div>
 
@@ -609,61 +811,23 @@ export default function ProgressPage() {
               <div className="ppCardBlock ppRecentActivity" style={{ display: "none" }}>
                 <div className="chartTitleRow">
                   <h4>⏱️ Recent Activity</h4>
-                  <span className="viewAllLink">View All Activity</span>
+                  <span className="viewAllLink" style={{ cursor: "pointer" }} onClick={() => navigate("/student-home")}>View All Activity</span>
                 </div>
 
                 <div className="horizontalTimelineContainer">
                   <div className="timelineTrackLine"></div>
 
-                  <div className="timelineNodeStep">
-                    <div className="nodeCircle green"><FaCheckCircle /></div>
-                    <div className="nodeInfo">
-                      <h5>Completed Lesson</h5>
-                      <span>Node.js - Event Loop</span>
-                      <span className="timeSub">Today, 10:30 AM</span>
-                      <span className="xpBadge green">+20 XP</span>
+                  {getRecentActivities().map((act, index) => (
+                    <div key={index} className="timelineNodeStep">
+                      <div className={`nodeCircle ${act.colorClass}`}>{act.icon}</div>
+                      <div className="nodeInfo">
+                        <h5>{act.type}</h5>
+                        <span>{act.title}</span>
+                        <span className="timeSub">{act.time}</span>
+                        <span className={`xpBadge ${act.colorClass}`}>{act.xp}</span>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="timelineNodeStep">
-                    <div className="nodeCircle purple"><FaCode /></div>
-                    <div className="nodeInfo">
-                      <h5>Solved 2 Problems</h5>
-                      <span>Arrays - Easy</span>
-                      <span className="timeSub">Today, 09:15 AM</span>
-                      <span className="xpBadge green">+40 XP</span>
-                    </div>
-                  </div>
-
-                  <div className="timelineNodeStep">
-                    <div className="nodeCircle orange"><FaFileAlt /></div>
-                    <div className="nodeInfo">
-                      <h5>Submitted Assignment</h5>
-                      <span>Build REST API</span>
-                      <span className="timeSub">Yesterday, 08:45 PM</span>
-                      <span className="xpBadge green">+100 XP</span>
-                    </div>
-                  </div>
-
-                  <div className="timelineNodeStep">
-                    <div className="nodeCircle red"><FaAward /></div>
-                    <div className="nodeInfo">
-                      <h5>Quiz Completed</h5>
-                      <span>JavaScript Basics</span>
-                      <span className="timeSub">Yesterday, 07:30 PM</span>
-                      <span className="xpBadge green">+25 XP</span>
-                    </div>
-                  </div>
-
-                  <div className="timelineNodeStep">
-                    <div className="nodeCircle blue"><FaBook /></div>
-                    <div className="nodeInfo">
-                      <h5>Completed Lesson</h5>
-                      <span>Express.js - Routing</span>
-                      <span className="timeSub">Yesterday, 06:10 PM</span>
-                      <span className="xpBadge green">+20 XP</span>
-                    </div>
-                  </div>
+                  ))}
 
                 </div>
               </div>
@@ -683,12 +847,12 @@ export default function ProgressPage() {
                 <div className="archGaugeContainer">
                   <svg className="archSvg" viewBox="0 0 100 60">
                     <path className="archBg" d="M10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#F1F5F9" strokeWidth="10" strokeLinecap="round" />
-                    <path className="archFill" d="M10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#F9572A" strokeWidth="10" strokeLinecap="round" strokeDasharray="125.6" strokeDashoffset="35" />
+                    <path className="archFill" d="M10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#F9572A" strokeWidth="10" strokeLinecap="round" strokeDasharray="125.6" strokeDashoffset={dashOffset} />
                   </svg>
 
                   <div className="archCenterText">
-                    <strong>72%</strong>
-                    <span>2,160 / 3,000 XP</span>
+                    <strong>{goalPct}%</strong>
+                    <span>{currentXp} / {goalTarget} XP</span>
                   </div>
                 </div>
 
@@ -736,11 +900,11 @@ export default function ProgressPage() {
 
                 <div className="milestoneCard">
                   <div className="mBadgeHex">🏆</div>
-                  <h5>Level 13 – Code Master</h5>
-                  <p>Earn 700 more XP to reach Level 13</p>
+                  <h5>Level {lvlInfo.level + 1} – {getLevelInfo((lvlInfo.level + 1) * 2000).badge}</h5>
+                  <p>Earn {lvlInfo.remainingXp} more XP to reach Level {lvlInfo.level + 1}</p>
 
-                  <div className="mTrack"><div className="mFill" style={{ width: "72%" }}></div></div>
-                  <span className="mXpText">1800 / 2500 XP</span>
+                  <div className="mTrack"><div className="mFill" style={{ width: `${lvlInfo.pct}%` }}></div></div>
+                  <span className="mXpText">{lvlInfo.currentLevelXp} / 2000 XP</span>
 
                   <button className="btnViewMilestones" onClick={() => navigate("/student-home")}>
                     View All Milestones →

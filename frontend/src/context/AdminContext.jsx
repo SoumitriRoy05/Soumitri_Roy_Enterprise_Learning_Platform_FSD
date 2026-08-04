@@ -332,10 +332,37 @@ export function AdminProvider({ children }) {
     }
   };
 
+  const fetchCourseRequests = async () => {
+    try {
+      const token = localStorage.getItem('skillsphere_token') || localStorage.getItem('token');
+      const headers = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const res = await fetch(`${API_URL}/api/admin/course-requests`, { headers });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.requests) {
+          const normalized = data.requests.map(r => ({
+            ...r,
+            status: r.status.toLowerCase(),
+            studentName: r.username,
+            studentEmail: r.username + "@skillsphere.com",
+            courseId: r.courseId,
+            courseTitle: r.courseTitle
+          }));
+          setPendingCourseRequests(normalized);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch course requests:", err);
+    }
+  };
+
   const fetchData = async () => {
     try {
       await fetchCourses();
       await fetchLeaves();
+      await fetchCourseRequests();
 
       const usersRes = await fetch(`${API_URL}/api/admin/users`);
       if (usersRes.ok) {
@@ -560,52 +587,54 @@ export function AdminProvider({ children }) {
   };
 
   // ── Approve / Reject Course Requests ──
-  const approveCourseRequest = (requestId) => {
-    const updated = pendingCourseRequests.map(r =>
-      r.id === requestId ? { ...r, status: 'approved' } : r
-    );
-    setPendingCourseRequests(updated);
-
-    const req = pendingCourseRequests.find(r => r.id === requestId);
-    if (req) {
-      const userKey = req.studentEmail || 'default';
-      const storageKey = `enrolledCourses_${userKey}`;
-      try {
-        const enrolled = JSON.parse(localStorage.getItem(storageKey) || '[]');
-        if (!enrolled.includes(req.courseId)) {
-          enrolled.push(req.courseId);
-          localStorage.setItem(storageKey, JSON.stringify(enrolled));
-        }
-      } catch {}
-
-      setCourses(prev => prev.map(c =>
-        c.id.toString() === req.courseId.toString()
-          ? { ...c, enrollments: (c.enrollments || 0) + 1 }
-          : c
-      ));
-    }
+  const approveCourseRequest = async (requestId) => {
+    setPendingCourseRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: 'approved' } : r));
     notifyStateChanged();
+
+    try {
+      const token = localStorage.getItem('skillsphere_token') || localStorage.getItem('token');
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const res = await fetch(`${API_URL}/api/admin/course-requests/${requestId}/decision`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ decision: "APPROVED" })
+      });
+      if (res.ok) {
+        fetchCourses();
+      }
+    } catch (err) {
+      console.error("Failed to approve course request:", err);
+    }
   };
 
-  const rejectCourseRequest = (requestId) => {
-    const updated = pendingCourseRequests.map(r =>
-      r.id === requestId ? { ...r, status: 'rejected' } : r
-    );
-    setPendingCourseRequests(updated);
+  const rejectCourseRequest = async (requestId) => {
+    setPendingCourseRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: 'rejected' } : r));
     notifyStateChanged();
+
+    try {
+      const token = localStorage.getItem('skillsphere_token') || localStorage.getItem('token');
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      await fetch(`${API_URL}/api/admin/course-requests/${requestId}/decision`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ decision: "REJECTED" })
+      });
+    } catch (err) {
+      console.error("Failed to reject course request:", err);
+    }
   };
 
   const refreshPendingRequests = () => {
-    try {
-      const fresh = JSON.parse(localStorage.getItem('skillsphere_pending_course_requests') || '[]');
-      setPendingCourseRequests(fresh);
-    } catch {}
+    fetchCourseRequests();
   };
 
   // ── Workforce Leave Requests ──
-  const submitLeaveRequest = (newLeave) => {
+  const submitLeaveRequest = async (newLeave) => {
     const leaveItem = {
-      id: newLeave.id || Date.now(),
       empId: newLeave.empId || `EMP${Math.floor(100 + Math.random() * 900)}`,
       employeeName: newLeave.employeeName || "Workforce Member",
       employeeEmail: newLeave.employeeEmail || "employee@skillsphere.com",
@@ -616,11 +645,32 @@ export function AdminProvider({ children }) {
       endDate: newLeave.endDate,
       days: newLeave.days || 1,
       reason: newLeave.reason || "Personal leave request",
-      status: "pending",
+      status: "PENDING",
       requestDate: new Date().toISOString().split('T')[0]
     };
 
-    setLeaveRequests(prev => [leaveItem, ...prev]);
+    try {
+      const token = localStorage.getItem('skillsphere_token') || localStorage.getItem('token');
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const res = await fetch(`${API_URL}/api/workforce/leaves`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(leaveItem)
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.leaveRequest) {
+        setLeaveRequests(prev => [data.leaveRequest, ...prev]);
+      } else {
+        const itemWithId = { ...leaveItem, id: Date.now() };
+        setLeaveRequests(prev => [itemWithId, ...prev]);
+      }
+    } catch (err) {
+      console.error("Failed to submit leave request to backend:", err);
+      const itemWithId = { ...leaveItem, id: Date.now() };
+      setLeaveRequests(prev => [itemWithId, ...prev]);
+    }
     notifyStateChanged();
   };
 

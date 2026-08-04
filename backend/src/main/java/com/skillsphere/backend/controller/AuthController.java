@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 public class AuthController {
@@ -26,6 +27,7 @@ public class AuthController {
     private final JwtTokenProvider tokenProvider;
     private final GoogleTokenVerifier googleTokenVerifier;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final ObjectMapper objectMapper;
 
     public AuthController(
             UserRepository userRepository,
@@ -33,13 +35,15 @@ public class AuthController {
             PasswordResetTokenRepository passwordResetTokenRepository,
             JwtTokenProvider tokenProvider,
             GoogleTokenVerifier googleTokenVerifier,
-            BCryptPasswordEncoder passwordEncoder) {
+            BCryptPasswordEncoder passwordEncoder,
+            ObjectMapper objectMapper) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.tokenProvider = tokenProvider;
         this.googleTokenVerifier = googleTokenVerifier;
         this.passwordEncoder = passwordEncoder;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -161,6 +165,9 @@ public class AuthController {
             return ResponseEntity.status(403).body(response);
         }
 
+        // Update daily streak and activity map
+        updateStreakAndActivity(user);
+
         // Update last login
         user.setLastLoginAt(LocalDateTime.now());
         userRepository.save(user);
@@ -215,6 +222,7 @@ public class AuthController {
 
             if (userOpt.isPresent()) {
                 user = userOpt.get();
+                updateStreakAndActivity(user);
                 user.setLastLoginAt(LocalDateTime.now());
                 userRepository.save(user);
             } else {
@@ -223,6 +231,7 @@ public class AuthController {
                 if (existingUserOpt.isPresent()) {
                     user = existingUserOpt.get();
                     user.setProviderId(googleId);
+                    updateStreakAndActivity(user);
                     user.setLastLoginAt(LocalDateTime.now());
                     userRepository.save(user);
                 } else {
@@ -246,6 +255,7 @@ public class AuthController {
                     user.setProviderId(googleId);
                     user.setRole(targetRole);
                     user.setIsActive(true);
+                    updateStreakAndActivity(user);
                     user.setLastLoginAt(LocalDateTime.now());
                     user = userRepository.save(user);
                 }
@@ -515,5 +525,45 @@ public class AuthController {
         response.put("success", true);
         response.put("message", "Password reset successfully. You can now log in.");
         return ResponseEntity.ok(response);
+    }
+
+    private void updateStreakAndActivity(User user) {
+        try {
+            String mapStr = user.getActivityMap();
+            if (mapStr == null || mapStr.trim().isEmpty() || mapStr.equals("{}")) {
+                mapStr = "{}";
+            }
+
+            Map<String, Integer> activity = objectMapper.readValue(mapStr, new com.fasterxml.jackson.core.type.TypeReference<Map<String, Integer>>() {});
+
+            String today = java.time.LocalDate.now().toString();
+            int currentCount = activity.getOrDefault(today, 0);
+            activity.put(today, currentCount + 1);
+
+            user.setActivityMap(objectMapper.writeValueAsString(activity));
+
+            // Also check daily streak difference to ensure user.streak is correct
+            java.time.LocalDateTime lastLogin = user.getLastLoginAt();
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+
+            if (lastLogin == null) {
+                user.setStreak(1);
+            } else {
+                long daysDiff = java.time.temporal.ChronoUnit.DAYS.between(lastLogin.toLocalDate(), now.toLocalDate());
+                if (daysDiff == 1) {
+                    user.setStreak((user.getStreak() != null ? user.getStreak() : 0) + 1);
+                } else if (daysDiff > 1) {
+                    user.setStreak(1);
+                }
+            }
+
+            int currentStreak = user.getStreak() != null ? user.getStreak() : 1;
+            int longest = user.getLongestStreak() != null ? user.getLongestStreak() : 1;
+            if (currentStreak > longest) {
+                user.setLongestStreak(currentStreak);
+            }
+        } catch (Exception e) {
+            System.err.println("Error updating streak on login: " + e.getMessage());
+        }
     }
 }

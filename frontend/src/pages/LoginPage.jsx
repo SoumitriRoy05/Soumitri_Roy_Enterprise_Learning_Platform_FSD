@@ -46,6 +46,58 @@ export default function LoginPage() {
     roleRef.current = role;
   }, [role]);
 
+  useEffect(() => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId || clientId === 'google_mock_client_id_for_testing') {
+      return;
+    }
+    const initGoogleSignIn = () => {
+      if (window.google) {
+        try {
+          window.google.accounts.id.initialize({
+            client_id: clientId,
+            callback: async (response) => {
+              try {
+                setError('');
+                const loggedUser = await loginWithGoogle(response.credential, roleRef.current);
+                if (loggedUser) {
+                  if (roleRef.current === 'EMPLOYEE' && loggedUser.role === 'STUDENT') {
+                    setError('Enter valid workplace email id');
+                    await logout();
+                    return;
+                  }
+                  if (roleRef.current === 'STUDENT' && loggedUser.role !== 'STUDENT') {
+                    setError('This account is registered as a Workforce user. Please use the Workforce Portal.');
+                    await logout();
+                    return;
+                  }
+                  if (loggedUser.role === 'STUDENT') {
+                    navigate('/student-home');
+                  } else {
+                    navigate('/workforce-home');
+                  }
+                }
+              } catch (err) {
+                setError(err.message || 'Google login failed');
+              }
+            }
+          });
+          if (googleBtnRef.current) {
+            window.google.accounts.id.renderButton(
+              googleBtnRef.current,
+              { theme: 'outline', size: 'large', width: '100%' }
+            );
+          }
+        } catch (err) {
+          console.warn('Google accounts initialization warning:', err);
+        }
+      } else {
+        setTimeout(initGoogleSignIn, 100);
+      }
+    };
+    initGoogleSignIn();
+  }, [loginWithGoogle]);
+
   if (user) {
     return <Navigate to={user.role === 'EMPLOYEE' ? '/workforce-home' : '/student-home'} replace />;
   }
@@ -254,17 +306,9 @@ export default function LoginPage() {
             </div>
 
             {/* Google Login Button */}
-            <button
-              type="button"
-              className="btnGoogleLogin"
-              onClick={handleDevBypass}
-            >
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
-                alt="Google logo"
-              />
-              Continue with Google
-            </button>
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '8px 0' }}>
+              <div ref={googleBtnRef} style={{ width: '100%' }}></div>
+            </div>
 
             {/* Mock Dev Mode Box */}
             <div className="mockDevModeBox">

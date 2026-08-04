@@ -46,16 +46,13 @@ import "../styles/studentDashboard.css";
 import "../styles/dailyQuestsPage.css";
 
 export default function DailyQuestsPage() {
-  const { user, xp, themeMode, toggleTheme } = useAuth();
+  const { user, xp, authenticatedFetch, themeMode, toggleTheme } = useAuth();
   const navigate = useNavigate();
   const isDarkMode = themeMode === "dark";
   const [toastMessage, setToastMessage] = useState("");
   const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
 
-  // Active Quest Action Modal State
   const [activeActionQuest, setActiveActionQuest] = useState(null);
-
-  // Live Countdown Timer (12h 45m 30s)
   const [timeLeft, setTimeLeft] = useState(12 * 3600 + 45 * 60 + 30);
 
   useEffect(() => {
@@ -75,95 +72,86 @@ export default function DailyQuestsPage() {
   const userName = user?.full_name || user?.username || "Learner";
   const [currentXp, setCurrentXp] = useState(xp ?? 0);
 
-  // Quests State (3/6 Completed Initially)
-  const [quests, setQuests] = useState([
-    {
-      id: 1,
-      title: "Complete 1 Lesson",
-      desc: "Finish any lesson in your enrolled courses",
-      xp: "+20 XP",
-      xpVal: 20,
-      progress: "1/1",
-      isCompleted: true,
-      icon: <FaBook />,
-      color: "olive"
-    },
-    {
-      id: 2,
-      title: "Solve 2 Coding Problems",
-      desc: "Solve any 2 problems on the practice platform",
-      xp: "+40 XP",
-      xpVal: 40,
-      progress: "2/2",
-      isCompleted: true,
-      icon: <FaCode />,
-      color: "green"
-    },
-    {
-      id: 3,
-      title: "Join a Discussion",
-      desc: "Ask a question or reply to a discussion",
-      xp: "+15 XP",
-      xpVal: 15,
-      progress: "0/1",
-      isCompleted: false,
-      icon: <FaComments />,
-      color: "orange"
-    },
-    {
-      id: 4,
-      title: "Practice for 20 Minutes",
-      desc: "Spend 20 minutes learning or practicing",
-      xp: "+25 XP",
-      xpVal: 25,
-      progress: "8/20 min",
-      isCompleted: false,
-      icon: <FaBullseye />,
-      color: "brown"
-    },
-    {
-      id: 5,
-      title: "Attempt 1 Quiz",
-      desc: "Attempt any quiz in your enrolled modules",
-      xp: "+20 XP",
-      xpVal: 20,
-      progress: "0/1",
-      isCompleted: false,
-      icon: <FaFileAlt />,
-      color: "olive"
-    },
-    {
-      id: 6,
-      title: "Daily Bonus",
-      desc: "Complete all daily quests",
-      xp: "+50 XP",
-      xpVal: 50,
-      progress: "3/6",
-      isCompleted: false,
-      isLocked: true,
-      icon: <FaCrown />,
-      color: "gold"
-    }
-  ]);
+  const [quests, setQuests] = useState([]);
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+  const fetchQuests = async () => {
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/quests`);
+      const data = await res.json();
+      if (res.ok && data.success) {
+        const mapped = (data.quests || []).map(q => {
+          let icon = <FaBook />;
+          let color = "olive";
+          let desc = "Daily challenge on SkillSphere platform";
+          let progressText = "0/1";
+          
+          if (q.id === 1) {
+            icon = <FaBolt />;
+            color = "orange";
+            desc = "Log in daily and build your streak streak!";
+            progressText = `${user?.streak || 1}/1`;
+          } else if (q.id === 2) {
+            icon = <FaCode />;
+            color = "green";
+            desc = "Learn React architecture components & lifecycle";
+            const reactCompletedCount = (user?.completed_topics || []).filter(t => t.startsWith("react_")).length;
+            progressText = `${reactCompletedCount}/3`;
+          } else if (q.id === 3) {
+            icon = <FaShieldAlt />;
+            color = "brown";
+            desc = "Implement security configuration in Spring Boot";
+            const hasSecurity = (user?.completed_topics || []).includes("springboot_security");
+            progressText = hasSecurity ? "1/1" : "0/1";
+          }
+
+          return {
+            id: q.id,
+            title: q.title,
+            desc: desc,
+            xp: `+${q.xpReward} XP`,
+            xpVal: q.xpReward,
+            progress: progressText,
+            isCompleted: q.status === "COMPLETED",
+            isClaimable: q.status === "CLAIMABLE",
+            icon: icon,
+            color: color
+          };
+        });
+        setQuests(mapped);
+      }
+    } catch (e) {
+      console.error("Error fetching quests:", e);
+    }
+  };
+
+  useEffect(() => {
+    fetchQuests();
+  }, [user]);
   const completedCount = quests.filter((q) => q.isCompleted).length;
 
   // Handler to Execute / Complete a Quest
-  const handleCompleteQuest = (quest) => {
-    setQuests((prevQuests) =>
-      prevQuests.map((q) => {
-        if (q.id === quest.id) {
-          return { ...q, isCompleted: true, progress: "1/1" };
-        }
-        return q;
-      })
-    );
-
-    setCurrentXp((prev) => prev + quest.xpVal);
-    setActiveActionQuest(null);
-
-    setToastMessage(`🎉 Quest Completed! You earned ${quest.xp} & +${quest.xpVal} XP!`);
-    setTimeout(() => setToastMessage(""), 4000);
+  const handleCompleteQuest = async (quest) => {
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/quests/claim`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questId: quest.id })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        fetchQuests();
+        setCurrentXp((prev) => prev + quest.xpVal);
+        setActiveActionQuest(null);
+        setToastMessage(`🎉 Quest reward claimed successfully! You earned +${quest.xpVal} XP!`);
+        setTimeout(() => setToastMessage(""), 4000);
+      } else {
+        setToastMessage(`⚠️ ${data.message || "Could not claim quest reward"}`);
+        setTimeout(() => setToastMessage(""), 4000);
+      }
+    } catch (err) {
+      console.error("Failed to claim quest:", err);
+    }
   };
 
   // Nav items (EVENTS & WEBINARS REMOVED AS DIRECTED)
@@ -171,8 +159,6 @@ export default function DailyQuestsPage() {
     { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "assignments", label: "Assignments", icon: <FaFileAlt /> },
-    { id: "discussions", label: "Discussions", icon: <FaComments /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
     { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
     { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
@@ -416,19 +402,29 @@ export default function DailyQuestsPage() {
                           <button className="btnCompletedPill">
                             <FaCheckCircle /> Completed
                           </button>
-                        ) : q.isLocked ? (
-                          <div className="lockedBonusBox">
-                            <div className="miniTrack"><div className="miniFill" style={{ width: `${(completedCount / 6) * 100}%` }}></div></div>
-                            <span className="frac">{completedCount}/6</span>
-                            <button className="btnLockedIcon"><FaLock /></button>
+                        ) : q.isClaimable ? (
+                          <div className="goActionBox">
+                            <div className="miniTrack"><div className="miniFill" style={{ width: "100%" }}></div></div>
+                            <span className="frac">{q.progress}</span>
+                            <button
+                              className="btnGoPrimary claimBtn"
+                              style={{ background: "#F59E0B", color: "#fff" }}
+                              onClick={() => handleCompleteQuest(q)}
+                            >
+                              Claim
+                            </button>
                           </div>
                         ) : (
                           <div className="goActionBox">
-                            <div className="miniTrack"><div className="miniFill" style={{ width: "40%" }}></div></div>
+                            <div className="miniTrack"><div className="miniFill" style={{ width: "0%" }}></div></div>
                             <span className="frac">{q.progress}</span>
                             <button
                               className="btnGoPrimary"
-                              onClick={() => setActiveActionQuest(q)}
+                              style={{ opacity: 0.6 }}
+                              onClick={() => {
+                                setToastMessage(`⚠️ Keep learning! Complete requirements to claim this quest.`);
+                                setTimeout(() => setToastMessage(""), 3000);
+                              }}
                             >
                               Go
                             </button>

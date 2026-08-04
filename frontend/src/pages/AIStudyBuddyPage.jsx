@@ -23,8 +23,10 @@ import "../styles/aiStudyBuddyPage.css";
 
 import { react20QuizQuestions, python20QuizQuestions } from "../data/quizData";
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 export default function AIStudyBuddyPage() {
-  const { user, xp, earnXp, themeMode, toggleTheme } = useAuth();
+  const { user, xp, earnXp, themeMode, toggleTheme, authenticatedFetch } = useAuth();
   const navigate = useNavigate();
   const isDarkMode = themeMode === "dark";
 
@@ -265,8 +267,6 @@ SELECT * FROM Students WHERE xp >= 1000;`
     { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
     { id: "courses", label: "My Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "assignments", label: "Assignments", icon: <FaFileAlt /> },
-    { id: "discussions", label: "Discussions", icon: <FaComments /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
     { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
     { id: "quest-map", label: "Quest Map", icon: <FaMapMarkedAlt />, isNew: true },
@@ -278,47 +278,91 @@ SELECT * FROM Students WHERE xp >= 1000;`
     { id: "settings", label: "Settings", icon: <FaCog /> }
   ];
 
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: "bot",
-      text: `Hi ${userName || "S Roy"}! 👋 🔥\nI'm your AI Study Buddy. What would you like to learn today?`,
-      quickPrompts: [
-        "Explain React useState hook",
-        "What is Big O Notation?",
-        "Summarize TCP/IP Model"
-      ]
-    },
-    {
-      id: 2,
-      sender: "user",
-      text: "Explain the concept of Virtual DOM in React with an example.",
-      time: "10:30 AM"
-    },
-    {
-      id: 3,
-      sender: "bot",
-      type: "explanation",
-      title: "What is Virtual DOM?",
-      intro: "The Virtual DOM is a lightweight JavaScript object that is a representation of the actual DOM. React uses it as an intermediate step to efficiently update the real DOM.",
-      howItWorks: [
-        "When a component's state or props change, React creates a new Virtual DOM.",
-        "React then compares it with the previous Virtual DOM (Diffing Algorithm).",
-        "React calculates the minimal number of changes needed.",
-        "Only those changes are updated in the real DOM."
-      ],
-      codeSnippet: `function App() {
-  const [count, setCount] = useState(0);
-  return (
-    <div>
-      <h1>{count}</h1>
-      <button onClick={() => setCount(count + 1)}>Increment</button>
-    </div>
-  );
-}`,
-      followUps: ["Explain more", "Give real world example", "Create diagram"]
+  const [messages, setMessages] = useState([]);
+
+  const fetchChatHistory = async () => {
+    try {
+      const res = await authenticatedFetch(`${API_URL}/api/ai/messages`);
+      const data = await res.json();
+      if (res.ok && data.success && data.messages && data.messages.length > 0) {
+        const mapped = data.messages.map(m => {
+          let howItWorks = [];
+          if (m.howItWorks) {
+            howItWorks = m.howItWorks.split("\n");
+          }
+          return {
+            id: m.id,
+            sender: m.sender,
+            text: m.text,
+            time: m.time,
+            type: m.type,
+            title: m.title,
+            intro: m.intro,
+            howItWorks: howItWorks.length > 0 ? howItWorks : undefined,
+            codeSnippet: m.codeSnippet || undefined
+          };
+        });
+        setMessages(mapped);
+      } else {
+        setMessages([
+          {
+            id: 1,
+            sender: "bot",
+            text: `Hi ${userName || "Learner"}! 👋 🔥\nI'm your AI Study Buddy. What would you like to learn today?`,
+            quickPrompts: [
+              "Explain React useState hook",
+              "What is Big O Notation?",
+              "Summarize TCP/IP Model"
+            ]
+          }
+        ]);
+      }
+    } catch (err) {
+      console.error("Failed to fetch chat history:", err);
+      setMessages([
+        {
+          id: 1,
+          sender: "bot",
+          text: `Hi ${userName || "Learner"}! 👋 🔥\nI'm your AI Study Buddy. What would you like to learn today?`,
+          quickPrompts: [
+            "Explain React useState hook",
+            "What is Big O Notation?",
+            "Summarize TCP/IP Model"
+          ]
+        }
+      ]);
     }
-  ]);
+  };
+
+  const handleClearHistory = async () => {
+    if (window.confirm("Are you sure you want to clear your study chat history?")) {
+      try {
+        const res = await authenticatedFetch(`${API_URL}/api/ai/messages`, {
+          method: "DELETE"
+        });
+        if (res.ok) {
+          setMessages([
+            {
+              id: 1,
+              sender: "bot",
+              text: `Hi ${userName || "Learner"}! 👋 🔥\nI'm your AI Study Buddy. What would you like to learn today?`,
+              quickPrompts: [
+                "Explain React useState hook",
+                "What is Big O Notation?",
+                "Summarize TCP/IP Model"
+              ]
+            }
+          ]);
+        }
+      } catch (e) {
+        console.error("Failed to clear chat history:", e);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchChatHistory();
+  }, []);
 
   const handleCopyCode = (codeText) => {
     navigator.clipboard.writeText(codeText);
@@ -326,203 +370,152 @@ SELECT * FROM Students WHERE xp >= 1000;`
     setTimeout(() => setCopiedCode(false), 2000);
   };
 
-  const handleSend = (textToSend) => {
+  const handleSend = async (textToSend) => {
     const text = textToSend || inputMsg;
     if (!text.trim()) return;
 
+    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const userMsg = {
       id: Date.now(),
       sender: "user",
       text,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      time: timeStr
     };
 
     setMessages((prev) => [...prev, userMsg]);
     setInputMsg("");
 
-    setTimeout(() => {
-      let botResponse = { id: Date.now() + 1, sender: "bot" };
-      const q = text.toLowerCase();
-
-      if (q.includes("quiz") || q.includes("test") || q.includes("question")) {
-        const isPython = q.includes("python");
-        const questionsList = isPython ? python20QuizQuestions : react20QuizQuestions;
-        botResponse = {
-          ...botResponse,
-          type: "quiz",
-          title: `🎯 20-Question ${isPython ? "Python Data Science" : "React & Web Development"} Quiz Challenge`,
-          subtitle: "Reference Documentation: GeeksforGeeks & W3Schools",
-          questions: questionsList,
-          followUps: ["Explain Question 1", isPython ? "Try React Quiz" : "Try Python Quiz", "Give Study Plan"]
-        };
-      } else if (q.includes("usestate") || q.includes("state in react")) {
-        botResponse = {
-          ...botResponse,
-          type: "explanation",
-          title: "React useState Hook Explained",
-          intro: "The useState hook allows functional components to declare local reactive state variables.",
-          referenceTag: "GeeksforGeeks: ReactJS useState Hook • W3Schools: React useState Tutorial",
-          howItWorks: [
-            "Import useState from 'react'.",
-            "Call useState(initialValue) inside component top-level.",
-            "De-structure array [state, setState].",
-            "Call setState(newValue) to trigger re-render immutably."
-          ],
-          codeSnippet: `const [count, setCount] = useState(0);
-const increment = () => setCount(prev => prev + 1);`,
-          followUps: ["Explain useEffect", "What is Context API?", "State vs Props"]
-        };
-      } else if (q.includes("useeffect") || q.includes("side effect")) {
-        botResponse = {
-          ...botResponse,
-          type: "explanation",
-          title: "React useEffect Hook & Lifecycle",
-          intro: "useEffect lets functional components perform side effects like data fetching, subscriptions, and DOM updates.",
-          referenceTag: "GeeksforGeeks: ReactJS useEffect Hook • W3Schools: React useEffect Tutorial",
-          howItWorks: [
-            "Runs after component render.",
-            "Dependency array [] controls re-execution.",
-            "Empty [] runs once on mount.",
-            "Return cleanup function to unsubscribe or clear timers."
-          ],
-          codeSnippet: `useEffect(() => {
-  const timer = setInterval(() => console.log('Tick'), 1000);
-  return () => clearInterval(timer); // Cleanup on unmount
-}, []);`,
-          followUps: ["Explain useState", "What is useMemo?", "Rules of Hooks"]
-        };
-      } else if (q.includes("closure") || q.includes("lexical")) {
-        botResponse = {
-          ...botResponse,
-          type: "explanation",
-          title: "JavaScript Closures & Lexical Scope",
-          intro: "A closure is a function bundled together with references to its surrounding lexical environment.",
-          referenceTag: "GeeksforGeeks: JavaScript Closures • W3Schools: JS Closures Guide",
-          howItWorks: [
-            "Functions retain access to outer function scope variables.",
-            "Persists outer scope even after parent function has finished executing.",
-            "Enables data privacy and encapsulation in JavaScript."
-          ],
-          codeSnippet: `function outerFunction(outerVar) {
-  return function innerFunction(innerVar) {
-    console.log('Outer:', outerVar, 'Inner:', innerVar);
-  };
-}
-const inner = outerFunction('Hello');
-inner('World'); // Prints Outer: Hello Inner: World`,
-          followUps: ["Explain Event Loop", "What is hoisting?", "Call vs Apply vs Bind"]
-        };
-      } else if (q.includes("event loop") || q.includes("call stack") || q.includes("async")) {
-        botResponse = {
-          ...botResponse,
-          type: "explanation",
-          title: "JavaScript Event Loop & Microtask Queue",
-          intro: "The Event Loop monitors the Call Stack and Microtask Queue to handle asynchronous callbacks seamlessly.",
-          referenceTag: "GeeksforGeeks: JavaScript Event Loop • W3Schools: JS Async/Await Tutorial",
-          howItWorks: [
-            "Synchronous code executes on Call Stack.",
-            "Promises resolution tasks land in Microtask Queue.",
-            "setTimeout callbacks land in Callback Queue.",
-            "Event Loop pushes queues to Stack when Stack is empty."
-          ],
-          codeSnippet: `console.log('1');
-setTimeout(() => console.log('2 (Timeout)'), 0);
-Promise.resolve().then(() => console.log('3 (Promise)'));
-console.log('4');
-// Output Order: 1, 4, 3, 2`,
-          followUps: ["Explain Promises", "Async Await syntax", "What is closures?"]
-        };
-      } else if (q.includes("big o") || q.includes("complexity") || q.includes("dsa")) {
-        botResponse = {
-          ...botResponse,
-          type: "explanation",
-          title: "Data Structures: Big O Time & Space Complexity",
-          intro: "Big O notation measures algorithm efficiency as input size (N) grows towards infinity.",
-          referenceTag: "GeeksforGeeks: Analysis of Algorithms • W3Schools: DSA Complexity Guide",
-          howItWorks: [
-            "O(1): Constant time (Array index lookup).",
-            "O(log N): Logarithmic time (Binary Search).",
-            "O(N): Linear time (Single loop search).",
-            "O(N^2): Quadratic time (Nested loops)."
-          ],
-          codeSnippet: `// Binary Search - O(log N)
-function binarySearch(arr, target) {
-  let low = 0, high = arr.length - 1;
-  while (low <= high) {
-    let mid = Math.floor((low + high) / 2);
-    if (arr[mid] === target) return mid;
-    if (arr[mid] < target) low = mid + 1;
-    else high = mid - 1;
-  }
-  return -1;
-}`,
-          followUps: ["Explain Binary Search", "Space Complexity vs Time Complexity", "Dynamic Programming"]
-        };
-      } else if (q.includes("python") || q.includes("pandas") || q.includes("dataframe")) {
-        botResponse = {
-          ...botResponse,
-          type: "explanation",
-          title: "Python Data Science: Pandas DataFrames & NumPy",
-          intro: "Pandas DataFrames provide fast, flexible 2D tabular data structures for data analysis.",
-          referenceTag: "GeeksforGeeks: Pandas Tutorial • W3Schools: Python DataFrames",
-          howItWorks: [
-            "NumPy ndarrays handle fast N-dimensional numerical computing.",
-            "Pandas DataFrames store structured rows and labeled columns.",
-            "dropna() and fillna() clean missing data values."
-          ],
-          codeSnippet: `import pandas as pd
-
-data = {'Name': ['Alice', 'Bob'], 'Score': [95, 88]}
-df = pd.DataFrame(data)
-print(df[df['Score'] > 90])`,
-          followUps: ["List vs Tuple in Python", "Python Decorators", "Scikit-Learn ML"]
-        };
-      } else if (q.includes("java") || q.includes("spring") || q.includes("oops")) {
-        botResponse = {
-          ...botResponse,
-          type: "explanation",
-          title: "Java Object-Oriented Programming & Spring Boot",
-          intro: "Java applications leverage OOP pillars (Encapsulation, Inheritance, Polymorphism, Abstraction).",
-          referenceTag: "GeeksforGeeks: Java OOP Concepts • W3Schools: Java Tutorial",
-          howItWorks: [
-            "Encapsulation: Private variables with getters/setters.",
-            "Inheritance: Child classes derive properties with extends.",
-            "Spring Boot: @RestController handles REST APIs automatically."
-          ],
-          codeSnippet: `@RestController
-@RequestMapping("/api/users")
-public class UserController {
-    @GetMapping
-    public ResponseEntity<List<User>> getUsers() {
-        return ResponseEntity.ok(userService.findAll());
+    // Save user message to database
+    try {
+      await authenticatedFetch(`${API_URL}/api/ai/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userMsg)
+      });
+    } catch (e) {
+      console.error("Failed to save user message:", e);
     }
-}`,
-          followUps: ["Explain Spring Security", "Exception Handling in Java", "Interfaces vs Abstract Classes"]
-        };
-      } else {
-        const topicCap = text.charAt(0).toUpperCase() + text.slice(1);
-        botResponse = {
-          ...botResponse,
-          type: "explanation",
-          title: `${topicCap} Overview & Best Practices`,
-          intro: `Here is a complete breakdown of ${text} based on industry standard documentation.`,
-          referenceTag: "GeeksforGeeks Documentation & W3Schools Tutorials",
-          howItWorks: [
-            "Understand foundational syntax and execution model.",
-            "Implement clean, modular code with optimal time complexity.",
-            "Validate with unit test assertions and edge case checks."
-          ],
-          codeSnippet: `// Standard Implementation Pattern for ${text}
-function executeTask(input) {
-  if (!input) return null;
-  return { success: true, timestamp: Date.now() };
-}`,
-          followUps: ["Give code example", "Explain in simple terms", "Try Practice Quiz"]
-        };
+
+    // Add typing placeholder
+    const typingId = Date.now() + 1;
+    setMessages((prev) => [...prev, {
+      id: typingId,
+      sender: "bot",
+      text: "Thinking...",
+      isTyping: true
+    }]);
+
+    // Timeout control
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    try {
+      let replyText = "";
+      const geminiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
+      
+      if (geminiKey && geminiKey !== "AIzaSyD-YOUR-GEMINI-KEY-HERE") {
+        try {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
+          const geminiRes = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    {
+                      text: `You are an expert AI Study Buddy for SkillSphere. Help the user learn programming, UI/UX design, or data science. Keep responses highly educational, concise, and professional.\n\nUser Question: ${text}`
+                    }
+                  ]
+                }
+              ]
+            }),
+            signal: controller.signal
+          });
+          
+          if (geminiRes.ok) {
+            const data = await geminiRes.json();
+            replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          }
+        } catch (e) {
+          console.warn("Gemini API call failed, falling back to Pollinations:", e);
+        }
       }
 
-      setMessages((prev) => [...prev, botResponse]);
-    }, 1000);
+      if (!replyText) {
+        const response = await fetch("https://text.pollinations.ai/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: [
+              { role: "system", content: "You are an expert AI Study Buddy for SkillSphere. Help the user learn programming, UI/UX design, or data science. Keep responses highly educational, concise, and professional." },
+              { role: "user", content: text }
+            ],
+            model: "openai"
+          }),
+          signal: controller.signal
+        });
+        
+        if (response.ok) {
+          replyText = await response.text();
+        }
+      }
+      clearTimeout(timeoutId);
+
+      if (!replyText) {
+        replyText = `I have analyzed "${text}". Focus on modular design, practice writing clean code, and test with edge cases to verify performance!`;
+      }
+
+      const botMsgText = replyText.trim();
+      const botMsg = {
+        sender: "bot",
+        text: botMsgText,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      setMessages((prev) =>
+        prev.map(m => m.isTyping ? {
+          id: m.id,
+          ...botMsg,
+          followUps: ["Explain in simple terms", "Give a code example", "Suggest next steps"]
+        } : m)
+      );
+
+      // Save bot response to database
+      try {
+        await authenticatedFetch(`${API_URL}/api/ai/messages`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(botMsg)
+        });
+      } catch (e) {}
+
+    } catch (err) {
+      clearTimeout(timeoutId);
+      console.warn("AI Chat API error, falling back to local responder:", err);
+      
+      const botMsgFallback = {
+        sender: "bot",
+        text: `Here is a clear breakdown for "${text}":\n\n1. Key Principle: Focus on modular design and core concepts.\n2. Implementation: Apply clean code practices with optimal data structures.\n3. Try testing with edge cases to verify performance!`,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      setMessages((prev) =>
+        prev.map(m => m.isTyping ? {
+          id: m.id,
+          ...botMsgFallback,
+          followUps: ["Explain in simple terms", "Give a code example"]
+        } : m)
+      );
+
+      // Save bot response to database
+      try {
+        await authenticatedFetch(`${API_URL}/api/ai/messages`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(botMsgFallback)
+        });
+      } catch (e) {}
+    }
   };
 
   const triggerVoiceInput = () => {
@@ -741,9 +734,14 @@ function executeTask(input) {
               <h2>🤖 AI Study Buddy ✨</h2>
               <p>Your intelligent learning companion. Ask anything, learn everything!</p>
             </div>
-            <button className="btnStudyHistory" onClick={() => setActiveModal("history")}>
-              <FaHistory /> Study Buddy History
-            </button>
+            <div style={{ display: "flex", gap: "10px" }}>
+              <button className="btnStudyHistory" onClick={handleClearHistory} style={{ background: "#EF4444", color: "#FFF" }}>
+                🗑️ Clear History
+              </button>
+              <button className="btnStudyHistory" onClick={() => setActiveModal("history")}>
+                <FaHistory /> Study Buddy History
+              </button>
+            </div>
           </div>
 
           {/* 3-COLUMN WORKSPACE GRID */}

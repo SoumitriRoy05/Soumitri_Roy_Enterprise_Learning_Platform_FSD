@@ -15,11 +15,18 @@ import com.skillsphere.backend.model.Quest;
 import com.skillsphere.backend.repository.QuestRepository;
 import com.skillsphere.backend.model.Course;
 import com.skillsphere.backend.repository.CourseRepository;
+import com.skillsphere.backend.model.Assignment;
+import com.skillsphere.backend.repository.AssignmentRepository;
+import com.skillsphere.backend.model.CodeArenaProblem;
+import com.skillsphere.backend.repository.CodeArenaProblemRepository;
+import com.skillsphere.backend.model.Opportunity;
+import com.skillsphere.backend.repository.OpportunityRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -31,6 +38,9 @@ public class DataInitializer implements CommandLineRunner {
     private final LeaveRequestRepository leaveRequestRepository;
     private final QuestRepository questRepository;
     private final CourseRepository courseRepository;
+    private final AssignmentRepository assignmentRepository;
+    private final CodeArenaProblemRepository codeArenaProblemRepository;
+    private final OpportunityRepository opportunityRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     public DataInitializer(
@@ -41,6 +51,9 @@ public class DataInitializer implements CommandLineRunner {
             LeaveRequestRepository leaveRequestRepository,
             QuestRepository questRepository,
             CourseRepository courseRepository,
+            AssignmentRepository assignmentRepository,
+            CodeArenaProblemRepository codeArenaProblemRepository,
+            OpportunityRepository opportunityRepository,
             BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
@@ -49,6 +62,9 @@ public class DataInitializer implements CommandLineRunner {
         this.leaveRequestRepository = leaveRequestRepository;
         this.questRepository = questRepository;
         this.courseRepository = courseRepository;
+        this.assignmentRepository = assignmentRepository;
+        this.codeArenaProblemRepository = codeArenaProblemRepository;
+        this.opportunityRepository = opportunityRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -112,6 +128,88 @@ public class DataInitializer implements CommandLineRunner {
             courseRepository.save(new Course("Python for Data Science", "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop", true, 899, "English", "4.8", "60K+", "Master Pandas, NumPy, Matplotlib, and data analysis techniques using Python."));
             courseRepository.save(new Course("UI/UX Design Masterclass", "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=400&fit=crop", true, 699, "English", "4.9", "22K+", "Learn Figma, design thinking, user research, and build stunning user interfaces."));
             System.out.println("✅ DataInitializer: Seeded default courses");
+        }
+
+        // Seed default assignments
+        if (assignmentRepository.count() == 0) {
+            assignmentRepository.save(new Assignment(
+                "Build a React Todo App", "Project", "React Developer Path • Module 3", "react", "2",
+                "Create a fully functional Todo application in React with filters, persistent local storage, and custom themes.",
+                "Medium", "150 XP", "Individual", "2 days", "Oct 15, 2026", "⚛️", "#00e5ff1b", "#00e5ff"
+            ));
+            assignmentRepository.save(new Assignment(
+                "Data Analysis with Pandas", "Quiz", "Python Data Science • Module 2", "python", "11",
+                "Clean, manipulate, and analyze a real-world dataset of global temperatures using pandas and numpy.",
+                "Hard", "200 XP", "Individual", "5 days", "Oct 18, 2026", "🐼", "#f973161b", "#f97316"
+            ));
+            assignmentRepository.save(new Assignment(
+                "REST API with Node.js", "Project", "Backend Architect Path • Module 4", "node", "7",
+                "Build a secure RESTful API using Node.js, Express, and PostgreSQL with JWT-based authentication.",
+                "Hard", "250 XP", "Individual", "1 week", "Oct 22, 2026", "🟢", "#22c55e1b", "#22c55e"
+            ));
+            assignmentRepository.save(new Assignment(
+                "Redesign Dashboard UI", "Design", "UI/UX Masterclass • Module 1", "uiux", "12",
+                "Create a high-fidelity Figma prototype for a futuristic learning dashboard with interactive dark mode states.",
+                "Medium", "120 XP", "Pair", "3 days", "Oct 16, 2026", "🎨", "#a855f71b", "#a855f7"
+            ));
+            assignmentRepository.save(new Assignment(
+                "JavaScript Quiz Challenge", "Quiz", "JavaScript Basics • Module 1", "javascript", "3",
+                "Solve 20 advanced JavaScript coding snippets under 10 minutes covering closure, hoisting, and event loop.",
+                "Medium", "80 XP", "Individual", "Expired", "Sep 30, 2026", "JS", "#eab3081b", "#eab308"
+            ));
+            assignmentRepository.save(new Assignment(
+                "Video Presentation Project Walkthrough", "Video", "Fullstack Architect • Module 5", "fsd", "1",
+                "Record and submit a 3-minute video presentation (YouTube/Loom URL) showing your system architecture and live walkthrough of your deployed application.",
+                "Medium", "150 XP", "Individual", "4 days", "Oct 17, 2026", "📹", "#ff00c81b", "#ff00c8"
+            ));
+            System.out.println("✅ DataInitializer: Seeded default assignments");
+        }
+
+        if (codeArenaProblemRepository.count() == 0) {
+            seedCodeArenaProblem("Two Sum", "Amazon", "Easy", 20, "58.23%",
+                "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
+                "function twoSum(nums, target) {\n  const map = new Map();\n  for (let i = 0; i < nums.length; i++) {\n    const diff = target - nums[i];\n    if (map.has(diff)) return [map.get(diff), i];\n    map.set(nums[i], i);\n  }\n  return [];\n}", "Arrays");
+
+            seedCodeArenaProblem("Merge Intervals", "Google", "Medium", 50, "41.15%",
+                "Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals.",
+                "function merge(intervals) {\n  intervals.sort((a, b) => a[0] - b[0]);\n  const res = [intervals[0]];\n  for (let i = 1; i < intervals.length; i++) {\n    const last = res[res.length - 1];\n    if (intervals[i][0] <= last[1]) last[1] = Math.max(last[1], intervals[i][1]);\n    else res.push(intervals[i]);\n  }\n  return res;\n}", "Arrays");
+
+            seedCodeArenaProblem("LRU Cache", "Microsoft", "Hard", 100, "22.31%",
+                "Design a data structure that follows the constraints of a Least Recently Used (LRU) cache.",
+                "class LRUCache {\n  constructor(capacity) {\n    this.capacity = capacity;\n    this.map = new Map();\n  }\n  get(key) {\n    if (!this.map.has(key)) return -1;\n    const val = this.map.get(key);\n    this.map.delete(key);\n    this.map.set(key, val);\n    return val;\n  }\n}", "Linked List");
+
+            seedCodeArenaProblem("Sliding Window Maximum", "Adobe", "Hard", 120, "18.12%",
+                "You are given an array of integers nums, there is a sliding window of size k moving from left to right.",
+                "function maxSlidingWindow(nums, k) {\n  const q = [];\n  const res = [];\n  for (let i = 0; i < nums.length; i++) {\n    while (q.length && q[q.length - 1] < nums[i]) q.pop();\n    q.push(nums[i]);\n    if (i >= k - 1) {\n      res.push(q[0]);\n      if (nums[i - k + 1] === q[0]) q.shift();\n    }\n  }\n  return res;\n}", "Heap");
+
+            seedCodeArenaProblem("Rotate Array", "Walmart", "Easy", 15, "64.81%",
+                "Given an integer array nums, rotate the array to the right by k steps, where k is non-negative.",
+                "function rotate(nums, k) {\n  k %= nums.length;\n  nums.unshift(...nums.splice(nums.length - k));\n}", "Arrays");
+
+            seedCodeArenaProblem("Trapping Rain Water", "Amazon", "Hard", 150, "20.45%",
+                "Given n non-negative integers representing an elevation map where width of each bar is 1, compute how much water it can trap after raining.",
+                "function trap(height) {\n  let left = 0, right = height.length - 1, res = 0;\n  let maxLeft = 0, maxRight = 0;\n  while (left < right) {\n    if (height[left] <= height[right]) {\n      if (height[left] >= maxLeft) maxLeft = height[left];\n      else res += maxLeft - height[left];\n      left++;\n    } else {\n      if (height[right] >= maxRight) maxRight = height[right];\n      else res += maxRight - height[right];\n      right--;\n    }\n  }\n  return res;\n}", "DP");
+
+            seedCodeArenaProblem("Valid Anagram", "Meta", "Easy", 15, "68.90%",
+                "Given two strings s and t, return true if t is an anagram of s, and false otherwise.",
+                "function isAnagram(s, t) {\n  if (s.length !== t.length) return false;\n  const count = {};\n  for (let c of s) count[c] = (count[c] || 0) + 1;\n  for (let c of t) {\n    if (!count[c]) return false;\n    count[c]--;\n  }\n  return true;\n}", "Strings");
+
+            seedCodeArenaProblem("Binary Tree Level Order Traversal", "Goldman Sachs", "Medium", 60, "52.10%",
+                "Given the root of a binary tree, return the level order traversal of its nodes' values.",
+                "function levelOrder(root) {\n  if (!root) return [];\n  const res = [], q = [root];\n  while (q.length) {\n    const size = q.length, level = [];\n    for (let i = 0; i < size; i++) {\n      const curr = q.shift();\n      level.push(curr.val);\n      if (curr.left) q.push(curr.left);\n      if (curr.right) q.push(curr.right);\n    }\n    res.push(level);\n  }\n  return res;\n}", "Trees");
+
+            seedCodeArenaProblem("Longest Consecutive Sequence", "Amazon", "Medium", 75, "48.20%",
+                "Given an unsorted array of integers nums, return the length of the longest consecutive elements sequence.",
+                "function longestConsecutive(nums) {\n  const set = new Set(nums);\n  let max = 0;\n  for (let num of set) {\n    if (!set.has(num - 1)) {\n      let curr = num;\n      let count = 1;\n      while (set.has(curr + 1)) {\n        curr++;\n        count++;\n      }\n      max = Math.max(max, count);\n    }\n  }\n  return max;\n}", "Arrays");
+
+            System.out.println("✅ DataInitializer: Seeded default CodeArena problems");
+        }
+
+        if (opportunityRepository.count() == 0) {
+            opportunityRepository.save(new Opportunity("Software Development Intern", "Microsoft", "Internship", "❖", "#0078D4", "Work on real-world projects with Azure and .NET backend architectures.", "Hyderabad, India", "2h ago"));
+            opportunityRepository.save(new Opportunity("STEP Intern 2025", "Google", "Internship", "G", "#EA4335", "STEP is a developmental internship for first and second-year undergraduate students.", "Bangalore, India", "5h ago"));
+            opportunityRepository.save(new Opportunity("Smart India Hackathon 2025", "National Level", "Hackathon", "IN", "#F97316", "SIH is a nationwide initiative to provide students with a platform to solve some of the pressing problems.", "Online / Hybrid", "1d ago"));
+            System.out.println("✅ DataInitializer: Seeded default opportunities");
         }
     }
 
@@ -179,5 +277,18 @@ public class DataInitializer implements CommandLineRunner {
         postRepository.save(post4);
 
         System.out.println("✅ DataInitializer: Seeded default discussions posts");
+    }
+
+    private void seedCodeArenaProblem(String title, String company, String difficulty, Integer xpVal, String acceptance, String description, String starterCode, String topic) {
+        CodeArenaProblem prob = new CodeArenaProblem();
+        prob.setTitle(title);
+        prob.setCompany(company);
+        prob.setDifficulty(difficulty);
+        prob.setXpVal(xpVal);
+        prob.setAcceptance(acceptance);
+        prob.setDescription(description);
+        prob.setStarterCode(starterCode);
+        prob.setTopic(topic);
+        codeArenaProblemRepository.save(prob);
     }
 }
