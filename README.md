@@ -422,11 +422,88 @@ git push origin feature/NewFeature
 
 ---
 
-# 👨‍💻 Team
+---
 
-**SkillSphere Development Team**
+# 👨‍💻 Development Team
 
-Developed as a full-stack academic and career development platform integrating AI-powered learning with workforce management.
+<table align="center">
+<tr>
+<td align="center" width="33%">
+
+### 🎨 Frontend Development
+
+**Soumitri Roy**
+
+- UI/UX Design
+- React.js Development
+- Student Portal
+- Workforce Portal
+- Dashboard Design
+- Responsive Interface
+- Frontend Integration
+
+</td>
+
+<td align="center" width="33%">
+
+### 🎨 Frontend Development
+
+**Tanu Kashyap**
+
+- React.js Development
+- UI/UX Components
+- Dashboard Design
+- Frontend Integration
+- Student Portal
+- Admin Portal
+- Styling & User Experience
+
+</td>
+
+<td align="center" width="33%">
+
+### ⚙️ Backend Development
+
+**Shabira Begum**
+
+- Spring Boot Development
+- REST APIs
+- Database Integration
+- Authentication
+- Backend Architecture
+
+</td>
+</tr>
+</table>
+
+<br>
+
+<div align="center">
+
+### 🤖 AI Chatbot Integration
+
+| Developer | Contribution |
+|------------|--------------|
+| **Soumitri Roy** | AI Chatbot Integration & Frontend Integration |
+| **Shabira Begum** | Backend API Integration & AI Services |
+
+</div>
+
+---
+
+## 📌 Project Responsibilities
+
+| Module | Developer(s) |
+|---------|--------------|
+| 🎨 Frontend Development | **Soumitri Roy**, **Tanu Kashyap** |
+| ⚙️ Backend Development | **Shabira Begum** |
+| 💼 Admin Portal | **Tanu Kashyap** |
+| 🤖 AI Chatbot Integration | **Soumitri Roy**, **Shabira Begum** |
+| 🎓 Student Portal | **Soumitri Roy** ,**Tanu Kashyap**|
+| 💼 Workforce Portal | **Soumitri Roy** |
+| 🔐 Authentication | **Shabira Begum** |
+| 🌐 REST API Development | **Shabira Begum** |
+| 🎯 UI/UX Design | **Soumitri Roy**, **Tanu Kashyap** |
 
 ---
 
