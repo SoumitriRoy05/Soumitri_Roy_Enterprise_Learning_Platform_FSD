@@ -133,7 +133,8 @@ export default function AdminDashboard() {
           <SidebarBtn icon={<FiGrid />} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
           <SidebarBtn icon={<FiUsers />} label="Student Management" hasChevron active={activeTab === 'students'} onClick={() => setActiveTab('students')} />
           <SidebarBtn icon={<FiBriefcase />} label="Workforce Management" hasChevron active={activeTab === 'workforce'} onClick={() => setActiveTab('workforce')} />
-          <SidebarBtn icon={<FiBook />} label="Courses" active={activeTab === 'courses'} onClick={() => setActiveTab('courses')} />
+          <SidebarBtn icon={<FiBook />} label="Courses (Admin)" active={activeTab === 'courses'} onClick={() => setActiveTab('courses')} />
+          <SidebarBtn icon={<FiBook />} label="Course Creator Page" active={false} onClick={() => navigate("/course-management")} />
           <SidebarBtn 
             icon={<FiClock />} 
             label="Course Approvals" 

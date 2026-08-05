@@ -847,9 +847,11 @@ export default function WorkforceDashboard() {
     { id: "Attendance", label: "Attendance", icon: <FaClock /> },
     { id: "Engagement", label: "Engagement", icon: <FaHeart /> },
     { id: "Reports", label: "Reports & Analytics", icon: <FaChartBar /> },
+    { id: "ExecutiveDashboard", label: "Executive Dashboard", icon: <FaChartBar /> },
     { id: "AI Assistant", label: "SphereHR AI", icon: <FaRobot /> },
     { id: "Settings", label: "Workforce Settings", icon: <FaCog /> },
   ];
+
 
   const lineChartData = {
     active: [
@@ -940,13 +942,20 @@ export default function WorkforceDashboard() {
             <button
               key={item.id}
               className={`wf-nav-item ${activeTab === item.id ? "active" : ""}`}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => {
+                if (item.id === "ExecutiveDashboard") {
+                  navigate("/executive-dashboard");
+                } else {
+                  setActiveTab(item.id);
+                }
+              }}
             >
               <span className="wf-nav-icon">{item.icon}</span>
               <span>{item.label}</span>
             </button>
           ))}
         </nav>
+
 
         {/* Sidebar Promo Card (Uses distinct graphic image based on activeTab) */}
         <div className="wf-sidebar-promo">

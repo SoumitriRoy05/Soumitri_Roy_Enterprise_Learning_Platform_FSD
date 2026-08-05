@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Background from "../components/Background";
@@ -92,16 +92,34 @@ export default function StudentHome() {
 
   const userEnrolledCount = activeEnrolledIds.length;
 
-  // Real Dynamic Earned Certificates Count
-  const localEarnedCerts = (() => {
-    try {
-      const stored = localStorage.getItem(`skillsphere_earned_certs_${userKey}`);
-      return stored ? JSON.parse(stored) : (isDemoUser ? ["react_"] : []);
-    } catch (e) {
-      return isDemoUser ? ["react_"] : [];
-    }
-  })();
-  const earnedCertsCount = localEarnedCerts.length;
+  // Real Dynamic Earned Certificates Count from database
+  const [earnedCertsCount, setEarnedCertsCount] = useState(isDemoUser ? 1 : 0);
+
+  useEffect(() => {
+    const fetchClaimedCerts = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) return;
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        const res = await fetch(`${API_URL}/api/certificates`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok && data.certificates) {
+          setEarnedCertsCount(data.certificates.length);
+        } else {
+          const local = localStorage.getItem(`skillsphere_earned_certs_${userKey}`);
+          const parsed = local ? JSON.parse(local) : (isDemoUser ? ["react_"] : []);
+          setEarnedCertsCount(parsed.length);
+        }
+      } catch (err) {
+        const local = localStorage.getItem(`skillsphere_earned_certs_${userKey}`);
+        const parsed = local ? JSON.parse(local) : (isDemoUser ? ["react_"] : []);
+        setEarnedCertsCount(parsed.length);
+      }
+    };
+    fetchClaimedCerts();
+  }, [user, userKey, isDemoUser]);
 
   // Real Dynamic Badges Earned Count
   const localEarnedBadges = (() => {
@@ -214,6 +232,14 @@ export default function StudentHome() {
   // Exact 1-to-1 Sidebar Items matching screenshot
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
+    { id: "student-profile", label: "Student Profile", icon: <FaAward /> },
+    { id: "services-catalog", label: "Services & Catalog", icon: <FaBook /> },
+    { id: "assessments", label: "Assessments", icon: <FaBolt /> },
+    { id: "certification-tracking", label: "Cert Tracking", icon: <FaCertificate /> },
+    { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
+    { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
+    { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
+    { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
@@ -223,8 +249,7 @@ export default function StudentHome() {
     { id: "certificates", label: "Certificates", icon: <FaCertificate /> },
     { id: "progress", label: "Progress", icon: <FaChartLine /> },
     { id: "resume", label: "Resume Builder", icon: <FaFileInvoice /> },
-    { id: "code-arena", label: "CodeArena", icon: <FaCode />, isNew: true },
-    { id: "settings", label: "Settings", icon: <FaCog /> }
+    { id: "code-arena", label: "CodeArena", icon: <FaCode />, isNew: true }
   ];
 
   return (
@@ -242,6 +267,7 @@ export default function StudentHome() {
               <span>SkillSphere</span>
             </Link>
 
+            
             {/* Connected Arch Line & Orange Circular Home Button Header */}
             <div className="sdSidebarHomeArchHeader">
               <div className="sdArchLine" />
@@ -261,8 +287,7 @@ export default function StudentHome() {
                   <button
                     className={`sdNavItem ${activeTab === item.id ? "active" : ""}`}
                     onClick={() => {
-                      if (item.id === "settings") navigate("/settings");
-                      else if (item.id === "courses") navigate("/courses");
+                      if (item.id === "courses") navigate("/courses");
                       else if (item.id === "learning-paths") navigate("/learning-paths");
                       else if (item.id === "assignments") navigate("/assignments");
                       else if (item.id === "ai-buddy") navigate("/ai-buddy");
@@ -274,6 +299,14 @@ export default function StudentHome() {
                       else if (item.id === "daily-quests") navigate("/daily-quests");
                       else if (item.id === "resume") navigate("/resume");
                       else if (item.id === "code-arena") navigate("/code-arena");
+                      else if (item.id === "student-profile") navigate("/student-profile");
+                      else if (item.id === "services-catalog") navigate("/services-catalog");
+                      else if (item.id === "assessments") navigate("/assessments");
+                      else if (item.id === "certification-tracking") navigate("/certification-tracking");
+                      else if (item.id === "tracking-dashboard") navigate("/tracking-dashboard");
+                      else if (item.id === "complaint-tracking") navigate("/complaint-tracking");
+                      else if (item.id === "career-roadmap") navigate("/career-roadmap");
+                      else if (item.id === "job-search") navigate("/job-search");
                       else setActiveTab(item.id);
                     }}
                   >
@@ -352,7 +385,7 @@ export default function StudentHome() {
                       <strong>{userName}</strong>
                       <span>Student Account</span>
                     </div>
-                    <div className="dropdownItem" onClick={() => { setIsUserMenuOpen(false); navigate("/settings"); }}>
+                     <div className="dropdownItem" onClick={() => { setIsUserMenuOpen(false); navigate("/student-profile"); }}>
                       👤 Profile Settings
                     </div>
                     <div className="dropdownItem" onClick={() => { setIsUserMenuOpen(false); navigate("/certificate"); }}>
@@ -578,7 +611,7 @@ export default function StudentHome() {
                     <div className="careerCardLeft">
                       <h3>Build Your Career Ready Profile</h3>
                       <p>Create a professional resume, showcase your skills and stand out to top recruiters.</p>
-                      <button className="btnCreateResume" onClick={() => navigate("/settings")}>
+                       <button className="btnCreateResume" onClick={() => navigate("/student-profile")}>
                         Create Profile
                       </button>
                     </div>
@@ -768,7 +801,7 @@ export default function StudentHome() {
                         <span>Browse Courses</span>
                       </div>
 
-                      <div className="sdQuickActionItem" onClick={() => navigate("/settings")}>
+                      <div className="sdQuickActionItem" onClick={() => navigate("/resume")}>
                         <div className="sdQuickActionIcon"><FaFileInvoice /></div>
                         <span>Resume Builder</span>
                       </div>

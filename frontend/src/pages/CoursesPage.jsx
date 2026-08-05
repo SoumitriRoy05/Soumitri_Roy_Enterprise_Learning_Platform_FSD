@@ -92,10 +92,16 @@ export default function CoursesPage() {
 
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
+    { id: "student-profile", label: "Student Profile", icon: <FaAward /> },
+    { id: "services-catalog", label: "Services & Catalog", icon: <FaBook /> },
+    { id: "assessments", label: "Assessments", icon: <FaBolt /> },
+    { id: "certification-tracking", label: "Cert Tracking", icon: <FaCertificate /> },
+    { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
+    { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
+    { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
+    { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "assignments", label: "Assignments", icon: <FaFileAlt /> },
-    { id: "discussions", label: "Discussions", icon: <FaComments /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
     { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
     { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
@@ -103,8 +109,7 @@ export default function CoursesPage() {
     { id: "certificates", label: "Certificates", icon: <FaCertificate /> },
     { id: "progress", label: "Progress", icon: <FaChartLine /> },
     { id: "resume", label: "Resume Builder", icon: <FaFileInvoice /> },
-    { id: "code-arena", label: "CodeArena", icon: <FaCode />, isNew: true },
-    { id: "settings", label: "Settings", icon: <FaCog /> }
+    { id: "code-arena", label: "CodeArena", icon: <FaCode />, isNew: true }
   ];
 
   const rawCourses = [
@@ -536,20 +541,15 @@ export default function CoursesPage() {
                     className={`sdNavItem ${item.id === "courses" ? "active" : ""}`}
                     onClick={() => {
                       if (item.id === "dashboard") navigate("/student-home");
-                      else if (item.id === "courses") navigate("/courses");
-                      else if (item.id === "learning-paths") navigate("/learning-paths");
-                      else if (item.id === "assignments") navigate("/assignments");
-                      else if (item.id === "discussions") navigate("/discussions");
-                      else if (item.id === "ai-buddy") navigate("/ai-buddy");
-                      else if (item.id === "opportunity-feed") navigate("/opportunity-feed");
-                      else if (item.id === "daily-quests") navigate("/daily-quests");
-                      else if (item.id === "badges") navigate("/badges");
-                      else if (item.id === "certificates") navigate("/certificate");
-                      else if (item.id === "progress") navigate("/progress");
-                      else if (item.id === "resume") navigate("/resume");
-                      else if (item.id === "code-arena") navigate("/code-arena");
-                      else if (item.id === "settings") navigate("/settings");
-                      else navigate("/student-home");
+                      else if (item.id === "student-profile") navigate("/student-profile");
+                      else if (item.id === "services-catalog") navigate("/services-catalog");
+                      else if (item.id === "assessments") navigate("/assessments");
+                      else if (item.id === "certification-tracking") navigate("/certification-tracking");
+                      else if (item.id === "tracking-dashboard") navigate("/tracking-dashboard");
+                      else if (item.id === "complaint-tracking") navigate("/complaint-tracking");
+                      else if (item.id === "career-roadmap") navigate("/career-roadmap");
+                      else if (item.id === "job-search") navigate("/job-search");
+                      else navigate(`/${item.id}`);
                     }}
                   >
                     <span className="navIcon">{item.icon}</span>
@@ -571,7 +571,7 @@ export default function CoursesPage() {
                 {isDarkMode ? <FaSun /> : <FaMoon />}
               </button>
               <span className="sdControlDivider">|</span>
-              <button className="sdCollapseBtn">
+              <button className="sdCollapseBtn" onClick={() => navigate(-1)}>
                 <FaArrowLeft />
               </button>
             </div>
@@ -771,7 +771,9 @@ export default function CoursesPage() {
                       <button
                         className={`btnCourseCardAction ${c.status}`}
                         onClick={() => {
-                          if (c.status === "locked" || c.status === "not-started") {
+                          if (c.status === "completed") {
+                            navigate("/assessments");
+                          } else if (c.status === "locked" || c.status === "not-started") {
                             openCheckoutModal(c);
                           } else {
                             const trackKey = c.bannerType === "code" ? "javascript" : c.bannerType === "figma" ? "uiux" : c.bannerType === "system" ? "fsd" : c.bannerType;
@@ -780,7 +782,7 @@ export default function CoursesPage() {
                         }}
                       >
                         {c.status === "completed"
-                          ? "Review Course"
+                          ? "Take Exam"
                           : c.status === "locked"
                           ? "Unlock Course"
                           : c.status === "not-started"

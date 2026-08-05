@@ -19,7 +19,6 @@ import WorkforceFeatures from "./pages/WorkforceFeatures";
 import SandboxPage from "./pages/SandboxPage";
 import CoursesPage from "./pages/CoursesPage";
 import CertificatesPage from "./pages/CertificatesPage";
-import ProfileSettingsPage from "./pages/ProfileSettingsPage";
 import ProgressPage from "./pages/ProgressPage";
 import TeamSpace from "./pages/TeamSpace";
 import FloatingChatbot from "./components/FloatingChatbot";
@@ -37,6 +36,18 @@ import ResumeBuilderPage from "./pages/ResumeBuilderPage";
 import DailyQuestsPage from "./pages/DailyQuestsPage";
 import CodeArenaPage from "./pages/CodeArenaPage";
 import FlashcardsPage from "./pages/FlashcardsPage";
+
+import StudentProfilePage from "./pages/StudentProfilePage";
+import ServicesCatalogPage from "./pages/ServicesCatalogPage";
+import AssessmentsPage from "./pages/AssessmentsPage";
+import CertificationTrackingPage from "./pages/CertificationTrackingPage";
+import CourseManagementPage from "./pages/CourseManagementPage";
+import TrackingDashboardPage from "./pages/TrackingDashboardPage";
+import ComplaintRenewalTrackingPage from "./pages/ComplaintRenewalTrackingPage";
+import CareerRoadmapPage from "./pages/CareerRoadmapPage";
+import ExecutiveDashboardPage from "./pages/ExecutiveDashboardPage";
+import JobSearchPage from "./pages/JobSearchPage";
+
 
 function AdminProtectedRoute({ children }) {
   const { isAdminAuth } = useAdmin();
@@ -113,7 +124,7 @@ function App() {
         <Route path="/team-space"   element={<ProtectedRoute><TeamSpace /></ProtectedRoute>} />
         <Route path="/resources" element={<Navigate to="/student-home" replace />} />
         <Route path="/certificate" element={<ProtectedRoute><CertificatesPage /></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><ProfileSettingsPage /></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><StudentProfilePage /></ProtectedRoute>} />
         <Route path="/progress" element={<ProtectedRoute><ProgressPage /></ProtectedRoute>} />
         <Route path="/learning-paths" element={<ProtectedRoute><LearningPathsPage /></ProtectedRoute>} />
         <Route path="/assignments" element={<Navigate to="/student-home" replace />} />
@@ -128,6 +139,19 @@ function App() {
         <Route path="/code-arena" element={<ProtectedRoute><CodeArenaPage /></ProtectedRoute>} />
         <Route path="/flashcards" element={<ProtectedRoute><FlashcardsPage /></ProtectedRoute>} />
         <Route path="/create-flashcards" element={<ProtectedRoute><FlashcardsPage /></ProtectedRoute>} />
+        
+        {/* New Pages Routes */}
+        <Route path="/student-profile" element={<ProtectedRoute><StudentProfilePage /></ProtectedRoute>} />
+        <Route path="/services-catalog" element={<ProtectedRoute><ServicesCatalogPage /></ProtectedRoute>} />
+        <Route path="/assessments" element={<ProtectedRoute><AssessmentsPage /></ProtectedRoute>} />
+        <Route path="/certification-tracking" element={<ProtectedRoute><CertificationTrackingPage /></ProtectedRoute>} />
+        <Route path="/course-management" element={<ProtectedRoute><CourseManagementPage /></ProtectedRoute>} />
+        <Route path="/tracking-dashboard" element={<ProtectedRoute><TrackingDashboardPage /></ProtectedRoute>} />
+        <Route path="/complaint-tracking" element={<ProtectedRoute><ComplaintRenewalTrackingPage /></ProtectedRoute>} />
+        <Route path="/career-roadmap" element={<ProtectedRoute><CareerRoadmapPage /></ProtectedRoute>} />
+        <Route path="/executive-dashboard" element={<ProtectedRoute><ExecutiveDashboardPage /></ProtectedRoute>} />
+        <Route path="/job-search" element={<ProtectedRoute><JobSearchPage /></ProtectedRoute>} />
+
       </Routes>
       {!isDashboardRoute && <FloatingChatbot />}
     </>
