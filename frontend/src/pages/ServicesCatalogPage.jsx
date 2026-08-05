@@ -66,22 +66,22 @@ export default function ServicesCatalogPage() {
     { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
-    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
+    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },
+    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket /> },
     { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
     { id: "badges", label: "Badges", icon: <FaAward /> },
     { id: "certificates", label: "Certificates", icon: <FaCertificate /> },
     { id: "progress", label: "Progress", icon: <FaChartLine /> },
     { id: "resume", label: "Resume Builder", icon: <FaFileInvoice /> },
-    { id: "code-arena", label: "CodeArena", icon: <FaCode />, isNew: true }
+    { id: "code-arena", label: "CodeArena", icon: <FaCode /> }
   ];
 
   const premiumServices = [
-    { id: "mentor", title: "1-on-1 Live Mentorship", desc: "Book an intensive 45-minute live review with leading FAANG engineers and designers.", price: "$49 / session", icon: "🧑‍🏫", tag: "Hot" },
-    { id: "resume", title: "Priority Resume Critique", desc: "Industry-grade reviews of your resume & GitHub portfolio highlighting gaps to close.", price: "$29 / review", icon: "📄", tag: "Popular" },
-    { id: "interview", title: "Interactive Mock Interviews", desc: "Rigorous technical or behavioral mock interview with actionable feedback reports.", price: "$79 / session", icon: "💬", tag: "Recommended" },
-    { id: "eval", title: "Direct Code/Design Audits", desc: "Have a Senior Architect deep-dive review your projects, APIs, and folder structure.", price: "$59 / audit", icon: "🔍", tag: "New" },
-    { id: "doubts", title: "Urgent Doubt Clearance", desc: "Connect within minutes with a teaching assistant to unblock coding issues.", price: "$15 / ticket", icon: "⚡", tag: "On-demand" }
+    { id: "mentor", title: "1-on-1 Live Mentorship", desc: "Book an intensive 45-minute live review with leading FAANG engineers and designers.", price: "₹1,499 / session", rawPrice: 1499, icon: "🧑‍🏫", tag: "Hot" },
+    { id: "resume", title: "Priority Resume Critique", desc: "Industry-grade reviews of your resume & GitHub portfolio highlighting gaps to close.", price: "₹799 / review", rawPrice: 799, icon: "📄", tag: "Popular" },
+    { id: "interview", title: "Interactive Mock Interviews", desc: "Rigorous technical or behavioral mock interview with actionable feedback reports.", price: "₹2,499 / session", rawPrice: 2499, icon: "💬", tag: "Recommended" },
+    { id: "eval", title: "Direct Code/Design Audits", desc: "Have a Senior Architect deep-dive review your projects, APIs, and folder structure.", price: "₹1,299 / audit", rawPrice: 1299, icon: "🔍", tag: "New" },
+    { id: "doubts", title: "Urgent Doubt Clearance", desc: "Connect within minutes with a teaching assistant to unblock coding issues.", price: "₹399 / ticket", rawPrice: 399, icon: "⚡", tag: "On-demand" }
   ];
 
   const isAlreadyBooked = (serviceTitle) => {
@@ -106,39 +106,58 @@ export default function ServicesCatalogPage() {
     e.preventDefault();
     if (!bookingDate || !bookingTime) return;
     
+    const userKey = user?.email || user?.username || "student@skillsphere.com";
+    const userName = user?.full_name || user?.username || user?.name || "Student User";
+
     const newBooking = {
+      id: `SB-${Date.now()}`,
       serviceId: selectedService.id,
       serviceTitle: selectedService.title,
+      price: selectedService.price,
+      rawPrice: selectedService.rawPrice || 999,
+      studentName: userName,
+      studentEmail: userKey,
       date: bookingDate,
       time: bookingTime,
-      status: "scheduled"
+      status: "scheduled",
+      bookedAt: new Date().toLocaleString()
     };
 
+    // 1. Try sending to Spring Boot Backend API
     try {
       if (authenticatedFetch) {
-        const response = await authenticatedFetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/bookings/create`, {
+        await authenticatedFetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/bookings/create`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newBooking),
+          body: JSON.stringify({
+            serviceId: selectedService.id,
+            serviceTitle: selectedService.title,
+            date: bookingDate,
+            time: bookingTime
+          }),
         });
-        const data = await response.json();
-        if (response.ok && data.success) {
-          setBookings([data.booking, ...bookings]);
-        } else {
-          // fallback local storage
-          const local = JSON.parse(localStorage.getItem(`skillsphere_bookings_${user?.email || "guest"}`) || "[]");
-          local.push(newBooking);
-          localStorage.setItem(`skillsphere_bookings_${user?.email || "guest"}`, JSON.stringify(local));
-          setBookings([newBooking, ...bookings]);
-        }
       }
     } catch (err) {
-      const local = JSON.parse(localStorage.getItem(`skillsphere_bookings_${user?.email || "guest"}`) || "[]");
-      local.push(newBooking);
-      localStorage.setItem(`skillsphere_bookings_${user?.email || "guest"}`, JSON.stringify(local));
-      setBookings([newBooking, ...bookings]);
+      console.warn("Backend booking API notice:", err);
     }
-    
+
+    // 2. Always sync with shared Admin & Local Storage
+    try {
+      const allAdminBookings = JSON.parse(localStorage.getItem("skillsphere_admin_service_bookings") || "[]");
+      allAdminBookings.unshift(newBooking);
+      localStorage.setItem("skillsphere_admin_service_bookings", JSON.stringify(allAdminBookings));
+
+      const localUserBookings = JSON.parse(localStorage.getItem(`skillsphere_bookings_${userKey}`) || "[]");
+      localUserBookings.unshift(newBooking);
+      localStorage.setItem(`skillsphere_bookings_${userKey}`, JSON.stringify(localUserBookings));
+
+      // Trigger custom sync event for all tabs (Admin & Student)
+      window.dispatchEvent(new CustomEvent("skillsphere_sync_event"));
+    } catch (e) {
+      console.error("LocalStorage save error:", e);
+    }
+
+    setBookings(prev => [newBooking, ...prev]);
     setBookingSuccess(true);
     setTimeout(() => {
       setSelectedService(null);
@@ -319,7 +338,7 @@ export default function ServicesCatalogPage() {
 
       {/* Booking Form Modal */}
       {selectedService && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyCenter: "center", zIndex: 1000, padding: "20px" }}>
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: "20px" }}>
           <div style={{ background: "var(--bg-secondary)", border: "1px solid var(--border-color)", padding: "30px", borderRadius: "16px", maxWidth: "450px", width: "100%", margin: "auto", position: "relative" }}>
             <button style={{ position: "absolute", top: "16px", right: "16px", background: "none", border: "none", color: "var(--text-primary)", fontSize: "18px", cursor: "pointer" }} onClick={() => setSelectedService(null)}><FaTimes /></button>
             

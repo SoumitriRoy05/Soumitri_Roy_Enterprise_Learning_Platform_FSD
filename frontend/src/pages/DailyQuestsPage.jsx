@@ -24,6 +24,7 @@ import {
   FaBell,
   FaRobot,
   FaRocket,
+  FaMapSigns,
   FaCheckCircle,
   FaSun,
   FaMoon,
@@ -154,20 +155,27 @@ export default function DailyQuestsPage() {
     }
   };
 
-  // Nav items (EVENTS & WEBINARS REMOVED AS DIRECTED)
+  // Nav items
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
+    { id: "student-profile", label: "Student Profile", icon: <FaAward /> },
+    { id: "services-catalog", label: "Services & Catalog", icon: <FaBook /> },
+    { id: "assessments", label: "Assessments", icon: <FaBolt /> },
+    { id: "certification-tracking", label: "Cert Tracking", icon: <FaCertificate /> },
+    { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
+    { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
+    { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
+    { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
-    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
+    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },
+    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket /> },
     { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
     { id: "badges", label: "Badges", icon: <FaAward /> },
     { id: "certificates", label: "Certificates", icon: <FaCertificate /> },
     { id: "progress", label: "Progress", icon: <FaChartLine /> },
     { id: "resume", label: "Resume Builder", icon: <FaFileInvoice /> },
-    { id: "code-arena", label: "CodeArena", icon: <FaCode />, isNew: true },
-    { id: "settings", label: "Settings", icon: <FaCog /> }
+    { id: "code-arena", label: "CodeArena", icon: <FaCode /> }
   ];
 
   return (
@@ -209,6 +217,7 @@ export default function DailyQuestsPage() {
                       else if (item.id === "assignments") navigate("/assignments");
                       else if (item.id === "discussions") navigate("/discussions");
                       else if (item.id === "ai-buddy") navigate("/ai-buddy");
+                      else if (item.id === "career-roadmap") navigate("/career-roadmap");
                       else if (item.id === "opportunity-feed") navigate("/opportunity-feed");
                       else if (item.id === "daily-quests") navigate("/daily-quests");
                       else if (item.id === "badges") navigate("/badges");
@@ -222,7 +231,6 @@ export default function DailyQuestsPage() {
                   >
                     <span className="navIcon">{item.icon}</span>
                     <span className="navLabel">{item.label}</span>
-                    {item.isNew && <span className="navNewBadge">New</span>}
                   </button>
                 </li>
               ))}
@@ -330,7 +338,7 @@ export default function DailyQuestsPage() {
                 <div className="metricDetailsText">
                   <strong>{completedCount}/6 Quests</strong>
                   <span className="sub">Quests Completed</span>
-                  <div className="xpEarnedToday">⭐ +120 XP earned today</div>
+                  <div className="xpEarnedToday">⭐ +{completedCount * 30} XP earned today</div>
                 </div>
               </div>
             </div>
@@ -342,9 +350,9 @@ export default function DailyQuestsPage() {
               <div className="metricContentRow">
                 <div className="streakFlameIcon">🔥</div>
                 <div className="metricDetailsText">
-                  <strong className="streakNumber">0</strong>
-                  <span className="sub">Days</span>
-                  <div className="bestStreakSub">🏆 Best Streak: 0 days</div>
+                  <strong className="streakNumber">{user?.streak || 5}</strong>
+                  <span className="sub">Active Days</span>
+                  <div className="bestStreakSub">🏆 Best Streak: {user?.longest_streak || 14} days</div>
                 </div>
               </div>
             </div>
@@ -366,8 +374,37 @@ export default function DailyQuestsPage() {
 
           </div>
 
+          {/* 7-DAY WEEKLY STREAK TRACKER BAR */}
+          <div className="sdWhitePanelCard" style={{ padding: "16px 24px", marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ fontSize: "24px" }}>🔥</span>
+              <div>
+                <strong style={{ color: "var(--text-primary)", display: "block" }}>7-Day Streak Calendar</strong>
+                <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>Log in daily to keep your multiplier active</span>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+              {[
+                { day: "Mon", active: true },
+                { day: "Tue", active: true },
+                { day: "Wed", active: true },
+                { day: "Thu", active: true },
+                { day: "Fri", active: true },
+                { day: "Sat", active: false },
+                { day: "Sun", active: false }
+              ].map((d, i) => (
+                <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+                  <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: d.active ? "var(--accent)" : "var(--bg-secondary)", color: d.active ? "black" : "var(--text-muted)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", fontSize: "14px", border: "1px solid var(--border-color)" }}>
+                    {d.active ? "✓" : d.day.slice(0, 1)}
+                  </div>
+                  <span style={{ fontSize: "11px", color: "var(--text-secondary)" }}>{d.day}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* 2-COLUMN MAIN WORKSPACE GRID */}
-          <div className="dqpGridContainer" style={{ gridTemplateColumns: "minmax(0, 1fr)" }}>
+          <div className="dqpGridContainer" style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: "24px" }}>
             
             {/* CENTER COLUMN: TODAY'S QUESTS LIST */}
             <div className="dqpCenterColumn">
@@ -449,9 +486,7 @@ export default function DailyQuestsPage() {
             </div>
 
             {/* RIGHT COLUMN SIDEBAR WIDGETS */}
-            <div className="dqpRightSidebar" style={{ display: "none" }}>
-              {/* Leaderboard Widget */}
-
+            <div className="dqpRightSidebar">
               {/* Leaderboard Widget */}
              <div className="dqpWidgetCard">
                 <div className="widgetTitleRow">

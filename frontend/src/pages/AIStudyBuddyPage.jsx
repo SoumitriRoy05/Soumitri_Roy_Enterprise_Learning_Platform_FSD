@@ -10,7 +10,7 @@ import FloatingChatbot from "../components/FloatingChatbot";
 import {
   FaHome, FaBook, FaCodeBranch, FaFileAlt, FaComments, FaAward,
   FaCertificate, FaChartLine, FaFileInvoice, FaBolt, FaCog, FaSearch,
-  FaBell, FaRobot, FaRocket, FaMapMarkedAlt, FaSun, FaMoon, FaArrowLeft,
+  FaBell, FaRobot, FaRocket, FaMapMarkedAlt, FaMapSigns, FaSun, FaMoon, FaArrowLeft,
   FaCalendarAlt, FaLightbulb, FaQuestionCircle, FaCode, FaClone,
   FaBriefcase, FaGlobe, FaPaperPlane, FaPlus, FaPaperclip, FaMicrophone,
   FaHistory, FaThumbsUp, FaThumbsDown, FaCopy, FaCheck, FaShareAlt,
@@ -265,17 +265,24 @@ SELECT * FROM Students WHERE xp >= 1000;`
 
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
-    { id: "courses", label: "My Courses", icon: <FaBook /> },
+    { id: "student-profile", label: "Student Profile", icon: <FaAward /> },
+    { id: "services-catalog", label: "Services & Catalog", icon: <FaBook /> },
+    { id: "assessments", label: "Assessments", icon: <FaBolt /> },
+    { id: "certification-tracking", label: "Cert Tracking", icon: <FaCertificate /> },
+    { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
+    { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
+    { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
+    { id: "job-search", label: "Job Search", icon: <FaRocket /> },
+    { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
-    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
-    { id: "quest-map", label: "Quest Map", icon: <FaMapMarkedAlt />, isNew: true },
+    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },
+    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket /> },
     { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
     { id: "badges", label: "Badges", icon: <FaAward /> },
     { id: "certificates", label: "Certificates", icon: <FaCertificate /> },
     { id: "progress", label: "Progress", icon: <FaChartLine /> },
     { id: "resume", label: "Resume Builder", icon: <FaFileInvoice /> },
-    { id: "settings", label: "Settings", icon: <FaCog /> }
+    { id: "code-arena", label: "CodeArena", icon: <FaCode /> }
   ];
 
   const [messages, setMessages] = useState([]);
@@ -659,6 +666,8 @@ SELECT * FROM Students WHERE xp >= 1000;`
                       else if (item.id === "courses") navigate("/courses");
                       else if (item.id === "learning-paths") navigate("/learning-paths");
                       else if (item.id === "assignments") navigate("/assignments");
+                      else if (item.id === "ai-buddy") navigate("/ai-buddy");
+                      else if (item.id === "career-roadmap") navigate("/career-roadmap");
                       else if (item.id === "opportunity-feed") navigate("/opportunity-feed");
                       else if (item.id === "badges") navigate("/badges");
                       else if (item.id === "progress") navigate("/progress");
@@ -672,7 +681,6 @@ SELECT * FROM Students WHERE xp >= 1000;`
                   >
                     <span className="navIcon">{item.icon}</span>
                     <span className="navLabel">{item.label}</span>
-                    {item.isNew && <span className="navNewBadge">New</span>}
                   </button>
                 </li>
               ))}

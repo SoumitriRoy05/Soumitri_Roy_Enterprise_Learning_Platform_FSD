@@ -25,6 +25,7 @@ import {
   FaBell,
   FaRobot,
   FaRocket,
+  FaMapSigns,
   FaCheckCircle,
   FaSun,
   FaMoon,
@@ -69,17 +70,24 @@ export default function CertificatesPage() {
 
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
+    { id: "student-profile", label: "Student Profile", icon: <FaAward /> },
+    { id: "services-catalog", label: "Services & Catalog", icon: <FaBook /> },
+    { id: "assessments", label: "Assessments", icon: <FaBolt /> },
+    { id: "certification-tracking", label: "Cert Tracking", icon: <FaCertificate /> },
+    { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
+    { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
+    { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
+    { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
-    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
+    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },
+    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket /> },
     { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
     { id: "badges", label: "Badges", icon: <FaAward /> },
     { id: "certificates", label: "Certificates", icon: <FaCertificate /> },
     { id: "progress", label: "Progress", icon: <FaChartLine /> },
     { id: "resume", label: "Resume Builder", icon: <FaFileInvoice /> },
-    { id: "code-arena", label: "CodeArena", icon: <FaCode />, isNew: true },
-    { id: "settings", label: "Settings", icon: <FaCog /> }
+    { id: "code-arena", label: "CodeArena", icon: <FaCode /> }
   ];
 
   const allCertificateDefs = [
@@ -475,18 +483,14 @@ export default function CertificatesPage() {
     setTimeout(() => setToastMessage(""), 4000);
   };
 
+  const [isLinkedInModalOpen, setIsLinkedInModalOpen] = useState(false);
+  const [linkedInCert, setLinkedInCert] = useState(null);
+
   // Share on LinkedIn Generator
   const handleShareLinkedIn = (certToShare) => {
     const cert = certToShare || selectedCert;
-    const shareText = encodeURIComponent(
-      `I'm excited to share that I've earned my official Certificate of Completion for "${cert.title}" from SkillSphere! 🚀 Credential ID: ${cert.credentialId || "SS-25-05-NODE4-12345"}`
-    );
-    const linkedInUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${shareText}`;
-    
-    window.open(linkedInUrl, "_blank", "noopener,noreferrer");
-
-    setToastMessage(`💼 Opening LinkedIn to share your "${cert.title}" certificate!`);
-    setTimeout(() => setToastMessage(""), 4000);
+    setLinkedInCert(cert);
+    setIsLinkedInModalOpen(true);
   };
 
   // Copy Verification Link
@@ -538,6 +542,7 @@ export default function CertificatesPage() {
                       else if (item.id === "assignments") navigate("/assignments");
                       else if (item.id === "discussions") navigate("/discussions");
                       else if (item.id === "ai-buddy") navigate("/ai-buddy");
+                      else if (item.id === "career-roadmap") navigate("/career-roadmap");
                       else if (item.id === "opportunity-feed") navigate("/opportunity-feed");
                       else if (item.id === "daily-quests") navigate("/daily-quests");
                       else if (item.id === "badges") navigate("/badges");
@@ -551,7 +556,6 @@ export default function CertificatesPage() {
                   >
                     <span className="navIcon">{item.icon}</span>
                     <span className="navLabel">{item.label}</span>
-                    {item.isNew && <span className="navNewBadge">New</span>}
                   </button>
                 </li>
               ))}
@@ -1056,6 +1060,82 @@ export default function CertificatesPage() {
 
         </div>
       </div>
+
+      {/* LinkedIn Share Modal with Image Preview */}
+      {isLinkedInModalOpen && linkedInCert && (
+        <div className="cpModalBackdrop" onClick={() => setIsLinkedInModalOpen(false)}>
+          <div className="cpModalBox" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "620px", padding: "28px", borderRadius: "16px", background: "var(--bg-panel)", border: "1px solid var(--border-color)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", borderBottom: "1px solid var(--border-color)", paddingBottom: "12px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <FaLinkedin color="#0A66C2" fontSize="26px" />
+                <h3 style={{ margin: 0, color: "var(--text-primary)" }}>Share Certificate on LinkedIn</h3>
+              </div>
+              <button onClick={() => setIsLinkedInModalOpen(false)} style={{ background: "none", border: "none", color: "var(--text-secondary)", fontSize: "20px", cursor: "pointer" }}>
+                <FaTimes />
+              </button>
+            </div>
+
+            {/* LinkedIn Post Card Preview */}
+            <div style={{ background: "var(--bg-secondary)", borderRadius: "12px", padding: "18px", border: "1px solid var(--border-color)", marginBottom: "20px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
+                <div style={{ width: "42px", height: "42px", borderRadius: "50%", background: "#0A66C2", color: "#FFF", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", fontSize: "18px" }}>
+                  {userName.charAt(0)}
+                </div>
+                <div>
+                  <strong style={{ color: "var(--text-primary)", display: "block" }}>{userName}</strong>
+                  <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>Student at SkillSphere Nexus • Just now 🌐</span>
+                </div>
+              </div>
+
+              <p style={{ color: "var(--text-primary)", fontSize: "14px", lineHeight: "1.5", margin: "0 0 16px 0" }}>
+                🎓 Thrilled to announce that I have successfully earned my official Certificate of Completion for <strong>"{linkedInCert.title}"</strong> on SkillSphere Nexus! 🚀
+                <br />
+                <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>Credential ID: <code>{linkedInCert.credentialId || "SS-25-05-NODE4-12345"}</code></span>
+              </p>
+
+              {/* Certificate Image Preview Box */}
+              <div style={{ borderRadius: "10px", overflow: "hidden", border: "3px solid #0A66C2", background: "#FFFDF9", padding: "24px", textAlign: "center", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}>
+                <div style={{ border: "2px dashed #FAD6C8", padding: "20px", borderRadius: "8px" }}>
+                  <div style={{ fontSize: "24px", color: "#F9572A", fontWeight: "bold" }}>⬢ SkillSphere Nexus</div>
+                  <div style={{ fontSize: "18px", fontWeight: "bold", color: "#1E1B18", margin: "10px 0 4px 0", letterSpacing: "1px" }}>CERTIFICATE OF COMPLETION</div>
+                  <div style={{ fontSize: "13px", color: "#64748B", fontStyle: "italic" }}>This is to certify that</div>
+                  <div style={{ fontSize: "24px", fontWeight: "bold", color: "#78350F", margin: "6px 0", fontFamily: "Georgia, serif" }}>{userName}</div>
+                  <div style={{ fontSize: "14px", color: "#F9572A", fontWeight: "bold" }}>has mastered {linkedInCert.title}</div>
+                  <div style={{ fontSize: "11px", color: "#94A3B8", marginTop: "12px" }}>Verification: https://skillsphere.edu/verify/{linkedInCert.credentialId || "SS-25-05-NODE4-12345"}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons Row */}
+            <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end", flexWrap: "wrap" }}>
+              <button
+                className="btnDownloadCert"
+                style={{ background: "var(--bg-secondary)", border: "1px solid var(--border-color)", color: "var(--text-primary)", padding: "10px 16px", borderRadius: "8px", fontWeight: "bold", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}
+                onClick={() => {
+                  handleDownloadPNG(linkedInCert);
+                  setToastMessage("📥 Certificate image downloaded! Attach this image to your LinkedIn post.");
+                  setTimeout(() => setToastMessage(""), 4000);
+                }}
+              >
+                <FaDownload /> Download Certificate Image (PNG)
+              </button>
+              <button
+                className="btnShareLinkedIn"
+                style={{ background: "#0A66C2", color: "#FFF", padding: "10px 20px", borderRadius: "8px", fontWeight: "bold", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}
+                onClick={() => {
+                  const shareText = encodeURIComponent(
+                    `I'm excited to share that I've earned my official Certificate of Completion for "${linkedInCert.title}" from SkillSphere Nexus! 🎓🚀\n\nVerification Credential ID: ${linkedInCert.credentialId || "SS-25-05-NODE4-12345"}`
+                  );
+                  window.open(`https://www.linkedin.com/feed/?shareActive=true&text=${shareText}`, "_blank");
+                  setIsLinkedInModalOpen(false);
+                }}
+              >
+                <FaLinkedin /> Open & Share on LinkedIn 🚀
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <FloatingChatbot />
       <StudentFooter />

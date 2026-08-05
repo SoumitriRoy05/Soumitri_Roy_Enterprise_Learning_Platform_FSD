@@ -36,6 +36,7 @@ import ResumeBuilderPage from "./pages/ResumeBuilderPage";
 import DailyQuestsPage from "./pages/DailyQuestsPage";
 import CodeArenaPage from "./pages/CodeArenaPage";
 import FlashcardsPage from "./pages/FlashcardsPage";
+import CareerRoadmapPage from "./pages/CareerRoadmapPage";
 
 import StudentProfilePage from "./pages/StudentProfilePage";
 import ServicesCatalogPage from "./pages/ServicesCatalogPage";
@@ -44,7 +45,6 @@ import CertificationTrackingPage from "./pages/CertificationTrackingPage";
 import CourseManagementPage from "./pages/CourseManagementPage";
 import TrackingDashboardPage from "./pages/TrackingDashboardPage";
 import ComplaintRenewalTrackingPage from "./pages/ComplaintRenewalTrackingPage";
-import CareerRoadmapPage from "./pages/CareerRoadmapPage";
 import ExecutiveDashboardPage from "./pages/ExecutiveDashboardPage";
 import JobSearchPage from "./pages/JobSearchPage";
 
@@ -130,7 +130,11 @@ function App() {
         <Route path="/assignments" element={<Navigate to="/student-home" replace />} />
         <Route path="/ai-buddy" element={<ProtectedRoute><AIStudyBuddyPage /></ProtectedRoute>} />
         <Route path="/ai-study-buddy" element={<ProtectedRoute><AIStudyBuddyPage /></ProtectedRoute>} />
+        <Route path="/career-roadmap" element={<ProtectedRoute><CareerRoadmapPage /></ProtectedRoute>} />
+        <Route path="/career-roadmap-page" element={<ProtectedRoute><CareerRoadmapPage /></ProtectedRoute>} />
         <Route path="/opportunity-feed" element={<ProtectedRoute><OpportunityFeedPage /></ProtectedRoute>} />
+        <Route path="/job-search" element={<ProtectedRoute><OpportunityFeedPage /></ProtectedRoute>} />
+        <Route path="/job-search-portal" element={<ProtectedRoute><OpportunityFeedPage /></ProtectedRoute>} />
         <Route path="/badges" element={<ProtectedRoute><BadgesPage /></ProtectedRoute>} />
         <Route path="/progress" element={<ProtectedRoute><ProgressPage /></ProtectedRoute>} />
         <Route path="/daily-quests" element={<ProtectedRoute><DailyQuestsPage /></ProtectedRoute>} />

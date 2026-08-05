@@ -9,7 +9,8 @@ import {
   FaFileInvoice, FaCog, FaSearch, FaSun, FaMoon, FaArrowLeft,
   FaSignOutAlt, FaUser, FaEnvelope, FaMapMarkerAlt, FaUniversity,
   FaGraduationCap, FaLink, FaEdit, FaCheck, FaTimes, FaRobot, FaRocket, FaBolt, FaCode,
-  FaCamera, FaLock, FaLinkedin, FaGithub, FaGlobe, FaShieldAlt, FaHeadset, FaCheckCircle, FaExclamationTriangle, FaArrowRight, FaDownload
+  FaCamera, FaLock, FaLinkedin, FaGithub, FaGlobe, FaShieldAlt, FaHeadset, FaCheckCircle, FaExclamationTriangle, FaArrowRight, FaDownload,
+  FaFileAlt, FaComments, FaTrophy, FaMapSigns, FaBell, FaCalendarAlt, FaLaptop, FaMobileAlt, FaKey, FaExternalLinkAlt, FaQuestionCircle
 } from "react-icons/fa";
 import "../styles/studentDashboard.css";
 import "../styles/profileSettings.css";
@@ -27,7 +28,7 @@ export default function StudentProfilePage() {
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
 
-  // Bio state (from previous setup)
+  // Bio state
   const [bio, setBio] = useState(user?.bio || "Passionate software engineering student looking to build next-generation applications.");
   const [tempBio, setTempBio] = useState(bio);
 
@@ -54,6 +55,7 @@ export default function StudentProfilePage() {
     };
     fetchClaimedCerts();
   }, [user, userKey, isDemoUser]);
+
 
   // Profile Form State
   const [profileData, setProfileData] = useState({
@@ -140,9 +142,16 @@ export default function StudentProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
-      setProfileData((prev) => ({ ...prev, avatarUrl: reader.result }));
-      setToastMessage("📸 Photo updated! Save changes to preserve.");
+    reader.onload = async () => {
+      const dataUrl = reader.result;
+      setProfileData((prev) => ({ ...prev, avatarUrl: dataUrl }));
+      if (updateUserProfile) {
+        await updateUserProfile({
+          avatar_url: dataUrl,
+          profile_picture: dataUrl
+        });
+      }
+      setToastMessage("📸 Profile picture updated successfully!");
       setTimeout(() => setToastMessage(""), 4000);
     };
     reader.readAsDataURL(file);
@@ -166,7 +175,9 @@ export default function StudentProfilePage() {
           portfolio: profileData.website,
           title: profileData.title,
           skills: profileData.skills,
-          contact_email: profileData.contactEmail
+          contact_email: profileData.contactEmail,
+          avatar_url: profileData.avatarUrl || user?.avatar_url || user?.profile_picture || "",
+          profile_picture: profileData.avatarUrl || user?.profile_picture || user?.avatar_url || ""
         });
         setToastMessage("💾 Profile settings saved successfully!");
         if (refreshProfile) {
@@ -212,7 +223,7 @@ export default function StudentProfilePage() {
   const xpInCurrentLevel = currentXp % 2000;
   const progressPct = currentXp > 0 ? Math.min(100, Math.round((xpInCurrentLevel / 2000) * 100)) : 0;
 
-  // Sidebar navItems (Consolidated: removed settings from list)
+  // Sidebar navItems
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
     { id: "student-profile", label: "Student Profile", icon: <FaAward /> },
@@ -225,14 +236,14 @@ export default function StudentProfilePage() {
     { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
-    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
+    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },
+    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket /> },
     { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
     { id: "badges", label: "Badges", icon: <FaAward /> },
     { id: "certificates", label: "Certificates", icon: <FaCertificate /> },
     { id: "progress", label: "Progress", icon: <FaChartLine /> },
     { id: "resume", label: "Resume Builder", icon: <FaFileInvoice /> },
-    { id: "code-arena", label: "CodeArena", icon: <FaCode />, isNew: true }
+    { id: "code-arena", label: "CodeArena", icon: <FaCode /> }
   ];
 
   // Dynamic Skill Ratings based on completed topics
@@ -311,6 +322,7 @@ export default function StudentProfilePage() {
                       else if (item.id === "learning-paths") navigate("/learning-paths");
                       else if (item.id === "assignments") navigate("/assignments");
                       else if (item.id === "ai-buddy") navigate("/ai-buddy");
+                      else if (item.id === "career-roadmap") navigate("/career-roadmap");
                       else if (item.id === "opportunity-feed") navigate("/opportunity-feed");
                       else if (item.id === "badges") navigate("/badges");
                       else if (item.id === "discussions") navigate("/discussions");
@@ -367,7 +379,13 @@ export default function StudentProfilePage() {
               </button>
               <div className="sdUserProfilePillWrapper">
                 <div className="sdUserProfilePill" onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}>
-                  <div className="sdUserAvatarImg">🧑‍🎓</div>
+                  <div className="sdUserAvatarImg" style={{ width: "36px", height: "36px", borderRadius: "50%", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {(user?.avatar_url || user?.profile_picture || profileData.avatarUrl) ? (
+                      <img src={user?.avatar_url || user?.profile_picture || profileData.avatarUrl} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      "🧑‍🎓"
+                    )}
+                  </div>
                   <div className="sdUserInfoText">
                     <strong>{userName}</strong>
                     <span>Student</span>
@@ -448,7 +466,13 @@ export default function StudentProfilePage() {
                 {/* Profile Card Header */}
                 <div className="sdWhitePanelCard" style={{ padding: "30px", marginBottom: "24px" }}>
                   <div style={{ display: "flex", gap: "24px", alignItems: "center", flexWrap: "wrap" }}>
-                    <div style={{ fontSize: "64px", background: "var(--border-color)", padding: "20px", borderRadius: "50%" }}>🧑‍🎓</div>
+                    <div style={{ width: "80px", height: "80px", borderRadius: "50%", overflow: "hidden", background: "var(--border-color)", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid var(--accent)", flexShrink: 0 }}>
+                      {(profileData.avatarUrl || user?.avatar_url || user?.profile_picture) ? (
+                        <img src={profileData.avatarUrl || user?.avatar_url || user?.profile_picture} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      ) : (
+                        <span style={{ fontSize: "40px" }}>🧑‍🎓</span>
+                      )}
+                    </div>
                     <div style={{ flex: 1 }}>
                       <h2 style={{ color: "var(--text-primary)", margin: "0 0 8px 0" }}>{userName}</h2>
                       <p style={{ color: "var(--text-secondary)", margin: "0 0 12px 0", fontSize: "14px", display: "flex", alignItems: "center", gap: "8px" }}>

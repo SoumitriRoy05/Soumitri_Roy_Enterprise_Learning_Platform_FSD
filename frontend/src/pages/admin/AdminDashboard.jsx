@@ -38,6 +38,37 @@ export default function AdminDashboard() {
   // Dropdown menus for rows
   const [activeRowMenu, setActiveRowMenu] = useState(null); // { type: 'student'|'workforce', id: number }
 
+  // Service Bookings State (for Admin Dashboard)
+  const [adminServiceBookings, setAdminServiceBookings] = useState(() => {
+    try {
+      const stored = localStorage.getItem("skillsphere_admin_service_bookings");
+      return stored ? JSON.parse(stored) : [
+        { id: "SB-101", studentName: "Soumitri Roy", studentEmail: "soumitriroy@gmail.com", serviceTitle: "1-on-1 Live Mentorship", price: "₹1,499 / session", date: "2026-08-10", time: "16:00", status: "scheduled", bookedAt: "Today" },
+        { id: "SB-102", studentName: "Aarav Sharma", studentEmail: "aarav@gmail.com", serviceTitle: "Interactive Mock Interviews", price: "₹2,499 / session", date: "2026-08-12", time: "11:00", status: "scheduled", bookedAt: "Yesterday" }
+      ];
+    } catch {
+      return [];
+    }
+  });
+
+  const refreshServiceBookings = () => {
+    try {
+      const stored = localStorage.getItem("skillsphere_admin_service_bookings");
+      if (stored) setAdminServiceBookings(JSON.parse(stored));
+    } catch (e) {
+      console.warn("Service bookings load error:", e);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("skillsphere_sync_event", refreshServiceBookings);
+    window.addEventListener("storage", refreshServiceBookings);
+    return () => {
+      window.removeEventListener("skillsphere_sync_event", refreshServiceBookings);
+      window.removeEventListener("storage", refreshServiceBookings);
+    };
+  }, []);
+
   // Notifications state — merge static + live pending approval notifications + leave notifications
   const [baseNotifications] = useState([
     { id: 1, text: "Aarav Sharma completed Frontend System Design", time: "10 mins ago", read: false },
@@ -148,6 +179,13 @@ export default function AdminDashboard() {
             active={activeTab === 'leaveApprovals'} 
             onClick={() => { setActiveTab('leaveApprovals'); refreshLeaveRequests(); }}
             badge={(leaveRequests || []).filter(r => r.status === 'pending').length}
+          />
+          <SidebarBtn 
+            icon={<FiCalendar />} 
+            label="Service Bookings" 
+            active={activeTab === 'serviceBookings'} 
+            onClick={() => { setActiveTab('serviceBookings'); refreshServiceBookings(); }}
+            badge={adminServiceBookings.filter(b => b.status === 'scheduled').length}
           />
           <SidebarBtn icon={<FiAward />} label="Certifications" active={activeTab === 'certifications'} onClick={() => setActiveTab('certifications')} />
           <SidebarBtn icon={<FiSettings />} label="Settings" active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
@@ -814,6 +852,100 @@ export default function AdminDashboard() {
                 <AnalyticsBox title="Active Completion Rate" val="82.4%" sub="12% increase vs past month" icon={<FiActivity color="#10B981" />} />
                 <AnalyticsBox title="Average Course Rating" val="4.82 ★" sub="Based on 5.4K student reviews" icon={<FiAward color="#F59E0B" />} />
                 <AnalyticsBox title="Monthly Active Users (MAU)" val="9,820" sub="84% login frequency rate" icon={<FiUsers color="#F9572A" />} />
+              </div>
+            </div>
+          )}
+
+          {/* ─── VIEW 8: SERVICE BOOKINGS MANAGEMENT ─── */}
+          {activeTab === 'serviceBookings' && (
+            <div style={{ background: '#FFFFFF', borderRadius: '24px', padding: '28px', border: '1px solid #F3EBE1', boxShadow: '0 4px 16px rgba(0,0,0,0.02)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <div>
+                  <h2 style={{ margin: 0, fontWeight: '850', color: '#1E1B18', fontSize: '22px' }}>Student Service Bookings 📅</h2>
+                  <p style={{ margin: '4px 0 0', color: '#64748B', fontSize: '14px' }}>
+                    Live bookings for 1-on-1 Mentorship, Mock Interviews, Resume Reviews, and Code Audits.
+                  </p>
+                </div>
+                <button 
+                  onClick={refreshServiceBookings}
+                  style={{
+                    padding: '10px 18px', borderRadius: '99px', background: '#FFF0EB', color: '#F9572A',
+                    border: '1px solid #FAD6C8', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px'
+                  }}
+                >
+                  <FiRefreshCw /> Refresh Bookings List
+                </button>
+              </div>
+
+              <div style={{ border: '1px solid #F3EBE1', borderRadius: '16px', overflow: 'hidden' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                  <thead>
+                    <tr style={{ background: '#FAF8F5', color: '#64748B', fontSize: '11px', textTransform: 'uppercase', fontWeight: '800', borderBottom: '1px solid #F3EBE1' }}>
+                      <th style={{ padding: '14px 18px' }}>Student</th>
+                      <th style={{ padding: '14px 18px' }}>Service Booked</th>
+                      <th style={{ padding: '14px 18px' }}>Price (INR)</th>
+                      <th style={{ padding: '14px 18px' }}>Scheduled Slot</th>
+                      <th style={{ padding: '14px 18px' }}>Status</th>
+                      <th style={{ padding: '14px 18px', textAlign: 'right' }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {adminServiceBookings.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" style={{ padding: '30px', textAlign: 'center', color: '#64748B', fontSize: '14px' }}>
+                          No student service bookings registered yet.
+                        </td>
+                      </tr>
+                    ) : (
+                      adminServiceBookings.map((b) => (
+                        <tr key={b.id} style={{ borderBottom: '1px solid #F3EBE1', fontSize: '13.5px' }}>
+                          <td style={{ padding: '14px 18px' }}>
+                            <div style={{ fontWeight: '800', color: '#1E1B18' }}>{b.studentName}</div>
+                            <div style={{ fontSize: '11px', color: '#64748B' }}>{b.studentEmail}</div>
+                          </td>
+                          <td style={{ padding: '14px 18px', fontWeight: '750', color: '#1E1B18' }}>
+                            {b.serviceTitle}
+                          </td>
+                          <td style={{ padding: '14px 18px', color: '#F9572A', fontWeight: '850', fontSize: '14px' }}>
+                            {b.price}
+                          </td>
+                          <td style={{ padding: '14px 18px', color: '#1E1B18' }}>
+                            📅 <strong>{b.date}</strong> at <strong>{b.time}</strong>
+                          </td>
+                          <td style={{ padding: '14px 18px' }}>
+                            <span style={{
+                              padding: '4px 12px', borderRadius: '99px', fontSize: '11px', fontWeight: '800',
+                              background: b.status === 'completed' ? '#ECFDF5' : '#FEF3C7',
+                              color: b.status === 'completed' ? '#10B981' : '#D97706'
+                            }}>
+                              {b.status === 'completed' ? '✓ Completed' : '● Scheduled'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '14px 18px', textAlign: 'right' }}>
+                            {b.status !== 'completed' ? (
+                              <button 
+                                onClick={() => {
+                                  const updated = adminServiceBookings.map(item => item.id === b.id ? { ...item, status: 'completed' } : item);
+                                  setAdminServiceBookings(updated);
+                                  localStorage.setItem("skillsphere_admin_service_bookings", JSON.stringify(updated));
+                                  window.dispatchEvent(new CustomEvent("skillsphere_sync_event"));
+                                }}
+                                style={{
+                                  padding: '6px 14px', borderRadius: '8px', background: '#10B981', color: '#FFFFFF',
+                                  border: 'none', cursor: 'pointer', fontWeight: '800', fontSize: '12px'
+                                }}
+                              >
+                                Mark Completed
+                              </button>
+                            ) : (
+                              <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: '600' }}>Done</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}

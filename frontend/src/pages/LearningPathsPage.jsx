@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Background from "../components/Background";
 import PaperPlaneCursor from "../components/PaperPlaneCursor";
@@ -26,6 +26,7 @@ import {
   FaRobot,
   FaRocket,
   FaMapMarkedAlt,
+  FaMapSigns,
   FaCheckCircle,
   FaEllipsisH,
   FaChevronRight,
@@ -59,6 +60,7 @@ import "../styles/learningPaths.css";
 export default function LearningPathsPage() {
   const { user, xp, earnXp, completeTopic, themeMode, toggleTheme } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [filter, setFilter] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
   const isDarkMode = themeMode === "dark";
@@ -66,6 +68,44 @@ export default function LearningPathsPage() {
 
   // Learning Path Detail View State
   const [selectedPathDetail, setSelectedPathDetail] = useState(null);
+
+  // Handle navigation from CoursesPage "Continue ->" button
+  useEffect(() => {
+    if (location.state && (location.state.courseTitle || location.state.topicPrefix)) {
+      const title = (location.state.courseTitle || "").toLowerCase();
+      const prefix = location.state.topicPrefix || "";
+
+      if (title.includes("python") || prefix.startsWith("py") || prefix.startsWith("dsa") || prefix.startsWith("ml")) {
+        setSelectedPathDetail({
+          id: 2,
+          title: "Python for Data Science & Machine Learning",
+          bannerType: "python",
+          logoText: "🐍"
+        });
+      } else if (title.includes("node") || prefix.startsWith("node") || prefix.startsWith("fsd")) {
+        setSelectedPathDetail({
+          id: 3,
+          title: "Fullstack with Node.js & System Architecture",
+          bannerType: "node",
+          logoText: "🟩"
+        });
+      } else if (title.includes("ui") || title.includes("ux") || title.includes("design") || prefix.startsWith("ui")) {
+        setSelectedPathDetail({
+          id: 4,
+          title: "UI/UX Design Systems & Figma Masterclass",
+          bannerType: "figma",
+          logoText: "🎨"
+        });
+      } else {
+        setSelectedPathDetail({
+          id: 1,
+          title: "React Developer Path",
+          bannerType: "react",
+          logoText: "⚛️"
+        });
+      }
+    }
+  }, [location.state]);
 
   // User identity keys for progress persistence across refreshes
   const userName = user?.full_name || user?.username || "Alex Morgan";
@@ -271,6 +311,25 @@ export default function LearningPathsPage() {
     if (filter === "saved") return savedPathIds.includes(path.id);
     return true;
   });
+
+  // Handle auto-opening Learning Path when navigating from CoursesPage
+  useEffect(() => {
+    if (location.state?.courseId) {
+      const cid = location.state.courseId.toString();
+      const courseToPathMap = {
+        "1": "React Developer Path",
+        "2": "React Developer Path",
+        "3": "Python for Data Science",
+        "4": "UI/UX Design Masterclass",
+        "5": "Python for Data Science",
+        "6": "Fullstack with Node.js",
+        "8": "Machine Learning & AI Engineering",
+        "12": "Cloud Architect & DevOps Mastery"
+      };
+      const targetPathTitle = courseToPathMap[cid] || "React Developer Path";
+      setSelectedPathDetail(targetPathTitle);
+    }
+  }, [location.state]);
 
   const sortedLearningPaths = [...filteredLearningPaths].sort((a, b) => {
     if (sortBy === "progress") return b.progress - a.progress;
@@ -1171,11 +1230,14 @@ function AnalyticsDashboard() {
     }
   };
 
-  const activePathData = (selectedPathDetail && allPathDataMap[selectedPathDetail]) || {
-    logo: selectedPathDetail?.includes("Python") ? "🐍" : selectedPathDetail?.includes("Node") ? "🟩" : selectedPathDetail?.includes("UI/UX") ? "🎨" : "⚛️",
-    title: selectedPathDetail || "React Developer Path",
-    subtitle: `Master ${selectedPathDetail || "React"} by building real-world projects and become job-ready.`,
-    instructor: "SkillSphere Academic Team",
+  const selectedPathTitle = typeof selectedPathDetail === 'string' ? selectedPathDetail : selectedPathDetail?.title;
+  const selectedPathId = typeof selectedPathDetail === 'object' ? selectedPathDetail?.id : null;
+
+  const activePathData = (selectedPathDetail && (allPathDataMap[selectedPathId] || allPathDataMap[selectedPathTitle] || (allPathDataMap[selectedPathDetail]))) || {
+    logo: selectedPathTitle?.includes("Python") ? "🐍" : selectedPathTitle?.includes("Node") ? "🟩" : selectedPathTitle?.includes("UI/UX") ? "🎨" : "⚛️",
+    title: selectedPathTitle || "React Developer Path",
+    subtitle: `Master ${selectedPathTitle || "React"} by building real-world projects and become job-ready.`,
+    instructor: selectedPathDetail?.instructor || "SkillSphere Academic Team",
     modules: modulesList
   };
 
@@ -1408,14 +1470,14 @@ function AnalyticsDashboard() {
     { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
-    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
+    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },
+    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket /> },
     { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
     { id: "badges", label: "Badges", icon: <FaAward /> },
     { id: "certificates", label: "Certificates", icon: <FaCertificate /> },
     { id: "progress", label: "Progress", icon: <FaChartLine /> },
     { id: "resume", label: "Resume Builder", icon: <FaFileInvoice /> },
-    { id: "code-arena", label: "CodeArena", icon: <FaCode />, isNew: true }
+    { id: "code-arena", label: "CodeArena", icon: <FaCode /> }
   ];
 
   // Dynamic Path Stats Calculation based on persistent completedSubLessonIds
@@ -1616,7 +1678,7 @@ function AnalyticsDashboard() {
                   <button
                     className={`sdNavItem ${item.id === "learning-paths" ? "active" : ""}`}
                     onClick={() => {
-                      if (item.id === "dashboard") navigate("/student-home");
+                      if (item.id === "dashboard") { setSelectedPathDetail(null); navigate("/student-home"); }
                       else if (item.id === "student-profile") navigate("/student-profile");
                       else if (item.id === "services-catalog") navigate("/services-catalog");
                       else if (item.id === "assessments") navigate("/assessments");
@@ -1629,12 +1691,26 @@ function AnalyticsDashboard() {
                         setSelectedPathDetail(null);
                         navigate("/learning-paths");
                       }
-                      else navigate(`/${item.id}`);
+                      else if (item.id === "courses") navigate("/courses");
+                      else if (item.id === "assignments") navigate("/assignments");
+                      else if (item.id === "discussions") navigate("/discussions");
+                      else if (item.id === "ai-buddy") navigate("/ai-buddy");
+                      else if (item.id === "opportunity-feed") navigate("/opportunity-feed");
+                      else if (item.id === "daily-quests") navigate("/daily-quests");
+                      else if (item.id === "badges") navigate("/badges");
+                      else if (item.id === "certificates") navigate("/certificate");
+                      else if (item.id === "progress") navigate("/progress");
+                      else if (item.id === "resume") navigate("/resume");
+                      else if (item.id === "code-arena") navigate("/code-arena");
+                      else if (item.id === "settings") navigate("/settings");
+                      else {
+                        setSelectedPathDetail(null);
+                        navigate("/student-home");
+                      }
                     }}
                   >
                     <span className="navIcon">{item.icon}</span>
                     <span className="navLabel">{item.label}</span>
-                    {item.isNew && <span className="navNewBadge">New</span>}
                   </button>
                 </li>
               ))}
@@ -2255,11 +2331,11 @@ function AnalyticsDashboard() {
                           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                             <a 
                               href={
-                                activePath.title?.toLowerCase().includes("python")
+                                activePathData.title?.toLowerCase().includes("python")
                                   ? "https://www.geeksforgeeks.org/python-programming-language/"
-                                  : activePath.title?.toLowerCase().includes("node")
+                                  : activePathData.title?.toLowerCase().includes("node")
                                   ? "https://www.geeksforgeeks.org/nodejs/"
-                                  : activePath.title?.toLowerCase().includes("figma") || activePath.title?.toLowerCase().includes("ux")
+                                  : activePathData.title?.toLowerCase().includes("figma") || activePathData.title?.toLowerCase().includes("ux")
                                   ? "https://www.geeksforgeeks.org/ui-ux-design-basics/"
                                   : "https://www.geeksforgeeks.org/reactjs-tutorials/"
                               } 

@@ -2650,6 +2650,787 @@ input:checked + .wf-toggle-slider:before {
   color: #b2abcf !important;
 }
 
+/* ==========================================================================
+   WORKFORCE CAREER PROMOTION (1-TO-1 MATCH TO REFERENCE MOCKUP IMAGE 1)
+   ========================================================================== */
+
+.wf-cp-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* HERO BANNER */
+.wf-cp-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid #f3ebe1;
+  border-radius: 24px;
+  padding: 28px 36px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.dark-theme .wf-cp-hero {
+  background: #1e1b24;
+  border-color: #332d3d;
+}
+
+.wf-cp-hero-left {
+  max-width: 440px;
+  z-index: 2;
+}
+
+.wf-cp-hero-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #1e1b18;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
+}
+
+.dark-theme .wf-cp-hero-title {
+  color: #ffffff;
+}
+
+.wf-cp-hero-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+}
+
+.dark-theme .wf-cp-hero-subtitle {
+  color: #9e98aa;
+}
+
+.wf-cp-explore-btn {
+  background: linear-gradient(135deg, #d48c66 0%, #e07a5f 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 14px rgba(212, 140, 102, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.wf-cp-explore-btn:hover {
+  transform: translateY(-2px);
+}
+
+.wf-cp-hero-illustration {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wf-cp-hero-img {
+  max-height: 180px;
+  object-fit: contain;
+}
+
+.wf-cp-role-card {
+  background: #faf8f5;
+  border: 1px solid #f3ebe1;
+  border-radius: 18px;
+  padding: 20px;
+  width: 280px;
+  z-index: 2;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.dark-theme .wf-cp-role-card {
+  background: #141218;
+  border-color: #2e2838;
+}
+
+.wf-cp-role-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+}
+
+.wf-cp-role-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.wf-cp-role-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e1b18;
+}
+
+.dark-theme .wf-cp-role-title {
+  color: #ffffff;
+}
+
+.wf-cp-level-pill {
+  font-size: 11px;
+  font-weight: 800;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.wf-cp-level-pill.target {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.dark-theme .wf-cp-level-pill.target {
+  background: rgba(249, 115, 22, 0.2);
+  color: #fb923c;
+}
+
+.wf-cp-role-details-btn {
+  background: none;
+  border: none;
+  color: #e07a5f;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 14px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 5 METRICS ROW */
+.wf-cp-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1100px) {
+  .wf-cp-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.wf-cp-metric-card {
+  background: #ffffff;
+  border: 1px solid #f3ebe1;
+  border-radius: 18px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.dark-theme .wf-cp-metric-card {
+  background: #1e1b24;
+  border-color: #332d3d;
+}
+
+.wf-cp-donut-wrapper {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+}
+
+.wf-cp-donut-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.wf-cp-donut-bg {
+  fill: none;
+  stroke: #f1f5f9;
+  stroke-width: 6;
+}
+
+.dark-theme .wf-cp-donut-bg {
+  stroke: #2e2838;
+}
+
+.wf-cp-donut-fill {
+  fill: none;
+  stroke: #d48c66;
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.wf-cp-donut-val {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  font-weight: 800;
+  color: #1e1b18;
+}
+
+.dark-theme .wf-cp-donut-val {
+  color: #ffffff;
+}
+
+.wf-cp-icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.wf-cp-icon-circle.blue { background: #eff6ff; color: #3b82f6; }
+.wf-cp-icon-circle.orange { background: #fff7ed; color: #f97316; }
+.wf-cp-icon-circle.green { background: #ecfdf5; color: #10b981; }
+.wf-cp-icon-circle.green-light { background: #f0fdf4; color: #16a34a; }
+
+.dark-theme .wf-cp-icon-circle.blue { background: rgba(59, 130, 246, 0.15); }
+.dark-theme .wf-cp-icon-circle.orange { background: rgba(249, 115, 22, 0.15); }
+.dark-theme .wf-cp-icon-circle.green { background: rgba(16, 185, 129, 0.15); }
+.dark-theme .wf-cp-icon-circle.green-light { background: rgba(22, 163, 74, 0.15); }
+
+.wf-cp-metric-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.wf-cp-metric-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.dark-theme .wf-cp-metric-name {
+  color: #9e98aa;
+}
+
+.wf-cp-metric-status {
+  font-size: 13px;
+  font-weight: 800;
+  color: #1e1b18;
+  margin-top: 2px;
+}
+
+.dark-theme .wf-cp-metric-status {
+  color: #ffffff;
+}
+
+.wf-cp-metric-trend {
+  font-size: 10px;
+  font-weight: 700;
+  color: #10b981;
+  margin-top: 2px;
+}
+
+.wf-cp-metric-bigval {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1e1b18;
+  margin-top: 2px;
+}
+
+.dark-theme .wf-cp-metric-bigval {
+  color: #ffffff;
+}
+
+.wf-cp-metric-bigval.green-text {
+  color: #10b981;
+}
+
+.wf-cp-metric-sub {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.wf-cp-progress-mini {
+  height: 4px;
+  background: #f1f5f9;
+  border-radius: 2px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.dark-theme .wf-cp-progress-mini {
+  background: #2e2838;
+}
+
+.wf-cp-progress-mini .fill {
+  height: 100%;
+  border-radius: 2px;
+}
+
+/* SUB TABS BAR */
+.wf-cp-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 2px solid #f3ebe1;
+  padding-bottom: 12px;
+}
+
+.dark-theme .wf-cp-tabs-bar {
+  border-color: #2e2838;
+}
+
+.wf-cp-tab-btn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748b;
+  padding: 8px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dark-theme .wf-cp-tab-btn {
+  color: #9e98aa;
+}
+
+.wf-cp-tab-btn.active {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.dark-theme .wf-cp-tab-btn.active {
+  background: rgba(249, 115, 22, 0.2);
+  color: #fb923c;
+}
+
+/* MAIN CONTENT GRID */
+.wf-cp-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+}
+
+@media (max-width: 1050px) {
+  .wf-cp-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wf-cp-card {
+  background: #ffffff;
+  border: 1px solid #f3ebe1;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.dark-theme .wf-cp-card {
+  background: #1e1b24;
+  border-color: #332d3d;
+}
+
+.wf-cp-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.wf-cp-card-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: #1e1b18;
+  margin: 0;
+}
+
+.dark-theme .wf-cp-card-title {
+  color: #ffffff;
+}
+
+.wf-cp-track-sub {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 2px;
+  display: block;
+}
+
+.wf-cp-link-btn {
+  background: none;
+  border: none;
+  color: #e07a5f;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* TIMELINE */
+.wf-cp-timeline {
+  position: relative;
+  margin: 20px 0;
+}
+
+.wf-cp-timeline-line {
+  position: absolute;
+  top: 24px;
+  left: 30px;
+  right: 30px;
+  height: 3px;
+  background: #e2e8f0;
+  z-index: 1;
+}
+
+.dark-theme .wf-cp-timeline-line {
+  background: #332d3d;
+}
+
+.wf-cp-timeline-steps {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  position: relative;
+  z-index: 2;
+}
+
+.wf-cp-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.wf-cp-step-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid #cbd5e1;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.dark-theme .wf-cp-step-icon {
+  background: #141218;
+  border-color: #383144;
+}
+
+.wf-cp-step.completed .wf-cp-step-icon {
+  background: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+.wf-cp-step-icon.active {
+  background: #ffffff;
+  border-color: #f97316;
+  color: #f97316;
+}
+
+.wf-cp-step-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e1b18;
+}
+
+.dark-theme .wf-cp-step-title {
+  color: #ffffff;
+}
+
+.wf-cp-step-level {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.wf-cp-step-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  margin-top: 6px;
+}
+
+.wf-cp-step-badge.completed { background: #d1fae5; color: #047857; }
+.wf-cp-step-badge.in-progress { background: #ffedd5; color: #c2410c; }
+.wf-cp-step-badge.locked { background: #f1f5f9; color: #94a3b8; }
+
+.dark-theme .wf-cp-step-badge.completed { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+.dark-theme .wf-cp-step-badge.in-progress { background: rgba(249, 115, 22, 0.2); color: #fb923c; }
+.dark-theme .wf-cp-step-badge.locked { background: #141218; color: #64748b; }
+
+.wf-cp-progress-target-box {
+  background: #faf8f5;
+  border: 1px solid #f3ebe1;
+  border-radius: 14px;
+  padding: 16px;
+  margin-top: 20px;
+}
+
+.dark-theme .wf-cp-progress-target-box {
+  background: #141218;
+  border-color: #2e2838;
+}
+
+.wf-cp-progress-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e1b18;
+}
+
+.dark-theme .wf-cp-progress-top {
+  color: #ffffff;
+}
+
+.wf-cp-target-track {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  margin: 10px 0;
+  overflow: hidden;
+}
+
+.dark-theme .wf-cp-target-track {
+  background: #2e2838;
+}
+
+.wf-cp-target-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #d48c66, #e07a5f);
+  border-radius: 4px;
+}
+
+.wf-cp-progress-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.wf-cp-expected {
+  color: #64748b;
+}
+
+.wf-cp-outline-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dark-theme .wf-cp-outline-btn {
+  background: #1e1b24;
+  border-color: #383144;
+  color: #ffffff;
+}
+
+/* SKILL GAPS */
+.wf-cp-skills-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.wf-cp-skill-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #faf8f5;
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+.dark-theme .wf-cp-skill-item {
+  background: #141218;
+}
+
+.wf-cp-skill-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #d48c66;
+}
+
+.dark-theme .wf-cp-skill-icon {
+  background: #1e1b24;
+}
+
+.wf-cp-skill-info {
+  flex: 1;
+}
+
+.wf-cp-skill-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.wf-cp-skill-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e1b18;
+}
+
+.dark-theme .wf-cp-skill-name {
+  color: #ffffff;
+}
+
+.wf-cp-skill-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.wf-cp-skill-badge.adv { background: #ffedd5; color: #c2410c; }
+.wf-cp-skill-badge.mid { background: #f3e8ff; color: #7c3aed; }
+
+.wf-cp-skill-track {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.dark-theme .wf-cp-skill-track {
+  background: #2e2838;
+}
+
+.wf-cp-skill-fill {
+  height: 100%;
+  border-radius: 3px;
+}
+
+.wf-cp-skill-pct {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  float: right;
+  margin-top: 4px;
+}
+
+/* RECOMMENDED NEXT STEPS & OPPORTUNITIES */
+.wf-cp-steps-list, .wf-cp-opps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wf-cp-step-card, .wf-cp-opp-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: #faf8f5;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.wf-cp-step-card:hover, .wf-cp-opp-item:hover {
+  transform: translateX(4px);
+}
+
+.dark-theme .wf-cp-step-card, .dark-theme .wf-cp-opp-item {
+  background: #141218;
+}
+
+.wf-cp-step-card-icon, .wf-cp-opp-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #d48c66;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.dark-theme .wf-cp-step-card-icon, .dark-theme .wf-cp-opp-icon {
+  background: #1e1b24;
+}
+
+.wf-cp-step-card-info, .wf-cp-opp-info {
+  flex: 1;
+}
+
+.wf-cp-step-card-info .title, .wf-cp-opp-info .title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e1b18;
+  display: block;
+}
+
+.dark-theme .wf-cp-step-card-info .title, .dark-theme .wf-cp-opp-info .title {
+  color: #ffffff;
+}
+
+.wf-cp-step-card-info .sub, .wf-cp-opp-info .dept {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.wf-cp-step-card .arrow {
+  color: #cbd5e1;
+  font-size: 12px;
+}
+
+.wf-cp-opp-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wf-cp-opp-info .type {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.wf-cp-opp-info .type.internal { background: #ffedd5; color: #c2410c; }
+.wf-cp-opp-info .type.program { background: #d1fae5; color: #047857; }
+.wf-cp-opp-info .type.event { background: #e0f2fe; color: #0284c7; }
+
+.wf-cp-opp-item .date {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
 [data-theme="dark"] .wf-search-box,
 .dark-theme .wf-search-box {
   background: #201d27 !important;

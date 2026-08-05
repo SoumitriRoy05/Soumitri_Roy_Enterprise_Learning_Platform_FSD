@@ -292,6 +292,16 @@ export function AuthProvider({ children }) {
       }
 
       let finalUser = data.user;
+      const userKey = finalUser.email || finalUser.username || finalUser.id || 'default';
+      try {
+        const savedProfile = localStorage.getItem(`skillsphere_user_profile_${userKey}`);
+        if (savedProfile) {
+          const parsed = JSON.parse(savedProfile);
+          finalUser = { ...finalUser, ...parsed };
+        }
+      } catch (e) {
+        console.error("Error reading stored user profile:", e);
+      }
       setUser(finalUser);
     } catch (err) {
       console.error('Session restore failed:', err.message);
@@ -309,9 +319,16 @@ export function AuthProvider({ children }) {
 
   const updateUserProfile = async (details) => {
     if (!user) return;
+    const userKey = user.email || user.username || user.id || 'default';
     const updated = { ...user, ...details };
 
     setUser(updated);
+    try {
+      localStorage.setItem(`skillsphere_user_profile_${userKey}`, JSON.stringify(updated));
+      localStorage.setItem('skillsphere_user', JSON.stringify(updated));
+    } catch (e) {
+      console.error("Failed to save profile locally:", e);
+    }
 
     try {
       await authenticatedFetch(`${API_URL}/api/profile/update`, {

@@ -23,6 +23,7 @@ import {
   FaBell,
   FaRobot,
   FaRocket,
+  FaMapSigns,
   FaSun,
   FaMoon,
   FaArrowLeft,
@@ -250,6 +251,7 @@ export default function FlashcardsPage() {
     { id: "assignments", label: "Assignments", icon: <FaFileAlt />, path: "/assignments" },
     { id: "discussions", label: "Discussions", icon: <FaComments />, path: "/discussions" },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, path: "/ai-study-buddy", active: true },
+    { id: "career-roadmap", label: "Career Roadmap", icon: <FaMapSigns />, path: "/career-roadmap" },
     { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, path: "/opportunity-feed" },
     { id: "daily-quests", label: "Daily Quests", icon: <FaBolt />, path: "/daily-quests" },
     { id: "badges", label: "Badges", icon: <FaAward />, path: "/badges" },
@@ -470,7 +472,6 @@ export default function FlashcardsPage() {
               >
                 <span className="fcpNavIcon">{item.icon}</span>
                 <span>{item.label}</span>
-                {item.isNew && <span className="fcpBadgeNew">New</span>}
               </Link>
             ))}
           </nav>

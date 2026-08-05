@@ -122,6 +122,7 @@ export default function WorkforceDashboard() {
 
   // Sidebar & Navigation State
   const [activeTab, setActiveTab] = useState("Overview");
+  const [careerSubTab, setCareerSubTab] = useState("Career Path");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [overviewFilter, setOverviewFilter] = useState("This Month");
@@ -843,6 +844,8 @@ export default function WorkforceDashboard() {
     { id: "Employees", label: "Employees", icon: <FaUsers /> },
     { id: "Teams", label: "Teams", icon: <FaUserFriends /> },
     { id: "Skills", label: "Skills & Assessments", icon: <FaShieldAlt /> },
+    { id: "CareerPromotion", label: "Career Promotion", icon: <FaTrophy /> },
+    { id: "Learning", label: "Learning & Training", icon: <FaLaptopCode /> },
     { id: "Performance", label: "Performance", icon: <FaChartLine /> },
     { id: "Attendance", label: "Attendance", icon: <FaClock /> },
     { id: "Engagement", label: "Engagement", icon: <FaHeart /> },
@@ -1061,6 +1064,485 @@ export default function WorkforceDashboard() {
         {/* CONTENT BODY */}
         <main className="wf-content-body">
           
+          {/* TAB: CAREER PROMOTION (EXACT 1-TO-1 MATCH TO REFERENCE MOCKUP IMAGE 1) */}
+          {activeTab === "CareerPromotion" && (
+            <div className="wf-cp-container">
+              {/* HERO BANNER SECTION */}
+              <section className="wf-cp-hero">
+                <div className="wf-cp-hero-left">
+                  <h1 className="wf-cp-hero-title">Career Promotion</h1>
+                  <p className="wf-cp-hero-subtitle">
+                    Plan your growth. Build skills. Achieve your next role.<br />
+                    Track your progress, bridge skill gaps and unlock new career opportunities.
+                  </p>
+                  <button
+                    className="wf-cp-explore-btn"
+                    onClick={() => alert("Exploring all available workforce career tracks!")}
+                  >
+                    <span>Explore Career Paths</span>
+                    <FaArrowRight />
+                  </button>
+                </div>
+
+                <div className="wf-cp-hero-illustration">
+                  <img
+                    src={themeMode === 'dark' ? (darkWorkforcePortalImg || darkHeroImg) : workforcePortalImg}
+                    alt="Career Promotion Illustration"
+                    className="wf-cp-hero-img"
+                  />
+                </div>
+
+                <div className="wf-cp-role-card">
+                  <div className="wf-cp-role-item">
+                    <span className="wf-cp-role-label">Current Role</span>
+                    <div className="wf-cp-role-row">
+                      <span className="wf-cp-role-title">Senior Software Engineer</span>
+                      <span className="wf-cp-level-pill">Level 4</span>
+                    </div>
+                  </div>
+
+                  <div className="wf-cp-role-item" style={{ marginTop: "12px" }}>
+                    <span className="wf-cp-role-label">Next Target Role</span>
+                    <div className="wf-cp-role-row">
+                      <span className="wf-cp-role-title">Lead Software Engineer</span>
+                      <span className="wf-cp-level-pill target">Level 5</span>
+                    </div>
+                  </div>
+
+                  <button
+                    className="wf-cp-role-details-btn"
+                    onClick={() => alert("Lead Software Engineer (Level 5) Role Details:\n- 5+ years experience required\n- System Design & Cloud Architecture\n- Lead team of 4-6 engineers")}
+                  >
+                    <span>View Role Details</span>
+                    <FaArrowRight />
+                  </button>
+                </div>
+              </section>
+
+              {/* 5 METRICS CARDS ROW */}
+              <section className="wf-cp-metrics-grid">
+                <div className="wf-cp-metric-card">
+                  <div className="wf-cp-donut-wrapper">
+                    <svg className="wf-cp-donut-svg" viewBox="0 0 60 60">
+                      <circle cx="30" cy="30" r="22" className="wf-cp-donut-bg" />
+                      <circle cx="30" cy="30" r="22" className="wf-cp-donut-fill" strokeDasharray="138" strokeDashoffset={138 - (138 * 68) / 100} />
+                    </svg>
+                    <span className="wf-cp-donut-val">68%</span>
+                  </div>
+                  <div className="wf-cp-metric-info">
+                    <span className="wf-cp-metric-name">Career Progress</span>
+                    <span className="wf-cp-metric-status">You are on track!</span>
+                    <span className="wf-cp-metric-trend">↑ 12% progress this month</span>
+                  </div>
+                </div>
+
+                <div className="wf-cp-metric-card">
+                  <div className="wf-cp-icon-circle blue">
+                    <FaUsers />
+                  </div>
+                  <div className="wf-cp-metric-info">
+                    <span className="wf-cp-metric-name">Skills Matched</span>
+                    <span className="wf-cp-metric-bigval">18 / 24</span>
+                    <span className="wf-cp-metric-sub">Skills required for next level</span>
+                    <div className="wf-cp-progress-mini"><div className="fill" style={{ width: '75%', background: '#3b82f6' }} /></div>
+                  </div>
+                </div>
+
+                <div className="wf-cp-metric-card">
+                  <div className="wf-cp-icon-circle orange">
+                    <FaBullseye />
+                  </div>
+                  <div className="wf-cp-metric-info">
+                    <span className="wf-cp-metric-name">Skill Gaps</span>
+                    <span className="wf-cp-metric-bigval">6</span>
+                    <span className="wf-cp-metric-sub">Skills to improve or learn</span>
+                    <div className="wf-cp-progress-mini"><div className="fill" style={{ width: '35%', background: '#f97316' }} /></div>
+                  </div>
+                </div>
+
+                <div className="wf-cp-metric-card">
+                  <div className="wf-cp-icon-circle green">
+                    <FaBookOpen />
+                  </div>
+                  <div className="wf-cp-metric-info">
+                    <span className="wf-cp-metric-name">Completed Learning</span>
+                    <span className="wf-cp-metric-bigval">24</span>
+                    <span className="wf-cp-metric-sub">Courses & learning completed</span>
+                    <div className="wf-cp-progress-mini"><div className="fill" style={{ width: '100%', background: '#10b981' }} /></div>
+                  </div>
+                </div>
+
+                <div className="wf-cp-metric-card">
+                  <div className="wf-cp-icon-circle green-light">
+                    <FaStar />
+                  </div>
+                  <div className="wf-cp-metric-info">
+                    <span className="wf-cp-metric-name">Promotion Readiness</span>
+                    <span className="wf-cp-metric-bigval green-text">High</span>
+                    <span className="wf-cp-metric-sub">You're ready for the next step!</span>
+                  </div>
+                </div>
+              </section>
+
+              {/* SUB-NAVIGATION TABS BAR */}
+              <nav className="wf-cp-tabs-bar">
+                {["Career Path", "Skill Gaps", "Recommendations", "Opportunities", "Promotion History"].map((tab) => (
+                  <button
+                    key={tab}
+                    className={`wf-cp-tab-btn ${careerSubTab === tab ? "active" : ""}`}
+                    onClick={() => setCareerSubTab(tab)}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </nav>
+
+              {/* MAIN CONTENT 2-COLUMN GRID */}
+              <div className="wf-cp-main-grid">
+                
+                {/* LEFT COLUMN */}
+                <div className="wf-cp-left-col">
+                  
+                  {/* YOUR CAREER PATH STEP TIMELINE */}
+                  <div className="wf-cp-card">
+                    <div className="wf-cp-card-header">
+                      <div>
+                        <h3 className="wf-cp-card-title">Your Career Path</h3>
+                        <span className="wf-cp-track-sub">Software Engineering Track</span>
+                      </div>
+                      <button className="wf-cp-link-btn" onClick={() => alert("Viewing all 7 engineering career levels...")}>
+                        View All Levels &rarr;
+                      </button>
+                    </div>
+
+                    <div className="wf-cp-timeline">
+                      <div className="wf-cp-timeline-line" />
+                      
+                      <div className="wf-cp-timeline-steps">
+                        <div className="wf-cp-step completed">
+                          <div className="wf-cp-step-icon"><FaCheck /></div>
+                          <span className="wf-cp-step-title">Software Engineer</span>
+                          <span className="wf-cp-step-level">Level 3</span>
+                          <span className="wf-cp-step-badge completed">Completed</span>
+                        </div>
+
+                        <div className="wf-cp-step completed">
+                          <div className="wf-cp-step-icon"><FaCheck /></div>
+                          <span className="wf-cp-step-title">Senior Software Engineer</span>
+                          <span className="wf-cp-step-level">Level 4</span>
+                          <span className="wf-cp-step-badge completed">Completed</span>
+                        </div>
+
+                        <div className="wf-cp-step in-progress">
+                          <div className="wf-cp-step-icon active">3</div>
+                          <span className="wf-cp-step-title">Lead Software Engineer</span>
+                          <span className="wf-cp-step-level">Level 5</span>
+                          <span className="wf-cp-step-badge in-progress">+ In Progress</span>
+                        </div>
+
+                        <div className="wf-cp-step locked">
+                          <div className="wf-cp-step-icon locked"><FaUserFriends /></div>
+                          <span className="wf-cp-step-title">Engineering Manager</span>
+                          <span className="wf-cp-step-level">Level 6</span>
+                          <span className="wf-cp-step-badge locked">Locked</span>
+                        </div>
+
+                        <div className="wf-cp-step locked">
+                          <div className="wf-cp-step-icon locked"><FaUserFriends /></div>
+                          <span className="wf-cp-step-title">Director of Engineering</span>
+                          <span className="wf-cp-step-level">Level 7</span>
+                          <span className="wf-cp-step-badge locked">Locked</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="wf-cp-progress-target-box">
+                      <div className="wf-cp-progress-top">
+                        <span className="wf-cp-target-label">Progress to Lead Software Engineer</span>
+                        <span className="wf-cp-target-pct">68%</span>
+                      </div>
+                      <div className="wf-cp-target-track">
+                        <div className="wf-cp-target-fill" style={{ width: "68%" }} />
+                      </div>
+                      <div className="wf-cp-progress-bottom">
+                        <span className="wf-cp-expected">Expected completion: Aug 2025</span>
+                        <button
+                          className="wf-cp-outline-btn"
+                          onClick={() => alert("Role Details Modal: Lead Software Engineer criteria (68% complete)")}
+                        >
+                          View Role Details
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* TOP SKILL GAPS */}
+                  <div className="wf-cp-card" style={{ marginTop: "20px" }}>
+                    <div className="wf-cp-card-header">
+                      <div>
+                        <h3 className="wf-cp-card-title">Top Skill Gaps</h3>
+                        <span className="wf-cp-track-sub">Improve these skills to reach your next role faster.</span>
+                      </div>
+                      <button className="wf-cp-link-btn" onClick={() => setCareerSubTab("Skill Gaps")}>
+                        View All Skill Gaps &rarr;
+                      </button>
+                    </div>
+
+                    <div className="wf-cp-skills-grid">
+                      <div className="wf-cp-skill-item">
+                        <div className="wf-cp-skill-icon"><FaLaptopCode /></div>
+                        <div className="wf-cp-skill-info">
+                          <div className="wf-cp-skill-top">
+                            <span className="wf-cp-skill-name">System Design</span>
+                            <span className="wf-cp-skill-badge adv">Advanced</span>
+                          </div>
+                          <div className="wf-cp-skill-track">
+                            <div className="wf-cp-skill-fill" style={{ width: "40%", background: "#f97316" }} />
+                          </div>
+                          <span className="wf-cp-skill-pct">40%</span>
+                        </div>
+                      </div>
+
+                      <div className="wf-cp-skill-item">
+                        <div className="wf-cp-skill-icon"><FaCloud /></div>
+                        <div className="wf-cp-skill-info">
+                          <div className="wf-cp-skill-top">
+                            <span className="wf-cp-skill-name">Cloud Architecture</span>
+                            <span className="wf-cp-skill-badge adv">Advanced</span>
+                          </div>
+                          <div className="wf-cp-skill-track">
+                            <div className="wf-cp-skill-fill" style={{ width: "30%", background: "#f97316" }} />
+                          </div>
+                          <span className="wf-cp-skill-pct">30%</span>
+                        </div>
+                      </div>
+
+                      <div className="wf-cp-skill-item">
+                        <div className="wf-cp-skill-icon"><FaUserFriends /></div>
+                        <div className="wf-cp-skill-info">
+                          <div className="wf-cp-skill-top">
+                            <span className="wf-cp-skill-name">Leadership & People Management</span>
+                            <span className="wf-cp-skill-badge mid">Intermediate</span>
+                          </div>
+                          <div className="wf-cp-skill-track">
+                            <div className="wf-cp-skill-fill" style={{ width: "60%", background: "#8b5cf6" }} />
+                          </div>
+                          <span className="wf-cp-skill-pct">60%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* RIGHT COLUMN */}
+                <div className="wf-cp-right-col">
+                  
+                  {/* RECOMMENDED NEXT STEPS */}
+                  <div className="wf-cp-card">
+                    <h3 className="wf-cp-card-title" style={{ marginBottom: "16px" }}>Recommended Next Steps</h3>
+
+                    <div className="wf-cp-steps-list">
+                      <div className="wf-cp-step-card" onClick={() => alert("Redirecting to Recommended Courses...")}>
+                        <div className="wf-cp-step-card-icon"><FaBookOpen /></div>
+                        <div className="wf-cp-step-card-info">
+                          <span className="title">Complete 2 recommended courses</span>
+                          <span className="sub">3 courses pending</span>
+                        </div>
+                        <FaArrowRight className="arrow" />
+                      </div>
+
+                      <div className="wf-cp-step-card" onClick={() => setCareerSubTab("Skill Gaps")}>
+                        <div className="wf-cp-step-card-icon"><FaBullseye /></div>
+                        <div className="wf-cp-step-card-info">
+                          <span className="title">Improve 2 skill gaps</span>
+                          <span className="sub">Focus on high priority skills</span>
+                        </div>
+                        <FaArrowRight className="arrow" />
+                      </div>
+
+                      <div className="wf-cp-step-card" onClick={() => alert("Promotion project proposal form opened.")}>
+                        <div className="wf-cp-step-card-icon"><FaBriefcase /></div>
+                        <div className="wf-cp-step-card-info">
+                          <span className="title">Work on a promotion project</span>
+                          <span className="sub">1 project recommended</span>
+                        </div>
+                        <FaArrowRight className="arrow" />
+                      </div>
+
+                      <div className="wf-cp-step-card" onClick={() => alert("Mentorship booking system opened.")}>
+                        <div className="wf-cp-step-card-icon"><FaHeadset /></div>
+                        <div className="wf-cp-step-card-info">
+                          <span className="title">Get mentor feedback</span>
+                          <span className="sub">Schedule a 1:1 session</span>
+                        </div>
+                        <FaArrowRight className="arrow" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* UPCOMING OPPORTUNITIES */}
+                  <div className="wf-cp-card" style={{ marginTop: "20px" }}>
+                    <div className="wf-cp-card-header">
+                      <h3 className="wf-cp-card-title">Upcoming Opportunities</h3>
+                      <button className="wf-cp-link-btn" onClick={() => setCareerSubTab("Opportunities")}>
+                        View All &rarr;
+                      </button>
+                    </div>
+
+                    <div className="wf-cp-opps-list">
+                      <div className="wf-cp-opp-item">
+                        <div className="wf-cp-opp-icon"><FaBriefcase /></div>
+                        <div className="wf-cp-opp-info">
+                          <div className="wf-cp-opp-row">
+                            <span className="title">Lead Engineer Opening</span>
+                            <span className="type internal">Internal</span>
+                          </div>
+                          <span className="dept">Engineering Team</span>
+                        </div>
+                        <span className="date">Apply by 10 Jun 2025</span>
+                      </div>
+
+                      <div className="wf-cp-opp-item">
+                        <div className="wf-cp-opp-icon"><FaUserPlus /></div>
+                        <div className="wf-cp-opp-info">
+                          <div className="wf-cp-opp-row">
+                            <span className="title">Tech Lead Program</span>
+                            <span className="type program">Program</span>
+                          </div>
+                          <span className="dept">Leadership Development</span>
+                        </div>
+                        <span className="date">Apply by 25 Jun 2025</span>
+                      </div>
+
+                      <div className="wf-cp-opp-item">
+                        <div className="wf-cp-opp-icon"><FaRocket /></div>
+                        <div className="wf-cp-opp-info">
+                          <div className="wf-cp-opp-row">
+                            <span className="title">Innovation Hackathon</span>
+                            <span className="type event">Event</span>
+                          </div>
+                          <span className="dept">Company Wide</span>
+                        </div>
+                        <span className="date">Starts on 15 Jun 2025</span>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+              {/* WORKFORCE FOOTER */}
+              <footer className="wf-footer-container" style={{ marginTop: "40px" }}>
+                <div className="wf-footer-main">
+                  <div className="wf-footer-brand-col">
+                    <div className="wf-footer-logo">
+                      <span className="wf-logo-icon">⬢</span>
+                      <span className="wf-brand-name">SkillSphere</span>
+                      <span className="wf-brand-sub">Workforce</span>
+                    </div>
+                    <p className="wf-footer-tagline">
+                      Empowering organizations by building a skilled and engaged workforce.
+                    </p>
+                    <div className="wf-footer-socials">
+                      <a href="https://linkedin.com" target="_blank" rel="noreferrer"><FaLinkedin /></a>
+                      <a href="https://facebook.com" target="_blank" rel="noreferrer"><FaFacebook /></a>
+                      <a href="https://twitter.com" target="_blank" rel="noreferrer"><FaTwitter /></a>
+                      <a href="https://instagram.com" target="_blank" rel="noreferrer"><FaInstagram /></a>
+                    </div>
+                  </div>
+
+                  <div className="wf-footer-links-grid">
+                    <div className="wf-footer-col">
+                      <h4>Overview</h4>
+                      <ul>
+                        <li><button onClick={() => setActiveTab("Overview")}>Overview</button></li>
+                        <li><button onClick={() => setActiveTab("Employees")}>Employees</button></li>
+                        <li><button onClick={() => setActiveTab("Teams")}>Teams</button></li>
+                      </ul>
+                    </div>
+
+                    <div className="wf-footer-col">
+                      <h4>Skills & Assessments</h4>
+                      <ul>
+                        <li><button onClick={() => setActiveTab("Skills")}>Skills & Assessments</button></li>
+                        <li><button onClick={() => setActiveTab("CareerPromotion")}>Skill Library</button></li>
+                      </ul>
+                    </div>
+
+                    <div className="wf-footer-col">
+                      <h4>Learning & Training</h4>
+                      <ul>
+                        <li><button onClick={() => setActiveTab("Learning")}>Learning & Training</button></li>
+                        <li><button onClick={() => setActiveTab("Learning")}>My Learning</button></li>
+                        <li><button onClick={() => setActiveTab("Learning")}>Certifications</button></li>
+                      </ul>
+                    </div>
+
+                    <div className="wf-footer-col">
+                      <h4>Performance</h4>
+                      <ul>
+                        <li><button onClick={() => setActiveTab("Performance")}>Performance</button></li>
+                        <li><button onClick={() => setActiveTab("Performance")}>Reviews</button></li>
+                        <li><button onClick={() => setActiveTab("Performance")}>Goals</button></li>
+                      </ul>
+                    </div>
+
+                    <div className="wf-footer-col">
+                      <h4>Attendance</h4>
+                      <ul>
+                        <li><button onClick={() => setActiveTab("Attendance")}>Attendance</button></li>
+                        <li><button onClick={() => setActiveTab("Attendance")}>Leaves</button></li>
+                        <li><button onClick={() => setActiveTab("Attendance")}>Calendar</button></li>
+                      </ul>
+                    </div>
+
+                    <div className="wf-footer-col">
+                      <h4>Engagement</h4>
+                      <ul>
+                        <li><button onClick={() => setActiveTab("Engagement")}>Engagement</button></li>
+                        <li><button onClick={() => setActiveTab("Engagement")}>Surveys</button></li>
+                        <li><button onClick={() => setActiveTab("Engagement")}>Feedback</button></li>
+                      </ul>
+                    </div>
+
+                    <div className="wf-footer-col">
+                      <h4>Reports & Analytics</h4>
+                      <ul>
+                        <li><button onClick={() => setActiveTab("Reports")}>Reports & Analytics</button></li>
+                        <li><button onClick={() => setActiveTab("Reports")}>Dashboards</button></li>
+                        <li><button onClick={() => setActiveTab("Reports")}>Insights</button></li>
+                      </ul>
+                    </div>
+
+                    <div className="wf-footer-col">
+                      <h4>Workforce Settings</h4>
+                      <ul>
+                        <li><button onClick={() => setActiveTab("Settings")}>Workforce Settings</button></li>
+                        <li><button onClick={() => setActiveTab("Settings")}>Roles & Permissions</button></li>
+                        <li><button onClick={() => setActiveTab("Settings")}>Integrations</button></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="wf-footer-bottom">
+                  <span>© 2026 SkillSphere Workforce. All rights reserved.</span>
+                  <div className="wf-footer-legal-links">
+                    <button onClick={() => alert("Privacy Policy")}>Privacy Policy</button>
+                    <span>|</span>
+                    <button onClick={() => alert("Terms of Service")}>Terms of Service</button>
+                    <span>|</span>
+                    <button onClick={() => alert("Help Center")}>Help Center</button>
+                    <span>|</span>
+                    <button onClick={() => alert("English (US)")}><FaGlobe /> English</button>
+                  </div>
+                </div>
+              </footer>
+            </div>
+          )}
+
           {/* TAB 8: ENGAGEMENT MANAGEMENT (EXACT MATCH TO REFERENCE IMAGE WITH DISTINCT HUMAN GRAPHIC) */}
           {activeTab === "Engagement" && (
             <>

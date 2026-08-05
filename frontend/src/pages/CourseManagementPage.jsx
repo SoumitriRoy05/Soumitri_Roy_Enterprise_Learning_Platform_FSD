@@ -59,17 +59,24 @@ export default function CourseManagementPage() {
 
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
+    { id: "student-profile", label: "Student Profile", icon: <FaAward /> },
+    { id: "services-catalog", label: "Services & Catalog", icon: <FaBook /> },
+    { id: "assessments", label: "Assessments", icon: <FaBolt /> },
+    { id: "certification-tracking", label: "Cert Tracking", icon: <FaCertificate /> },
+    { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
+    { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
+    { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
+    { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
-    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
+    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },
+    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket /> },
     { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
     { id: "badges", label: "Badges", icon: <FaAward /> },
     { id: "certificates", label: "Certificates", icon: <FaCertificate /> },
     { id: "progress", label: "Progress", icon: <FaChartLine /> },
     { id: "resume", label: "Resume Builder", icon: <FaFileInvoice /> },
-    { id: "code-arena", label: "CodeArena", icon: <FaCode />, isNew: true },
-    { id: "settings", label: "Settings", icon: <FaCog /> }
+    { id: "code-arena", label: "CodeArena", icon: <FaCode /> }
   ];
 
   return (

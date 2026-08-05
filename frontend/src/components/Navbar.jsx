@@ -94,8 +94,12 @@ export default function Navbar({ toggleSidebar, isSidebarOpen, showSidebarToggle
             style={{ cursor: "pointer" }}
           >
             <div className="userProfileBadge">
-              <div className="avatarCircle">
-                {user.full_name ? user.full_name.charAt(0).toUpperCase() : user.username.charAt(0).toUpperCase()}
+              <div className="avatarCircle" style={{ overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {(user.avatar_url || user.profile_picture) ? (
+                  <img src={user.avatar_url || user.profile_picture} alt="Avatar" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+                ) : (
+                  user.full_name ? user.full_name.charAt(0).toUpperCase() : user.username.charAt(0).toUpperCase()
+                )}
               </div>
               <div className="userInfoText">
                 <span className="userName">{user.full_name || user.username}</span>

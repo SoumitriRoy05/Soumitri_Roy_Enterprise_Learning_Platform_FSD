@@ -26,6 +26,7 @@ import {
   FaRobot,
   FaRocket,
   FaMapMarkedAlt,
+  FaMapSigns,
   FaStar,
   FaCheckCircle,
   FaBookmark,
@@ -102,14 +103,14 @@ export default function CoursesPage() {
     { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
-    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
+    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },
+    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket /> },
     { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
     { id: "badges", label: "Badges", icon: <FaAward /> },
     { id: "certificates", label: "Certificates", icon: <FaCertificate /> },
     { id: "progress", label: "Progress", icon: <FaChartLine /> },
     { id: "resume", label: "Resume Builder", icon: <FaFileInvoice /> },
-    { id: "code-arena", label: "CodeArena", icon: <FaCode />, isNew: true }
+    { id: "code-arena", label: "CodeArena", icon: <FaCode /> }
   ];
 
   const rawCourses = [
@@ -403,9 +404,15 @@ export default function CoursesPage() {
   // Combined course list: base courses + admin-added courses
   const allRawCourses = [...rawCourses, ...adminCatalogCourses];
 
+  // Default Unlocked Courses (present in active Learning Paths): IDs 1 to 9
+  const LEARNING_PATH_COURSE_IDS = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+
   const courseList = allRawCourses.map((c) => {
     const cidStr = c.id.toString();
-    const isEnrolled = allEnrolled.includes(cidStr) || allEnrolled.includes(c.id);
+    const isPresentInLearningPath = LEARNING_PATH_COURSE_IDS.includes(cidStr);
+    
+    // Unlocked IF present in active Learning Path OR explicitly enrolled by user/admin
+    const isEnrolled = isPresentInLearningPath || allEnrolled.includes(cidStr) || allEnrolled.includes(c.id);
     const topicsDone = userCompletedTopics.filter((id) => id.startsWith(c.topicPrefix || "")).length;
     const progress = isEnrolled ? Math.min(100, Math.round((topicsDone / 6) * 100)) : 0;
 
@@ -415,11 +422,11 @@ export default function CoursesPage() {
     const isAdminApproved = pendingRequests.some(r => r.courseId === cidStr && r.status === "approved");
 
     let status = "locked";
-    let statusText = "Locked";
+    let statusText = "🔒 Locked";
 
     if (isPendingApproval && !isEnrolled && !isAdminApproved) {
       status = "pending-approval";
-      statusText = "⏳ Pending Admin Approval";
+      statusText = "⏳ Pending Approval";
     } else if (isEnrolled || isAdminApproved) {
       if (progress >= 100) {
         status = "completed";
@@ -433,6 +440,7 @@ export default function CoursesPage() {
     return {
       ...c,
       isEnrolled: isEnrolled || isAdminApproved,
+      isPresentInLearningPath,
       isPendingApproval,
       progress,
       status,
@@ -549,12 +557,24 @@ export default function CoursesPage() {
                       else if (item.id === "complaint-tracking") navigate("/complaint-tracking");
                       else if (item.id === "career-roadmap") navigate("/career-roadmap");
                       else if (item.id === "job-search") navigate("/job-search");
+                      else if (item.id === "courses") navigate("/courses");
+                      else if (item.id === "learning-paths") navigate("/learning-paths");
+                      else if (item.id === "assignments") navigate("/assignments");
+                      else if (item.id === "discussions") navigate("/discussions");
+                      else if (item.id === "ai-buddy") navigate("/ai-buddy");
+                      else if (item.id === "opportunity-feed") navigate("/opportunity-feed");
+                      else if (item.id === "daily-quests") navigate("/daily-quests");
+                      else if (item.id === "badges") navigate("/badges");
+                      else if (item.id === "certificates") navigate("/certificate");
+                      else if (item.id === "progress") navigate("/progress");
+                      else if (item.id === "resume") navigate("/resume");
+                      else if (item.id === "code-arena") navigate("/code-arena");
+                      else if (item.id === "settings") navigate("/settings");
                       else navigate(`/${item.id}`);
                     }}
                   >
                     <span className="navIcon">{item.icon}</span>
                     <span className="navLabel">{item.label}</span>
-                    {item.isNew && <span className="navNewBadge">New</span>}
                   </button>
                 </li>
               ))}
@@ -703,7 +723,7 @@ export default function CoursesPage() {
               {/* 8 Courses Grid */}
               <div className="mcCourseGrid">
                 {filteredCourses.map((c) => (
-                  <div key={c.id} className={`mcCourseCard ${c.status}`}>
+                  <div key={c.id} className={`mcCourseCard ${c.status}`} style={c.status === "locked" ? { opacity: 0.85 } : {}}>
                     
                     {/* Top Banner Image Box */}
                     <div className={`mcBannerBox ${c.bannerType}`} style={{ position: "relative", overflow: "hidden" }}>
@@ -718,13 +738,32 @@ export default function CoursesPage() {
                             position: "absolute",
                             top: 0,
                             left: 0,
-                            opacity: 0.82,
+                            opacity: c.status === "locked" ? 0.4 : 0.82,
                             transition: "transform 0.3s ease"
                           }}
                           className="courseBannerImg"
                         />
                       )}
-                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.75) 100%)", zIndex: 1 }} />
+                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: c.status === "locked" ? "rgba(15, 23, 42, 0.75)" : "linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.75) 100%)", zIndex: 1 }} />
+
+                      {c.status === "locked" && (
+                        <div style={{
+                          position: "absolute",
+                          top: 0, left: 0, right: 0, bottom: 0,
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          zIndex: 4,
+                          color: "#FFFFFF",
+                          gap: "4px"
+                        }}>
+                          <FaLock style={{ fontSize: "24px", color: "#FBBF24" }} />
+                          <span style={{ fontSize: "10px", fontWeight: "800", letterSpacing: "0.5px", background: "rgba(0,0,0,0.7)", padding: "2px 8px", borderRadius: "4px" }}>
+                            LOCKED (ENROLL IN PATH)
+                          </span>
+                        </div>
+                      )}
 
                       <div
                         className="mcLogoBadge"
@@ -771,23 +810,29 @@ export default function CoursesPage() {
                       <button
                         className={`btnCourseCardAction ${c.status}`}
                         onClick={() => {
-                          if (c.status === "completed") {
-                            navigate("/assessments");
-                          } else if (c.status === "locked" || c.status === "not-started") {
+                          if (c.status === "locked" || c.status === "not-started") {
                             openCheckoutModal(c);
+                          } else if (c.status === "pending-approval") {
+                            // Pending notice
                           } else {
-                            const trackKey = c.bannerType === "code" ? "javascript" : c.bannerType === "figma" ? "uiux" : c.bannerType === "system" ? "fsd" : c.bannerType;
-                            navigate(`/learning?track=${trackKey || "react"}`);
+                            // Unlocked / In-Progress -> Navigate to Learning Paths Page
+                            navigate("/learning-paths", { 
+                              state: { 
+                                courseId: c.id, 
+                                courseTitle: c.title,
+                                topicPrefix: c.topicPrefix 
+                              } 
+                            });
                           }
                         }}
                       >
                         {c.status === "completed"
-                          ? "Take Exam"
+                          ? "Review in Learning Path →"
                           : c.status === "locked"
-                          ? "Unlock Course"
-                          : c.status === "not-started"
-                          ? "Start Course"
-                          : "Continue"}
+                          ? "🔒 Locked (Enroll via Path)"
+                          : c.status === "pending-approval"
+                          ? "⏳ Pending Approval"
+                          : "Continue →"}
                       </button>
                     </div>
 

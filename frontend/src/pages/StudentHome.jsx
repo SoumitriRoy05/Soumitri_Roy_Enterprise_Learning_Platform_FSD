@@ -28,6 +28,7 @@ import {
   FaRobot,
   FaRocket,
   FaMapMarkedAlt,
+  FaMapSigns,
   FaQuestionCircle,
   FaLaptopCode,
   FaUpload,
@@ -169,7 +170,7 @@ export default function StudentHome() {
   const activityDays = new Set(activityRaw ? JSON.parse(activityRaw) : []);
 
   // Mark today active if user has any XP or completed topics
-  if ((currentXp > 0 || userCompletedTopicsCount > 0) && !activityDays.has(todayStr)) {
+  if ((currentXp > 0 || (completedTopics?.length || 0) > 0) && !activityDays.has(todayStr)) {
     activityDays.add(todayStr);
     localStorage.setItem(activityKey, JSON.stringify([...activityDays]));
   }
@@ -229,7 +230,7 @@ export default function StudentHome() {
 
 
 
-  // Exact 1-to-1 Sidebar Items matching screenshot
+  // Exact 1-to-1 Sidebar Items matching unified dashboard structure
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: <FaHome /> },
     { id: "student-profile", label: "Student Profile", icon: <FaAward /> },
@@ -242,14 +243,14 @@ export default function StudentHome() {
     { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
-    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot />, isNew: true },
-    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket />, isNew: true },
+    { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },
+    { id: "opportunity-feed", label: "Opportunity Feed", icon: <FaRocket /> },
     { id: "daily-quests", label: "Daily Quests", icon: <FaBolt /> },
     { id: "badges", label: "Badges", icon: <FaAward /> },
     { id: "certificates", label: "Certificates", icon: <FaCertificate /> },
     { id: "progress", label: "Progress", icon: <FaChartLine /> },
     { id: "resume", label: "Resume Builder", icon: <FaFileInvoice /> },
-    { id: "code-arena", label: "CodeArena", icon: <FaCode />, isNew: true }
+    { id: "code-arena", label: "CodeArena", icon: <FaCode /> }
   ];
 
   return (
@@ -259,7 +260,7 @@ export default function StudentHome() {
       {/* Main Grid Layout Container */}
       <div className="sdMainContainer">
         
-        {/* ── LEFT SIDEBAR COLUMN (MATCHING SCREENSHOT) ── */}
+        {/* ── LEFT SIDEBAR COLUMN ── */}
         <aside className="sdLeftSidebar">
           <div>
             <Link to="/" className="sdBrandLogo">
@@ -291,6 +292,7 @@ export default function StudentHome() {
                       else if (item.id === "learning-paths") navigate("/learning-paths");
                       else if (item.id === "assignments") navigate("/assignments");
                       else if (item.id === "ai-buddy") navigate("/ai-buddy");
+                      else if (item.id === "career-roadmap") navigate("/career-roadmap");
                       else if (item.id === "opportunity-feed") navigate("/opportunity-feed");
                       else if (item.id === "badges") navigate("/badges");
                       else if (item.id === "discussions") navigate("/discussions");
@@ -305,14 +307,12 @@ export default function StudentHome() {
                       else if (item.id === "certification-tracking") navigate("/certification-tracking");
                       else if (item.id === "tracking-dashboard") navigate("/tracking-dashboard");
                       else if (item.id === "complaint-tracking") navigate("/complaint-tracking");
-                      else if (item.id === "career-roadmap") navigate("/career-roadmap");
                       else if (item.id === "job-search") navigate("/job-search");
                       else setActiveTab(item.id);
                     }}
                   >
                     <span className="navIcon">{item.icon}</span>
                     <span className="navLabel">{item.label}</span>
-                    {item.isNew && <span className="navNewBadge">New</span>}
                   </button>
                 </li>
               ))}

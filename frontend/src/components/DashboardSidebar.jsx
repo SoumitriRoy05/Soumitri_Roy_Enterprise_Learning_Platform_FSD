@@ -6,6 +6,7 @@ import {
   FiFolder, 
   FiAward, 
   FiSettings,
+  FiCompass,
   FiMenu,
   FiHome,
   FiX
@@ -30,6 +31,11 @@ const DashboardSidebar = ({ isOpen, toggleSidebar }) => {
           <NavLink to="/courses" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
           <FiBookOpen className="sidebar-icon" />
           <span>Courses</span>
+        </NavLink>
+
+        <NavLink to="/career-roadmap" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>
+          <FiCompass className="sidebar-icon" />
+          <span>Career Roadmap</span>
         </NavLink>
         
         <NavLink to="/certificate" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}>

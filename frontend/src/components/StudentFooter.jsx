@@ -13,6 +13,7 @@ import {
   FaComments,
   FaRobot,
   FaRocket,
+  FaMapSigns,
   FaBolt,
   FaAward,
   FaCertificate,
@@ -88,6 +89,11 @@ export default function StudentFooter() {
               <li>
                 <Link to="/ai-buddy" onClick={handleScrollTop}>
                   <FaRobot className="footerLinkIcon" /> AI Study Buddy <span className="footerBadge">New</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/career-roadmap" onClick={handleScrollTop}>
+                  <FaMapSigns className="footerLinkIcon" /> Career Roadmap <span className="footerBadge">New</span>
                 </Link>
               </li>
               <li>
