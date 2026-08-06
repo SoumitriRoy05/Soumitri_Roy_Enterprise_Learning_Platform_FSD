@@ -51,6 +51,7 @@ import {
 } from "react-icons/fa";
 
 import NotificationDropdown from "../components/NotificationDropdown";
+import UserAvatar from "../components/UserAvatar";
 
 import studentHeroImg from "../assets/student_dashboard_hero_illustration.png";
 import darkStudentHeroImg from "../assets/dark_student_dashboard_hero_illustration.png";
@@ -78,19 +79,23 @@ export default function StudentHome() {
 
   const isDemoUser = userKey === "soumitriroy@gmail.com" || userKey === "soumitriroy" || userKey === "default" || user?.isDemo;
 
-  // Real Dynamic Enrolled Courses Count
-  const localEnrolled = (() => {
+  // Unified enrolled courses calculation
+  const getUnifiedEnrolledCourseIds = () => {
+    let authList = (enrolledCourses || []).map(id => id.toString());
+    let localList = [];
     try {
-      const stored = localStorage.getItem(`enrolledCourses_${userKey}`) || localStorage.getItem(`enrolled_courses_${userKey}`);
-      return stored ? JSON.parse(stored) : (isDemoUser ? ["1", "2", "3", "6"] : []);
-    } catch (e) {
-      return isDemoUser ? ["1", "2", "3", "6"] : [];
-    }
-  })();
-  const activeEnrolledIds = (enrolledCourses && enrolledCourses.length > 0)
-    ? enrolledCourses
-    : localEnrolled;
+      const raw = localStorage.getItem(`enrolledCourses_${userKey}`) || localStorage.getItem(`skillsphere_enrolled_courses_${userKey}`);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) localList = parsed.map(id => id.toString());
+      }
+    } catch (e) {}
+    let dbList = Array.isArray(user?.enrolled_courses) ? user.enrolled_courses.map(id => id.toString()) : [];
+    const combined = Array.from(new Set([...authList, ...localList, ...dbList]));
+    return combined.length > 0 ? combined : ["1", "2"];
+  };
 
+  const activeEnrolledIds = getUnifiedEnrolledCourseIds();
   const userEnrolledCount = activeEnrolledIds.length;
 
   // Real Dynamic Earned Certificates Count from database
@@ -371,7 +376,7 @@ export default function StudentHome() {
               {/* User Profile Pill with Dropdown */}
               <div className="sdUserProfilePillWrapper">
                 <div className="sdUserProfilePill" onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}>
-                  <div className="sdUserAvatarImg">🧑‍🎓</div>
+                  <UserAvatar user={user} />
                   <div className="sdUserInfoText">
                     <strong>{userName}</strong>
                     <span>Student</span>

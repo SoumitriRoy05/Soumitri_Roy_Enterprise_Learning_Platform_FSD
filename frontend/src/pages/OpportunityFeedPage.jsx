@@ -5,6 +5,7 @@ import Background from "../components/Background";
 import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
 import NotificationDropdown from "../components/NotificationDropdown";
+import UserAvatar from "../components/UserAvatar";
 import FloatingChatbot from "../components/FloatingChatbot";
 
 import {
@@ -127,7 +128,7 @@ export default function OpportunityFeedPage() {
       stipend: "₹80K - 1.2 LPA",
       tags: ["C++", "Python", "DSA", "OOPs"],
       posted: "2 days ago",
-      applyUrl: "https://www.linkedin.com/jobs/view/microsoft-swe-intern"
+      applyUrl: "https://www.linkedin.com/jobs/search/?keywords=Microsoft%20Software%20Engineer%20Intern"
     },
     {
       id: "lk2",
@@ -140,7 +141,7 @@ export default function OpportunityFeedPage() {
       stipend: "₹70K - 90K / month",
       tags: ["DSA", "Problem Solving", "C++"],
       posted: "1 day ago",
-      applyUrl: "https://www.linkedin.com/jobs/view/google-step-intern"
+      applyUrl: "https://www.linkedin.com/jobs/search/?keywords=Google%20STEP%20Intern"
     },
     {
       id: "lk3",
@@ -153,7 +154,7 @@ export default function OpportunityFeedPage() {
       stipend: "₹12 - 18 LPA",
       tags: ["Java", "System Design", "SQL"],
       posted: "2 days ago",
-      applyUrl: "https://www.linkedin.com/jobs/view/amazon-sde-1"
+      applyUrl: "https://www.linkedin.com/jobs/search/?keywords=Amazon%20SDE"
     },
     {
       id: "lk4",
@@ -166,7 +167,7 @@ export default function OpportunityFeedPage() {
       stipend: "₹9 - 14 LPA",
       tags: ["C++", "Python", "OOPs"],
       posted: "2 days ago",
-      applyUrl: "https://www.linkedin.com/jobs/view/adobe-swe"
+      applyUrl: "https://www.linkedin.com/jobs/search/?keywords=Adobe%20Software%20Engineer"
     },
     {
       id: "lk5",
@@ -179,7 +180,7 @@ export default function OpportunityFeedPage() {
       stipend: "₹9 - 15 LPA",
       tags: ["Java", "Spring Boot", "SQL"],
       posted: "4 days ago",
-      applyUrl: "https://www.linkedin.com/jobs/view/atlassian-grad-engineer"
+      applyUrl: "https://www.linkedin.com/jobs/search/?keywords=Atlassian%20Graduate%20Software%20Engineer"
     }
   ];
 
@@ -195,7 +196,7 @@ export default function OpportunityFeedPage() {
       lastDate: "31 May 2025",
       posted: "2 days ago",
       logoBg: "#004B87",
-      applyUrl: "https://nextstep.tcs.com/campus/"
+      applyUrl: "https://www.naukri.com/tcs-jobs"
     },
     {
       id: "nk2",
@@ -231,7 +232,7 @@ export default function OpportunityFeedPage() {
       lastDate: "28 May 2025",
       posted: "2 days ago",
       logoBg: "#1A4788",
-      applyUrl: "https://careers.cognizant.com/"
+      applyUrl: "https://www.naukri.com/cognizant-jobs"
     },
     {
       id: "nk5",
@@ -243,7 +244,7 @@ export default function OpportunityFeedPage() {
       lastDate: "27 May 2025",
       posted: "1 day ago",
       logoBg: "#A100FF",
-      applyUrl: "https://www.accenture.com/in-en/careers"
+      applyUrl: "https://www.naukri.com/accenture-jobs"
     }
   ];
 
@@ -260,7 +261,7 @@ export default function OpportunityFeedPage() {
       difficulty: "Medium",
       posted: "2 days ago",
       logoBg: "#0070AD",
-      applyUrl: "https://www.glassdoor.co.in/Capgemini-Jobs"
+      applyUrl: "https://www.glassdoor.co.in/Job/jobs.htm?sc.keyword=Capgemini"
     },
     {
       id: "gl2",
@@ -273,7 +274,7 @@ export default function OpportunityFeedPage() {
       difficulty: "Easy",
       posted: "1 day ago",
       logoBg: "#052FAD",
-      applyUrl: "https://www.glassdoor.co.in/IBM-Jobs"
+      applyUrl: "https://www.glassdoor.co.in/Job/jobs.htm?sc.keyword=IBM"
     },
     {
       id: "gl3",
@@ -286,9 +287,44 @@ export default function OpportunityFeedPage() {
       difficulty: "Medium",
       posted: "3 days ago",
       logoBg: "#F80000",
-      applyUrl: "https://www.glassdoor.co.in/Oracle-Jobs"
+      applyUrl: "https://www.glassdoor.co.in/Job/jobs.htm?sc.keyword=Oracle"
     }
   ];
+
+  // Live Multi-Filter Calculation
+  const filterJobItem = (job) => {
+    const titleOrRole = (job.role || job.companyName || job.title || "").toLowerCase();
+    const company = (job.company || job.companyName || "").toLowerCase();
+    const tagsStr = (job.tags || []).join(" ").toLowerCase();
+    const location = (job.location || "").toLowerCase();
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      const matchQuery = titleOrRole.includes(q) || company.includes(q) || tagsStr.includes(q) || location.includes(q);
+      if (!matchQuery) return false;
+    }
+
+    if (locationFilter !== "All") {
+      if (locationFilter === "Remote" && !location.includes("remote")) return false;
+      if (locationFilter !== "Remote" && !location.includes(locationFilter.split(",")[0].toLowerCase())) return false;
+    }
+
+    if (companyFilter !== "All") {
+      if (!company.includes(companyFilter.toLowerCase())) return false;
+    }
+
+    if (workTypeFilter !== "All (Remote/Hybrid/On-site)") {
+      if (workTypeFilter === "Remote" && !location.includes("remote")) return false;
+      if (workTypeFilter === "Hybrid" && !location.includes("hybrid")) return false;
+      if (workTypeFilter === "On-site" && (location.includes("remote") || location.includes("hybrid"))) return false;
+    }
+
+    return true;
+  };
+
+  const filteredLinkedInJobs = linkedInJobs.filter(filterJobItem);
+  const filteredNaukriJobs = naukriJobs.filter(filterJobItem);
+  const filteredGlassdoorJobs = glassdoorJobs.filter(filterJobItem);
 
   // Saved Jobs List Items for Sidebar Widget
   const savedJobsMaster = [
@@ -429,7 +465,7 @@ export default function OpportunityFeedPage() {
               <NotificationDropdown type="student" />
 
               <div className="sdUserProfilePill" onClick={() => navigate("/settings")}>
-                <div className="sdUserAvatarImg">🧑‍🎓</div>
+                <UserAvatar user={user} />
                 <div className="sdUserInfoText">
                   <strong>{userName}</strong>
                   <span>Student</span>
@@ -568,7 +604,7 @@ export default function OpportunityFeedPage() {
                 </div>
 
                 <div className="jspHorizontalCardsRow">
-                  {linkedInJobs.map((job) => (
+                  {filteredLinkedInJobs.length > 0 ? filteredLinkedInJobs.map((job) => (
                     <div key={job.id} className="jspJobCard linkedinCard">
                       <div className="jspCardTopRow">
                         <div className="jspCompanyLogoBox" style={{ background: job.logoBg }}>
@@ -598,7 +634,11 @@ export default function OpportunityFeedPage() {
                         </button>
                       </div>
                     </div>
-                  ))}
+                  )) : (
+                    <div style={{ color: "var(--text-secondary)", fontSize: "14px", padding: "16px 0" }}>
+                      No matching LinkedIn opportunities found for selected filters.
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -615,7 +655,7 @@ export default function OpportunityFeedPage() {
                 </div>
 
                 <div className="jspHorizontalCardsRow">
-                  {naukriJobs.map((job) => (
+                  {filteredNaukriJobs.length > 0 ? filteredNaukriJobs.map((job) => (
                     <div key={job.id} className="jspJobCard naukriCard">
                       <div className="jspCardTopRow">
                         <div className="jspCompanyLogoBox" style={{ background: job.logoBg, fontSize: "12px", color: "#fff" }}>
@@ -640,7 +680,11 @@ export default function OpportunityFeedPage() {
                         Apply on Naukri &rarr;
                       </button>
                     </div>
-                  ))}
+                  )) : (
+                    <div style={{ color: "var(--text-secondary)", fontSize: "14px", padding: "16px 0" }}>
+                      No matching Naukri opportunities found for selected filters.
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -657,7 +701,7 @@ export default function OpportunityFeedPage() {
                 </div>
 
                 <div className="jspHorizontalCardsRow">
-                  {glassdoorJobs.map((job) => (
+                  {filteredGlassdoorJobs.length > 0 ? filteredGlassdoorJobs.map((job) => (
                     <div key={job.id} className="jspJobCard glassdoorCard">
                       <div className="jspCardTopRow">
                         <div className="jspCompanyLogoBox" style={{ background: job.logoBg, color: "#fff", fontSize: "14px" }}>
@@ -690,7 +734,11 @@ export default function OpportunityFeedPage() {
                         Apply on Glassdoor &rarr;
                       </button>
                     </div>
-                  ))}
+                  )) : (
+                    <div style={{ color: "var(--text-secondary)", fontSize: "14px", padding: "16px 0" }}>
+                      No matching Glassdoor opportunities found for selected filters.
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -822,69 +870,7 @@ export default function OpportunityFeedPage() {
                 </div>
               </div>
 
-              {/* WIDGET 2: AI Job Match */}
-              <div className="jspWidgetCard">
-                <h4 className="jspWidgetTitle">
-                  <FaRobot color="#10b981" /> AI Job Match
-                </h4>
 
-                <div className="jspAiMatchRow">
-                  <div className="jspAiDonutWrapper">
-                    <svg viewBox="0 0 60 60" className="jspAiDonutSvg">
-                      <circle cx="30" cy="30" r="22" className="bgCircle" />
-                      <circle cx="30" cy="30" r="22" className="fillCircle" strokeDasharray="138" strokeDashoffset={138 - (138 * 92) / 100} />
-                    </svg>
-                    <span className="aiValText">92%</span>
-                  </div>
-
-                  <div className="jspAiMatchInfo">
-                    <strong className="matchHeading">Excellent Match</strong>
-                    <p className="matchSub">Great! You are a strong match for many roles.</p>
-                  </div>
-                </div>
-
-                <div className="jspMatchingSkillsBlock">
-                  <span className="skillsLabel">Top Matching Skills</span>
-                  <div className="jspMatchingChips">
-                    {["React", "Spring Boot", "Java", "Node.js", "SQL", "Python"].map((s, i) => (
-                      <span key={i} className="skillChip">{s}</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* WIDGET 3: Saved Jobs (5) */}
-              <div className="jspWidgetCard">
-                <div className="jspWidgetHeaderRow">
-                  <h4 className="jspWidgetTitle">
-                    <FaBookmark color="#f97316" /> Saved Jobs ({savedJobIds.length})
-                  </h4>
-                  <button className="jspWidgetLinkBtn" onClick={() => setToastMessage("Showing all saved jobs!")}>
-                    View All &rarr;
-                  </button>
-                </div>
-
-                <div className="jspSavedJobsList">
-                  {savedJobsMaster.map((j) => (
-                    <div key={j.id} className="savedJobItem">
-                      <div className="sLogo" style={{ background: j.logoBg }}>
-                        {j.logoText}
-                      </div>
-                      <div className="sInfo">
-                        <strong className="title">{j.title}</strong>
-                        <span className="comp">{j.company}</span>
-                      </div>
-                      <button
-                        className="removeSaveBtn"
-                        title="Remove bookmark"
-                        onClick={() => toggleSaveJob(j.id, j.title)}
-                      >
-                        <FaBookmark color="#f97316" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
 
               {/* WIDGET 4: Upcoming Deadlines */}
               <div className="jspWidgetCard">

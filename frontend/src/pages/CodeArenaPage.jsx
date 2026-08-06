@@ -6,6 +6,7 @@ import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
 import FloatingChatbot from "../components/FloatingChatbot";
 import NotificationDropdown from "../components/NotificationDropdown";
+import UserAvatar from "../components/UserAvatar";
 
 import {
   FaHome,
@@ -552,7 +553,7 @@ export default function CodeArenaPage() {
               </div>
               <NotificationDropdown type="student" />
               <div className="caUserProfilePill">
-                <div className="avatarCircle">👩‍🎓</div>
+                <UserAvatar user={user} className="avatarCircle" />
                 <div className="userText">
                   <strong>{userName}</strong>
                   <span>Level {userLevel}</span>

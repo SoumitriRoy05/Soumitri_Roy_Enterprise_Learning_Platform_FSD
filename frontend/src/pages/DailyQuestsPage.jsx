@@ -6,6 +6,7 @@ import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
 import FloatingChatbot from "../components/FloatingChatbot";
 import NotificationDropdown from "../components/NotificationDropdown";
+import UserAvatar from "../components/UserAvatar";
 
 import {
   FaHome,
@@ -278,7 +279,7 @@ export default function DailyQuestsPage() {
               <NotificationDropdown type="student" />
 
               <div className="sdUserProfilePill" onClick={() => navigate("/settings")}>
-                <div className="sdUserAvatarImg">🧑‍🎓</div>
+                <UserAvatar user={user} />
                 <div className="sdUserInfoText">
                   <strong>{userName}</strong>
                   <span>Student</span>
@@ -513,7 +514,7 @@ export default function DailyQuestsPage() {
 
                   <div className="rankItem bronze activeUser">
                     <span className="rankBadge">3</span>
-                    <div className="userAvatarMini">🧑‍🎓</div>
+                    <UserAvatar user={user} className="userAvatarMini" size="28px" />
                     <strong className="userName">{userName} (You)</strong>
                     <span className="rankXp">{currentXp} XP</span>
                   </div>

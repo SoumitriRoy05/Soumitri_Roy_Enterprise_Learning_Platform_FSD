@@ -5,6 +5,7 @@ import Background from "../components/Background";
 import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
 import FloatingChatbot from "../components/FloatingChatbot";
+import UserAvatar from "../components/UserAvatar";
 
 import {
   FaHome,
@@ -194,7 +195,7 @@ export default function QuestMapPage() {
               </div>
 
               <div className="sdUserProfilePill" onClick={() => navigate("/settings")}>
-                <div className="sdUserAvatarImg">🧑‍🎓</div>
+                <UserAvatar user={user} />
                 <div className="sdUserInfoText">
                   <strong>{userName}</strong>
                   <span>Student</span>
@@ -458,7 +459,7 @@ export default function QuestMapPage() {
 
                   <div className="lbItem activeUser">
                     <span className="rankNum silver">🥈 2</span>
-                    <div className="userAvatar">🧑‍🎓</div>
+                    <UserAvatar user={user} className="userAvatar" size="28px" />
                     <strong>{userName} (You)</strong>
                     <span className="xpScore">1800 XP</span>
                   </div>

@@ -5,6 +5,7 @@ import Background from "../components/Background";
 import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
 import NotificationDropdown from "../components/NotificationDropdown";
+import UserAvatar from "../components/UserAvatar";
 import FloatingChatbot from "../components/FloatingChatbot";
 
 import {
@@ -343,23 +344,25 @@ export default function CoursesPage() {
   ];
 
   const userKey = user?.email || user?.username || "default";
-  const userEnrolled = enrolledCourses || [];
   const userCompletedTopics = completedTopics || [];
 
-  // Also read admin-approved enrollments from localStorage (set by admin when approving a request)
-  const localApprovedEnrolled = (() => {
+  // Unified enrolled courses calculation matching Dashboard and Learning Paths
+  const getUnifiedEnrolledCourseIds = () => {
+    let authList = (enrolledCourses || []).map(id => id.toString());
+    let localList = [];
     try {
-      return JSON.parse(localStorage.getItem(`enrolledCourses_${userKey}`) || "[]");
-    } catch {
-      return [];
-    }
-  })();
+      const raw = localStorage.getItem(`enrolledCourses_${userKey}`) || localStorage.getItem(`skillsphere_enrolled_courses_${userKey}`);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) localList = parsed.map(id => id.toString());
+      }
+    } catch (e) {}
+    let dbList = Array.isArray(user?.enrolled_courses) ? user.enrolled_courses.map(id => id.toString()) : [];
+    const combined = Array.from(new Set([...authList, ...localList, ...dbList]));
+    return combined.length > 0 ? combined : ["1", "2"];
+  };
 
-  // Merge both enrollment sources
-  const allEnrolled = [
-    ...userEnrolled.map(id => id.toString()),
-    ...localApprovedEnrolled.map(id => id.toString())
-  ].filter((v, i, arr) => arr.indexOf(v) === i); // deduplicate
+  const allEnrolled = getUnifiedEnrolledCourseIds();
 
   // Read pending course approval requests (for the current user)
   const pendingRequests = (() => {
@@ -404,15 +407,11 @@ export default function CoursesPage() {
   // Combined course list: base courses + admin-added courses
   const allRawCourses = [...rawCourses, ...adminCatalogCourses];
 
-  // Default Unlocked Courses (present in active Learning Paths): IDs 1 to 9
-  const LEARNING_PATH_COURSE_IDS = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
-
   const courseList = allRawCourses.map((c) => {
     const cidStr = c.id.toString();
-    const isPresentInLearningPath = LEARNING_PATH_COURSE_IDS.includes(cidStr);
     
-    // Unlocked IF present in active Learning Path OR explicitly enrolled by user/admin
-    const isEnrolled = isPresentInLearningPath || allEnrolled.includes(cidStr) || allEnrolled.includes(c.id);
+    // Unlocked IF explicitly enrolled by user/admin
+    const isEnrolled = allEnrolled.includes(cidStr) || allEnrolled.includes(c.id);
     const topicsDone = userCompletedTopics.filter((id) => id.startsWith(c.topicPrefix || "")).length;
     const progress = isEnrolled ? Math.min(100, Math.round((topicsDone / 6) * 100)) : 0;
 
@@ -421,8 +420,8 @@ export default function CoursesPage() {
     // Check if admin approved (status = 'approved') — even if not in DB yet
     const isAdminApproved = pendingRequests.some(r => r.courseId === cidStr && r.status === "approved");
 
-    let status = "locked";
-    let statusText = "🔒 Locked";
+    let status = "not-enrolled";
+    let statusText = "Available";
 
     if (isPendingApproval && !isEnrolled && !isAdminApproved) {
       status = "pending-approval";
@@ -440,7 +439,6 @@ export default function CoursesPage() {
     return {
       ...c,
       isEnrolled: isEnrolled || isAdminApproved,
-      isPresentInLearningPath,
       isPendingApproval,
       progress,
       status,
@@ -474,7 +472,20 @@ export default function CoursesPage() {
 
     const cidStr = selectedCheckoutCourse.id.toString();
 
-    // Create a pending request for Admin Approval
+    // Immediately enroll course in AuthContext and localStorage
+    if (enrollCourse) {
+      enrollCourse(cidStr);
+    }
+
+    try {
+      const stored = JSON.parse(localStorage.getItem(`enrolledCourses_${userKey}`) || "[]");
+      if (!stored.includes(cidStr)) {
+        stored.push(cidStr);
+        localStorage.setItem(`enrolledCourses_${userKey}`, JSON.stringify(stored));
+      }
+    } catch (e) {}
+
+    // Create a pending request for Admin record
     const newReq = {
       id: `REQ-${Date.now()}`,
       courseId: cidStr,
@@ -483,11 +494,11 @@ export default function CoursesPage() {
       studentEmail: userKey,
       fee: selectedCheckoutCourse.price ? `₹${selectedCheckoutCourse.price}` : "₹4,999",
       requestDate: new Date().toLocaleString(),
-      status: "pending"
+      status: "approved"
     };
 
     const currentReqs = JSON.parse(localStorage.getItem("skillsphere_pending_course_requests") || "[]");
-    if (!currentReqs.some(r => r.courseId === cidStr && r.studentEmail === userKey && r.status === "pending")) {
+    if (!currentReqs.some(r => r.courseId === cidStr && r.studentEmail === userKey)) {
       currentReqs.unshift(newReq);
       localStorage.setItem("skillsphere_pending_course_requests", JSON.stringify(currentReqs));
       try {
@@ -499,12 +510,20 @@ export default function CoursesPage() {
 
     if (earnXp) earnXp(100);
 
+    const targetCourse = selectedCheckoutCourse;
     setIsEnrolledToast(true);
     setSelectedCheckoutCourse(null);
 
     setTimeout(() => {
       setIsEnrolledToast(false);
-    }, 5000);
+      navigate("/learning-paths", {
+        state: {
+          courseId: targetCourse.id,
+          courseTitle: targetCourse.title,
+          topicPrefix: targetCourse.topicPrefix
+        }
+      });
+    }, 1000);
   };
 
   return (
@@ -631,7 +650,7 @@ export default function CoursesPage() {
               {/* User Profile Pill with Dropdown */}
               <div className="sdUserProfilePillWrapper">
                 <div className="sdUserProfilePill" onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}>
-                  <div className="sdUserAvatarImg">🧑‍🎓</div>
+                  <UserAvatar user={user} />
                   <div className="sdUserInfoText">
                     <strong>{userName}</strong>
                     <span>Student</span>
@@ -738,32 +757,13 @@ export default function CoursesPage() {
                             position: "absolute",
                             top: 0,
                             left: 0,
-                            opacity: c.status === "locked" ? 0.4 : 0.82,
+                            opacity: 0.85,
                             transition: "transform 0.3s ease"
                           }}
                           className="courseBannerImg"
                         />
                       )}
-                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: c.status === "locked" ? "rgba(15, 23, 42, 0.75)" : "linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.75) 100%)", zIndex: 1 }} />
-
-                      {c.status === "locked" && (
-                        <div style={{
-                          position: "absolute",
-                          top: 0, left: 0, right: 0, bottom: 0,
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          zIndex: 4,
-                          color: "#FFFFFF",
-                          gap: "4px"
-                        }}>
-                          <FaLock style={{ fontSize: "24px", color: "#FBBF24" }} />
-                          <span style={{ fontSize: "10px", fontWeight: "800", letterSpacing: "0.5px", background: "rgba(0,0,0,0.7)", padding: "2px 8px", borderRadius: "4px" }}>
-                            LOCKED (ENROLL IN PATH)
-                          </span>
-                        </div>
-                      )}
+                      <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.75) 100%)", zIndex: 1 }} />
 
                       <div
                         className="mcLogoBadge"
@@ -810,12 +810,7 @@ export default function CoursesPage() {
                       <button
                         className={`btnCourseCardAction ${c.status}`}
                         onClick={() => {
-                          if (c.status === "locked" || c.status === "not-started") {
-                            openCheckoutModal(c);
-                          } else if (c.status === "pending-approval") {
-                            // Pending notice
-                          } else {
-                            // Unlocked / In-Progress -> Navigate to Learning Paths Page
+                          if (c.status === "completed" || c.status === "in-progress" || c.isEnrolled) {
                             navigate("/learning-paths", { 
                               state: { 
                                 courseId: c.id, 
@@ -823,16 +818,20 @@ export default function CoursesPage() {
                                 topicPrefix: c.topicPrefix 
                               } 
                             });
+                          } else if (c.status === "pending-approval") {
+                            // Pending notice
+                          } else {
+                            openCheckoutModal(c);
                           }
                         }}
                       >
                         {c.status === "completed"
                           ? "Review in Learning Path →"
-                          : c.status === "locked"
-                          ? "🔒 Locked (Enroll via Path)"
+                          : c.isEnrolled || c.status === "in-progress"
+                          ? "Continue →"
                           : c.status === "pending-approval"
                           ? "⏳ Pending Approval"
-                          : "Continue →"}
+                          : "Enroll Now →"}
                       </button>
                     </div>
 

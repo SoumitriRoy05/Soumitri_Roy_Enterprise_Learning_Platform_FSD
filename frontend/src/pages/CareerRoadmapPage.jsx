@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import Background from "../components/Background";
 import StudentFooter from "../components/StudentFooter";
 import NotificationDropdown from "../components/NotificationDropdown";
+import UserAvatar from "../components/UserAvatar";
 import {
   FaHome, FaBook, FaCodeBranch, FaAward, FaCertificate, FaChartLine,
   FaFileInvoice, FaCog, FaSearch, FaSun, FaMoon, FaArrowLeft,
@@ -172,7 +173,7 @@ export default function CareerRoadmapPage() {
               </button>
               <div className="sdUserProfilePillWrapper">
                 <div className="sdUserProfilePill">
-                  <div className="sdUserAvatarImg">🧑‍🎓</div>
+                  <UserAvatar user={user} />
                   <div className="sdUserInfoText">
                     <strong>{user?.full_name || "Learner"}</strong>
                     <span>Student</span>

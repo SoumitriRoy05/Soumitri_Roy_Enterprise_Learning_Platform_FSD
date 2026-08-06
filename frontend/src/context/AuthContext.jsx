@@ -124,7 +124,7 @@ export function AuthProvider({ children }) {
         : [];
       setCompletedTopics(initialTopics);
 
-      const defaultCourses = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"];
+      const defaultCourses = ["1", "2"];
       const initialCourses = (user.enrolled_courses && user.enrolled_courses.length > 0)
         ? user.enrolled_courses
         : defaultCourses;

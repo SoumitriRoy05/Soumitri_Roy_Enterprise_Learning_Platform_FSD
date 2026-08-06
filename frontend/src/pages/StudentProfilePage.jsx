@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import Background from "../components/Background";
 import StudentFooter from "../components/StudentFooter";
 import NotificationDropdown from "../components/NotificationDropdown";
+import UserAvatar from "../components/UserAvatar";
 import {
   FaHome, FaBook, FaCodeBranch, FaAward, FaCertificate, FaChartLine,
   FaFileInvoice, FaCog, FaSearch, FaSun, FaMoon, FaArrowLeft,
@@ -107,7 +108,7 @@ export default function StudentProfilePage() {
         title: user.title || "",
         skills: user.skills || "",
         contactEmail: user.contact_email || "",
-        avatarUrl: ""
+        avatarUrl: user.avatar_url || user.profile_picture || ""
       });
       setAccountPrefs({
         language: user.preferred_language || "English",
@@ -379,13 +380,7 @@ export default function StudentProfilePage() {
               </button>
               <div className="sdUserProfilePillWrapper">
                 <div className="sdUserProfilePill" onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}>
-                  <div className="sdUserAvatarImg" style={{ width: "36px", height: "36px", borderRadius: "50%", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    {(user?.avatar_url || user?.profile_picture || profileData.avatarUrl) ? (
-                      <img src={user?.avatar_url || user?.profile_picture || profileData.avatarUrl} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    ) : (
-                      "🧑‍🎓"
-                    )}
-                  </div>
+                  <UserAvatar user={user} style={{ width: "36px", height: "36px" }} />
                   <div className="sdUserInfoText">
                     <strong>{userName}</strong>
                     <span>Student</span>
@@ -589,8 +584,8 @@ export default function StudentProfilePage() {
 
                 <div className="avatarSectionRow">
                   <div className="avatarCircleBox" onClick={() => photoInputRef.current?.click()} style={{ cursor: "pointer", position: "relative" }}>
-                    {profileData.avatarUrl ? (
-                      <img src={profileData.avatarUrl} alt="Avatar" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
+                    {(profileData.avatarUrl || user?.avatar_url || user?.profile_picture) ? (
+                      <img src={profileData.avatarUrl || user?.avatar_url || user?.profile_picture} alt="Avatar" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }} />
                     ) : (
                       <div className="avatarPlaceholder">🧑‍🎓</div>
                     )}

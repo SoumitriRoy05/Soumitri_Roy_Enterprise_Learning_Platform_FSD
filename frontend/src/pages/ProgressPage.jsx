@@ -6,6 +6,7 @@ import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
 import FloatingChatbot from "../components/FloatingChatbot";
 import NotificationDropdown from "../components/NotificationDropdown";
+import UserAvatar from "../components/UserAvatar";
 
 import {
   FaHome,
@@ -462,7 +463,7 @@ export default function ProgressPage() {
               {/* User Profile Pill with Dropdown */}
               <div className="sdUserProfilePillWrapper">
                 <div className="sdUserProfilePill" onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}>
-                  <div className="sdUserAvatarImg">🧑‍🎓</div>
+                  <UserAvatar user={user} />
                   <div className="sdUserInfoText">
                     <strong>{userName}</strong>
                     <span>Student</span>

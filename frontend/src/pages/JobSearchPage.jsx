@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import Background from "../components/Background";
 import StudentFooter from "../components/StudentFooter";
 import NotificationDropdown from "../components/NotificationDropdown";
+import UserAvatar from "../components/UserAvatar";
 import {
   FaHome, FaBook, FaCodeBranch, FaAward, FaCertificate, FaChartLine,
   FaFileInvoice, FaCog, FaSearch, FaSun, FaMoon, FaArrowLeft,
@@ -18,13 +19,16 @@ export default function JobSearchPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filterLocation, setFilterLocation] = useState("All");
+  const [filterType, setFilterType] = useState("All");
   const [appliedJobs, setAppliedJobs] = useState([]);
 
   const jobsList = [
-    { id: 1, title: "Junior React Developer", company: "DevSolutions Ltd", location: "San Francisco, CA", type: "Full-Time", matchScore: 92, salary: "$85,000 - $105,000" },
-    { id: 2, title: "Fullstack Python Engineer", company: "DataSync Labs", location: "Remote", type: "Full-Time", matchScore: 84, salary: "$95,000 - $120,000" },
-    { id: 3, title: "UI/UX Designer", company: "CreativeStudio Inc", location: "New York, NY", type: "Contract", matchScore: 78, salary: "$60/hr - $75/hr" },
-    { id: 4, title: "DevOps Integration Specialist", company: "CloudCore", location: "San Francisco, CA", type: "Full-Time", matchScore: 65, salary: "$110,000 - $135,000" }
+    { id: 1, title: "Junior React Developer", company: "DevSolutions Ltd", location: "San Francisco, CA", type: "Full-Time", matchScore: 92, salary: "$85,000 - $105,000", applyUrl: "https://www.linkedin.com/jobs/search/?keywords=React%20Developer" },
+    { id: 2, title: "Fullstack Python Engineer", company: "DataSync Labs", location: "Remote", type: "Full-Time", matchScore: 84, salary: "$95,000 - $120,000", applyUrl: "https://www.linkedin.com/jobs/search/?keywords=Python%20Engineer" },
+    { id: 3, title: "UI/UX Designer", company: "CreativeStudio Inc", location: "New York, NY", type: "Contract", matchScore: 78, salary: "$60/hr - $75/hr", applyUrl: "https://www.glassdoor.co.in/Job/jobs.htm?sc.keyword=UI%20UX%20Designer" },
+    { id: 4, title: "DevOps Integration Specialist", company: "CloudCore", location: "San Francisco, CA", type: "Full-Time", matchScore: 65, salary: "$110,000 - $135,000", applyUrl: "https://www.naukri.com/devops-jobs" },
+    { id: 5, title: "Software Engineer Intern", company: "Microsoft", location: "Bangalore, India", type: "Internship", matchScore: 95, salary: "₹80K / month", applyUrl: "https://www.linkedin.com/jobs/search/?keywords=Microsoft%20Software%20Engineer%20Intern" },
+    { id: 6, title: "Specialist Programmer", company: "Infosys", location: "Hyderabad, India", type: "Full-Time", matchScore: 88, salary: "₹6 - 9 LPA", applyUrl: "https://www.naukri.com/infosys-jobs" }
   ];
 
   const handleLogout = async () => {
@@ -37,16 +41,21 @@ export default function JobSearchPage() {
     }
   };
 
-  const handleApply = (id) => {
-    if (appliedJobs.includes(id)) return;
-    setAppliedJobs([...appliedJobs, id]);
+  const handleApply = (job) => {
+    if (appliedJobs.includes(job.id)) return;
+    setAppliedJobs([...appliedJobs, job.id]);
+    if (job.applyUrl) {
+      window.open(job.applyUrl, "_blank", "noopener,noreferrer");
+    }
   };
 
   // Filters
   const filteredJobs = jobsList.filter(job => {
-    const queryMatch = job.title.toLowerCase().includes(searchQuery.toLowerCase()) || job.company.toLowerCase().includes(searchQuery.toLowerCase());
+    const q = searchQuery.toLowerCase().trim();
+    const queryMatch = !q || job.title.toLowerCase().includes(q) || job.company.toLowerCase().includes(q) || job.location.toLowerCase().includes(q);
     const locMatch = filterLocation === "All" || job.location.toLowerCase().includes(filterLocation.toLowerCase());
-    return queryMatch && locMatch;
+    const typeMatch = filterType === "All" || job.type.toLowerCase().includes(filterType.toLowerCase());
+    return queryMatch && locMatch && typeMatch;
   });
 
   const navItems = [
@@ -157,7 +166,7 @@ export default function JobSearchPage() {
               </button>
               <div className="sdUserProfilePillWrapper">
                 <div className="sdUserProfilePill">
-                  <div className="sdUserAvatarImg">🧑‍🎓</div>
+                  <UserAvatar user={user} />
                   <div className="sdUserInfoText">
                     <strong>{user?.full_name || "Learner"}</strong>
                     <span>Student</span>
@@ -184,8 +193,26 @@ export default function JobSearchPage() {
                   <option value="Remote">Remote</option>
                   <option value="San Francisco">San Francisco, CA</option>
                   <option value="New York">New York, NY</option>
+                  <option value="Bangalore">Bangalore, India</option>
+                  <option value="Hyderabad">Hyderabad, India</option>
                 </select>
               </div>
+              <div style={{ minWidth: "150px" }}>
+                <select value={filterType} onChange={e => setFilterType(e.target.value)} style={{ width: "100%", padding: "10px", background: "var(--input-bg)", color: "var(--text-primary)", border: "1px solid var(--border-color)", borderRadius: "8px" }}>
+                  <option value="All">All Work Types</option>
+                  <option value="Full-Time">Full-Time</option>
+                  <option value="Contract">Contract</option>
+                  <option value="Internship">Internship</option>
+                </select>
+              </div>
+              {(searchQuery || filterLocation !== "All" || filterType !== "All") && (
+                <button
+                  onClick={() => { setSearchQuery(""); setFilterLocation("All"); setFilterType("All"); }}
+                  style={{ background: "none", border: "none", color: "var(--accent)", cursor: "pointer", fontSize: "13px" }}
+                >
+                  Clear Filters 🧹
+                </button>
+              )}
             </div>
           </div>
 
@@ -193,7 +220,7 @@ export default function JobSearchPage() {
             {/* Center column: Job results */}
             <div className="sdCenterMainCol">
               <div className="sdWhitePanelCard">
-                <h3>Open Opportunities</h3>
+                <h3>Open Opportunities ({filteredJobs.length})</h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "16px" }}>
                   {filteredJobs.length > 0 ? filteredJobs.map(job => (
                     <div key={job.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px", background: "var(--bg-secondary)", borderRadius: "12px", border: "1px solid var(--border-color)", flexWrap: "wrap", gap: "16px" }}>
@@ -219,10 +246,10 @@ export default function JobSearchPage() {
                         <button
                           className={appliedJobs.includes(job.id) ? "btnOutlineOrange" : "btnContinueCourse"}
                           disabled={appliedJobs.includes(job.id)}
-                          onClick={() => handleApply(job.id)}
+                          onClick={() => handleApply(job)}
                           style={{ minWidth: "120px" }}
                         >
-                          {appliedJobs.includes(job.id) ? "Applied ✓" : "Easy Apply"}
+                          {appliedJobs.includes(job.id) ? "Applied ✓" : "Easy Apply →"}
                         </button>
                       </div>
                     </div>

@@ -5,6 +5,7 @@ import Background from "../components/Background";
 import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
 import NotificationDropdown from "../components/NotificationDropdown";
+import UserAvatar from "../components/UserAvatar";
 import FloatingChatbot from "../components/FloatingChatbot";
 
 import {
@@ -1194,7 +1195,7 @@ export default function ResumeBuilderPage() {
               {/* User Profile Pill with Dropdown */}
               <div className="sdUserProfilePillWrapper">
                 <div className="sdUserProfilePill" onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}>
-                  <div className="sdUserAvatarImg">🧑‍🎓</div>
+                  <UserAvatar user={user} />
                   <div className="sdUserInfoText">
                     <strong>{resumeData.fullName}</strong>
                     <span>Student</span>

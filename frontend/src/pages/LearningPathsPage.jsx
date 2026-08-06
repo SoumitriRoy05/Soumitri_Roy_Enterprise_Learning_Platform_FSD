@@ -6,6 +6,7 @@ import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
 import FloatingChatbot from "../components/FloatingChatbot";
 import NotificationDropdown from "../components/NotificationDropdown";
+import UserAvatar from "../components/UserAvatar";
 
 import {
   FaHome,
@@ -58,7 +59,7 @@ import lightReactLearningHero from "../assets/light_react_learning_hero.png";
 import "../styles/learningPaths.css";
 
 export default function LearningPathsPage() {
-  const { user, xp, earnXp, completeTopic, themeMode, toggleTheme } = useAuth();
+  const { user, xp, earnXp, completeTopic, themeMode, toggleTheme, enrolledCourses, completedTopics } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [filter, setFilter] = useState("all");
@@ -71,38 +72,64 @@ export default function LearningPathsPage() {
 
   // Handle navigation from CoursesPage "Continue ->" button
   useEffect(() => {
-    if (location.state && (location.state.courseTitle || location.state.topicPrefix)) {
-      const title = (location.state.courseTitle || "").toLowerCase();
-      const prefix = location.state.topicPrefix || "";
+    if (location.state) {
+      const courseToPathMap = {
+        "1": "JavaScript Fundamentals",
+        "2": "React Developer Path",
+        "3": "Python for Data Science",
+        "4": "UI/UX Design Masterclass",
+        "5": "Data Structures & Algorithms",
+        "6": "Fullstack with Node.js",
+        "7": "System Design Architecture",
+        "8": "Machine Learning & AI Engineering",
+        "9": "Fullstack Next.js 14 Masterclass",
+        "10": "Spring Boot Microservices",
+        "11": "Generative AI & LLM Engineering",
+        "12": "AWS Cloud & DevOps Essentials",
+        "13": "Web3 & Solidity Smart Contracts"
+      };
 
-      if (title.includes("python") || prefix.startsWith("py") || prefix.startsWith("dsa") || prefix.startsWith("ml")) {
-        setSelectedPathDetail({
-          id: 2,
-          title: "Python for Data Science & Machine Learning",
-          bannerType: "python",
-          logoText: "🐍"
-        });
+      if (location.state.courseId) {
+        const cid = location.state.courseId.toString();
+        const targetTitle = courseToPathMap[cid];
+        if (targetTitle) {
+          setSelectedPathDetail({
+            id: cid,
+            title: targetTitle
+          });
+          return;
+        }
+      }
+
+      const title = (location.state.courseTitle || "").toLowerCase();
+      const prefix = (location.state.topicPrefix || "").toLowerCase();
+
+      if (title.includes("javascript") || prefix.startsWith("js")) {
+        setSelectedPathDetail({ id: "js-dev", title: "JavaScript Fundamentals", bannerType: "js", logoText: "🟨" });
+      } else if (title.includes("react") || prefix.startsWith("react")) {
+        setSelectedPathDetail({ id: "react-dev", title: "React Developer Path", bannerType: "react", logoText: "⚛️" });
+      } else if (title.includes("python") || prefix.startsWith("py")) {
+        setSelectedPathDetail({ id: "python-ds", title: "Python for Data Science", bannerType: "python", logoText: "🐍" });
       } else if (title.includes("node") || prefix.startsWith("node") || prefix.startsWith("fsd")) {
-        setSelectedPathDetail({
-          id: 3,
-          title: "Fullstack with Node.js & System Architecture",
-          bannerType: "node",
-          logoText: "🟩"
-        });
+        setSelectedPathDetail({ id: "node-fs", title: "Fullstack with Node.js", bannerType: "node", logoText: "🟩" });
       } else if (title.includes("ui") || title.includes("ux") || title.includes("design") || prefix.startsWith("ui")) {
-        setSelectedPathDetail({
-          id: 4,
-          title: "UI/UX Design Systems & Figma Masterclass",
-          bannerType: "figma",
-          logoText: "🎨"
-        });
-      } else {
-        setSelectedPathDetail({
-          id: 1,
-          title: "React Developer Path",
-          bannerType: "react",
-          logoText: "⚛️"
-        });
+        setSelectedPathDetail({ id: "ui-ux", title: "UI/UX Design Masterclass", bannerType: "figma", logoText: "🎨" });
+      } else if (title.includes("data structure") || prefix.startsWith("dsa")) {
+        setSelectedPathDetail({ id: "dsa", title: "Data Structures & Algorithms", bannerType: "dsa", logoText: "⚡" });
+      } else if (title.includes("next") || prefix.startsWith("next")) {
+        setSelectedPathDetail({ id: "nextjs", title: "Fullstack Next.js 14 Masterclass", bannerType: "next", logoText: "▲" });
+      } else if (title.includes("spring") || prefix.startsWith("spring")) {
+        setSelectedPathDetail({ id: "springboot", title: "Spring Boot Microservices", bannerType: "spring", logoText: "🍃" });
+      } else if (title.includes("ai") || prefix.startsWith("gen") || prefix.startsWith("ml")) {
+        setSelectedPathDetail({ id: "genai", title: "Generative AI & LLM Engineering", bannerType: "ai", logoText: "🤖" });
+      } else if (title.includes("aws") || title.includes("cloud") || prefix.startsWith("aws")) {
+        setSelectedPathDetail({ id: "aws", title: "AWS Cloud & DevOps Essentials", bannerType: "cloud", logoText: "☁️" });
+      } else if (title.includes("web3") || prefix.startsWith("web3")) {
+        setSelectedPathDetail({ id: "web3", title: "Web3 & Solidity Smart Contracts", bannerType: "web3", logoText: "💎" });
+      } else if (title.includes("system") || prefix.startsWith("system")) {
+        setSelectedPathDetail({ id: "system", title: "System Design Architecture", bannerType: "system", logoText: "🏗️" });
+      } else if (location.state.courseTitle) {
+        setSelectedPathDetail({ id: "custom", title: location.state.courseTitle });
       }
     }
   }, [location.state]);
@@ -117,9 +144,9 @@ export default function LearningPathsPage() {
   const [completedSubLessonIds, setCompletedSubLessonIds] = useState(() => {
     try {
       const saved = localStorage.getItem(storageKey);
-      return saved ? JSON.parse(saved) : ["1-1", "1-2", "1-3"];
+      return saved ? JSON.parse(saved) : [];
     } catch (e) {
-      return ["1-1", "1-2", "1-3"];
+      return [];
     }
   });
 
@@ -197,8 +224,76 @@ export default function LearningPathsPage() {
     }
   };
 
-  // Master Learning Paths Dataset
+  // Unified enrolled courses calculation matching Dashboard and Courses page
+  const getUnifiedEnrolledCourseIds = () => {
+    let authList = (enrolledCourses || []).map(id => id.toString());
+    let localList = [];
+    try {
+      const raw = localStorage.getItem(`enrolledCourses_${userKey}`) || localStorage.getItem(`skillsphere_enrolled_courses_${userKey}`);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) localList = parsed.map(id => id.toString());
+      }
+    } catch (e) {}
+    let dbList = Array.isArray(user?.enrolled_courses) ? user.enrolled_courses.map(id => id.toString()) : [];
+    const combined = Array.from(new Set([...authList, ...localList, ...dbList]));
+    return combined.length > 0 ? combined : ["1", "2"];
+  };
+
+  const activeEnrolledIds = getUnifiedEnrolledCourseIds();
+
+  // Dynamic learning path progress calculator based on actual user activity
+  const getDynamicPathData = (prefix, courseId, fallbackPct = 0) => {
+    const doneTopics = (completedTopics || []).filter(t => typeof t === 'string' && t.startsWith(prefix)).length;
+    const doneSubLessons = (completedSubLessonIds || []).filter(id => typeof id === 'string' && id.startsWith(prefix)).length;
+    const totalDone = doneTopics + doneSubLessons;
+    const totalLessons = 12;
+    const pct = totalDone > 0 ? Math.min(100, Math.round((totalDone / totalLessons) * 100)) : fallbackPct;
+    const completedModsCount = Math.min(6, Math.floor((pct / 100) * 6));
+
+    const isEnrolled = activeEnrolledIds.includes(courseId.toString());
+
+    let status = "in-progress";
+    let statusText = "Not Started";
+    let actionText = "Start Learning";
+    let lastAccessed = "Not Started";
+
+    if (pct === 100) {
+      status = "completed";
+      statusText = "Completed";
+      actionText = "Review Track";
+      lastAccessed = "Recently";
+    } else if (pct > 0) {
+      status = "in-progress";
+      statusText = "In Progress";
+      actionText = "Continue Learning";
+      lastAccessed = "Today";
+    }
+
+    return {
+      progress: pct,
+      completedModules: `${completedModsCount}/6`,
+      modules: `${completedModsCount}/6`,
+      status,
+      statusText,
+      actionText,
+      lastAccessed,
+      isEnrolled
+    };
+  };
+
+  // Master Learning Paths Dataset covering all enrolled courses
   const allLearningPaths = [
+    {
+      id: "js-dev",
+      title: "JavaScript Fundamentals",
+      levelInfo: "Beginner • 6 Modules • 35.4K Learners",
+      bannerType: "js",
+      logoBg: "#FEF9C3",
+      logoText: "🟨 JS",
+      progressColor: "#F59E0B",
+      ...getDynamicPathData("js_", "1", 0)
+    },
     {
       id: "react-dev",
       title: "React Developer Path",
@@ -206,15 +301,8 @@ export default function LearningPathsPage() {
       bannerType: "react",
       logoBg: "#E0F2FE",
       logoText: "⚛️",
-      status: "in-progress",
-      statusText: "In Progress",
-      progress: Math.min(100, Math.round(((completedSubLessonIds || []).length / 18) * 100)) || 10,
-      completedModules: `${(completedSubLessonIds || []).length >= 18 ? 6 : Math.max(1, Math.floor((completedSubLessonIds || []).length / 3))}/6`,
-      modules: `${(completedSubLessonIds || []).length >= 18 ? 6 : Math.max(1, Math.floor((completedSubLessonIds || []).length / 3))}/6`,
-      lastAccessed: "Today",
-      actionText: "Continue Learning",
-      isEnrolled: true,
-      progressColor: "#F9572A"
+      progressColor: "#F9572A",
+      ...getDynamicPathData("1-", "2", 0)
     },
     {
       id: "python-ds",
@@ -223,32 +311,18 @@ export default function LearningPathsPage() {
       bannerType: "python",
       logoBg: "#FEF3C7",
       logoText: "🐍",
-      status: "in-progress",
-      statusText: "In Progress",
-      progress: 40,
-      completedModules: "2/6",
-      modules: "2/6",
-      lastAccessed: "Yesterday",
-      actionText: "Continue Learning",
-      isEnrolled: true,
-      progressColor: "#3B82F6"
+      progressColor: "#3B82F6",
+      ...getDynamicPathData("py-", "3", 0)
     },
     {
       id: "node-fs",
       title: "Fullstack with Node.js",
-      levelInfo: "Intermediate • 3 Modules • 12.1K Learners",
+      levelInfo: "Intermediate • 6 Modules • 12.1K Learners",
       bannerType: "node",
       logoBg: "#DCFCE7",
       logoText: "🟩 Node.js",
-      status: "in-progress",
-      statusText: "In Progress",
-      progress: 65,
-      completedModules: "2/3",
-      modules: "2/3",
-      lastAccessed: "3 days ago",
-      actionText: "Continue Learning",
-      isEnrolled: true,
-      progressColor: "#10B981"
+      progressColor: "#10B981",
+      ...getDynamicPathData("node-", "6", 0)
     },
     {
       id: "ui-ux",
@@ -257,49 +331,78 @@ export default function LearningPathsPage() {
       bannerType: "figma",
       logoBg: "#FEE2E2",
       logoText: "🎨",
-      status: "completed",
-      statusText: "Completed",
-      progress: 100,
-      completedModules: "6/6",
-      modules: "6/6",
-      lastAccessed: "1 week ago",
-      actionText: "Review Track",
-      isEnrolled: true,
-      progressColor: "#10B981"
+      progressColor: "#10B981",
+      ...getDynamicPathData("ui-", "4", 0)
+    },
+    {
+      id: "dsa",
+      title: "Data Structures & Algorithms",
+      levelInfo: "Intermediate • 6 Modules • 28.3K Learners",
+      bannerType: "dsa",
+      logoBg: "#EDE9FE",
+      logoText: "⚡ DSA",
+      progressColor: "#8B5CF6",
+      ...getDynamicPathData("dsa_", "5", 0)
+    },
+    {
+      id: "nextjs",
+      title: "Fullstack Next.js 14 Masterclass",
+      levelInfo: "Advanced • 6 Modules • 15.6K Learners",
+      bannerType: "next",
+      logoBg: "#F3F4F6",
+      logoText: "▲ Next.js",
+      progressColor: "#111827",
+      ...getDynamicPathData("nextjs_", "9", 0)
+    },
+    {
+      id: "springboot",
+      title: "Spring Boot Microservices",
+      levelInfo: "Advanced • 6 Modules • 11.4K Learners",
+      bannerType: "spring",
+      logoBg: "#DCFCE7",
+      logoText: "🍃 Spring",
+      progressColor: "#10B981",
+      ...getDynamicPathData("springboot_", "10", 0)
+    },
+    {
+      id: "genai",
+      title: "Generative AI & LLM Engineering",
+      levelInfo: "Advanced • 6 Modules • 19.8K Learners",
+      bannerType: "ai",
+      logoBg: "#F3E8FF",
+      logoText: "🤖 GenAI",
+      progressColor: "#A855F7",
+      ...getDynamicPathData("genai_", "11", 0)
     },
     {
       id: "cloud-devops",
-      title: "Cloud Architect & DevOps Mastery",
+      title: "AWS Cloud & DevOps Essentials",
       levelInfo: "Advanced • 8 Modules • 14.2K Learners",
       bannerType: "cloud",
       logoBg: "#E0E7FF",
-      logoText: "☁️",
-      status: "saved",
-      statusText: "Saved",
-      progress: 0,
-      completedModules: "0/8",
-      modules: "0/8",
-      lastAccessed: "Not Started",
-      actionText: "Start Learning",
-      isEnrolled: false,
-      progressColor: "#6366F1"
+      logoText: "☁️ AWS",
+      progressColor: "#6366F1",
+      ...getDynamicPathData("aws_", "12", 0)
     },
     {
-      id: "ml-ai",
-      title: "Machine Learning & AI Engineering",
-      levelInfo: "Advanced • 10 Modules • 31.0K Learners",
-      bannerType: "ai",
-      logoBg: "#F3E8FF",
-      logoText: "🤖",
-      status: "saved",
-      statusText: "Saved",
-      progress: 0,
-      completedModules: "0/10",
-      modules: "0/10",
-      lastAccessed: "Not Started",
-      actionText: "Start Learning",
-      isEnrolled: false,
-      progressColor: "#A855F7"
+      id: "web3",
+      title: "Web3 & Solidity Smart Contracts",
+      levelInfo: "Advanced • 6 Modules • 8.9K Learners",
+      bannerType: "web3",
+      logoBg: "#FEF3C7",
+      logoText: "💎 Web3",
+      progressColor: "#F59E0B",
+      ...getDynamicPathData("web3_", "13", 0)
+    },
+    {
+      id: "system",
+      title: "System Design Architecture",
+      levelInfo: "Advanced • 6 Modules • 22.1K Learners",
+      bannerType: "system",
+      logoBg: "#E0F2FE",
+      logoText: "🏗️ System",
+      progressColor: "#0284C7",
+      ...getDynamicPathData("system_", "7", 0)
     }
   ];
 
@@ -317,16 +420,21 @@ export default function LearningPathsPage() {
     if (location.state?.courseId) {
       const cid = location.state.courseId.toString();
       const courseToPathMap = {
-        "1": "React Developer Path",
+        "1": "JavaScript Fundamentals",
         "2": "React Developer Path",
         "3": "Python for Data Science",
         "4": "UI/UX Design Masterclass",
-        "5": "Python for Data Science",
+        "5": "Data Structures & Algorithms",
         "6": "Fullstack with Node.js",
+        "7": "System Design Architecture",
         "8": "Machine Learning & AI Engineering",
-        "12": "Cloud Architect & DevOps Mastery"
+        "9": "Fullstack Next.js 14 Masterclass",
+        "10": "Spring Boot Microservices",
+        "11": "Generative AI & LLM Engineering",
+        "12": "AWS Cloud & DevOps Essentials",
+        "13": "Web3 & Solidity Smart Contracts"
       };
-      const targetPathTitle = courseToPathMap[cid] || "React Developer Path";
+      const targetPathTitle = courseToPathMap[cid] || "JavaScript Fundamentals";
       setSelectedPathDetail(targetPathTitle);
     }
   }, [location.state]);
@@ -1087,7 +1195,101 @@ function AnalyticsDashboard() {
     }
   ];
 
+
+
+  // Dynamic module generator for any course title fallback
+  const generateModulesForCourse = (title) => {
+    const t = (title || "Course").toLowerCase();
+    let topic = "Core Concepts";
+    if (t.includes("javascript") || t.includes("js")) topic = "JavaScript ES6+";
+    else if (t.includes("python")) topic = "Python Data Science";
+    else if (t.includes("react")) topic = "React Development";
+    else if (t.includes("node")) topic = "Node.js Architecture";
+    else if (t.includes("design") || t.includes("ui")) topic = "UI/UX Figma";
+    else if (t.includes("spring")) topic = "Spring Boot Microservices";
+    else if (t.includes("next")) topic = "Next.js 14 App Router";
+    else if (t.includes("ai")) topic = "Generative AI & LLMs";
+    else if (t.includes("aws") || t.includes("cloud")) topic = "AWS Cloud Services";
+    else if (t.includes("web3")) topic = "Solidity Smart Contracts";
+    else if (t.includes("structure") || t.includes("dsa")) topic = "Algorithms & Data Structures";
+
+    return [
+      {
+        id: 1, num: 1, subtitle: `${topic} Foundations`, title: `Module 1: ${title} Foundations & Setup`, instructor: "SkillSphere Academic Team",
+        lessons: [
+          { id: `c-1-1`, title: "1.1 Architecture & Overview", type: "reading", duration: "6 min read", source: "SkillSphere Docs", heading: `Introduction to ${title}`, text: `Welcome to ${title}! Learn core concepts, setup requirements, and fundamental architectural principles.`, codeSnippet: `// Welcome to ${title}\nconsole.log("Initializing ${title} module...");`, keyPoints: ["Core architecture breakdown", "Environment setup", "Best coding practices"] },
+          { id: `c-1-2`, title: "1.2 Practical Implementation", type: "reading", duration: "8 min read", source: "SkillSphere Docs", heading: `Hands-on ${title} Implementation`, text: `Practical walk-through building modules, components, and services with ${title}.`, codeSnippet: `// ${title} Code Example\nfunction runCourse() {\n  return "Successfully executing ${title}";\n}`, keyPoints: ["Hands-on code exercise", "Syntax & conventions", "Debugging patterns"] }
+        ]
+      },
+      {
+        id: 2, num: 2, subtitle: `${topic} Advanced`, title: `Module 2: Advanced ${title} Architecture`, instructor: "SkillSphere Academic Team",
+        lessons: [
+          { id: `c-2-1`, title: "2.1 Advanced Concepts & Optimization", type: "reading", duration: "8 min read", source: "SkillSphere Docs", heading: `Advanced ${title} Design Patterns`, text: `Master production-level optimizations, state management, and security patterns for ${title}.`, codeSnippet: `// Advanced ${title} Pattern\nconst system = { track: "${title}", status: "Production Ready" };`, keyPoints: ["Performance tuning", "Security best practices", "Scalability considerations"] }
+        ]
+      },
+      {
+        id: 3, num: 3, subtitle: `${topic} Masterclass`, title: `Module 3: ${title} End-to-End Masterclass Video`, instructor: "SkillSphere Academic Team",
+        lessons: [
+          { id: `c-3-1`, title: "3.1 Complete Video Walkthrough", type: "video", duration: "25 min video", source: "SkillSphere Masterclass", heading: `${title} Video Demonstration`, videoUrl: "https://www.youtube.com/embed/bMknfKXIFA8?autoplay=1", description: `Watch comprehensive video tutorial demonstrating real-world project development using ${title}.`, keyPoints: ["Live coding walkthrough", "Building production features", "Project deployment"] }
+        ]
+      }
+    ];
+  };
+
   const allPathDataMap = {
+    "JavaScript Fundamentals": {
+      logo: "🟨",
+      title: "JavaScript Fundamentals",
+      subtitle: "Master ES6+ JavaScript, DOM manipulation, closures, and asynchronous programming.",
+      instructor: "Hitesh Choudhary & Akshay Saini",
+      modules: [
+        {
+          id: 1, num: 1, subtitle: "JS Core Syntax", title: "Module 1: JavaScript Basics, Variables & Scope", instructor: "Akshay Saini",
+          lessons: [
+            { id: "js-1-1", title: "1.1 Overview of JavaScript & Engines", type: "reading", duration: "5 min read", source: "MDN Web Docs", heading: "Introduction to JavaScript & V8 Engine", text: "JavaScript is a high-level, interpreted programming language with first-class functions powering dynamic web applications.", codeSnippet: `console.log("Hello, SkillSphere JavaScript Learner!");\n\n// Variable declarations in ES6:\nlet studentName = "Alex Morgan";\nconst xpPoints = 750;\nvar legacyScope = "Global";`, keyPoints: ["Primitive & reference types", "V8 / SpiderMonkey JS engines", "let vs const vs var scoping rules"] },
+            { id: "js-1-2", title: "1.2 Hoisting, Execution Context & Call Stack", type: "reading", duration: "7 min read", source: "Namaste JavaScript Guide", heading: "Execution Context & Hoisting", text: "Everything in JS happens inside an Execution Context. Before code runs, JS engine allocates memory for variables and functions.", codeSnippet: `getName(); // Output: "Namaste JS"\nconsole.log(x); // Output: undefined\n\nvar x = 7;\nfunction getName() {\n  console.log("Namaste JS");\n}`, keyPoints: ["Memory creation vs Code execution phase", "Variable hoisting behavior", "Call Stack execution order"] }
+          ]
+        },
+        {
+          id: 2, num: 2, subtitle: "Functions & Closures", title: "Module 2: Functions, First-Class Citizens & Closures", instructor: "Akshay Saini",
+          lessons: [
+            { id: "js-2-1", title: "2.1 Functions & Arrow Functions", type: "reading", duration: "6 min read", source: "MDN Web Docs", heading: "Function Declarations vs Arrow Functions", text: "Functions are first-class objects in JavaScript. They can be passed as arguments and returned from functions.", codeSnippet: `function multiply(a, b) {\n  return a * b;\n}\n\n// ES6 Arrow Function\nconst add = (a, b) => a + b;`, keyPoints: ["First-class function properties", "Arrow function lexically bound 'this'", "Implicit return statements"] },
+            { id: "js-2-2", title: "2.2 Understanding Closures & Lexical Scope", type: "reading", duration: "8 min read", source: "Namaste JavaScript", heading: "Lexical Environment & Closures", text: "A closure is the combination of a function bundled together with references to its surrounding lexical environment.", codeSnippet: `function outer() {\n  let count = 0;\n  return function inner() {\n    count++;\n    return count;\n  };\n}\nconst counter = outer();\nconsole.log(counter()); // 1\nconsole.log(counter()); // 2`, keyPoints: ["Lexical scope lookup", "Data privacy via closures", "Memory management considerations"] }
+          ]
+        },
+        {
+          id: 3, num: 3, subtitle: "DOM Manipulation", title: "Module 3: DOM Tree Manipulation & Event Bubbling", instructor: "Hitesh Choudhary",
+          lessons: [
+            { id: "js-3-1", title: "3.1 DOM Element Selection & Mutation", type: "reading", duration: "7 min read", source: "MDN DOM Docs", heading: "Selecting & Modifying DOM Nodes", text: "The DOM represents the document as a tree of nodes. Use querySelector and addEventListener to build interactive pages.", codeSnippet: `const btn = document.querySelector("#submitBtn");\nconst title = document.querySelector("h1");\n\nbtn.addEventListener("click", () => {\n  title.textContent = "JavaScript Rules! 🚀";\n  title.classList.add("highlight");\n});`, keyPoints: ["querySelector vs getElementById", "classList & style mutations", "Event bubbling & capturing"] }
+          ]
+        },
+        {
+          id: 4, num: 4, subtitle: "Async JavaScript", title: "Module 4: Asynchronous JS, Promises & Async/Await", instructor: "Akshay Saini",
+          lessons: [
+            { id: "js-4-1", title: "4.1 Callbacks, Promises & Fetch API", type: "reading", duration: "8 min read", source: "MDN Async JS", heading: "Handling Asynchronous Operations", text: "Promises represent eventual completion or failure of asynchronous operations. Async/await provides clean syntax.", codeSnippet: `async function fetchUserData() {\n  try {\n    const response = await fetch("https://api.github.com/users/alex");\n    const data = await response.json();\n    console.log("User:", data.name);\n  } catch (error) {\n    console.error("Fetch failed:", error);\n  }\n}\nfetchUserData();`, keyPoints: ["Promise states: Pending, Fulfilled, Rejected", "async / await error handling", "Microtask Queue vs Macrotask Queue"] }
+          ]
+        },
+        {
+          id: 5, num: 5, subtitle: "ES6+ Modern JS", title: "Module 5: ES6 Array Methods, Destructuring & Modules", instructor: "Hitesh Choudhary",
+          lessons: [
+            { id: "js-5-1", title: "5.1 map, filter, reduce & ES6 Modules", type: "reading", duration: "7 min read", source: "MDN ES6 Docs", heading: "Functional Array Operations & ES Modules", text: "Modern JavaScript relies on declarative array methods like .map(), .filter(), and .reduce() alongside ES6 import/export modules.", codeSnippet: `const numbers = [10, 20, 30, 40];\nconst doubled = numbers.map(n => n * 2);\nconst highScores = numbers.filter(n => n > 15);\n\n// ES6 Destructuring:\nconst { name, xp } = { name: "Alex", xp: 900 };`, keyPoints: ["Immutability with map & filter", "Object & Array destructuring", "ES6 import / export syntax"] }
+          ]
+        },
+        {
+          id: 6, num: 6, subtitle: "JavaScript Masterclass", title: "Module 6: JavaScript Masterclass Video Walkthrough", instructor: "Hitesh Choudhary",
+          lessons: [
+            { id: "js-6-1", title: "6.1 JavaScript Masterclass Video", type: "video", duration: "25 min video", source: "JS Masterclass Video", heading: "Complete JavaScript Deep Dive Video Walkthrough", videoUrl: "https://www.youtube.com/embed/hdI2bqOjy3c?autoplay=1", description: "Watch complete hands-on video covering JavaScript execution context, closures, DOM events, and Async/Await.", keyPoints: ["Live coding JS applications", "Debugging in Chrome DevTools Console", "Best practices for modern web apps"] }
+          ]
+        }
+      ]
+    },
+    "js-dev": {
+      logo: "🟨",
+      title: "JavaScript Fundamentals",
+      subtitle: "Master ES6+ JavaScript, DOM manipulation, closures, and asynchronous programming.",
+      instructor: "Hitesh Choudhary & Akshay Saini",
+      modules: [] // References JavaScript Fundamentals dynamically
+    },
     "React Developer Path": {
       logo: "⚛️",
       title: "React Developer Path",
@@ -1230,33 +1432,72 @@ function AnalyticsDashboard() {
     }
   };
 
+  // Sync alias keys
+  allPathDataMap["js-dev"].modules = allPathDataMap["JavaScript Fundamentals"].modules;
+  allPathDataMap["1"] = allPathDataMap["JavaScript Fundamentals"];
+  allPathDataMap["2"] = allPathDataMap["React Developer Path"];
+  allPathDataMap["3"] = allPathDataMap["Python for Data Science"];
+  allPathDataMap["4"] = allPathDataMap["UI/UX Design Masterclass"];
+  allPathDataMap["6"] = allPathDataMap["Fullstack with Node.js"];
+
   const selectedPathTitle = typeof selectedPathDetail === 'string' ? selectedPathDetail : selectedPathDetail?.title;
   const selectedPathId = typeof selectedPathDetail === 'object' ? selectedPathDetail?.id : null;
 
-  const activePathData = (selectedPathDetail && (allPathDataMap[selectedPathId] || allPathDataMap[selectedPathTitle] || (allPathDataMap[selectedPathDetail]))) || {
-    logo: selectedPathTitle?.includes("Python") ? "🐍" : selectedPathTitle?.includes("Node") ? "🟩" : selectedPathTitle?.includes("UI/UX") ? "🎨" : "⚛️",
-    title: selectedPathTitle || "React Developer Path",
-    subtitle: `Master ${selectedPathTitle || "React"} by building real-world projects and become job-ready.`,
-    instructor: selectedPathDetail?.instructor || "SkillSphere Academic Team",
-    modules: modulesList
-  };
+  let activePathData = null;
+  if (selectedPathDetail) {
+    if (selectedPathId && allPathDataMap[selectedPathId] && allPathDataMap[selectedPathId].modules?.length > 0) {
+      activePathData = allPathDataMap[selectedPathId];
+    } else if (selectedPathTitle && allPathDataMap[selectedPathTitle] && allPathDataMap[selectedPathTitle].modules?.length > 0) {
+      activePathData = allPathDataMap[selectedPathTitle];
+    } else if (typeof selectedPathDetail === 'string' && allPathDataMap[selectedPathDetail] && allPathDataMap[selectedPathDetail].modules?.length > 0) {
+      activePathData = allPathDataMap[selectedPathDetail];
+    } else {
+      const titleLower = (selectedPathTitle || "").toLowerCase();
+      if (titleLower.includes("javascript") || titleLower.includes("js")) {
+        activePathData = allPathDataMap["JavaScript Fundamentals"];
+      } else if (titleLower.includes("python")) {
+        activePathData = allPathDataMap["Python for Data Science"];
+      } else if (titleLower.includes("node")) {
+        activePathData = allPathDataMap["Fullstack with Node.js"];
+      } else if (titleLower.includes("ui") || titleLower.includes("ux")) {
+        activePathData = allPathDataMap["UI/UX Design Masterclass"];
+      } else if (titleLower.includes("react")) {
+        activePathData = allPathDataMap["React Developer Path"];
+      } else {
+        activePathData = {
+          logo: "📚",
+          title: selectedPathTitle || "Enrolled Course Path",
+          subtitle: `Master ${selectedPathTitle || "this course"} by building real-world projects and become job-ready.`,
+          instructor: selectedPathDetail?.instructor || "SkillSphere Academic Team",
+          modules: generateModulesForCourse(selectedPathTitle || "Course")
+        };
+      }
+    }
+  }
+
+  if (!activePathData) {
+    activePathData = allPathDataMap["React Developer Path"];
+  }
 
   const modulesListForActivePath = activePathData.modules;
 
   const activeModule = modulesListForActivePath[activeModuleIndex] || modulesListForActivePath[0];
-  const activeSubLesson = activeModule.lessons[activeSubLessonIndex] || activeModule.lessons[0];
+  const activeSubLesson = activeModule ? (activeModule.lessons[activeSubLessonIndex] || activeModule.lessons[0]) : null;
 
-  // Calculate real-time completed sub-lessons for current module (e.g. 1/5, 2/5, 3/5, 4/5, 5/5)
-  const currentModuleCompletedCount = activeModule.lessons.filter(l => completedSubLessonIds.includes(l.id)).length;
-  const isCurrentModuleFullyCompleted = currentModuleCompletedCount === activeModule.lessons.length;
+  // Calculate real-time completed sub-lessons for current module
+  const currentModuleCompletedCount = activeModule && activeModule.lessons ? activeModule.lessons.filter(l => completedSubLessonIds.includes(l.id)).length : 0;
+  const isCurrentModuleFullyCompleted = activeModule && activeModule.lessons ? (currentModuleCompletedCount === activeModule.lessons.length) : false;
 
-  // Calculate total path progress percentage across all sub-lessons in all modules
-  const totalSubLessonsInPath = modulesListForActivePath.reduce((sum, m) => sum + m.lessons.length, 0);
-  const totalCompletedSubLessonsCount = completedSubLessonIds.length;
-  const progressPct = Math.round((totalCompletedSubLessonsCount / totalSubLessonsInPath) * 100);
+  // Calculate total path progress percentage specifically for THIS active course
+  const allSubLessonsInActivePath = modulesListForActivePath.flatMap(m => m.lessons || []);
+  const totalSubLessonsInPath = allSubLessonsInActivePath.length;
+  const completedSubLessonsInPath = allSubLessonsInActivePath.filter(l => completedSubLessonIds.includes(l.id));
+  const totalCompletedSubLessonsCount = completedSubLessonsInPath.length;
+  const progressPct = totalSubLessonsInPath > 0 ? Math.min(100, Math.round((totalCompletedSubLessonsCount / totalSubLessonsInPath) * 100)) : 0;
   const strokeOffset = Math.round(251.2 * (1 - progressPct / 100));
 
   const handleMarkComplete = () => {
+    if (!activeSubLesson) return;
     let updatedCompleted = completedSubLessonIds;
     if (!completedSubLessonIds.includes(activeSubLesson.id)) {
       updatedCompleted = [...completedSubLessonIds, activeSubLesson.id];
@@ -1267,28 +1508,32 @@ function AnalyticsDashboard() {
       showToast(`✨ Sub-lesson completed. Advancing next...`);
     }
 
-    // Check if ALL 30 sub-lessons AND quiz passed!
-    if (updatedCompleted.length >= 30 && quizPassed) {
-      setTimeout(() => {
-        setShowCertificateModal(true);
-      }, 500);
-    }
+    // Check if ALL lessons of THIS specific course track are completed
+    const currentCourseAllLessons = modulesListForActivePath.flatMap(m => m.lessons || []);
+    const completedCountInThisCourse = currentCourseAllLessons.filter(l => updatedCompleted.includes(l.id)).length;
+    const isThisCourseFullyCompleted = currentCourseAllLessons.length > 0 && completedCountInThisCourse === currentCourseAllLessons.length;
 
     if (activeSubLessonIndex < activeModule.lessons.length - 1) {
       setActiveSubLessonIndex(prev => prev + 1);
       setIsPlayingVideo(false);
     } else if (activeModuleIndex < modulesListForActivePath.length - 1) {
+      const nextMod = modulesListForActivePath[activeModuleIndex + 1];
       setActiveModuleIndex(prev => prev + 1);
       setActiveSubLessonIndex(0);
       setIsPlayingVideo(false);
-      showToast(`🚀 Unlocked Module ${activeModuleIndex + 2}!`);
+      showToast(`🚀 Module ${activeModuleIndex + 1} Completed! Unlocked Module ${activeModuleIndex + 2}: ${nextMod ? nextMod.title : ''}`);
     } else {
-      showToast(`🏆 Congratulations! You have completed the entire ${activePathData.title}!`);
-      if (quizPassed) {
-        setShowCertificateModal(true);
+      // Reached the end of the last module in the course
+      if (isThisCourseFullyCompleted) {
+        showToast(`🏆 Congratulations! You have completed all modules for ${activePathData.title}!`);
+        if (quizPassed) {
+          setShowCertificateModal(true);
+        } else {
+          showToast("⚠️ Complete the Track Quiz Challenge to claim your Certificate!");
+          setShowQuizModal(true);
+        }
       } else {
-        showToast("⚠️ Complete the Track Quiz Challenge to claim your Certificate!");
-        setShowQuizModal(true);
+        showToast(`👍 Module ${activeModuleIndex + 1} finished! Continue remaining modules to complete the track.`);
       }
     }
   };
@@ -1315,8 +1560,12 @@ function AnalyticsDashboard() {
     setShowQuizModal(false);
     showToast(`🏆 Quiz Passed! You scored ${score}/20 (+50 Bonus XP)`);
 
-    // Check if all 30 sub-lessons completed
-    if (completedSubLessonIds.length >= 30) {
+    // Check if ALL lessons of THIS active course are completed before showing certificate
+    const currentCourseAllLessons = modulesListForActivePath.flatMap(m => m.lessons || []);
+    const completedCountInThisCourse = currentCourseAllLessons.filter(l => completedSubLessonIds.includes(l.id)).length;
+    const isThisCourseFullyCompleted = currentCourseAllLessons.length > 0 && completedCountInThisCourse === currentCourseAllLessons.length;
+
+    if (isThisCourseFullyCompleted) {
       setTimeout(() => {
         setShowCertificateModal(true);
       }, 500);
@@ -1756,7 +2005,7 @@ function AnalyticsDashboard() {
               <NotificationDropdown type="student" />
 
               <div className="sdUserProfilePill" onClick={() => navigate("/settings")}>
-                <div className="sdUserAvatarImg">🧑‍🎓</div>
+                <UserAvatar user={user} />
                 <div className="sdUserInfoText">
                   <strong>{userName}</strong>
                   <span>Student</span>
