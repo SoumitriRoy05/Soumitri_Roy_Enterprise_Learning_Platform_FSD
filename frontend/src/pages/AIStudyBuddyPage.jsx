@@ -20,6 +20,8 @@ import {
   FaChevronDown, FaBuilding, FaUser, FaCheckCircle, FaSpinner, FaMinus
 } from "react-icons/fa";
 
+import { askGeminiAI, getGeminiApiKey, setGeminiApiKey } from "../services/geminiService";
+import FormattedMessage from "../components/FormattedMessage";
 import "../styles/aiStudyBuddyPage.css";
 
 import { react20QuizQuestions, python20QuizQuestions } from "../data/quizData";
@@ -51,6 +53,17 @@ export default function AIStudyBuddyPage() {
   const [activeModal, setActiveModal] = useState(null);
   const [toolModalContent, setToolModalContent] = useState(null);
   const [dailyGoalXP, setDailyGoalXP] = useState(50);
+
+  // ── TOPIC SELECTION STATES FOR AI TOOLS ──
+  const [selectedSummaryTopic, setSelectedSummaryTopic] = useState("React & Frontend Development");
+  const [customSummaryTopic, setCustomSummaryTopic] = useState("");
+
+  const [selectedFlashcardTopic, setSelectedFlashcardTopic] = useState("React 18 & Hooks");
+  const [customFlashcardTopic, setCustomFlashcardTopic] = useState("");
+
+  const [genNotesTopicSelect, setGenNotesTopicSelect] = useState("React Virtual DOM & Reconciliation");
+  const [mindMapTopicSelect, setMindMapTopicSelect] = useState("React 18 & Component Architecture");
+  const [conceptDiagramTopicSelect, setConceptDiagramTopicSelect] = useState("Microservices & REST API Architecture");
 
   // ── SUMMARIZE NOTES MODAL STATE ──
   const [notesText, setNotesText] = useState(
@@ -114,10 +127,14 @@ export default function AIStudyBuddyPage() {
     "📌 Key Concepts:\n- Virtual DOM is an in-memory JS representation of the real DOM.\n- React uses a diffing algorithm (O(N) heuristics) to compare new & old virtual trees.\n- Only changed DOM nodes are re-rendered in the browser.\n\n💡 Example Pattern:\nconst [count, setCount] = useState(0);\n// Only the <h1> tag is updated on click."
   );
 
-  // ── PRACTICE QUIZ MODAL STATE ──
+  // ── PRACTICE QUIZ & CODE EXPLAINER MODAL STATE ──
   const [quizTrackSelect, setQuizTrackSelect] = useState("React & Web Development");
   const [quizLengthSelect, setQuizLengthSelect] = useState("20 Questions");
   const [quizDiffSelect, setQuizDiffSelect] = useState("Medium");
+  const [quizModalTab, setQuizModalTab] = useState("quiz");
+  const [codeExplainInput, setCodeExplainInput] = useState(
+    "function binarySearch(arr, target) {\n  let left = 0, right = arr.length - 1;\n  while (left <= right) {\n    let mid = Math.floor((left + right) / 2);\n    if (arr[mid] === target) return mid;\n    if (arr[mid] < target) left = mid + 1;\n    else right = mid - 1;\n  }\n  return -1;\n}"
+  );
 
   // ── CODE PLAYGROUND MODAL STATE ──
   const [playgroundLang, setPlaygroundLang] = useState("javascript");
@@ -181,29 +198,155 @@ SELECT * FROM Students WHERE xp >= 1000;`
   const [playgroundOutput, setPlaygroundOutput] = useState("");
   const [isRunningCode, setIsRunningCode] = useState(false);
 
+  // ── DYNAMIC TOPIC MATCHERS FOR MIND MAP & DIAGRAM ──
+  const getMindMapNodesForTopic = (topicName) => {
+    const tLower = (topicName || "").toLowerCase();
+
+    if (tLower.includes("dsa") || tLower.includes("algorithm") || tLower.includes("data structure")) {
+      return [
+        { id: 1, label: "⚡ Data Structures & Algorithms", parent: null, color: "#F59E0B" },
+        { id: 2, label: "🔢 Linear Data Structures (Arrays, Stacks, Queues)", parent: 1, color: "#38BDF8" },
+        { id: 3, label: "🌲 Non-Linear Structures (Trees, Binary Trees, Heaps)", parent: 1, color: "#10B981" },
+        { id: 4, label: "🔍 Searching & Sorting (Binary Search, QuickSort)", parent: 2, color: "#F9572A" },
+        { id: 5, label: "🌐 Graph Algorithms (DFS, BFS, Dijkstra)", parent: 3, color: "#A855F7" },
+        { id: 6, label: "🧩 Dynamic Programming & Greedy Algorithms", parent: 3, color: "#EC4899" }
+      ];
+    }
+
+    if (tLower.includes("java")) {
+      return [
+        { id: 1, label: "☕ Java Enterprise Ecosystem", parent: null, color: "#F9572A" },
+        { id: 2, label: "⚙️ Core OOP (Classes, Inheritance, Polymorphism)", parent: 1, color: "#38BDF8" },
+        { id: 3, label: "🌱 Spring Boot Framework & Microservices", parent: 1, color: "#10B981" },
+        { id: 4, label: "🗄️ Hibernate ORM & JPA Database Mapping", parent: 2, color: "#F59E0B" },
+        { id: 5, label: "🛡️ Spring Security & JWT Token Auth", parent: 3, color: "#A855F7" },
+        { id: 6, label: "⚡ JVM Internals & Garbage Collection", parent: 3, color: "#EC4899" }
+      ];
+    }
+
+    if (tLower.includes("python")) {
+      return [
+        { id: 1, label: "🐍 Python Data Science & AI", parent: null, color: "#38BDF8" },
+        { id: 2, label: "📊 NumPy Arrays & Pandas DataFrames", parent: 1, color: "#F9572A" },
+        { id: 3, label: "🤖 Scikit-Learn Machine Learning Models", parent: 1, color: "#10B981" },
+        { id: 4, label: "🧠 PyTorch & TensorFlow Deep Learning", parent: 2, color: "#F59E0B" },
+        { id: 5, label: "🌐 FastAPI / Django Backend Web Services", parent: 3, color: "#A855F7" },
+        { id: 6, label: "📈 Matplotlib & Seaborn Data Visualization", parent: 3, color: "#EC4899" }
+      ];
+    }
+
+    if (tLower.includes("aws") || tLower.includes("cloud")) {
+      return [
+        { id: 1, label: "☁️ AWS Cloud Infrastructure", parent: null, color: "#F59E0B" },
+        { id: 2, label: "🖥️ Compute Services (EC2, ECS, AWS Lambda)", parent: 1, color: "#38BDF8" },
+        { id: 3, label: "🗄️ Database & Storage (S3, RDS, DynamoDB)", parent: 1, color: "#10B981" },
+        { id: 4, label: "🌐 Networking & Content Delivery (VPC, CloudFront)", parent: 2, color: "#F9572A" },
+        { id: 5, label: "🛡️ Security & Identity (IAM, KMS, Shield)", parent: 3, color: "#A855F7" },
+        { id: 6, label: "🚀 DevOps & Automation (CloudFormation, CodePipeline)", parent: 3, color: "#EC4899" }
+      ];
+    }
+
+    if (tLower.includes("security") || tLower.includes("cyber")) {
+      return [
+        { id: 1, label: "🛡️ Cybersecurity & Defense", parent: null, color: "#EC4899" },
+        { id: 2, label: "🔐 Cryptography & Encryption (AES, RSA, SSL/TLS)", parent: 1, color: "#F9572A" },
+        { id: 3, label: "🌐 Network Security (Firewalls, VPN, Wireshark)", parent: 1, color: "#38BDF8" },
+        { id: 4, label: "⚔️ Ethical Hacking & Penetration Testing", parent: 2, color: "#10B981" },
+        { id: 5, label: "🛡️ Identity & Access Management (OAuth 2.0, MFA)", parent: 3, color: "#F59E0B" },
+        { id: 6, label: "🚨 Incident Response & Threat Intelligence", parent: 3, color: "#A855F7" }
+      ];
+    }
+
+    if (tLower.includes("ui") || tLower.includes("ux") || tLower.includes("design")) {
+      return [
+        { id: 1, label: "🎨 UI/UX Design Masterclass", parent: null, color: "#EC4899" },
+        { id: 2, label: "📐 Wireframing & Prototyping (Figma, Adobe XD)", parent: 1, color: "#38BDF8" },
+        { id: 3, label: "🎯 User Research & Persona Mapping", parent: 1, color: "#10B981" },
+        { id: 4, label: "🅰️ Typography & Color Systems", parent: 2, color: "#F9572A" },
+        { id: 5, label: "📱 Responsive Layouts & Design Tokens", parent: 3, color: "#F59E0B" },
+        { id: 6, label: "⚡ Usability Testing & Micro-Interactions", parent: 3, color: "#A855F7" }
+      ];
+    }
+
+    if (tLower.includes("web3") || tLower.includes("blockchain")) {
+      return [
+        { id: 1, label: "⛓️ Web3 & Blockchain Engineering", parent: null, color: "#A855F7" },
+        { id: 2, label: "📝 Smart Contracts (Solidity, EVM)", parent: 1, color: "#F9572A" },
+        { id: 3, label: "🌐 Decentralized Apps (Ethers.js, Web3.js)", parent: 1, color: "#38BDF8" },
+        { id: 4, label: "🔐 Cryptography & Public/Private Keys", parent: 2, color: "#10B981" },
+        { id: 5, label: "🪙 Tokens & NFTs (ERC-20, ERC-721)", parent: 3, color: "#F59E0B" },
+        { id: 6, label: "⚡ Layer 2 Scaling (Polygon, Arbitrum)", parent: 3, color: "#EC4899" }
+      ];
+    }
+
+    return [
+      { id: 1, label: `📌 ${topicName || "React 18 & Component Architecture"}`, parent: null, color: "#F9572A" },
+      { id: 2, label: "🧩 Core Modules & Architecture", parent: 1, color: "#38BDF8" },
+      { id: 3, label: "⚙️ Processing Logic & Data Flow", parent: 1, color: "#10B981" },
+      { id: 4, label: "🌐 Integration & API Endpoints", parent: 2, color: "#F59E0B" },
+      { id: 5, label: "🛡️ Security & Performance Tuning", parent: 2, color: "#A855F7" },
+      { id: 6, label: "🚀 Production Deployment & Monitoring", parent: 3, color: "#EC4899" }
+    ];
+  };
+
+  const getDiagramStepsForTopic = (topicName) => {
+    const tLower = (topicName || "").toLowerCase();
+
+    if (tLower.includes("oauth") || tLower.includes("auth")) {
+      return [
+        { step: 1, title: "👤 User Login Action", desc: "User enters credentials in React single page application", badge: "Client App" },
+        { step: 2, title: "🛡️ OAuth 2.0 Auth Server", desc: "Verifies identity and issues signed JWT bearer token", badge: "Auth Gateway" },
+        { step: 3, title: "⚙️ API Gateway Middleware", desc: "Validates JWT signature, expiration & scope permissions", badge: "Security Filter" },
+        { step: 4, title: "🍃 Protected Resource DB", desc: "Fetches authorized user profile & data payload", badge: "Resource Server" }
+      ];
+    }
+
+    if (tLower.includes("database") || tLower.includes("transaction")) {
+      return [
+        { step: 1, title: "📝 Begin ACID Transaction", desc: "Application initiates atomic database operation", badge: "Tx Start" },
+        { step: 2, title: "🔒 Write-Ahead Logging (WAL)", desc: "Logs state changes to disk before table mutation", badge: "WAL Journal" },
+        { step: 3, title: "⚡ Execute SQL / B-Tree Mutations", desc: "Updates memory buffer pool & index pages", badge: "DB Engine" },
+        { step: 4, title: "✅ Commit & Flush", desc: "Commits transaction & returns success ack to client", badge: "Commit OK" }
+      ];
+    }
+
+    if (tLower.includes("react") || tLower.includes("lifecycle")) {
+      return [
+        { step: 1, title: "⚛️ Component Mount & Render", desc: "Initial state evaluation & JSX virtual DOM creation", badge: "Mount" },
+        { step: 2, title: "🔄 State / Props Update Trigger", desc: "setState call triggers re-evaluation of virtual subtree", badge: "State Change" },
+        { step: 3, title: "⚡ Diffing Algorithm (Reconciliation)", desc: "React compares new Virtual DOM tree against previous tree", badge: "O(N) Diff" },
+        { step: 4, title: "🌐 Real DOM Mutation & useEffect", desc: "Applies minimal DOM updates & runs side-effect cleanup", badge: "DOM Patch" }
+      ];
+    }
+
+    if (tLower.includes("ci/cd") || tLower.includes("pipeline")) {
+      return [
+        { step: 1, title: "🐙 Git Push Event", desc: "Developer pushes commit to GitHub main branch", badge: "Code Push" },
+        { step: 2, title: "⚙️ Automated Build & Test", desc: "GitHub Actions runner executes unit & integration tests", badge: "Test Pass" },
+        { step: 3, title: "📦 Docker Image Build", desc: "Compiles production artifacts & pushes to Docker Hub", badge: "Containerized" },
+        { step: 4, title: "🚀 Kubernetes Production Deploy", desc: "Performs zero-downtime rolling update on cloud cluster", badge: "Live Production" }
+      ];
+    }
+
+    return [
+      { step: 1, title: "🌐 Client Web Application", desc: `Sends payload request for ${topicName}`, badge: "Client Layer" },
+      { step: 2, title: "🛡️ Load Balancer & API Gateway", desc: "Handles TLS termination & distributes request load", badge: "Gateway" },
+      { step: 3, title: `⚙️ ${topicName} Microservice Engine`, desc: "Executes business logic, algorithms & data transformation", badge: "Core Engine" },
+      { step: 4, title: "🍃 Persistent Storage & Cache", desc: "Queries Redis cache & updates database records", badge: "Persistence" }
+    ];
+  };
+
   // ── MIND MAP MODAL STATE ──
   const [mindMapTopic, setMindMapTopic] = useState("React 18 & Component Architecture");
   const [mindMapDepth, setMindMapDepth] = useState("Detailed (5 Levels)");
   const [isGeneratingMindMap, setIsGeneratingMindMap] = useState(false);
-  const [mindMapNodes, setMindMapNodes] = useState([
-    { id: 1, label: "⚛️ React Core Engine", parent: null, color: "#F9572A" },
-    { id: 2, label: "🧩 Functional Components", parent: 1, color: "#38BDF8" },
-    { id: 3, label: "🔄 Virtual DOM & Reconciliation", parent: 1, color: "#10B981" },
-    { id: 4, label: "⚡ State & Hooks (useState, useEffect)", parent: 2, color: "#F59E0B" },
-    { id: 5, label: "🌐 Context API & Redux Toolkit", parent: 2, color: "#A855F7" },
-    { id: 6, label: "🚀 Next.js 14 App Router & SSR", parent: 3, color: "#EC4899" }
-  ]);
+  const [mindMapNodes, setMindMapNodes] = useState(getMindMapNodesForTopic("React 18 & Component Architecture"));
 
   // ── CONCEPT DIAGRAM MODAL STATE ──
   const [conceptDiagramTopic, setConceptDiagramTopic] = useState("Microservices & REST API Architecture");
   const [conceptDiagramType, setConceptDiagramType] = useState("System Architecture Flow");
   const [isGeneratingDiagram, setIsGeneratingDiagram] = useState(false);
-  const [diagramSteps, setDiagramSteps] = useState([
-    { step: 1, title: "🌐 Client Web Browser", desc: "React Single Page App sends JSON payloads via Axios", badge: "HTTP Request" },
-    { step: 2, title: "🛡️ Nginx Load Balancer", desc: "Routes traffic & handles SSL termination", badge: "Proxy Layer" },
-    { step: 3, title: "⚙️ Node.js REST API Server", desc: "Express controller handles authentication & business logic", badge: "Backend Engine" },
-    { step: 4, title: "🍃 MongoDB Database", desc: "BSON data queries & indexed collections", badge: "Persistence" }
-  ]);
+  const [diagramSteps, setDiagramSteps] = useState(getDiagramStepsForTopic("Microservices & REST API Architecture"));
 
   const handleStartPracticeQuizFromModal = () => {
     const isPython = quizTrackSelect.toLowerCase().includes("python");
@@ -273,7 +416,6 @@ SELECT * FROM Students WHERE xp >= 1000;`
     { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
     { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
     { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
-    { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },
@@ -344,27 +486,44 @@ SELECT * FROM Students WHERE xp >= 1000;`
 
   const handleClearHistory = async () => {
     if (window.confirm("Are you sure you want to clear your study chat history?")) {
+      const initialWelcomeMsg = [
+        {
+          id: Date.now(),
+          sender: "bot",
+          text: `Hi ${userName || "Learner"}! 👋 🔥\nI'm your AI Study Buddy. What would you like to learn today?`,
+          quickPrompts: [
+            "Explain React useState hook",
+            "What is Big O Notation?",
+            "Summarize TCP/IP Model"
+          ]
+        }
+      ];
+
+      // 1. Immediately reset messages state in UI
+      setMessages(initialWelcomeMsg);
+
+      // 2. Clear all local storage chat histories
       try {
-        const res = await authenticatedFetch(`${API_URL}/api/ai/messages`, {
+        const userKey = user?.email || user?.username || 'default';
+        localStorage.removeItem(`ai_chat_history_${userKey}`);
+        localStorage.removeItem(`skillsphere_ai_messages_${userKey}`);
+        localStorage.removeItem("ai_chat_messages");
+      } catch (e) {
+        console.warn("Error clearing local storage:", e);
+      }
+
+      // 3. Delete from backend database if endpoint is active
+      try {
+        await authenticatedFetch(`${API_URL}/api/ai/messages`, {
           method: "DELETE"
         });
-        if (res.ok) {
-          setMessages([
-            {
-              id: 1,
-              sender: "bot",
-              text: `Hi ${userName || "Learner"}! 👋 🔥\nI'm your AI Study Buddy. What would you like to learn today?`,
-              quickPrompts: [
-                "Explain React useState hook",
-                "What is Big O Notation?",
-                "Summarize TCP/IP Model"
-              ]
-            }
-          ]);
-        }
       } catch (e) {
-        console.error("Failed to clear chat history:", e);
+        console.warn("Backend chat delete notice:", e);
       }
+
+      // 4. Toast notification
+      setToastMessage("🗑️ Study Chat History Cleared!");
+      setTimeout(() => setToastMessage(""), 3500);
     }
   };
 
@@ -413,67 +572,10 @@ SELECT * FROM Students WHERE xp >= 1000;`
       isTyping: true
     }]);
 
-    // Timeout control
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000);
     try {
-      let replyText = "";
-      const geminiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
+      const aiResult = await askGeminiAI(text, { activeContext: activeCourseContext });
+      const botMsgText = aiResult.text || `Here is a clear breakdown for "${text}":\n\n1. Focus on core principles.\n2. Apply modular design and test with edge cases.`;
       
-      if (geminiKey && geminiKey !== "AIzaSyD-YOUR-GEMINI-KEY-HERE") {
-        try {
-          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
-          const geminiRes = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [
-                {
-                  parts: [
-                    {
-                      text: `You are an expert AI Study Buddy for SkillSphere. Help the user learn programming, UI/UX design, or data science. Keep responses highly educational, concise, and professional.\n\nUser Question: ${text}`
-                    }
-                  ]
-                }
-              ]
-            }),
-            signal: controller.signal
-          });
-          
-          if (geminiRes.ok) {
-            const data = await geminiRes.json();
-            replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-          }
-        } catch (e) {
-          console.warn("Gemini API call failed, falling back to Pollinations:", e);
-        }
-      }
-
-      if (!replyText) {
-        const response = await fetch("https://text.pollinations.ai/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            messages: [
-              { role: "system", content: "You are an expert AI Study Buddy for SkillSphere. Help the user learn programming, UI/UX design, or data science. Keep responses highly educational, concise, and professional." },
-              { role: "user", content: text }
-            ],
-            model: "openai"
-          }),
-          signal: controller.signal
-        });
-        
-        if (response.ok) {
-          replyText = await response.text();
-        }
-      }
-      clearTimeout(timeoutId);
-
-      if (!replyText) {
-        replyText = `I have analyzed "${text}". Focus on modular design, practice writing clean code, and test with edge cases to verify performance!`;
-      }
-
-      const botMsgText = replyText.trim();
       const botMsg = {
         sender: "bot",
         text: botMsgText,
@@ -498,7 +600,6 @@ SELECT * FROM Students WHERE xp >= 1000;`
       } catch (e) {}
 
     } catch (err) {
-      clearTimeout(timeoutId);
       console.warn("AI Chat API error, falling back to local responder:", err);
       
       const botMsgFallback = {
@@ -547,41 +648,34 @@ SELECT * FROM Students WHERE xp >= 1000;`
   };
 
   // ── SUMMARIZE NOTES HANDLERS ──
-  const handleGenerateSummary = () => {
+  const handleGenerateSummary = async () => {
     if (!notesText.trim()) return;
     setIsGeneratingSummary(true);
     setSummaryGenerated(false);
-    setTimeout(() => {
-      const summaries = {
-        Short: [
-          "Virtual DOM is a lightweight JS representation of the real DOM.",
-          "React optimizes updates by diffing the Virtual DOM first.",
-          "Only changed elements get updated in the real DOM."
-        ],
-        Medium: [
-          "Virtual DOM is a lightweight JS object that represents the real DOM.",
-          "React uses it as an intermediate layer to optimize updates.",
-          "When state or props change:",
-          "React updates the Virtual DOM.",
-          "It compares (diffs) it with the previous Virtual DOM.",
-          "It calculates the minimum number of changes.",
-          "Only the changed parts are updated in the real DOM."
-        ],
-        Long: [
-          "Virtual DOM is a lightweight JavaScript object that represents the real DOM.",
-          "React uses it as an intermediate layer to batch and optimize UI updates.",
-          "The reconciliation process (diffing) compares old and new Virtual DOM trees.",
-          "React identifies the minimum number of DOM operations required.",
-          "Only the changed nodes are updated in the actual DOM.",
-          "This approach significantly improves performance for complex UIs.",
-          "React Fiber further optimizes this with incremental rendering.",
-          "Virtual DOM enables declarative programming and predictable state management."
-        ]
-      };
-      setGeneratedSummary(summaries[summaryLength] || summaries.Medium);
+    
+    const topicToUse = selectedSummaryTopic === "Custom Topic Input" ? (customSummaryTopic || "General Topic") : selectedSummaryTopic;
+    try {
+      const prompt = `Summarize the following content into ${keyPoints} concise key bullet points focusing on topic "${topicToUse}":\n\n${notesText}`;
+      const aiRes = await askGeminiAI(prompt);
+      const lines = aiRes.text.split("\n").map(l => l.replace(/^[-*•\d.\s]+/, "").trim()).filter(l => l.length > 5).slice(0, keyPoints);
+      if (lines.length > 0) {
+        setGeneratedSummary(lines);
+      } else {
+        setGeneratedSummary([
+          `Summary point 1 for ${topicToUse}: Focus on core architecture and principles.`,
+          `Summary point 2 for ${topicToUse}: Modular design improves long-term maintainability.`,
+          `Summary point 3 for ${topicToUse}: Apply clean coding practices and performance testing.`
+        ]);
+      }
+    } catch (e) {
+      setGeneratedSummary([
+        `Summary point 1 for ${topicToUse}: Core principles and architecture.`,
+        `Summary point 2 for ${topicToUse}: Best practices and implementation logic.`
+      ]);
+    } finally {
       setIsGeneratingSummary(false);
       setSummaryGenerated(true);
-    }, 1800);
+    }
   };
 
   const handleNotesFileUpload = (e) => {
@@ -594,11 +688,12 @@ SELECT * FROM Students WHERE xp >= 1000;`
   // ── FLASHCARDS HANDLERS ──
   const handleGenerateFlashcards = () => {
     setIsGeneratingCards(true);
+    const topicToUse = selectedFlashcardTopic === "Custom Topic Input" ? (customFlashcardTopic || "Selected Topic") : selectedFlashcardTopic;
     setTimeout(() => {
       setIsGeneratingCards(false);
       setActiveModal(null);
-      handleSend(`Create ${numCards} ${difficultyLevel.toLowerCase()} difficulty ${questionType.toLowerCase()} flashcards about Virtual DOM in React`);
-    }, 2000);
+      handleSend(`Create ${numCards} ${difficultyLevel.toLowerCase()} difficulty ${questionType.toLowerCase()} flashcards for topic: "${topicToUse}"`);
+    }, 1200);
   };
 
   // ── INTERVIEW PREP HANDLERS ──
@@ -839,7 +934,7 @@ SELECT * FROM Students WHERE xp >= 1000;`
                     {m.sender === "bot" && <div className="botRowAvatar">🤖</div>}
 
                     <div className={`chatBubble ${m.sender}`}>
-                      {m.text && <p className="msgText">{m.text}</p>}
+                      {m.text && <FormattedMessage text={m.text} />}
 
                       {m.quickPrompts && (
                         <div className="quickPromptChipsRow">
@@ -1028,21 +1123,6 @@ SELECT * FROM Students WHERE xp >= 1000;`
             <div className="aisbpRightCol">
 
               {/* Current Course Context Card */}
-              <div className="aisbpWidgetCard">
-                <div className="widgetTitleHeader">
-                  <h4>Current Course Context</h4>
-                  <span className="changeLink" onClick={() => setActiveModal("context")}>Change</span>
-                </div>
-
-                <div className="courseContextCard">
-                  <div className="contextBadgeIcon">{activeCourseContext.icon}</div>
-                  <div>
-                    <strong>{activeCourseContext.title}</strong>
-                    <span>{activeCourseContext.module}</span>
-                  </div>
-                </div>
-              </div>
-
               {/* Study Buddy Tools (2x3 Grid) */}
               <div className="aisbpWidgetCard">
                 <h4>Study Buddy Tools</h4>
@@ -1245,8 +1325,40 @@ SELECT * FROM Students WHERE xp >= 1000;`
               {/* LEFT: Notes Input */}
               <div className="snLeftPanel">
                 <div className="snPanelHeader">
-                  <span className="snPanelTitle">Your Notes</span>
+                  <span className="snPanelTitle">Select Topic &amp; Notes</span>
                   <span className="snCharCount">{notesText.length}/5000</span>
+                </div>
+
+                <div style={{ marginBottom: "12px" }}>
+                  <label className="modalLabel" style={{ fontSize: "11px", fontWeight: 700, display: "block", marginBottom: "4px" }}>🎯 Target Topic:</label>
+                  <select
+                    className="modalSelect"
+                    style={{ width: "100%", padding: "8px 12px", fontSize: "12px", marginBottom: selectedSummaryTopic === "Custom Topic Input" ? "8px" : "0" }}
+                    value={selectedSummaryTopic}
+                    onChange={(e) => setSelectedSummaryTopic(e.target.value)}
+                  >
+                    <option>React &amp; Frontend Development</option>
+                    <option>Python &amp; Data Science Fundamentals</option>
+                    <option>Java Core &amp; Spring Boot Microservices</option>
+                    <option>Data Structures &amp; Algorithms (DSA)</option>
+                    <option>Node.js &amp; RESTful API Engineering</option>
+                    <option>Machine Learning &amp; Generative AI</option>
+                    <option>UI/UX &amp; Figma Design Essentials</option>
+                    <option>Cybersecurity &amp; Network Security</option>
+                    <option>AWS &amp; Cloud Infrastructure</option>
+                    <option>Custom Topic Input</option>
+                  </select>
+
+                  {selectedSummaryTopic === "Custom Topic Input" && (
+                    <input
+                      type="text"
+                      className="modalSelect"
+                      placeholder="Type custom topic (e.g. Docker, GraphQL, System Design)..."
+                      style={{ width: "100%", padding: "8px 12px", fontSize: "12px" }}
+                      value={customSummaryTopic}
+                      onChange={(e) => setCustomSummaryTopic(e.target.value)}
+                    />
+                  )}
                 </div>
                 <textarea
                   className="snNotesTextarea"
@@ -1487,6 +1599,39 @@ SELECT * FROM Students WHERE xp >= 1000;`
                     />
                   </div>
                 )}
+
+                {/* Topic Selector Row */}
+                <div style={{ marginBottom: "14px" }}>
+                  <label className="fcInputLabel" style={{ fontSize: "11px", fontWeight: 700, display: "block", marginBottom: "4px" }}>🎯 Target Flashcard Topic:</label>
+                  <select
+                    className="fcSelect"
+                    style={{ width: "100%", padding: "8px 12px", fontSize: "12px", marginBottom: selectedFlashcardTopic === "Custom Topic Input" ? "8px" : "0" }}
+                    value={selectedFlashcardTopic}
+                    onChange={(e) => setSelectedFlashcardTopic(e.target.value)}
+                  >
+                    <option>React 18 &amp; Hooks</option>
+                    <option>Python Data Science &amp; Pandas</option>
+                    <option>Java OOP &amp; JVM Internals</option>
+                    <option>Data Structures &amp; Algorithms</option>
+                    <option>Node.js &amp; Backend Architecture</option>
+                    <option>Machine Learning &amp; Neural Networks</option>
+                    <option>UI/UX Design Patterns</option>
+                    <option>AWS Cloud Services</option>
+                    <option>System Design &amp; Databases</option>
+                    <option>Custom Topic Input</option>
+                  </select>
+
+                  {selectedFlashcardTopic === "Custom Topic Input" && (
+                    <input
+                      type="text"
+                      className="fcTopicInput"
+                      placeholder="Enter topic name (e.g. Docker, Redux, PostgreSQL)..."
+                      style={{ width: "100%", padding: "8px 12px", fontSize: "12px" }}
+                      value={customFlashcardTopic}
+                      onChange={(e) => setCustomFlashcardTopic(e.target.value)}
+                    />
+                  )}
+                </div>
 
                 {/* Controls Row */}
                 <div className="fcControlsGrid">
@@ -1891,15 +2036,41 @@ SELECT * FROM Students WHERE xp >= 1000;`
             <div className="snModalBody">
               <div className="snLeftPanel">
                 <div className="snPanelHeader">
-                  <span className="snPanelTitle">Topic or Lecture Content</span>
+                  <span className="snPanelTitle">Select Subject &amp; Topic</span>
                 </div>
-                <input
-                  type="text"
+
+                <label className="modalLabel" style={{ fontSize: "11px", fontWeight: 700, display: "block", marginBottom: "4px" }}>🎯 Target Topic:</label>
+                <select
                   className="modalSelect"
-                  style={{ width: "100%", marginBottom: "16px" }}
-                  value={genNotesTopic}
-                  onChange={(e) => setGenNotesTopic(e.target.value)}
-                />
+                  style={{ width: "100%", marginBottom: genNotesTopicSelect === "Custom Topic Input" ? "8px" : "16px" }}
+                  value={genNotesTopicSelect}
+                  onChange={(e) => {
+                    setGenNotesTopicSelect(e.target.value);
+                    if (e.target.value !== "Custom Topic Input") {
+                      setGenNotesTopic(e.target.value);
+                    }
+                  }}
+                >
+                  <option>React Virtual DOM &amp; Reconciliation</option>
+                  <option>Python Data Science &amp; Pandas DataFrames</option>
+                  <option>Java Spring Boot Microservices Architecture</option>
+                  <option>DSA Binary Search Trees &amp; Dynamic Programming</option>
+                  <option>System Design REST APIs &amp; Microservices</option>
+                  <option>Node.js Asynchronous Event Loop</option>
+                  <option>AWS Cloud Serverless Architecture</option>
+                  <option>Custom Topic Input</option>
+                </select>
+
+                {genNotesTopicSelect === "Custom Topic Input" && (
+                  <input
+                    type="text"
+                    className="modalSelect"
+                    placeholder="Enter custom topic (e.g. Docker, GraphQL, Kubernetes)..."
+                    style={{ width: "100%", marginBottom: "16px" }}
+                    value={genNotesTopic}
+                    onChange={(e) => setGenNotesTopic(e.target.value)}
+                  />
+                )}
 
                 <label className="modalLabel">Note Format Style</label>
                 <select className="modalSelect" value={genNotesStyle} onChange={(e) => setGenNotesStyle(e.target.value)} style={{ width: "100%", marginBottom: "16px" }}>
@@ -1911,13 +2082,20 @@ SELECT * FROM Students WHERE xp >= 1000;`
 
                 <button
                   className="snGenerateBtn"
-                  onClick={() => {
+                  onClick={async () => {
                     setIsGeneratingGenNotes(true);
-                    setTimeout(() => {
-                      setIsGeneratingGenNotes(false);
-                      setToastMessage("📝 Notes Generated Successfully!");
+                    const topicToUse = genNotesTopicSelect === "Custom Topic Input" ? (genNotesTopic || "Selected Topic") : genNotesTopicSelect;
+                    try {
+                      const prompt = `Generate high-yield study notes for topic "${topicToUse}" in style "${genNotesStyle}". Format clearly with headers, bullet points, and code examples if applicable.`;
+                      const aiRes = await askGeminiAI(prompt);
+                      setGeneratedGenNotesText(aiRes.text);
+                      setToastMessage(`📝 Notes Generated for ${topicToUse}!`);
                       setTimeout(() => setToastMessage(""), 4000);
-                    }, 1200);
+                    } catch (e) {
+                      setGeneratedGenNotesText(`📌 Study Notes: ${topicToUse}\n\n1. Core Concepts: Understanding ${topicToUse}.\n2. Implementation: Apply clean architecture principles.`);
+                    } finally {
+                      setIsGeneratingGenNotes(false);
+                    }
                   }}
                   disabled={isGeneratingGenNotes}
                 >
@@ -1942,50 +2120,128 @@ SELECT * FROM Students WHERE xp >= 1000;`
         </div>
       )}
 
-      {/* 11. PRACTICE QUIZ MODAL */}
+      {/* 11. PRACTICE QUIZ & GEMINI CODE EXPLAINER MODAL */}
       {activeModal === "practice-quiz" && (
         <div className="modalOverlay" onClick={closeModal}>
-          <div className="modalContainer" onClick={(e) => e.stopPropagation()}>
-            <div className="modalHeader">
-              <h3>🎯 Practice Quiz Generator</h3>
-              <button className="modalCloseBtn" onClick={closeModal}><FaTimes /></button>
-            </div>
-            <div className="modalBody">
-              <label className="modalLabel">Select Track / Topic:</label>
-              <select className="modalSelect" value={quizTrackSelect} onChange={(e) => setQuizTrackSelect(e.target.value)}>
-                <option>React & Web Development</option>
-                <option>Python Data Science</option>
-                <option>JavaScript Fundamentals</option>
-                <option>Data Structures & Algorithms</option>
-                <option>Node.js & Microservices</option>
-              </select>
-
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "12px" }}>
+          <div className="modalContainer snModal" style={{ maxWidth: "720px" }} onClick={(e) => e.stopPropagation()}>
+            <div className="snModalHeader">
+              <div className="snModalTitleRow">
+                <div className="snModalIcon">🎯</div>
                 <div>
-                  <label className="modalLabel">Question Count:</label>
-                  <select className="modalSelect" value={quizLengthSelect} onChange={(e) => setQuizLengthSelect(e.target.value)}>
-                    <option>5 Questions</option>
-                    <option>10 Questions</option>
-                    <option>20 Questions</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="modalLabel">Difficulty:</label>
-                  <select className="modalSelect" value={quizDiffSelect} onChange={(e) => setQuizDiffSelect(e.target.value)}>
-                    <option>Easy</option>
-                    <option>Medium</option>
-                    <option>Hard</option>
-                  </select>
+                  <h3>Practice Quiz &amp; Gemini Code Explainer</h3>
+                  <p>Generate topic quizzes or paste any code snippet to receive line-by-line Gemini AI explanations.</p>
                 </div>
               </div>
+              <button className="modalCloseBtn" onClick={closeModal}><FaTimes /></button>
+            </div>
 
+            <div style={{ display: "flex", gap: "12px", borderBottom: "1px solid #CBD5E1", padding: "12px 24px 0" }}>
               <button
-                className="btnConfirmPro"
-                style={{ marginTop: "20px" }}
-                onClick={handleStartPracticeQuizFromModal}
+                onClick={() => setQuizModalTab("quiz")}
+                style={{
+                  padding: "8px 18px",
+                  borderRadius: "12px 12px 0 0",
+                  fontSize: "13px",
+                  fontWeight: 800,
+                  border: "none",
+                  background: quizModalTab === "quiz" ? "#F9572A" : "transparent",
+                  color: quizModalTab === "quiz" ? "#FFFFFF" : (isDarkMode ? "#94A3B8" : "#64748B"),
+                  cursor: "pointer"
+                }}
               >
-                🚀 Start Interactive AI Quiz Challenge →
+                🎯 Quiz Challenge Generator
               </button>
+              <button
+                onClick={() => setQuizModalTab("explain")}
+                style={{
+                  padding: "8px 18px",
+                  borderRadius: "12px 12px 0 0",
+                  fontSize: "13px",
+                  fontWeight: 800,
+                  border: "none",
+                  background: quizModalTab === "explain" ? "#F9572A" : "transparent",
+                  color: quizModalTab === "explain" ? "#FFFFFF" : (isDarkMode ? "#94A3B8" : "#64748B"),
+                  cursor: "pointer"
+                }}
+              >
+                💡 Gemini Code Explainer
+              </button>
+            </div>
+
+            <div className="modalBody" style={{ padding: "20px 24px" }}>
+              {quizModalTab === "quiz" ? (
+                <>
+                  <label className="modalLabel">Select Track / Topic:</label>
+                  <select className="modalSelect" value={quizTrackSelect} onChange={(e) => setQuizTrackSelect(e.target.value)}>
+                    <option>React &amp; Web Development</option>
+                    <option>Python Data Science</option>
+                    <option>JavaScript Fundamentals</option>
+                    <option>Data Structures &amp; Algorithms</option>
+                    <option>Node.js &amp; Microservices</option>
+                  </select>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "12px" }}>
+                    <div>
+                      <label className="modalLabel">Question Count:</label>
+                      <select className="modalSelect" value={quizLengthSelect} onChange={(e) => setQuizLengthSelect(e.target.value)}>
+                        <option>5 Questions</option>
+                        <option>10 Questions</option>
+                        <option>20 Questions</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="modalLabel">Difficulty:</label>
+                      <select className="modalSelect" value={quizDiffSelect} onChange={(e) => setQuizDiffSelect(e.target.value)}>
+                        <option>Easy</option>
+                        <option>Medium</option>
+                        <option>Hard</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <button
+                    className="btnConfirmPro"
+                    style={{ marginTop: "20px" }}
+                    onClick={handleStartPracticeQuizFromModal}
+                  >
+                    🚀 Start Interactive AI Quiz Challenge →
+                  </button>
+                </>
+              ) : (
+                <>
+                  <label className="modalLabel">Paste Any Code Snippet Below:</label>
+                  <textarea
+                    style={{
+                      width: "100%",
+                      height: "170px",
+                      fontFamily: "Fira Code, monospace",
+                      fontSize: "12px",
+                      background: "#0F172A",
+                      color: "#38BDF8",
+                      border: "1px solid #334155",
+                      borderRadius: "12px",
+                      padding: "14px",
+                      outline: "none",
+                      resize: "none",
+                      marginBottom: "16px"
+                    }}
+                    placeholder="Paste code (e.g., JavaScript, Python, Java, C++, SQL, React)..."
+                    value={codeExplainInput}
+                    onChange={(e) => setCodeExplainInput(e.target.value)}
+                  />
+
+                  <button
+                    className="btnConfirmPro"
+                    onClick={() => {
+                      if (!codeExplainInput.trim()) return;
+                      closeModal();
+                      handleSend(`Explain the following code step-by-step like Gemini AI, including line-by-line breakdown, time/space complexity, and clean code tips:\n\n\`\`\`\n${codeExplainInput}\n\`\`\``);
+                    }}
+                  >
+                    ✨ Explain Code with Gemini AI →
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -1994,21 +2250,21 @@ SELECT * FROM Students WHERE xp >= 1000;`
       {/* 12. CODE PLAYGROUND MULTI-LANGUAGE SANDBOX MODAL */}
       {activeModal === "code-playground" && (
         <div className="modalOverlay" onClick={closeModal}>
-          <div className="modalContainer snModal" style={{ maxWidth: "850px" }} onClick={(e) => e.stopPropagation()}>
+          <div className="modalContainer snModal" style={{ maxWidth: "880px" }} onClick={(e) => e.stopPropagation()}>
             <div className="snModalHeader">
               <div className="snModalTitleRow">
                 <div className="snModalIcon">💻</div>
                 <div>
-                  <h3>Code Playground & Sandbox</h3>
+                  <h3>Code Playground &amp; Sandbox</h3>
                   <p>Write, compile and test code in multiple programming languages instantly.</p>
                 </div>
               </div>
               <button className="modalCloseBtn" onClick={closeModal}><FaTimes /></button>
             </div>
 
-            <div className="snModalBody" style={{ flexDirection: "column", gap: "16px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px", padding: "20px 24px" }}>
               {/* Language Selector Tabs */}
-              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", borderBottom: "1px solid #CBD5E1", paddingBottom: "10px" }}>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", borderBottom: "1px solid #CBD5E1", paddingBottom: "12px" }}>
                 {[
                   { id: "javascript", name: "JavaScript / Node" },
                   { id: "python", name: "Python 3" },
@@ -2021,10 +2277,10 @@ SELECT * FROM Students WHERE xp >= 1000;`
                     key={lang.id}
                     onClick={() => setPlaygroundLang(lang.id)}
                     style={{
-                      padding: "6px 16px",
-                      borderRadius: "99px",
+                      padding: "8px 18px",
+                      borderRadius: "12px",
                       fontSize: "12px",
-                      fontWeight: 700,
+                      fontWeight: 800,
                       border: playgroundLang === lang.id ? "1px solid #F9572A" : "1px solid #CBD5E1",
                       background: playgroundLang === lang.id ? "#F9572A" : (isDarkMode ? "#1E293B" : "#FFFFFF"),
                       color: playgroundLang === lang.id ? "#FFFFFF" : (isDarkMode ? "#F8FAFC" : "#1E1B18"),
@@ -2039,22 +2295,29 @@ SELECT * FROM Students WHERE xp >= 1000;`
               {/* Code Editor */}
               <div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                  <span style={{ fontSize: "12px", fontWeight: 700, color: isDarkMode ? "#F8FAFC" : "#1E1B18" }}>Editor ({playgroundLang.toUpperCase()})</span>
-                  <button className="btnCopyCode" onClick={() => handleCopyCode(playgroundCode[playgroundLang])}>
-                    <FaCopy /> Copy Code
-                  </button>
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: isDarkMode ? "#F8FAFC" : "#1E1B18" }}>
+                    Editor ({playgroundLang.toUpperCase()})
+                  </span>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <button className="btnCopyCode" onClick={() => setPlaygroundOutput("")}>
+                      🗑️ Clear Terminal
+                    </button>
+                    <button className="btnCopyCode" onClick={() => handleCopyCode(playgroundCode[playgroundLang])}>
+                      <FaCopy /> Copy Code
+                    </button>
+                  </div>
                 </div>
                 <textarea
                   style={{
                     width: "100%",
-                    height: "160px",
-                    fontFamily: "monospace",
+                    height: "170px",
+                    fontFamily: "Fira Code, monospace",
                     fontSize: "13px",
                     background: "#0F172A",
                     color: "#38BDF8",
                     border: "1px solid #334155",
-                    borderRadius: "10px",
-                    padding: "12px",
+                    borderRadius: "12px",
+                    padding: "14px",
                     outline: "none",
                     resize: "none"
                   }}
@@ -2064,7 +2327,7 @@ SELECT * FROM Students WHERE xp >= 1000;`
               </div>
 
               {/* Action Bar */}
-              <div style={{ display: "flex", gap: "10px" }}>
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
                 <button
                   onClick={handleRunPlaygroundCode}
                   disabled={isRunningCode}
@@ -2085,6 +2348,36 @@ SELECT * FROM Students WHERE xp >= 1000;`
                 </button>
 
                 <button
+                  onClick={async () => {
+                    setIsRunningCode(true);
+                    setPlaygroundOutput("🧠 Analyzing code with Gemini AI...");
+                    try {
+                      const codeStr = playgroundCode[playgroundLang];
+                      const res = await askGeminiAI(`Explain the following ${playgroundLang} code clearly like Gemini. Provide overview, line-by-line breakdown, and time/space complexity:\n\n\`\`\`${playgroundLang}\n${codeStr}\n\`\`\``);
+                      setPlaygroundOutput(res.text);
+                    } catch (e) {
+                      setPlaygroundOutput(`📌 Code Explanation for ${playgroundLang}:\n- Purpose: Modular code execution.\n- Time Complexity: O(N)\n- Space Complexity: O(1)`);
+                    } finally {
+                      setIsRunningCode(false);
+                    }
+                  }}
+                  style={{
+                    padding: "10px 20px",
+                    borderRadius: "99px",
+                    background: "linear-gradient(135deg, #F9572A, #FF8C69)",
+                    color: "#FFFFFF",
+                    border: "none",
+                    fontWeight: 800,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px"
+                  }}
+                >
+                  ✨ Explain Code with AI
+                </button>
+
+                <button
                   onClick={() => handleCopyCode(playgroundCode[playgroundLang])}
                   style={{
                     padding: "10px 18px",
@@ -2100,13 +2393,30 @@ SELECT * FROM Students WHERE xp >= 1000;`
                 </button>
               </div>
 
-              {/* Terminal Execution Output */}
-              <div>
-                <span style={{ fontSize: "12px", fontWeight: 700, color: isDarkMode ? "#F8FAFC" : "#1E1B18", display: "block", marginBottom: "6px" }}>Terminal Output Console</span>
-                <div style={{ background: "#05060B", border: "1px solid #1E293B", borderRadius: "10px", padding: "12px", fontFamily: "monospace", fontSize: "12px", color: "#10B981", minHeight: "80px", whiteSpace: "pre-wrap" }}>
-                  {playgroundOutput || "Click '▶ Run Code' above to execute code and view console output."}
+              {/* Terminal Execution Output & Live HTML Web Preview */}
+              {playgroundLang === "html" ? (
+                <div>
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: isDarkMode ? "#F8FAFC" : "#1E1B18", display: "block", marginBottom: "6px" }}>🌐 Live HTML/CSS Interactive Preview</span>
+                  <iframe
+                    title="Live Web Preview"
+                    srcDoc={playgroundCode.html}
+                    style={{
+                      width: "100%",
+                      height: "170px",
+                      background: "#FFFFFF",
+                      border: "1px solid #CBD5E1",
+                      borderRadius: "12px"
+                    }}
+                  />
                 </div>
-              </div>
+              ) : (
+                <div>
+                  <span style={{ fontSize: "12px", fontWeight: 700, color: isDarkMode ? "#F8FAFC" : "#1E1B18", display: "block", marginBottom: "6px" }}>Terminal Console / AI Output</span>
+                  <div style={{ background: "#05060B", border: "1px solid #1E293B", borderRadius: "12px", padding: "14px", fontFamily: "monospace", fontSize: "12px", color: "#10B981", minHeight: "100px", maxHeight: "200px", overflowY: "auto", whiteSpace: "pre-wrap" }}>
+                    {playgroundOutput || "Click '▶ Run Code' or '✨ Explain Code with AI' to execute code and view output."}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -2115,7 +2425,7 @@ SELECT * FROM Students WHERE xp >= 1000;`
       {/* 13. RICH INTERACTIVE MIND MAP MODAL */}
       {activeModal === "mind-map" && (
         <div className="modalOverlay" onClick={closeModal}>
-          <div className="modalContainer snModal" style={{ maxWidth: "880px" }} onClick={(e) => e.stopPropagation()}>
+          <div className="modalContainer snModal" style={{ maxWidth: "940px" }} onClick={(e) => e.stopPropagation()}>
             <div className="snModalHeader">
               <div className="snModalTitleRow">
                 <div className="snModalIcon">🗺️</div>
@@ -2129,17 +2439,49 @@ SELECT * FROM Students WHERE xp >= 1000;`
 
             <div className="snModalBody">
               {/* Left Settings Panel */}
-              <div className="snLeftPanel" style={{ width: "32%" }}>
+              <div className="snLeftPanel" style={{ width: "36%", minWidth: "280px" }}>
                 <div className="snPanelHeader">
-                  <span className="snPanelTitle">Topic or Skill Area</span>
+                  <span className="snPanelTitle">Select Mind Map Topic</span>
                 </div>
-                <input
-                  type="text"
+
+                <label className="modalLabel" style={{ fontSize: "11px", fontWeight: 700, display: "block", marginBottom: "4px" }}>🎯 Target Topic:</label>
+                <select
                   className="modalSelect"
-                  style={{ width: "100%", marginBottom: "16px" }}
-                  value={mindMapTopic}
-                  onChange={(e) => setMindMapTopic(e.target.value)}
-                />
+                  style={{ width: "100%", marginBottom: mindMapTopicSelect === "Custom Topic Input" ? "8px" : "16px" }}
+                  value={mindMapTopicSelect}
+                  onChange={(e) => {
+                    const selected = e.target.value;
+                    setMindMapTopicSelect(selected);
+                    if (selected !== "Custom Topic Input") {
+                      setMindMapTopic(selected);
+                      setMindMapNodes(getMindMapNodesForTopic(selected));
+                    }
+                  }}
+                >
+                  <option>React 18 &amp; Component Architecture</option>
+                  <option>Python Data Science Ecosystem</option>
+                  <option>Fullstack Web Development Roadmap</option>
+                  <option>Data Structures &amp; Algorithms Hierarchy</option>
+                  <option>Microservices &amp; System Design</option>
+                  <option>Cloud Computing AWS Infrastructure</option>
+                  <option>Cybersecurity &amp; Ethical Hacking</option>
+                  <option>Custom Topic Input</option>
+                </select>
+
+                {mindMapTopicSelect === "Custom Topic Input" && (
+                  <input
+                    type="text"
+                    className="modalSelect"
+                    placeholder="Type custom topic (e.g. Kotlin, Machine Learning)..."
+                    style={{ width: "100%", marginBottom: "16px" }}
+                    value={mindMapTopic}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setMindMapTopic(val);
+                      setMindMapNodes(getMindMapNodesForTopic(val));
+                    }}
+                  />
+                )}
 
                 <label className="modalLabel">Topic Depth Level</label>
                 <select className="modalSelect" value={mindMapDepth} onChange={(e) => setMindMapDepth(e.target.value)} style={{ width: "100%", marginBottom: "16px" }}>
@@ -2152,11 +2494,14 @@ SELECT * FROM Students WHERE xp >= 1000;`
                   className="snGenerateBtn"
                   onClick={() => {
                     setIsGeneratingMindMap(true);
+                    const topicToUse = mindMapTopicSelect === "Custom Topic Input" ? (mindMapTopic || "Selected Topic") : mindMapTopicSelect;
+                    setMindMapTopic(topicToUse);
                     setTimeout(() => {
                       setIsGeneratingMindMap(false);
-                      setToastMessage("🗺️ Mind Map Generated Successfully!");
+                      setMindMapNodes(getMindMapNodesForTopic(topicToUse));
+                      setToastMessage(`🗺️ Mind Map Generated for ${topicToUse}!`);
                       setTimeout(() => setToastMessage(""), 4000);
-                    }, 1000);
+                    }, 800);
                   }}
                   disabled={isGeneratingMindMap}
                 >
@@ -2165,7 +2510,7 @@ SELECT * FROM Students WHERE xp >= 1000;`
               </div>
 
               {/* Right Interactive Visual Tree Panel */}
-              <div className="snRightPanel" style={{ width: "68%" }}>
+              <div className="snRightPanel" style={{ flex: 1, minWidth: 0 }}>
                 <div className="snRightTitleRow">
                   <span className="snPanelTitle">Node Graph ({mindMapTopic})</span>
                   <button className="btnCopyCode" onClick={() => handleCopyCode(JSON.stringify(mindMapNodes, null, 2))}>
@@ -2173,18 +2518,18 @@ SELECT * FROM Students WHERE xp >= 1000;`
                   </button>
                 </div>
 
-                <div style={{ background: isDarkMode ? "#0F172A" : "#F8FAFC", border: "1px solid #334155", borderRadius: "12px", padding: "16px", minHeight: "320px", display: "flex", flexDirection: "column", gap: "10px" }}>
+                <div style={{ background: isDarkMode ? "#0F172A" : "#F8FAFC", border: isDarkMode ? "1px solid #334155" : "1px solid #E2E8F0", borderRadius: "16px", padding: "16px", minHeight: "320px", display: "flex", flexDirection: "column", gap: "10px" }}>
                   {mindMapNodes.map((node) => (
                     <div
                       key={node.id}
                       style={{
                         marginLeft: node.parent ? "24px" : "0px",
-                        padding: "10px 16px",
-                        borderRadius: "10px",
+                        padding: "12px 18px",
+                        borderRadius: "14px",
                         background: isDarkMode ? "#1E293B" : "#FFFFFF",
-                        borderLeft: `4px solid ${node.color}`,
-                        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                        fontSize: "12px",
+                        borderLeft: `5px solid ${node.color}`,
+                        boxShadow: isDarkMode ? "0 4px 12px rgba(0,0,0,0.3)" : "0 4px 14px rgba(0,0,0,0.05)",
+                        fontSize: "13px",
                         fontWeight: 700,
                         color: isDarkMode ? "#F8FAFC" : "#1E1B18",
                         display: "flex",
@@ -2193,7 +2538,7 @@ SELECT * FROM Students WHERE xp >= 1000;`
                       }}
                     >
                       <span>{node.label}</span>
-                      <span style={{ fontSize: "10px", background: "rgba(255,255,255,0.08)", padding: "2px 8px", borderRadius: "99px", color: node.color }}>
+                      <span style={{ fontSize: "10px", fontWeight: 800, background: "rgba(255,255,255,0.08)", padding: "3px 10px", borderRadius: "99px", color: node.color, border: `1px solid ${node.color}` }}>
                         {node.parent ? `Child of Node #${node.parent}` : "Root Node"}
                       </span>
                     </div>
@@ -2208,7 +2553,7 @@ SELECT * FROM Students WHERE xp >= 1000;`
       {/* 14. RICH INTERACTIVE CONCEPT DIAGRAM MODAL */}
       {activeModal === "concept-diagram" && (
         <div className="modalOverlay" onClick={closeModal}>
-          <div className="modalContainer snModal" style={{ maxWidth: "880px" }} onClick={(e) => e.stopPropagation()}>
+          <div className="modalContainer snModal" style={{ maxWidth: "940px" }} onClick={(e) => e.stopPropagation()}>
             <div className="snModalHeader">
               <div className="snModalTitleRow">
                 <div className="snModalIcon">📐</div>
@@ -2222,17 +2567,48 @@ SELECT * FROM Students WHERE xp >= 1000;`
 
             <div className="snModalBody">
               {/* Left Settings Panel */}
-              <div className="snLeftPanel" style={{ width: "32%" }}>
+              <div className="snLeftPanel" style={{ width: "36%", minWidth: "280px" }}>
                 <div className="snPanelHeader">
-                  <span className="snPanelTitle">Architecture Topic</span>
+                  <span className="snPanelTitle">Select Diagram Topic</span>
                 </div>
-                <input
-                  type="text"
+
+                <label className="modalLabel" style={{ fontSize: "11px", fontWeight: 700, display: "block", marginBottom: "4px" }}>🎯 Target Topic:</label>
+                <select
                   className="modalSelect"
-                  style={{ width: "100%", marginBottom: "16px" }}
-                  value={conceptDiagramTopic}
-                  onChange={(e) => setConceptDiagramTopic(e.target.value)}
-                />
+                  style={{ width: "100%", marginBottom: conceptDiagramTopicSelect === "Custom Topic Input" ? "8px" : "16px" }}
+                  value={conceptDiagramTopicSelect}
+                  onChange={(e) => {
+                    const selected = e.target.value;
+                    setConceptDiagramTopicSelect(selected);
+                    if (selected !== "Custom Topic Input") {
+                      setConceptDiagramTopic(selected);
+                      setDiagramSteps(getDiagramStepsForTopic(selected));
+                    }
+                  }}
+                >
+                  <option>Microservices &amp; REST API Architecture</option>
+                  <option>React Component Lifecycle &amp; Hooks</option>
+                  <option>OAuth 2.0 Auth Flow &amp; JWT Security</option>
+                  <option>Database Transaction &amp; WAL Persistence</option>
+                  <option>CI/CD Automated Deployment Pipeline</option>
+                  <option>AI Model Training &amp; Evaluation Flow</option>
+                  <option>Custom Topic Input</option>
+                </select>
+
+                {conceptDiagramTopicSelect === "Custom Topic Input" && (
+                  <input
+                    type="text"
+                    className="modalSelect"
+                    placeholder="Type custom topic (e.g. WebSockets, Kafka)..."
+                    style={{ width: "100%", marginBottom: "16px" }}
+                    value={conceptDiagramTopic}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setConceptDiagramTopic(val);
+                      setDiagramSteps(getDiagramStepsForTopic(val));
+                    }}
+                  />
+                )}
 
                 <label className="modalLabel">Diagram Pattern Type</label>
                 <select className="modalSelect" value={conceptDiagramType} onChange={(e) => setConceptDiagramType(e.target.value)} style={{ width: "100%", marginBottom: "16px" }}>
@@ -2246,11 +2622,14 @@ SELECT * FROM Students WHERE xp >= 1000;`
                   className="snGenerateBtn"
                   onClick={() => {
                     setIsGeneratingDiagram(true);
+                    const topicToUse = conceptDiagramTopicSelect === "Custom Topic Input" ? (conceptDiagramTopic || "Selected Topic") : conceptDiagramTopicSelect;
+                    setConceptDiagramTopic(topicToUse);
                     setTimeout(() => {
                       setIsGeneratingDiagram(false);
-                      setToastMessage("📐 Concept Diagram Generated Successfully!");
+                      setDiagramSteps(getDiagramStepsForTopic(topicToUse));
+                      setToastMessage(`📐 Diagram Generated for ${topicToUse}!`);
                       setTimeout(() => setToastMessage(""), 4000);
-                    }, 1000);
+                    }, 800);
                   }}
                   disabled={isGeneratingDiagram}
                 >
@@ -2259,7 +2638,7 @@ SELECT * FROM Students WHERE xp >= 1000;`
               </div>
 
               {/* Right Flowchart Flow Panel */}
-              <div className="snRightPanel" style={{ width: "68%" }}>
+              <div className="snRightPanel" style={{ flex: 1, minWidth: 0 }}>
                 <div className="snRightTitleRow">
                   <span className="snPanelTitle">Pipeline Flow ({conceptDiagramType})</span>
                   <button className="btnCopyCode" onClick={() => handleCopyCode(JSON.stringify(diagramSteps, null, 2))}>
@@ -2267,32 +2646,35 @@ SELECT * FROM Students WHERE xp >= 1000;`
                   </button>
                 </div>
 
-                <div style={{ background: isDarkMode ? "#0F172A" : "#F8FAFC", border: "1px solid #334155", borderRadius: "12px", padding: "16px", minHeight: "320px", display: "flex", flexDirection: "column", gap: "14px" }}>
+                <div style={{ background: isDarkMode ? "#0F172A" : "#F8FAFC", border: isDarkMode ? "1px solid #334155" : "1px solid #E2E8F0", borderRadius: "16px", padding: "20px", minHeight: "320px", display: "flex", flexDirection: "column", gap: "12px" }}>
                   {diagramSteps.map((step, idx) => (
                     <React.Fragment key={step.step}>
                       <div
                         style={{
                           background: isDarkMode ? "#1E293B" : "#FFFFFF",
-                          border: "1px solid #334155",
-                          borderRadius: "12px",
-                          padding: "12px 16px",
+                          border: isDarkMode ? "1px solid #334155" : "1px solid #E2E8F0",
+                          borderRadius: "14px",
+                          padding: "14px 18px",
                           display: "flex",
                           alignItems: "center",
-                          justifyContent: "space-between"
+                          justifyContent: "space-between",
+                          boxShadow: isDarkMode ? "0 4px 12px rgba(0,0,0,0.25)" : "0 4px 14px rgba(0,0,0,0.04)"
                         }}
                       >
-                        <div>
-                          <strong style={{ fontSize: "13px", color: isDarkMode ? "#F8FAFC" : "#1E1B18", display: "block" }}>{step.title}</strong>
-                          <span style={{ fontSize: "11px", color: isDarkMode ? "#94A3B8" : "#64748B" }}>{step.desc}</span>
+                        <div style={{ paddingRight: "12px" }}>
+                          <strong style={{ fontSize: "14px", color: isDarkMode ? "#F8FAFC" : "#1E1B18", display: "block", marginBottom: "4px" }}>{step.title}</strong>
+                          <span style={{ fontSize: "11px", color: isDarkMode ? "#94A3B8" : "#64748B", lineHeight: "1.4" }}>{step.desc}</span>
                         </div>
-                        <span style={{ fontSize: "11px", fontWeight: 800, background: "#FFF0EB", color: "#F9572A", padding: "4px 10px", borderRadius: "99px" }}>
+                        <span style={{ fontSize: "11px", fontWeight: 800, background: isDarkMode ? "rgba(249,87,42,0.18)" : "#FFF0EB", color: "#F9572A", padding: "5px 12px", borderRadius: "99px", flexShrink: 0, border: "1px solid rgba(249,87,42,0.3)" }}>
                           {step.badge}
                         </span>
                       </div>
 
                       {idx < diagramSteps.length - 1 && (
-                        <div style={{ textAlign: "center", color: "#F9572A", fontSize: "16px", fontWeight: 800 }}>
-                          ↓ HTTP / gRPC Data Stream ↓
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", margin: "2px 0" }}>
+                          <span style={{ fontSize: "11px", fontWeight: 800, color: "#F9572A", background: isDarkMode ? "rgba(249,87,42,0.15)" : "#FFF0EB", padding: "4px 14px", borderRadius: "99px", border: "1px solid rgba(249,87,42,0.3)" }}>
+                            ⚡ HTTP / gRPC Data Stream ↓
+                          </span>
                         </div>
                       )}
                     </React.Fragment>

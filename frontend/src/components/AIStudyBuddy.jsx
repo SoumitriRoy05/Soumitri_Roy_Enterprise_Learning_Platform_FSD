@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { askGeminiAI } from "../services/geminiService";
+import FormattedMessage from "./FormattedMessage";
 import {
   FaRobot,
   FaLightbulb,
@@ -79,7 +81,7 @@ export default function AIStudyBuddy() {
     setTimeout(() => setCopiedCode(false), 2000);
   };
 
-  const handleSend = (textToSend) => {
+  const handleSend = async (textToSend) => {
     const text = textToSend || inputMsg;
     if (!text.trim()) return;
 
@@ -93,14 +95,22 @@ export default function AIStudyBuddy() {
     setMessages((prev) => [...prev, userMsg]);
     setInputMsg("");
 
-    setTimeout(() => {
+    try {
+      const aiResult = await askGeminiAI(text);
+      const botMsg = {
+        id: Date.now() + 1,
+        sender: "bot",
+        text: aiResult.text
+      };
+      setMessages((prev) => [...prev, botMsg]);
+    } catch (e) {
       const botMsg = {
         id: Date.now() + 1,
         sender: "bot",
         text: `Here is a clear breakdown for "${text}":\n\n1. Key Principle: Focus on the core logic and component hierarchy.\n2. Best Practice: Keep functions pure and side-effects in useEffect hooks!`
       };
       setMessages((prev) => [...prev, botMsg]);
-    }, 1000);
+    }
   };
 
   return (
@@ -210,7 +220,7 @@ export default function AIStudyBuddy() {
                 {m.sender === "bot" && <div className="botRowAvatar">🤖</div>}
 
                 <div className={`chatBubble ${m.sender}`}>
-                  {m.text && <p className="msgText">{m.text}</p>}
+                  {m.text && <FormattedMessage text={m.text} />}
 
                   {/* Quick preset chips if included */}
                   {m.quickPrompts && (

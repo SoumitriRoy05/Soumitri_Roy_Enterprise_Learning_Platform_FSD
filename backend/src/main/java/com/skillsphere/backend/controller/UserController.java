@@ -69,7 +69,7 @@ public class UserController {
         userData.put("email", user.getEmail());
         userData.put("role", user.getRole());
         userData.put("provider", user.getProvider());
-        userData.put("is_active", user.getIsActive() ? 1 : 0);
+        userData.put("is_active", Boolean.TRUE.equals(user.getIsActive()) ? 1 : 0);
         userData.put("last_login_at", user.getLastLoginAt());
         userData.put("created_at", user.getCreatedAt());
         userData.put("updated_at", user.getUpdatedAt());

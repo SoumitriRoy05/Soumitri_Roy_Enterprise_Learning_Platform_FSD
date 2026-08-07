@@ -124,6 +124,7 @@ function App() {
         <Route path="/team-space"   element={<ProtectedRoute><TeamSpace /></ProtectedRoute>} />
         <Route path="/resources" element={<Navigate to="/student-home" replace />} />
         <Route path="/certificate" element={<ProtectedRoute><CertificatesPage /></ProtectedRoute>} />
+        <Route path="/certificates" element={<ProtectedRoute><CertificatesPage /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><StudentProfilePage /></ProtectedRoute>} />
         <Route path="/progress" element={<ProtectedRoute><ProgressPage /></ProtectedRoute>} />
         <Route path="/learning-paths" element={<ProtectedRoute><LearningPathsPage /></ProtectedRoute>} />
@@ -141,6 +142,7 @@ function App() {
         <Route path="/resume" element={<ProtectedRoute><ResumeBuilderPage /></ProtectedRoute>} />
         <Route path="/resume-builder" element={<ProtectedRoute><ResumeBuilderPage /></ProtectedRoute>} />
         <Route path="/code-arena" element={<ProtectedRoute><CodeArenaPage /></ProtectedRoute>} />
+        <Route path="/codearena" element={<ProtectedRoute><CodeArenaPage /></ProtectedRoute>} />
         <Route path="/flashcards" element={<ProtectedRoute><FlashcardsPage /></ProtectedRoute>} />
         <Route path="/create-flashcards" element={<ProtectedRoute><FlashcardsPage /></ProtectedRoute>} />
         
@@ -152,9 +154,8 @@ function App() {
         <Route path="/course-management" element={<ProtectedRoute><CourseManagementPage /></ProtectedRoute>} />
         <Route path="/tracking-dashboard" element={<ProtectedRoute><TrackingDashboardPage /></ProtectedRoute>} />
         <Route path="/complaint-tracking" element={<ProtectedRoute><ComplaintRenewalTrackingPage /></ProtectedRoute>} />
-        <Route path="/career-roadmap" element={<ProtectedRoute><CareerRoadmapPage /></ProtectedRoute>} />
         <Route path="/executive-dashboard" element={<ProtectedRoute><ExecutiveDashboardPage /></ProtectedRoute>} />
-        <Route path="/job-search" element={<ProtectedRoute><JobSearchPage /></ProtectedRoute>} />
+        <Route path="*" element={<Navigate to="/student-home" replace />} />
 
       </Routes>
       {!isDashboardRoute && <FloatingChatbot />}

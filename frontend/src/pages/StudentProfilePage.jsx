@@ -234,7 +234,6 @@ export default function StudentProfilePage() {
     { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
     { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
     { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
-    { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },

@@ -7,6 +7,8 @@ import StudentFooter from "../components/StudentFooter";
 import NotificationDropdown from "../components/NotificationDropdown";
 import UserAvatar from "../components/UserAvatar";
 import FloatingChatbot from "../components/FloatingChatbot";
+import jsBadgeImg from "../assets/js_shield_badge.svg";
+import reactLogoImg from "../assets/react.svg";
 
 import {
   FaHome,
@@ -78,7 +80,6 @@ export default function CertificatesPage() {
     { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
     { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
     { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
-    { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },
@@ -387,6 +388,15 @@ export default function CertificatesPage() {
 
     return {
       ...cert,
+      bg: cert.logoBg || "#FEF9C3",
+      color: cert.logoColor || "#CA8A04",
+      icon: cert.logoText === "JS" || cert.topicPrefix === "js_" ? (
+        <img src={jsBadgeImg} alt="JS" style={{ width: "24px", height: "24px", objectFit: "contain" }} />
+      ) : cert.logoText === "⚛️" || cert.topicPrefix === "react_" ? (
+        <img src={reactLogoImg} alt="React" style={{ width: "22px", height: "22px", objectFit: "contain" }} />
+      ) : (
+        cert.logoText
+      ),
       isEarned,
       progress,
       displayDate: isEarned ? "Completed" : "In Progress",
@@ -845,9 +855,15 @@ export default function CertificatesPage() {
                       >
                         <div
                           className="certCardIcon"
-                          style={{ background: cert.logoBg, color: cert.logoColor || "#FFF" }}
+                          style={{ background: cert.logoBg || cert.bg || "#FEF9C3", color: cert.logoColor || cert.color || "#F9572A" }}
                         >
-                          {cert.logoText}
+                          {cert.icon || (cert.logoText === "JS" ? (
+                            <img src={jsBadgeImg} alt="JS" style={{ width: "24px", height: "24px", objectFit: "contain" }} />
+                          ) : cert.logoText === "⚛️" ? (
+                            <img src={reactLogoImg} alt="React" style={{ width: "22px", height: "22px", objectFit: "contain" }} />
+                          ) : (
+                            cert.logoText || "🎓"
+                          ))}
                         </div>
 
                         <div className="certCardInfo">
@@ -895,9 +911,15 @@ export default function CertificatesPage() {
                       >
                         <div
                           className="toEarnIcon"
-                          style={{ background: item.bg, color: item.color || "#16A34A" }}
+                          style={{ background: item.bg || item.logoBg || "#FEF9C3", color: item.color || item.logoColor || "#F9572A" }}
                         >
-                          {item.icon}
+                          {item.icon || (item.logoText === "JS" ? (
+                            <img src={jsBadgeImg} alt="JS" style={{ width: "24px", height: "24px", objectFit: "contain" }} />
+                          ) : item.logoText === "⚛️" ? (
+                            <img src={reactLogoImg} alt="React" style={{ width: "22px", height: "22px", objectFit: "contain" }} />
+                          ) : (
+                            item.logoText || "🎓"
+                          ))}
                         </div>
 
                         <div className="toEarnInfo">

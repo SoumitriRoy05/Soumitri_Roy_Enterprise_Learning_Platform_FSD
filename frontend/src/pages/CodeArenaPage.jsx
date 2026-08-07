@@ -53,6 +53,139 @@ import lightReactLearningHero from "../assets/light_react_learning_hero.png";
 import "../styles/studentDashboard.css";
 import "../styles/codeArena.css";
 
+const MASTER_PROBLEMS = [
+  {
+    id: 1,
+    title: "Two Sum",
+    platform: "LeetCode",
+    platformIcon: "🟢",
+    company: "Amazon",
+    difficulty: "Easy",
+    xpVal: "+150 XP",
+    acceptance: "49.2%",
+    topic: "Arrays",
+    desc: "Given an array of integers `nums` and an integer `target`, return indices of the two numbers such that they add up to `target`.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.\n\nExample 1:\nInput: nums = [2,7,11,15], target = 9\nOutput: [0,1]\nExplanation: Because nums[0] + nums[1] == 9, we return [0, 1].",
+    starterCode: "function twoSum(nums, target) {\n  const map = new Map();\n  for (let i = 0; i < nums.length; i++) {\n    const diff = target - nums[i];\n    if (map.has(diff)) return [map.get(diff), i];\n    map.set(nums[i], i);\n  }\n  return [];\n}"
+  },
+  {
+    id: 2,
+    title: "Add Two Numbers",
+    platform: "LeetCode",
+    platformIcon: "🟢",
+    company: "Google",
+    difficulty: "Medium",
+    xpVal: "+250 XP",
+    acceptance: "41.5%",
+    topic: "Linked List",
+    desc: "You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list.\n\nExample 1:\nInput: l1 = [2,4,3], l2 = [5,6,4]\nOutput: [7,0,8]\nExplanation: 342 + 465 = 807.",
+    starterCode: "function addTwoNumbers(l1, l2) {\n  let dummy = new ListNode(0), curr = dummy, carry = 0;\n  while (l1 || l2 || carry) {\n    let sum = (l1 ? l1.val : 0) + (l2 ? l2.val : 0) + carry;\n    carry = Math.floor(sum / 10);\n    curr.next = new ListNode(sum % 10);\n    curr = curr.next;\n    if (l1) l1 = l1.next;\n    if (l2) l2 = l2.next;\n  }\n  return dummy.next;\n}"
+  },
+  {
+    id: 3,
+    title: "Subarray with Given Sum",
+    platform: "GeeksforGeeks",
+    platformIcon: "🟢",
+    company: "Amazon",
+    difficulty: "Medium",
+    xpVal: "+200 XP",
+    acceptance: "52.8%",
+    topic: "Arrays",
+    desc: "Given an unsorted array A of size N that contains only non-negative integers, find a continuous sub-array which adds to a given number S.\n\nExample 1:\nInput: N = 5, S = 12, A[] = {1,2,3,7,5}\nOutput: 2 4\nExplanation: The sum of elements from 2nd position to 4th position is 12.",
+    starterCode: "function subarraySum(arr, n, s) {\n  let start = 0, currSum = 0;\n  for (let i = 0; i < n; i++) {\n    currSum += arr[i];\n    while (currSum > s && start < i) {\n      currSum -= arr[start];\n      start++;\n    }\n    if (currSum === s) return [start + 1, i + 1];\n  }\n  return [-1];\n}"
+  },
+  {
+    id: 4,
+    title: "Missing Number in Array",
+    platform: "GeeksforGeeks",
+    platformIcon: "🟢",
+    company: "TCS",
+    difficulty: "Easy",
+    xpVal: "+100 XP",
+    acceptance: "63.1%",
+    topic: "Arrays",
+    desc: "Given an array of size N-1 such that it only contains distinct integers in the range of 1 to N. Find the missing element.\n\nExample 1:\nInput: N = 5, array[] = {1,2,4,5}\nOutput: 3",
+    starterCode: "function missingNumber(array, n) {\n  const totalSum = (n * (n + 1)) / 2;\n  const currentSum = array.reduce((acc, curr) => acc + curr, 0);\n  return totalSum - currentSum;\n}"
+  },
+  {
+    id: 5,
+    title: "Reverse Stack Using Recursion",
+    platform: "Coding Ninjas",
+    platformIcon: "🥷",
+    company: "Microsoft",
+    difficulty: "Medium",
+    xpVal: "+200 XP",
+    acceptance: "58.4%",
+    topic: "Backtracking",
+    desc: "You are given a stack St of N integers. You have to reverse the stack using recursion.\n\nExample 1:\nInput: St = [3, 2, 1, 7, 6]\nOutput: [6, 7, 1, 2, 3]",
+    starterCode: "function reverseStack(stack) {\n  if (stack.length === 0) return;\n  const top = stack.pop();\n  reverseStack(stack);\n  insertAtBottom(stack, top);\n  return stack;\n}\n\nfunction insertAtBottom(stack, item) {\n  if (stack.length === 0) {\n    stack.push(item);\n    return;\n  }\n  const top = stack.pop();\n  insertAtBottom(stack, item);\n  stack.push(top);\n}"
+  },
+  {
+    id: 6,
+    title: "Kadane's Algorithm (Max Subarray Sum)",
+    platform: "GeeksforGeeks",
+    platformIcon: "🟢",
+    company: "Goldman Sachs",
+    difficulty: "Medium",
+    xpVal: "+250 XP",
+    acceptance: "55.0%",
+    topic: "DP",
+    desc: "Given an array Arr[] of N integers. Find the contiguous sub-array(containing at least one number) which has the maximum sum and return its sum.\n\nExample 1:\nInput: N = 5, Arr[] = {1,2,3,-2,5}\nOutput: 9\nExplanation: Max subarray sum is 9 of elements (1, 2, 3, -2, 5).",
+    starterCode: "function maxSubarraySum(arr) {\n  let maxSoFar = arr[0], currMax = arr[0];\n  for (let i = 1; i < arr.length; i++) {\n    currMax = Math.max(arr[i], currMax + arr[i]);\n    maxSoFar = Math.max(maxSoFar, currMax);\n  }\n  return maxSoFar;\n}"
+  },
+  {
+    id: 7,
+    title: "Longest Substring Without Repeating Characters",
+    platform: "LeetCode",
+    platformIcon: "🟢",
+    company: "Adobe",
+    difficulty: "Medium",
+    xpVal: "+200 XP",
+    acceptance: "34.0%",
+    topic: "Strings",
+    desc: "Given a string `s`, find the length of the longest substring without repeating characters.\n\nExample 1:\nInput: s = \"abcabcbb\"\nOutput: 3\nExplanation: The answer is \"abc\", with length 3.",
+    starterCode: "function lengthOfLongestSubstring(s) {\n  let set = new Set(), left = 0, maxLen = 0;\n  for (let right = 0; right < s.length; right++) {\n    while (set.has(s[right])) {\n      set.delete(s[left]);\n      left++;\n    }\n    set.add(s[right]);\n    maxLen = Math.max(maxLen, right - left + 1);\n  }\n  return maxLen;\n}"
+  },
+  {
+    id: 8,
+    title: "Kth Largest Element in an Array",
+    platform: "Coding Ninjas",
+    platformIcon: "🥷",
+    company: "Atlassian",
+    difficulty: "Medium",
+    xpVal: "+200 XP",
+    acceptance: "66.5%",
+    topic: "Heap",
+    desc: "Given an integer array `nums` and an integer `k`, return the `k`th largest element in the array.\n\nExample 1:\nInput: nums = [3,2,1,5,6,4], k = 2\nOutput: 5",
+    starterCode: "function findKthLargest(nums, k) {\n  nums.sort((a, b) => b - a);\n  return nums[k - 1];\n}"
+  },
+  {
+    id: 9,
+    title: "LRU Cache Design",
+    platform: "LeetCode",
+    platformIcon: "🟢",
+    company: "Amazon",
+    difficulty: "Hard",
+    xpVal: "+300 XP",
+    acceptance: "41.0%",
+    topic: "Linked List",
+    desc: "Design a data structure that follows the constraints of a Least Recently Used (LRU) cache.\nImplement the LRUCache class with get(key) and put(key, value) operations in O(1) time complexity.",
+    starterCode: "class LRUCache {\n  constructor(capacity) {\n    this.capacity = capacity;\n    this.cache = new Map();\n  }\n  get(key) {\n    if (!this.cache.has(key)) return -1;\n    const val = this.cache.get(key);\n    this.cache.delete(key);\n    this.cache.set(key, val);\n    return val;\n  }\n  put(key, value) {\n    if (this.cache.has(key)) this.cache.delete(key);\n    else if (this.cache.size >= this.capacity) {\n      this.cache.delete(this.cache.keys().next().value);\n    }\n    this.cache.set(key, value);\n  }\n}"
+  },
+  {
+    id: 10,
+    title: "Next Greater Element",
+    platform: "Coding Ninjas",
+    platformIcon: "🥷",
+    company: "Walmart",
+    difficulty: "Medium",
+    xpVal: "+200 XP",
+    acceptance: "61.2%",
+    topic: "Graphs",
+    desc: "Given an array arr[] of size N having elements, the task is to find the next greater element for each element of the array in order of their appearance in the array.",
+    starterCode: "function nextGreaterElement(arr) {\n  let stack = [], res = new Array(arr.length).fill(-1);\n  for (let i = arr.length - 1; i >= 0; i--) {\n    while (stack.length && stack[stack.length - 1] <= arr[i]) stack.pop();\n    if (stack.length) res[i] = stack[stack.length - 1];\n    stack.push(arr[i]);\n  }\n  return res;\n}"
+  }
+];
+
 export default function CodeArenaPage() {
   const { user, xp, earnXp, themeMode, toggleTheme, authenticatedFetch, refreshProfile } = useAuth();
   const navigate = useNavigate();
@@ -64,6 +197,7 @@ export default function CodeArenaPage() {
   const userLevel = Math.floor(userXp / 2000) + 1;
 
   // Active Filters & Pagination States (10 Questions Per Page)
+  const [selectedPlatformFilter, setSelectedPlatformFilter] = useState("All");
   const [selectedDifficulty, setSelectedDifficulty] = useState("All");
   const [selectedCompanyFilter, setSelectedCompanyFilter] = useState("All");
   const [selectedTopicFilter, setSelectedTopicFilter] = useState("All");
@@ -76,7 +210,7 @@ export default function CodeArenaPage() {
   // Reset page when filters change
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [selectedDifficulty, selectedCompanyFilter, selectedTopicFilter, searchQuery]);
+  }, [selectedPlatformFilter, selectedDifficulty, selectedCompanyFilter, selectedTopicFilter, searchQuery]);
 
   // Ranks from backend
   const [globalRank, setGlobalRank] = useState("...");
@@ -130,7 +264,7 @@ export default function CodeArenaPage() {
   });
 
   // Solved & Bookmarked State
-  const [problems, setProblems] = useState([]);
+  const [problems, setProblems] = useState(MASTER_PROBLEMS);
   const [solvedProblemIds, setSolvedProblemIds] = useState([]);
   const [bookmarkedProblemIds, setBookmarkedProblemIds] = useState([]);
 
@@ -171,8 +305,8 @@ export default function CodeArenaPage() {
     try {
       const res = await authenticatedFetch(`${API_URL}/api/codearena/problems`);
       const data = await res.json();
-      if (res.ok && data.success) {
-        setProblems(data.problems || []);
+      if (res.ok && data.success && data.problems && data.problems.length > 0) {
+        setProblems(data.problems);
         const solved = (data.problems || []).filter(p => p.solved).map(p => p.id);
         const bookmarked = (data.problems || []).filter(p => p.bookmarked).map(p => p.id);
         setSolvedProblemIds(solved);
@@ -181,9 +315,12 @@ export default function CodeArenaPage() {
         setCollegeRank(data.collegeRank !== undefined ? `#${data.collegeRank}` : "...");
         setFriendsRank(data.friendsRank !== undefined ? `#${data.friendsRank}` : "...");
         setIsContestRegistered(!!data.contestRegistered);
+      } else {
+        setProblems(MASTER_PROBLEMS);
       }
     } catch (err) {
       console.error("Failed to fetch CodeArena problems:", err);
+      setProblems(MASTER_PROBLEMS);
     }
   };
 
@@ -224,7 +361,6 @@ export default function CodeArenaPage() {
     { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
     { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
     { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
-    { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },
@@ -239,12 +375,12 @@ export default function CodeArenaPage() {
 
   // Get questions count per company dynamically
   const getCompanyQuestionCount = (companyName) => {
-    return (problems || []).filter(p => p.company === companyName).length;
+    return (problems || []).filter(p => (p.company || "").toLowerCase().includes(companyName.toLowerCase())).length;
   };
 
   // Get questions count per topic dynamically
   const getTopicQuestionCount = (topicName) => {
-    return (problems || []).filter(p => p.topic === topicName).length;
+    return (problems || []).filter(p => (p.topic || "").toLowerCase().includes(topicName.toLowerCase())).length;
   };
 
   // Company Cards List
@@ -274,10 +410,19 @@ export default function CodeArenaPage() {
 
   // Filtered Problems
   const filteredProblems = (problems || []).filter(p => {
-    if (selectedDifficulty !== "All" && p.difficulty !== selectedDifficulty) return false;
-    if (selectedCompanyFilter !== "All" && p.company !== selectedCompanyFilter) return false;
-    if (selectedTopicFilter !== "All" && p.topic !== selectedTopicFilter) return false;
-    if (searchQuery && !p.title.toLowerCase().includes(searchQuery.toLowerCase()) && !p.company.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    if (selectedPlatformFilter !== "All") {
+      const pPlat = (p.platform || "LeetCode").toLowerCase();
+      const targetPlat = selectedPlatformFilter.toLowerCase();
+      if (!pPlat.includes(targetPlat) && !(targetPlat.includes("geeksforgeeks") && pPlat.includes("gfg"))) return false;
+    }
+    if (selectedDifficulty !== "All" && (p.difficulty || "").toLowerCase() !== selectedDifficulty.toLowerCase()) return false;
+    if (selectedCompanyFilter !== "All" && !(p.company || "").toLowerCase().includes(selectedCompanyFilter.toLowerCase())) return false;
+    if (selectedTopicFilter !== "All" && !(p.topic || "").toLowerCase().includes(selectedTopicFilter.toLowerCase())) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const match = (p.title || "").toLowerCase().includes(q) || (p.company || "").toLowerCase().includes(q) || (p.platform || "").toLowerCase().includes(q) || (p.topic || "").toLowerCase().includes(q);
+      if (!match) return false;
+    }
     return true;
   });
 
@@ -719,6 +864,34 @@ export default function CodeArenaPage() {
                   <h3>All Problems</h3>
                 </div>
 
+                {/* Platform Selection Tabs */}
+                <div style={{ display: "flex", gap: "8px", margin: "14px 0", flexWrap: "wrap" }}>
+                  {[
+                    { id: "All", name: "🌐 All Platforms" },
+                    { id: "LeetCode", name: "🟢 LeetCode" },
+                    { id: "GeeksforGeeks", name: "🟢 GeeksforGeeks (GFG)" },
+                    { id: "Coding Ninjas", name: "🥷 Coding Ninjas" }
+                  ].map((plat) => (
+                    <button
+                      key={plat.id}
+                      onClick={() => setSelectedPlatformFilter(plat.id)}
+                      style={{
+                        padding: "7px 16px",
+                        borderRadius: "99px",
+                        fontSize: "12px",
+                        fontWeight: 800,
+                        border: selectedPlatformFilter === plat.id ? "1px solid #F9572A" : "1px solid #CBD5E1",
+                        background: selectedPlatformFilter === plat.id ? "#F9572A" : (isDarkMode ? "#1E293B" : "#FFFFFF"),
+                        color: selectedPlatformFilter === plat.id ? "#FFFFFF" : (isDarkMode ? "#F8FAFC" : "#1E1B18"),
+                        cursor: "pointer",
+                        transition: "all 0.2s ease"
+                      }}
+                    >
+                      {plat.name}
+                    </button>
+                  ))}
+                </div>
+
                 {/* Filter Controls Bar */}
                 <div className="problemsFilterBar">
                   <div className="diffPillsRow">
@@ -765,6 +938,7 @@ export default function CodeArenaPage() {
                       <tr>
                         <th style={{ width: "40px" }}>#</th>
                         <th>Problem</th>
+                        <th>Platform</th>
                         <th>Company</th>
                         <th>Difficulty</th>
                         <th>XP</th>
@@ -790,6 +964,11 @@ export default function CodeArenaPage() {
                                   {isBookmarked ? "★" : "☆"}
                                 </span>
                               </div>
+                            </td>
+                            <td>
+                              <span style={{ fontSize: "11px", fontWeight: 800, background: isDarkMode ? "#1E293B" : "#F1F5F9", color: isDarkMode ? "#38BDF8" : "#0284C7", padding: "4px 10px", borderRadius: "99px", border: "1px solid #CBD5E1" }}>
+                                {prob.platformIcon || "⚡"} {prob.platform || "LeetCode"}
+                              </span>
                             </td>
                             <td className="colCompany">
                               <span className="companyChip">{prob.company}</span>

@@ -38,7 +38,6 @@ export default function CertificationTrackingPage() {
     { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
     { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
     { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
-    { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },
@@ -56,11 +55,22 @@ export default function CertificationTrackingPage() {
   const isDemoUser = userKey === "soumitriroy@gmail.com" || userKey === "soumitriroy" || userKey === "default" || user?.isDemo;
   const userCompletedTopics = completedTopics || [];
 
+  const completedSubLessonIds = (() => {
+    try {
+      const saved = localStorage.getItem(`skillsphere_completed_sub_lessons_${userKey}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  })();
+
   const getModulesCompleted = (prefix, totalModules, totalLessons, demoDefault) => {
-    const doneCount = userCompletedTopics.filter(id => id.startsWith(prefix)).length;
-    if (doneCount > 0) {
-      const lessonsPerModule = totalLessons / totalModules;
-      return Math.min(totalModules, Math.floor(doneCount / lessonsPerModule));
+    const doneTopics = userCompletedTopics.filter(id => typeof id === 'string' && id.startsWith(prefix)).length;
+    const doneSub = completedSubLessonIds.filter(id => typeof id === 'string' && (id.startsWith(prefix) || (prefix === "react_" && !id.startsWith("py-") && !id.startsWith("node-") && !id.startsWith("ui-")))).length;
+    const totalDone = doneTopics + doneSub;
+    if (totalDone > 0) {
+      const pct = Math.min(100, Math.round((totalDone / 12) * 100));
+      return Math.min(totalModules, Math.ceil((pct / 100) * totalModules));
     }
     return isDemoUser ? demoDefault : 0;
   };

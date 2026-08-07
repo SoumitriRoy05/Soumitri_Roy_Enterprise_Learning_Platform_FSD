@@ -57,7 +57,7 @@ export default function OpportunityFeedPage() {
   // Search & Multi-Filters State
   const [searchQuery, setSearchQuery] = useState("");
   const [locationFilter, setLocationFilter] = useState("All");
-  const [expFilter, setExpFilter] = useState("Intern / Fresher");
+  const [expFilter, setExpFilter] = useState("Any");
   const [salaryFilter, setSalaryFilter] = useState("Any");
   const [workTypeFilter, setWorkTypeFilter] = useState("All (Remote/Hybrid/On-site)");
   const [companyFilter, setCompanyFilter] = useState("All");
@@ -102,7 +102,6 @@ export default function OpportunityFeedPage() {
     { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
     { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
     { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
-    { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },
@@ -136,12 +135,12 @@ export default function OpportunityFeedPage() {
       logoText: "G",
       logoBg: "#EA4335",
       easyApply: true,
-      role: "STEP Intern",
+      role: "STEP Intern & AI Engineer",
       location: "Hyderabad, India",
       stipend: "₹70K - 90K / month",
-      tags: ["DSA", "Problem Solving", "C++"],
+      tags: ["DSA", "Machine Learning", "Python", "AI"],
       posted: "1 day ago",
-      applyUrl: "https://www.linkedin.com/jobs/search/?keywords=Google%20STEP%20Intern"
+      applyUrl: "https://www.linkedin.com/jobs/search/?keywords=Google%20AI%20Engineer"
     },
     {
       id: "lk3",
@@ -149,12 +148,12 @@ export default function OpportunityFeedPage() {
       logoText: "a",
       logoBg: "#FF9900",
       easyApply: true,
-      role: "SDE I",
+      role: "Data Scientist & Big Data Engineer",
       location: "Bangalore, India",
-      stipend: "₹12 - 18 LPA",
-      tags: ["Java", "System Design", "SQL"],
+      stipend: "₹14 - 22 LPA",
+      tags: ["Python", "Spark", "Hadoop", "Data Science"],
       posted: "2 days ago",
-      applyUrl: "https://www.linkedin.com/jobs/search/?keywords=Amazon%20SDE"
+      applyUrl: "https://www.linkedin.com/jobs/search/?keywords=Amazon%20Data%20Scientist"
     },
     {
       id: "lk4",
@@ -162,12 +161,12 @@ export default function OpportunityFeedPage() {
       logoText: "A",
       logoBg: "#FF0000",
       easyApply: true,
-      role: "Software Engineer",
+      role: "Frontend Developer (React 18)",
       location: "Noida, India",
       stipend: "₹9 - 14 LPA",
-      tags: ["C++", "Python", "OOPs"],
+      tags: ["React", "JavaScript", "CSS3"],
       posted: "2 days ago",
-      applyUrl: "https://www.linkedin.com/jobs/search/?keywords=Adobe%20Software%20Engineer"
+      applyUrl: "https://www.linkedin.com/jobs/search/?keywords=Adobe%20Frontend%20Developer"
     },
     {
       id: "lk5",
@@ -175,12 +174,51 @@ export default function OpportunityFeedPage() {
       logoText: "A",
       logoBg: "#0052CC",
       easyApply: true,
-      role: "Graduate Software Engineer",
+      role: "Graduate Cloud & DevOps Engineer",
       location: "Remote",
       stipend: "₹9 - 15 LPA",
-      tags: ["Java", "Spring Boot", "SQL"],
+      tags: ["AWS", "Docker", "Kubernetes", "DevOps"],
       posted: "4 days ago",
-      applyUrl: "https://www.linkedin.com/jobs/search/?keywords=Atlassian%20Graduate%20Software%20Engineer"
+      applyUrl: "https://www.linkedin.com/jobs/search/?keywords=Atlassian%20DevOps"
+    },
+    {
+      id: "lk6",
+      company: "Meta",
+      logoText: "∞",
+      logoBg: "#0668E1",
+      easyApply: true,
+      role: "NLP Research Scientist (LLMs & Speech)",
+      location: "Remote",
+      stipend: "₹18 - 30 LPA",
+      tags: ["NLP", "PyTorch", "Transformers", "LLM"],
+      posted: "1 day ago",
+      applyUrl: "https://www.linkedin.com/jobs/search/?keywords=Meta%20NLP%20Research"
+    },
+    {
+      id: "lk7",
+      company: "Cisco",
+      logoText: "C",
+      logoBg: "#1BA0D7",
+      easyApply: true,
+      role: "Cybersecurity & Ethical Hacking Specialist",
+      location: "Bangalore, India",
+      stipend: "₹10 - 16 LPA",
+      tags: ["Cybersecurity", "Penetration Testing", "Networks"],
+      posted: "3 days ago",
+      applyUrl: "https://www.linkedin.com/jobs/search/?keywords=Cisco%20Cybersecurity"
+    },
+    {
+      id: "lk8",
+      company: "Snowflake",
+      logoText: "❄",
+      logoBg: "#29B5E8",
+      easyApply: true,
+      role: "Big Data & Analytics Infrastructure Lead",
+      location: "Bangalore, India",
+      stipend: "₹16 - 25 LPA",
+      tags: ["Big Data", "Snowflake", "SQL", "ETL"],
+      posted: "2 days ago",
+      applyUrl: "https://www.linkedin.com/jobs/search/?keywords=Snowflake%20Big%20Data"
     }
   ];
 
@@ -190,7 +228,7 @@ export default function OpportunityFeedPage() {
       id: "nk1",
       company: "tcs",
       companyName: "TCS Ninja",
-      role: "Graduate Trainee",
+      role: "Graduate Trainee & Systems Engineer",
       stipend: "₹3.36 - 3.6 LPA",
       eligibility: "B.E / B.Tech",
       lastDate: "31 May 2025",
@@ -201,50 +239,62 @@ export default function OpportunityFeedPage() {
     {
       id: "nk2",
       company: "Infosys",
-      companyName: "Infosys",
-      role: "Specialist Programmer",
-      stipend: "₹4 - 6 LPA",
-      eligibility: "B.E / B.Tech",
+      companyName: "Infosys Data Unit",
+      role: "Data Analyst & Business Intelligence Specialist",
+      stipend: "₹5 - 8 LPA",
+      eligibility: "B.E / B.Tech / BCA / MCA",
       lastDate: "25 May 2025",
       posted: "1 day ago",
       logoBg: "#007CC3",
-      applyUrl: "https://www.naukri.com/infosys-jobs"
+      applyUrl: "https://www.naukri.com/infosys-data-analytics-jobs"
     },
     {
       id: "nk3",
       company: "wipro",
-      companyName: "Wipro",
-      role: "Project Engineer",
-      stipend: "₹3.5 - 4.5 LPA",
+      companyName: "Wipro Cyber",
+      role: "Cybersecurity SOC Analyst",
+      stipend: "₹4.5 - 7 LPA",
       eligibility: "B.E / B.Tech",
       lastDate: "20 May 2025",
       posted: "2 days ago",
       logoBg: "#006699",
-      applyUrl: "https://www.naukri.com/wipro-jobs"
+      applyUrl: "https://www.naukri.com/wipro-cybersecurity-jobs"
     },
     {
       id: "nk4",
       company: "cognizant",
-      companyName: "Cognizant",
-      role: "GenC",
-      stipend: "₹4 - 6 LPA",
+      companyName: "Cognizant AI Labs",
+      role: "AI & NLP Developer",
+      stipend: "₹6 - 9 LPA",
       eligibility: "B.E / B.Tech",
       lastDate: "28 May 2025",
       posted: "2 days ago",
       logoBg: "#1A4788",
-      applyUrl: "https://www.naukri.com/cognizant-jobs"
+      applyUrl: "https://www.naukri.com/cognizant-ai-jobs"
     },
     {
       id: "nk5",
       company: "accenture",
       companyName: "Accenture",
-      role: "Accenture ASE",
+      role: "Accenture Cloud Practitioner & DevOps",
       stipend: "₹4.5 - 6.5 LPA",
       eligibility: "B.E / B.Tech",
       lastDate: "27 May 2025",
       posted: "1 day ago",
       logoBg: "#A100FF",
       applyUrl: "https://www.naukri.com/accenture-jobs"
+    },
+    {
+      id: "nk6",
+      company: "swiggy",
+      companyName: "Swiggy Mobile",
+      role: "Mobile Engineer (Flutter / Android / iOS)",
+      stipend: "₹8 - 14 LPA",
+      eligibility: "B.E / B.Tech / MCA",
+      lastDate: "15 Jun 2025",
+      posted: "Just now",
+      logoBg: "#FC8019",
+      applyUrl: "https://www.naukri.com/swiggy-jobs"
     }
   ];
 
@@ -253,7 +303,7 @@ export default function OpportunityFeedPage() {
     {
       id: "gl1",
       company: "Capgemini",
-      role: "Software Engineer",
+      role: "Software Engineer & Cloud Architect",
       location: "Bangalore, India",
       rating: "4.4",
       reviews: "12.3K",
@@ -266,20 +316,20 @@ export default function OpportunityFeedPage() {
     {
       id: "gl2",
       company: "IBM",
-      role: "Associate Developer",
+      role: "Associate Developer & Quantum AI Researcher",
       location: "Kolkata, India",
       rating: "4.3",
       reviews: "9.8K",
-      stipend: "₹4.8 - 6.5 LPA (Glassdoor est.)",
+      stipend: "₹5 - 8.5 LPA (Glassdoor est.)",
       difficulty: "Easy",
       posted: "1 day ago",
       logoBg: "#052FAD",
-      applyUrl: "https://www.glassdoor.co.in/Job/jobs.htm?sc.keyword=IBM"
+      applyUrl: "https://www.glassdoor.co.in/Job/jobs.htm?sc.keyword=IBM%20AI"
     },
     {
       id: "gl3",
       company: "Oracle",
-      role: "Java Developer",
+      role: "Java Developer & Microservices Lead",
       location: "Hyderabad, India",
       rating: "4.2",
       reviews: "7.6K",
@@ -288,6 +338,32 @@ export default function OpportunityFeedPage() {
       posted: "3 days ago",
       logoBg: "#F80000",
       applyUrl: "https://www.glassdoor.co.in/Job/jobs.htm?sc.keyword=Oracle"
+    },
+    {
+      id: "gl4",
+      company: "NVIDIA",
+      role: "Deep Learning & Autonomous AI Engineer",
+      location: "Pune, India",
+      rating: "4.8",
+      reviews: "14.1K",
+      stipend: "₹18 - 28 LPA",
+      difficulty: "Hard",
+      posted: "1 day ago",
+      logoBg: "#76B900",
+      applyUrl: "https://www.glassdoor.co.in/Job/jobs.htm?sc.keyword=NVIDIA%20Deep%20Learning"
+    },
+    {
+      id: "gl5",
+      company: "Databricks",
+      role: "Data Analytics & Machine Learning Engineer",
+      location: "Remote",
+      rating: "4.7",
+      reviews: "3.2K",
+      stipend: "₹15 - 24 LPA",
+      difficulty: "Hard",
+      posted: "Just now",
+      logoBg: "#FF3621",
+      applyUrl: "https://www.glassdoor.co.in/Job/jobs.htm?sc.keyword=Databricks"
     }
   ];
 
@@ -297,26 +373,55 @@ export default function OpportunityFeedPage() {
     const company = (job.company || job.companyName || "").toLowerCase();
     const tagsStr = (job.tags || []).join(" ").toLowerCase();
     const location = (job.location || "").toLowerCase();
+    const stipend = (job.stipend || "").toLowerCase();
+    const posted = (job.posted || "").toLowerCase();
 
+    // 1. Search Query (role, company, skills, location)
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       const matchQuery = titleOrRole.includes(q) || company.includes(q) || tagsStr.includes(q) || location.includes(q);
       if (!matchQuery) return false;
     }
 
+    // 2. Location Filter
     if (locationFilter !== "All") {
-      if (locationFilter === "Remote" && !location.includes("remote")) return false;
-      if (locationFilter !== "Remote" && !location.includes(locationFilter.split(",")[0].toLowerCase())) return false;
+      const targetLoc = locationFilter.toLowerCase();
+      if (targetLoc === "remote" && !location.includes("remote")) return false;
+      if (targetLoc !== "remote" && !location.includes(targetLoc.split(",")[0].trim())) return false;
     }
 
+    // 3. Company Filter
     if (companyFilter !== "All") {
-      if (!company.includes(companyFilter.toLowerCase())) return false;
+      const targetComp = companyFilter.toLowerCase();
+      if (!company.includes(targetComp)) return false;
     }
 
+    // 4. Work Type Filter
     if (workTypeFilter !== "All (Remote/Hybrid/On-site)") {
       if (workTypeFilter === "Remote" && !location.includes("remote")) return false;
       if (workTypeFilter === "Hybrid" && !location.includes("hybrid")) return false;
       if (workTypeFilter === "On-site" && (location.includes("remote") || location.includes("hybrid"))) return false;
+    }
+
+    // 5. Experience Filter
+    if (expFilter !== "Any") {
+      const isIntern = titleOrRole.includes("intern") || titleOrRole.includes("fresher") || titleOrRole.includes("trainee") || titleOrRole.includes("step") || titleOrRole.includes("genc") || titleOrRole.includes("ase");
+      if (expFilter === "Intern / Fresher" && !isIntern) return false;
+      if (expFilter === "0-1 Yr" && !(isIntern || titleOrRole.includes("sde i") || titleOrRole.includes("engineer"))) return false;
+      if (expFilter === "1-3 Yrs" && isIntern && !titleOrRole.includes("sde")) return false;
+    }
+
+    // 6. Salary Filter
+    if (salaryFilter !== "Any") {
+      if (salaryFilter === "₹3 - 6 LPA" && (stipend.includes("12 - 18") || stipend.includes("9 - 14") || stipend.includes("80k"))) return false;
+      if (salaryFilter === "₹6 - 12 LPA" && !(stipend.includes("6") || stipend.includes("8") || stipend.includes("9") || stipend.includes("70k") || stipend.includes("80k"))) return false;
+      if (salaryFilter === "₹12 - 18 LPA" && !(stipend.includes("12") || stipend.includes("14") || stipend.includes("15") || stipend.includes("18"))) return false;
+    }
+
+    // 7. Posted Within Filter
+    if (postedFilter !== "Any Time") {
+      if (postedFilter === "Past 24 Hours" && !(posted.includes("1 day") || posted.includes("24 hour"))) return false;
+      if (postedFilter === "Past Week" && (posted.includes("month") || posted.includes("30 days"))) return false;
     }
 
     return true;
@@ -372,7 +477,7 @@ export default function OpportunityFeedPage() {
   const handleClearFilters = () => {
     setSearchQuery("");
     setLocationFilter("All");
-    setExpFilter("Intern / Fresher");
+    setExpFilter("Any");
     setSalaryFilter("Any");
     setWorkTypeFilter("All (Remote/Hybrid/On-site)");
     setCompanyFilter("All");

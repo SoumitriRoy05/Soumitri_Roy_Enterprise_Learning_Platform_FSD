@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useAdmin } from "../context/AdminContext";
+import { askGeminiAI, formatAiResponseText } from "../services/geminiService";
 import NotificationDropdown from "../components/NotificationDropdown";
 import Background from "../components/Background";
 import {
@@ -119,6 +120,7 @@ export default function WorkforceDashboard() {
   const { submitLeaveRequest, workforce } = useAdmin();
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const isDarkMode = themeMode === "dark";
 
   // Sidebar & Navigation State
   const [activeTab, setActiveTab] = useState("Overview");
@@ -755,66 +757,55 @@ export default function WorkforceDashboard() {
     }
   };
 
-  // Action: AI Assistant Chat Submit
+  // Action: AI Assistant Chat Submit using Gemini AI Universal Engine
   const handleSendChat = async (text) => {
     if (!text.trim() || isChatLoading) return;
 
-    const updated = [...chatMessages, { sender: "user", text }];
+    const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const userMsg = { sender: "user", text, time: timeStr };
+    const updated = [...chatMessages, userMsg];
     setChatMessages(updated);
     setChatInput("");
     setIsChatLoading(true);
 
-    const systemPrompt = `You are SphereHR, the virtual assistant and operations advisor for the workforce manager. You are highly knowledgeable about general queries, management best practices, technical topics, and team metrics. You have access to team metrics: Headcount: ${employees.length} members. Projects active: ${projects.length}. Pending leave requests: ${leaveRequests.filter(r => r.status === "PENDING").length}. Answer queries with detailed insights and structural recommendations, maintaining a professional, highly expert HR advisor tone.`;
-
     try {
-      const response = await fetch("https://text.pollinations.ai/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          messages: [
-            { role: "system", content: systemPrompt },
-            ...updated.slice(-6).map(m => ({
-              role: m.sender === "user" ? "user" : "assistant",
-              content: m.text
-            }))
-          ],
-          model: "openai"
-        })
-      });
+      let promptToPass = text;
+      const lower = text.toLowerCase();
+      if (lower.includes("leave") || lower.includes("pending")) {
+        const pendingCount = leaveRequests.filter(r => r.status === "PENDING").length;
+        promptToPass += `\n[Context: Total Headcount: ${employees.length}, Active Projects: ${projects.length}, Pending Leaves requiring review: ${pendingCount}]`;
+      } else if (lower.includes("top performer") || lower.includes("best employee")) {
+        const top = [...employees].sort((a,b) => b.score - a.score)[0];
+        promptToPass += `\n[Context: Top performer in active roster is ${top ? top.name : "Arjun Mehta"} with performance score ${top ? top.score : 95}%]`;
+      }
 
-      if (!response.ok) throw new Error("API failed");
-      const replyText = await response.text();
-      setChatMessages(prev => [...prev, { sender: "assistant", text: replyText.trim() }]);
+      const aiResult = await askGeminiAI(promptToPass, { role: "SphereHR AI Operations Advisor" });
+      const replyText = aiResult.text || "I am SphereHR AI. How can I assist you with team communication, management strategies, performance tracking, or general technical questions?";
+
+      setChatMessages(prev => [...prev, {
+        sender: "assistant",
+        text: replyText,
+        source: aiResult.source || "Gemini 1.5 Flash",
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }]);
     } catch (err) {
-      console.warn("AI Chat API error, falling back to local responder:", err);
-      // Fallback local simulation
-      setTimeout(() => {
-        let reply = "I am processing your query. You can ask about 'performance', 'leaves', or 'projects' to check team resource allocations.";
-        const query = text.toLowerCase();
-
-        if (query.includes("performance") || query.includes("top performer") || query.includes("best")) {
-          const top = [...employees].sort((a,b) => b.score - a.score)[0];
-          reply = `${top ? top.name : "NeonCoder"} is currently our top performer with a score of ${top ? top.score : 95}% in the team.`;
-        } else if (query.includes("leave") || query.includes("holiday") || query.includes("pending")) {
-          const pendingCount = leaveRequests.filter(r => r.status === "PENDING").length;
-          reply = `There are currently ${pendingCount} pending leave requests requiring your review.`;
-        } else if (query.includes("project") || query.includes("work") || query.includes("assign")) {
-          reply = `We have ${projects.length} active projects tracked.`;
-        }
-
-        setChatMessages(prev => [...prev, { sender: "assistant", text: reply }]);
-      }, 600);
+      console.error("SphereHR Gemini AI Error:", err);
+      setChatMessages(prev => [...prev, {
+        sender: "assistant",
+        text: "I am SphereHR AI. I can assist you with workforce analytics, team communication strategies, coding, management best practices, and universal Q&A.",
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }]);
     } finally {
       setIsChatLoading(false);
     }
   };
 
   const quickPrompts = [
+    "How will I communicate with teammates?",
     "Who is the top performer?",
     "Check pending leaves.",
-    "Recommend training programs."
+    "Recommend training programs.",
+    "Strategies to improve team productivity"
   ];
 
   const handleCreateTeam = (e) => {
@@ -3976,43 +3967,206 @@ export default function WorkforceDashboard() {
           )}
 
           {activeTab === "AI Assistant" && (
-            <div className="wf-card" style={{ maxWidth: "800px", margin: "20px auto 40px auto" }}>
-              <div className="wf-card-header">
-                <h2 className="wf-card-title">SphereHR AI Operations Assistant</h2>
-              </div>
-              <div className="wf-home-chat-panel" style={{ marginTop: "20px" }}>
-                <div className="wf-home-chat-messages" style={{ maxHeight: "400px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "10px", padding: "14px", background: "rgba(0,0,0,0.15)", borderRadius: "8px", marginBottom: "15px" }}>
-                  {chatMessages.map((msg, i) => (
-                    <div key={i} className={`wf-home-chat-bubble ${msg.sender}`} style={{
-                      alignSelf: msg.sender === "user" ? "flex-end" : "flex-start",
-                      background: msg.sender === "user" ? "linear-gradient(135deg, #00e5ff, #8a2eff)" : "rgba(255,255,255,0.05)",
-                      color: "#fff",
-                      padding: "10px 14px",
-                      borderRadius: "14px",
-                      maxWidth: "75%",
-                      fontSize: "14px",
-                      lineHeight: "1.4"
+            <div className="wf-card" style={{
+              maxWidth: "900px",
+              margin: "20px auto 40px auto",
+              borderRadius: "16px",
+              overflow: "hidden",
+              background: isDarkMode ? "rgba(25,22,18,0.95)" : "#FFFFFF",
+              border: isDarkMode ? "1px solid rgba(255,255,255,0.12)" : "1px solid #E2E8F0",
+              boxShadow: isDarkMode ? "0 10px 30px rgba(0,0,0,0.4)" : "0 10px 30px rgba(0,0,0,0.06)"
+            }}>
+              
+              {/* Header Bar */}
+              <div className="wf-card-header" style={{
+                display: "flex",
+                justify: "space-between",
+                alignItems: "center",
+                padding: "18px 24px",
+                background: isDarkMode
+                  ? "linear-gradient(135deg, rgba(35,28,24,0.95), rgba(55,42,32,0.95))"
+                  : "linear-gradient(135deg, #F8FAFC, #F1F5F9)",
+                borderBottom: isDarkMode ? "1px solid rgba(255,255,255,0.1)" : "1px solid #E2E8F0"
+              }}>
+                <div>
+                  <h2 className="wf-card-title" style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    margin: 0,
+                    fontSize: "20px",
+                    fontWeight: 800,
+                    color: isDarkMode ? "#FFFFFF" : "#0F172A"
+                  }}>
+                    🤖 SphereHR AI Operations & Strategic Advisor
+                  </h2>
+                  <div style={{ display: "flex", gap: "10px", marginTop: "6px", flexWrap: "wrap" }}>
+                    <span style={{
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      color: isDarkMode ? "#34D399" : "#059669",
+                      background: isDarkMode ? "rgba(16,185,129,0.15)" : "#D1FAE5",
+                      padding: "3px 10px",
+                      borderRadius: "12px",
+                      border: isDarkMode ? "1px solid rgba(16,185,129,0.3)" : "1px solid #6EE7B7"
                     }}>
-                      {msg.text}
-                    </div>
-                  ))}
+                      🟢 Gemini 1.5 Flash Connected
+                    </span>
+                    <span style={{
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      color: isDarkMode ? "#60A5FA" : "#2563EB",
+                      background: isDarkMode ? "rgba(59,130,246,0.15)" : "#DBEAFE",
+                      padding: "3px 10px",
+                      borderRadius: "12px",
+                      border: isDarkMode ? "1px solid rgba(59,130,246,0.3)" : "1px solid #93C5FD"
+                    }}>
+                      ✨ Universal Knowledge Q&A Engine
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setChatMessages([{ sender: "assistant", text: "Welcome to Workforce AI Hub! I am SphereHR. Ask me about workforce metrics, employee performance ratings, team communication, technical topics, or management best practices.", time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }])}
+                  style={{
+                    background: isDarkMode ? "rgba(255,255,255,0.08)" : "#FFFFFF",
+                    border: isDarkMode ? "1px solid rgba(255,255,255,0.15)" : "1px solid #CBD5E1",
+                    color: isDarkMode ? "#FFFFFF" : "#334155",
+                    padding: "7px 14px",
+                    borderRadius: "8px",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    boxShadow: isDarkMode ? "none" : "0 1px 3px rgba(0,0,0,0.05)"
+                  }}
+                >
+                  🗑️ Clear Chat
+                </button>
+              </div>
+
+              {/* Chat Panel */}
+              <div className="wf-home-chat-panel" style={{ padding: "20px" }}>
+                
+                {/* Chat Messages List */}
+                <div className="wf-home-chat-messages" style={{
+                  minHeight: "360px",
+                  maxHeight: "480px",
+                  overflowY: "auto",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "14px",
+                  padding: "18px",
+                  background: isDarkMode ? "rgba(15,12,10,0.5)" : "#F8FAFC",
+                  borderRadius: "12px",
+                  marginBottom: "18px",
+                  border: isDarkMode ? "1px solid rgba(255,255,255,0.05)" : "1px solid #E2E8F0"
+                }}>
+                  {chatMessages.map((msg, i) => {
+                    const isUser = msg.sender === "user";
+                    return (
+                      <div key={i} style={{
+                        alignSelf: isUser ? "flex-end" : "flex-start",
+                        maxWidth: "82%",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: isUser ? "flex-end" : "flex-start"
+                      }}>
+                        <div style={{
+                          background: isUser
+                            ? (isDarkMode ? "linear-gradient(135deg, #00e5ff, #8a2eff)" : "linear-gradient(135deg, #2563EB, #7C3AED)")
+                            : (isDarkMode ? "rgba(255, 255, 255, 0.08)" : "#FFFFFF"),
+                          color: isUser
+                            ? "#FFFFFF"
+                            : (isDarkMode ? "#FFFFFF" : "#1E293B"),
+                          padding: "12px 18px",
+                          borderRadius: isUser ? "18px 18px 2px 18px" : "18px 18px 18px 2px",
+                          fontSize: "14px",
+                          lineHeight: "1.6",
+                          border: isUser ? "none" : (isDarkMode ? "1px solid rgba(255, 255, 255, 0.12)" : "1px solid #E2E8F0"),
+                          boxShadow: isUser ? "0 4px 12px rgba(37,99,235,0.2)" : (isDarkMode ? "0 2px 10px rgba(0,0,0,0.15)" : "0 2px 8px rgba(0,0,0,0.04)"),
+                          whiteSpace: "pre-wrap",
+                          wordBreak: "break-word"
+                        }}>
+                          {formatAiResponseText(msg.text)}
+                        </div>
+
+                        <div style={{ fontSize: "10px", fontWeight: 600, color: isDarkMode ? "#94A3B8" : "#64748B", marginTop: "4px", padding: "0 4px" }}>
+                          {isUser ? "You" : (msg.source || "SphereHR AI")} • {msg.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </div>
+                    );
+                  })}
+
                   {isChatLoading && (
-                    <div className="wf-home-chat-bubble assistant" style={{ alignSelf: "flex-start", background: "rgba(255,255,255,0.02)", color: "var(--wf-text-muted)", padding: "10px 14px", borderRadius: "14px", fontSize: "14px" }}>
-                      <span>SphereHR is thinking...</span>
+                    <div style={{
+                      alignSelf: "flex-start",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      background: isDarkMode ? "rgba(255,255,255,0.06)" : "#FFFFFF",
+                      padding: "10px 16px",
+                      borderRadius: "14px",
+                      border: isDarkMode ? "1px solid rgba(255,255,255,0.1)" : "1px solid #E2E8F0",
+                      boxShadow: isDarkMode ? "none" : "0 2px 8px rgba(0,0,0,0.04)"
+                    }}>
+                      <span className="wf-typing-dot" style={{ fontSize: "13px", color: isDarkMode ? "#38BDF8" : "#2563EB", fontWeight: 700 }}>
+                        ✨ SphereHR AI is generating universal response...
+                      </span>
                     </div>
                   )}
                   <div ref={chatEndRef} />
                 </div>
+
+                {/* Quick Prompts Row */}
                 <div className="wf-home-chat-hints" style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "16px" }}>
                   {quickPrompts.map((hint, i) => (
-                    <span key={i} className="wf-home-chat-hint" style={{ fontSize: "12px", background: "rgba(255,255,255,0.03)", border: "1px solid var(--wf-card-border)", padding: "6px 12px", borderRadius: "20px", cursor: "pointer", color: "var(--wf-text-secondary)", transition: "all 0.2s" }} onClick={() => handleSendChat(hint)}>{hint}</span>
+                    <button
+                      key={i}
+                      onClick={() => handleSendChat(hint)}
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        background: isDarkMode ? "rgba(255,255,255,0.05)" : "#FFFFFF",
+                        border: isDarkMode ? "1px solid rgba(255,255,255,0.12)" : "1px solid #CBD5E1",
+                        padding: "7px 14px",
+                        borderRadius: "20px",
+                        cursor: "pointer",
+                        color: isDarkMode ? "#E2E8F0" : "#334155",
+                        boxShadow: isDarkMode ? "none" : "0 1px 3px rgba(0,0,0,0.03)",
+                        transition: "all 0.2s ease"
+                      }}
+                      onMouseEnter={e => {
+                        e.target.style.background = isDarkMode ? "rgba(0,229,255,0.15)" : "#EFF6FF";
+                        e.target.style.borderColor = "#3B82F6";
+                        e.target.style.color = isDarkMode ? "#FFFFFF" : "#2563EB";
+                      }}
+                      onMouseLeave={e => {
+                        e.target.style.background = isDarkMode ? "rgba(255,255,255,0.05)" : "#FFFFFF";
+                        e.target.style.borderColor = isDarkMode ? "rgba(255,255,255,0.12)" : "#CBD5E1";
+                        e.target.style.color = isDarkMode ? "#E2E8F0" : "#334155";
+                      }}
+                    >
+                      {hint}
+                    </button>
                   ))}
                 </div>
+
+                {/* Input Row */}
                 <div className="wf-home-chat-input-row" style={{ display: "flex", gap: "10px" }}>
                   <input
                     type="text"
-                    style={{ flex: 1, padding: "10px 14px", borderRadius: "8px", background: "var(--wf-input-bg)", border: "1px solid var(--wf-input-border)", color: "#fff", fontSize: "14px" }}
-                    placeholder="Ask SphereHR..."
+                    style={{
+                      flex: 1,
+                      padding: "12px 18px",
+                      borderRadius: "10px",
+                      background: isDarkMode ? "rgba(0,0,0,0.25)" : "#FFFFFF",
+                      border: isDarkMode ? "1px solid rgba(255,255,255,0.15)" : "1px solid #CBD5E1",
+                      color: isDarkMode ? "#FFFFFF" : "#0F172A",
+                      fontSize: "14px",
+                      outline: "none",
+                      boxShadow: isDarkMode ? "none" : "0 1px 3px rgba(0,0,0,0.02)"
+                    }}
+                    placeholder="Ask SphereHR anything (communication, management, code, leaves...)"
                     value={chatInput}
                     onChange={e => setChatInput(e.target.value)}
                     onKeyDown={e => { if (e.key === "Enter") handleSendChat(chatInput); }}
@@ -4020,13 +4174,26 @@ export default function WorkforceDashboard() {
                   />
                   <button
                     className="wf-btn-primary"
-                    style={{ padding: "10px 20px", fontSize: "14px" }}
+                    style={{
+                      padding: "12px 24px",
+                      fontSize: "14px",
+                      fontWeight: 700,
+                      borderRadius: "10px",
+                      background: isDarkMode
+                        ? "linear-gradient(135deg, #00e5ff, #8a2eff)"
+                        : "linear-gradient(135deg, #2563EB, #7C3AED)",
+                      border: "none",
+                      color: "#fff",
+                      cursor: "pointer",
+                      boxShadow: "0 4px 14px rgba(37,99,235,0.25)"
+                    }}
                     onClick={() => handleSendChat(chatInput)}
                     disabled={isChatLoading || !chatInput.trim()}
                   >
                     Send 🚀
                   </button>
                 </div>
+
               </div>
             </div>
           )}

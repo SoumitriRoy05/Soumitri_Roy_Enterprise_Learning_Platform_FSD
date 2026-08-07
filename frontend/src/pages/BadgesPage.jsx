@@ -93,7 +93,6 @@ export default function BadgesPage() {
     { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
     { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
     { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
-    { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },
@@ -106,11 +105,21 @@ export default function BadgesPage() {
     { id: "code-arena", label: "CodeArena", icon: <FaCode /> }
   ];
 
+  const userKey = user?.email || user?.username || "default";
   const userBadges = user?.badges || [];
+  const completedSubLessonIds = (() => {
+    try {
+      const saved = localStorage.getItem(`skillsphere_completed_sub_lessons_${userKey}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  })();
+  const totalSubCount = completedSubLessonIds.length;
 
   const earnedBadges = [
     { id: 1, title: "Getting Started", desc: "Complete your first lesson", xp: "+50 XP", date: "Earned", icon: <FaTrophy />, color: "orange", isEarned: true },
-    { id: 2, title: "Lesson Learner", desc: "Complete 10 lessons", xp: "+100 XP", date: "Earned", icon: <FaBook />, color: "green", isEarned: userBadges.includes("Lesson Learner") || userBadges.includes("2") || (user?.completed_topics || []).length >= 1 },
+    { id: 2, title: "Lesson Learner", desc: "Complete 10 lessons", xp: "+100 XP", date: "Earned", icon: <FaBook />, color: "green", isEarned: userBadges.includes("Lesson Learner") || userBadges.includes("2") || (user?.completed_topics || []).length >= 1 || totalSubCount >= 1 },
     { id: 3, title: "Quiz Master", desc: "Score 90% or more in a quiz", xp: "+150 XP", date: "Earned", icon: <FaQuestionCircle />, color: "purple", isEarned: userBadges.includes("Quiz Master") || userBadges.includes("3") },
     { id: 4, title: "Code Explorer", desc: "Solve 20 coding problems", xp: "+200 XP", date: "Earned", icon: <FaCode />, color: "brown", isEarned: userBadges.includes("Code Explorer") || userBadges.includes("4") },
     { id: 5, title: "Streak Starter", desc: "Maintain a 3-day streak", xp: "+75 XP", date: "Earned", icon: <FaFire />, color: "red", isEarned: (user?.streak || 0) >= 3 || userBadges.includes("Streak Starter") },
@@ -120,7 +129,7 @@ export default function BadgesPage() {
     { id: 9, title: "Early Bird", desc: "Complete a lesson before 9 AM", xp: "+30 XP", date: "Earned", icon: <FaSun />, color: "gold", isEarned: userBadges.includes("Early Bird") },
     { id: 10, title: "Weekend Warrior", desc: "Complete 5 lessons on weekend", xp: "+75 XP", date: "Earned", icon: <FaBullseye />, color: "indigo", isEarned: userBadges.includes("Weekend Warrior") },
     { id: 11, title: "Project Builder", desc: "Complete a hands-on project", xp: "+250 XP", date: "Earned", icon: <FaCubes />, color: "emerald", isEarned: userBadges.includes("Project Builder") },
-    { id: 12, title: "Path Pioneer", desc: "Complete your first learning path", xp: "+300 XP", date: "Earned", icon: <FaMountain />, color: "violet", isEarned: userBadges.includes("Path Pioneer") || (user?.completed_topics || []).length >= 5 }
+    { id: 12, title: "Path Pioneer", desc: "Complete your first learning path", xp: "+300 XP", date: "Earned", icon: <FaMountain />, color: "violet", isEarned: userBadges.includes("Path Pioneer") || (user?.completed_topics || []).length >= 5 || totalSubCount >= 5 }
   ];
 
   // 24 MORE DISCOVERABLE LOCKED BADGES DATA (Matching Screenshot 1-to-1)

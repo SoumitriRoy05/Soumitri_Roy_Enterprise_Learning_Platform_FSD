@@ -118,7 +118,7 @@ public class AdminController {
         Optional<User> opt = userRepository.findById(id);
         if (opt.isPresent()) {
             User u = opt.get();
-            u.setIsActive(!u.getIsActive());
+            u.setIsActive(!Boolean.TRUE.equals(u.getIsActive()));
             userRepository.save(u);
             response.put("success", true);
             response.put("message", "User status updated successfully");

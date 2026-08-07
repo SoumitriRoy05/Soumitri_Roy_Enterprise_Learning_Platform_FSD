@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaBookOpen, FaStar, FaUsers, FaPaperPlane, FaMinus, FaTimes } from "react-icons/fa";
+import { askGeminiAI } from "../services/geminiService";
+import FormattedMessage from "./FormattedMessage";
 import "../styles/floatingChatbot.css";
 
 export default function FloatingChatbot() {
@@ -9,7 +11,7 @@ export default function FloatingChatbot() {
   const [messages, setMessages] = useState([
     {
       sender: "assistant",
-      text: "Hello! I am SphereAI, your virtual learning and workspace guide. How can I help you explore SkillSphere today? 👋"
+      text: "Hello! I am SphereAI powered by Gemini. Ask me any universal question (programming, science, math, history, general knowledge, etc.) or explore SkillSphere! 👋"
     }
   ]);
   const [input, setInput] = useState("");
@@ -68,14 +70,6 @@ export default function FloatingChatbot() {
       };
     }
 
-    if (q.includes("study buddy") || q.includes("ai buddy") || q.includes("gfg") || q.includes("w3school") || q.includes("question") || q.includes("doubt")) {
-      return {
-        text: "AI Study Buddy is your personal AI tutor! Ask any programming or subject question (React, JS, Python, Java, DSA, Node, etc.) and get step-by-step explanations, code examples, and GeeksforGeeks & W3Schools reference documentation!",
-        actionLabel: "🤖 Launch AI Study Buddy",
-        actionPath: "/ai-buddy"
-      };
-    }
-
     if (q.includes("code arena") || q.includes("arena") || q.includes("battle") || q.includes("coding test")) {
       return {
         text: "CodeArena is SkillSphere's competitive coding environment! Test your speed against algorithmic challenges, fix buggy code snippets, and climb the global leaderboards.",
@@ -115,7 +109,7 @@ export default function FloatingChatbot() {
     };
   };
 
-  const handleSendMessage = (text) => {
+  const handleSendMessage = async (text) => {
     if (!text.trim() || isLoading) return;
 
     const userMsg = { sender: "user", text };
@@ -123,12 +117,40 @@ export default function FloatingChatbot() {
     setInput("");
     setIsLoading(true);
 
-    setTimeout(() => {
-      const reply = getDynamicSkillSphereReply(text);
-      const replyObj = typeof reply === "string" ? { text: reply } : reply;
-      setMessages(prev => [...prev, { sender: "assistant", ...replyObj }]);
-      setIsLoading(false);
-    }, 600);
+    const platformReply = getDynamicSkillSphereReply(text);
+    const qLower = text.toLowerCase();
+    const isPlatformSpecific = qLower.includes("skillsphere") || 
+      qLower.includes("enroll") || 
+      qLower.includes("certificat") || 
+      qLower.includes("badge") || 
+      qLower.includes("resume") || 
+      qLower.includes("code arena") ||
+      qLower.includes("workforce");
+
+    if (isPlatformSpecific) {
+      setTimeout(() => {
+        const replyObj = typeof platformReply === "string" ? { text: platformReply } : platformReply;
+        setMessages(prev => [...prev, { sender: "assistant", ...replyObj }]);
+        setIsLoading(false);
+      }, 500);
+    } else {
+      try {
+        const aiRes = await askGeminiAI(text);
+        setMessages(prev => [
+          ...prev,
+          {
+            sender: "assistant",
+            text: aiRes.text,
+            actionLabel: "🤖 Open AI Study Buddy Workspace",
+            actionPath: "/ai-buddy"
+          }
+        ]);
+      } catch (e) {
+        setMessages(prev => [...prev, { sender: "assistant", text: platformReply.text }]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
 
   const quickPrompts = [
@@ -182,7 +204,7 @@ export default function FloatingChatbot() {
                 )}
 
                 <div className={`chat-bubble-card ${msg.sender}`}>
-                  <div style={{ whiteSpace: "pre-wrap" }}>{msg.text}</div>
+                  <FormattedMessage text={msg.text} />
                   {msg.actionPath && (
                     <button
                       className="chatActionBtn"

@@ -101,7 +101,6 @@ export default function CoursesPage() {
     { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
     { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
     { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
-    { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },
@@ -407,13 +406,23 @@ export default function CoursesPage() {
   // Combined course list: base courses + admin-added courses
   const allRawCourses = [...rawCourses, ...adminCatalogCourses];
 
+  const completedSubLessons = (() => {
+    try {
+      return JSON.parse(localStorage.getItem(`skillsphere_completed_sub_lessons_${userKey}`) || "[]");
+    } catch (e) {
+      return [];
+    }
+  })();
+
   const courseList = allRawCourses.map((c) => {
     const cidStr = c.id.toString();
     
     // Unlocked IF explicitly enrolled by user/admin
     const isEnrolled = allEnrolled.includes(cidStr) || allEnrolled.includes(c.id);
-    const topicsDone = userCompletedTopics.filter((id) => id.startsWith(c.topicPrefix || "")).length;
-    const progress = isEnrolled ? Math.min(100, Math.round((topicsDone / 6) * 100)) : 0;
+    const topicsDone = userCompletedTopics.filter((id) => typeof id === 'string' && id.startsWith(c.topicPrefix || "")).length;
+    const subDone = (completedSubLessons || []).filter(id => typeof id === 'string' && (id.startsWith(c.topicPrefix || "") || (c.id === 2 && !id.startsWith("py-") && !id.startsWith("node-") && !id.startsWith("ui-")))).length;
+    const totalDone = topicsDone + subDone;
+    const progress = isEnrolled ? (totalDone > 0 ? Math.min(100, Math.round((totalDone / 12) * 100)) : 0) : 0;
 
     // Check pending approval for THIS user only
     const isPendingApproval = pendingRequests.some(r => r.courseId === cidStr && r.status === "pending");

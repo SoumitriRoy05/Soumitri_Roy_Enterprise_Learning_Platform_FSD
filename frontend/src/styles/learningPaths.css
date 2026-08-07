@@ -172,6 +172,7 @@
 .lpPathCard:hover { transform: translateY(-4px); border-color: #FAD6C8; }
 
 .lpCardBanner { height: 110px; position: relative; display: flex; align-items: center; justify-content: center; }
+.lpCardBanner.js { background: #0F172A; color: #FFFFFF; }
 .lpCardBanner.react { background: #082F49; color: #FFFFFF; }
 .lpCardBanner.python { background: #172554; color: #FFFFFF; }
 .lpCardBanner.node { background: #052E16; color: #FFFFFF; }
@@ -181,8 +182,31 @@
 .lpStatusBadge.in-progress { background: #FFFFFF; color: #0284C7; }
 .lpStatusBadge.not-started { background: #F1F5F9; color: #64748B; }
 
-.bannerIconReact { font-size: 48px; }
-.bannerIconPython { font-size: 48px; }
+.bannerIconJs {
+  width: 52px;
+  height: 52px;
+  background: rgba(254, 240, 138, 0.12);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.bannerIconReact {
+  width: 52px;
+  height: 52px;
+  background: rgba(99, 102, 241, 0.18);
+  border: 1px solid rgba(165, 180, 252, 0.35);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.bannerIconPython { font-size: 44px; }
 .bannerIconNode { color: #4ADE80; font-weight: 800; font-size: 16px; }
 .bannerIconFigma { font-size: 44px; }
 

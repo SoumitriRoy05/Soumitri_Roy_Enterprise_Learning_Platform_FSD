@@ -75,6 +75,7 @@ public class DataInitializer implements CommandLineRunner {
         createTestUserIfMissing("student", "Student Demo", "student@skillsphere.com", "1234", "STUDENT");
         createTestUserIfMissing("employee", "Employee Demo", "employee@skillsphere.com", "1234", "EMPLOYEE");
         createTestUserIfMissing("manager", "Manager Demo", "manager@company.com", "1234", "EMPLOYEE");
+        createTestUserIfMissing("workforce", "Workforce Demo", "workforce@company.com", "1234", "EMPLOYEE");
 
         // Seed initial posts and comments if database is empty
         if (postRepository.count() == 0) {
@@ -229,11 +230,19 @@ public class DataInitializer implements CommandLineRunner {
             System.out.println("✅ DataInitializer: Created test user -> " + email);
         } else {
             User user = opt.get();
+            boolean updated = false;
             if (user.getPasswordHash() == null || !passwordEncoder.matches(password, user.getPasswordHash())) {
                 user.setPasswordHash(passwordEncoder.encode(password));
                 user.setProvider("LOCAL");
+                updated = true;
+            }
+            if (!Boolean.TRUE.equals(user.getIsActive())) {
+                user.setIsActive(true);
+                updated = true;
+            }
+            if (updated) {
                 userRepository.save(user);
-                System.out.println("✅ DataInitializer: Reset password and provider for test user -> " + email);
+                System.out.println("✅ DataInitializer: Reset password and active status for test user -> " + email);
             }
         }
     }

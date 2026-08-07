@@ -56,6 +56,9 @@ import {
 import studentHeroImg from "../assets/student_dashboard_hero_illustration.png";
 import darkReactLearningHero from "../assets/dark_react_learning_hero.png";
 import lightReactLearningHero from "../assets/light_react_learning_hero.png";
+import jsLogoImg from "../assets/javascript_logo.svg";
+import jsBadgeImg from "../assets/js_shield_badge.svg";
+import reactLogoImg from "../assets/react.svg";
 import "../styles/learningPaths.css";
 
 export default function LearningPathsPage() {
@@ -1716,7 +1719,6 @@ function AnalyticsDashboard() {
     { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
     { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
     { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
-    { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },
@@ -2032,7 +2034,15 @@ function AnalyticsDashboard() {
                 <div className="lpdHeroLeftInfo">
                   <div className="lpdTitleRow">
                     <h2 style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                      <span style={{ fontSize: "32px" }}>{activePathData.logo}</span> {activePathData.title}
+                      <span style={{ fontSize: "32px", display: "flex", alignItems: "center" }}>
+                        {(typeof selectedPathDetail === "string" && selectedPathDetail.includes("JavaScript")) ||
+                        (typeof selectedPathDetail === "object" && selectedPathDetail?.title?.includes("JavaScript")) ? (
+                          <img src={jsBadgeImg} alt="JS" style={{ width: "38px", height: "38px", objectFit: "contain" }} />
+                        ) : (
+                          activePathData.logo
+                        )}
+                      </span>{" "}
+                      {activePathData.title}
                     </h2>
                     <span className="lpdStatusTag">In Progress</span>
                   </div>
@@ -2049,7 +2059,14 @@ function AnalyticsDashboard() {
                 </div>
 
                 <div className="lpdHeroIllustration">
-                  <img src={isDarkMode ? darkReactLearningHero : lightReactLearningHero} alt="React Learning Path Illustration" />
+                  {(typeof selectedPathDetail === "string" && selectedPathDetail.includes("JavaScript")) ||
+                  (typeof selectedPathDetail === "object" && selectedPathDetail?.title?.includes("JavaScript")) ? (
+                    <div style={{ background: "#FFFFFF", padding: "16px 24px", borderRadius: "20px", boxShadow: "0 8px 24px rgba(0,0,0,0.06)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <img src={jsLogoImg} alt="JavaScript Path Illustration" style={{ maxHeight: "140px", objectFit: "contain" }} />
+                    </div>
+                  ) : (
+                    <img src={isDarkMode ? darkReactLearningHero : lightReactLearningHero} alt="React Learning Path Illustration" />
+                  )}
                 </div>
               </div>
 
@@ -3351,12 +3368,26 @@ function AnalyticsDashboard() {
                                 {card.statusText}
                               </span>
 
-                              {card.bannerType === "react" && <div className="bannerIconReact">⚛️</div>}
+                              {card.bannerType === "js" && (
+                                <div className="bannerIconJs">
+                                  <img src={jsBadgeImg} alt="JavaScript Logo" style={{ width: "38px", height: "38px", objectFit: "contain" }} />
+                                </div>
+                              )}
+                              {card.bannerType === "react" && (
+                                <div className="bannerIconReact">
+                                  <img src={reactLogoImg} alt="React Logo" style={{ width: "32px", height: "32px", objectFit: "contain" }} />
+                                </div>
+                              )}
                               {card.bannerType === "python" && <div className="bannerIconPython">🐍</div>}
                               {card.bannerType === "node" && <div className="bannerIconNode">🟩 Node.js</div>}
                               {card.bannerType === "figma" && <div className="bannerIconFigma">🎨</div>}
                               {card.bannerType === "cloud" && <div className="bannerIconNode">☁️ Cloud</div>}
                               {card.bannerType === "ai" && <div className="bannerIconReact">🤖 AI</div>}
+                              {card.bannerType === "dsa" && <div className="bannerIconReact">⚡ DSA</div>}
+                              {card.bannerType === "next" && <div className="bannerIconReact">▲ Next</div>}
+                              {card.bannerType === "spring" && <div className="bannerIconReact">🍃 Spring</div>}
+                              {card.bannerType === "web3" && <div className="bannerIconReact">💎 Web3</div>}
+                              {card.bannerType === "system" && <div className="bannerIconReact">🏗️ System</div>}
                             </div>
 
                             <div className="lpCardBody">
@@ -3405,7 +3436,15 @@ function AnalyticsDashboard() {
                                     className="lpCellLogoBadge"
                                     style={{ background: row.logoBg }}
                                   >
-                                    {row.logoText}
+                                    {row.bannerType === "js" || row.id === "js-dev" ? (
+                                      <img src={jsBadgeImg} alt="JS Shield" style={{ width: "24px", height: "24px", objectFit: "contain" }} />
+                                    ) : row.bannerType === "react" || row.id === "react-dev" ? (
+                                      <img src={reactLogoImg} alt="React" style={{ width: "22px", height: "22px", objectFit: "contain" }} />
+                                    ) : typeof row.logoText === "string" && (row.logoText.endsWith(".svg") || row.logoText.endsWith(".png")) ? (
+                                      <img src={row.logoText} alt={row.title} style={{ width: "22px", height: "22px", objectFit: "contain" }} />
+                                    ) : (
+                                      row.logoText
+                                    )}
                                   </div>
                                   <div>
                                     <strong>{row.title}</strong>

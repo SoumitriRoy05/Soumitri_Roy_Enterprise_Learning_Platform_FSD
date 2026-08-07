@@ -159,7 +159,7 @@ public class AuthController {
             return ResponseEntity.status(401).body(response);
         }
 
-        if (!user.getIsActive()) {
+        if (!Boolean.TRUE.equals(user.getIsActive())) {
             response.put("success", false);
             response.put("message", "This user account is inactive. Please contact support.");
             return ResponseEntity.status(403).body(response);
@@ -261,7 +261,7 @@ public class AuthController {
                 }
             }
 
-            if (!user.getIsActive()) {
+            if (!Boolean.TRUE.equals(user.getIsActive())) {
                 response.put("success", false);
                 response.put("message", "This user account is inactive. Please contact support.");
                 return ResponseEntity.status(403).body(response);

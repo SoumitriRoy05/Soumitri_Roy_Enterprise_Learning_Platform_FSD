@@ -157,12 +157,23 @@ export default function StudentHome() {
     { id: 8, title: "Advanced Machine Learning",icon: "🧠",  iconBg: "#FEE2E2", iconColor: "#B91C1C", topicPrefix: "ml_",    lessons: 24 },
   ];
 
-  // Build enrolled course cards with real progress
+  const completedSubLessonIds = (() => {
+    try {
+      const saved = localStorage.getItem(`skillsphere_completed_sub_lessons_${userKey}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  })();
+
+  // Build enrolled course cards with real progress matching Learning Paths
   const enrolledCourseCards = COURSE_CATALOG
     .filter(c => activeEnrolledIds.some(id => id.toString() === c.id.toString()))
     .map(c => {
-      const doneCount = (completedTopics || []).filter(id => id.startsWith(c.topicPrefix)).length;
-      const initialDone = doneCount > 0 ? doneCount : (isDemoUser ? (c.id === 2 ? 7 : c.id === 1 ? 5 : c.id === 3 ? 4 : 3) : 0);
+      const doneTopics = (completedTopics || []).filter(id => typeof id === 'string' && id.startsWith(c.topicPrefix)).length;
+      const doneSub = (completedSubLessonIds || []).filter(id => typeof id === 'string' && (id.startsWith(c.topicPrefix) || (c.id === 2 && !id.startsWith("py-") && !id.startsWith("node-") && !id.startsWith("ui-")))).length;
+      const totalDone = doneTopics + doneSub;
+      const initialDone = totalDone > 0 ? totalDone : (isDemoUser ? (c.id === 2 ? 7 : c.id === 1 ? 5 : c.id === 3 ? 4 : 3) : 0);
       const pct = Math.min(100, Math.round((initialDone / c.lessons) * 100));
       return { ...c, done: initialDone, pct };
     });
@@ -245,7 +256,6 @@ export default function StudentHome() {
     { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
     { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
     { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
-    { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },

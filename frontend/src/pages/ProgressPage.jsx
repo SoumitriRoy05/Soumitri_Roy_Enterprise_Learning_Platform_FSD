@@ -248,16 +248,27 @@ export default function ProgressPage() {
     ];
 
     const completedSet = new Set(completedTopics || []);
+    const userKey = user?.email || user?.username || "default";
+    const completedSubLessonIds = (() => {
+      try {
+        const saved = localStorage.getItem(`skillsphere_completed_sub_lessons_${userKey}`);
+        return saved ? JSON.parse(saved) : [];
+      } catch (e) {
+        return [];
+      }
+    })();
 
     return subjects.map(sub => {
       const subjectLessons = allPathLessons.filter(l => l.subjectId === sub.id);
       const total = subjectLessons.length || 6;
-      const completedCount = subjectLessons.filter(l => completedSet.has(l.id)).length;
-      const pct = Math.round((completedCount / total) * 100);
+      const completedCount = subjectLessons.filter(l => completedSet.has(l.id) || completedSubLessonIds.includes(l.id)).length;
+      const subDoneCount = completedSubLessonIds.filter(id => typeof id === 'string' && (id.startsWith(sub.id) || (sub.id === 'react' && !id.startsWith("py-") && !id.startsWith("node-") && !id.startsWith("ui-")))).length;
+      const totalDone = Math.max(completedCount, subDoneCount);
+      const pct = Math.min(100, Math.round((totalDone / total) * 100));
       
       return {
         ...sub,
-        completed: completedCount,
+        completed: totalDone,
         total: total,
         pct: pct
       };
@@ -333,7 +344,6 @@ export default function ProgressPage() {
     { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
     { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
     { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
-    { id: "job-search", label: "Job Search", icon: <FaRocket /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
     { id: "learning-paths", label: "Learning Paths", icon: <FaCodeBranch /> },
     { id: "ai-buddy", label: "AI Study Buddy", icon: <FaRobot /> },
