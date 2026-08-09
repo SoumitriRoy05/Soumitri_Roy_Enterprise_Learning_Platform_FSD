@@ -374,34 +374,6 @@ export default function DailyQuestsPage() {
 
           </div>
 
-          {/* 7-DAY WEEKLY STREAK TRACKER BAR */}
-          <div className="sdWhitePanelCard" style={{ padding: "16px 24px", marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <span style={{ fontSize: "24px" }}>🔥</span>
-              <div>
-                <strong style={{ color: "var(--text-primary)", display: "block" }}>7-Day Streak Calendar</strong>
-                <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>Log in daily to keep your multiplier active</span>
-              </div>
-            </div>
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-              {[
-                { day: "Mon", active: true },
-                { day: "Tue", active: true },
-                { day: "Wed", active: true },
-                { day: "Thu", active: true },
-                { day: "Fri", active: true },
-                { day: "Sat", active: false },
-                { day: "Sun", active: false }
-              ].map((d, i) => (
-                <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
-                  <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: d.active ? "var(--accent)" : "var(--bg-secondary)", color: d.active ? "black" : "var(--text-muted)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", fontSize: "14px", border: "1px solid var(--border-color)" }}>
-                    {d.active ? "✓" : d.day.slice(0, 1)}
-                  </div>
-                  <span style={{ fontSize: "11px", color: "var(--text-secondary)" }}>{d.day}</span>
-                </div>
-              ))}
-            </div>
-          </div>
 
           {/* 2-COLUMN MAIN WORKSPACE GRID */}
           <div className="dqpGridContainer" style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: "24px" }}>

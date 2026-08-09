@@ -5,135 +5,179 @@ const AdminContext = createContext(null);
 const initialCoursesData = [
   {
     id: 1,
-    title: "Frontend System Design",
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&h=400&fit=crop",
-    isPremium: true,
-    price: 999,
-    language: "English",
-    rating: "4.8",
-    reviews: "5K+",
-    description: "Go from Zero to Hero in Frontend System Design. Master large-scale application architecture."
-  },
-  {
-    id: 2,
-    title: "React",
-    image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600&h=400&fit=crop",
-    isPremium: true,
-    price: 499,
-    language: "English",
-    rating: "4.7",
-    reviews: "40K+",
-    description: "Master React.js. Learn from the ground up and build real-world applications with ease."
-  },
-  {
-    id: 3,
-    title: "JavaScript",
+    title: "JavaScript Fundamentals",
     image: "https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?w=600&h=400&fit=crop",
     isPremium: false,
     price: 0,
     language: "English",
     rating: "4.8",
-    reviews: "50K+",
-    description: "A pure in-depth JavaScript Course released for Free."
+    reviews: "5.2K",
+    description: "Learn core JS syntax, ES6+ features, closures, event loop and DOM manipulation."
+  },
+  {
+    id: 2,
+    title: "React.js Development",
+    image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600&h=400&fit=crop",
+    isPremium: true,
+    price: 499,
+    language: "English",
+    rating: "4.9",
+    reviews: "8.6K",
+    description: "Build modern dynamic web apps using React 18, hooks, state, and context API."
+  },
+  {
+    id: 3,
+    title: "Python for Beginners",
+    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&h=400&fit=crop",
+    isPremium: false,
+    price: 0,
+    language: "English",
+    rating: "4.7",
+    reviews: "6.1K",
+    description: "Start your Python programming journey from basics to real-world data projects."
   },
   {
     id: 4,
-    title: "Data Structures & Algorithms (DSA)",
-    image: "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=600&h=400&fit=crop",
+    title: "UI/UX Design Essentials",
+    image: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?w=600&h=400&fit=crop",
+    isPremium: true,
+    price: 699,
+    language: "English",
+    rating: "4.8",
+    reviews: "3.8K",
+    description: "Design stunning user interfaces, wireframes, and design systems in Figma."
+  },
+  {
+    id: 5,
+    title: "Data Structures & Algorithms",
+    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&h=400&fit=crop",
     isPremium: true,
     price: 1499,
     language: "English",
     rating: "4.9",
-    reviews: "100K+",
-    description: "Comprehensive DSA bootcamp for FAANG interviews. Covers arrays, trees, dynamic programming and more."
-  },
-  {
-    id: 5,
-    title: "Generative AI Engineering",
-    image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=600&h=400&fit=crop",
-    isPremium: true,
-    price: 1999,
-    language: "English",
-    rating: "4.9",
-    reviews: "12K+",
-    description: "Learn to build LLM applications, RAG pipelines, and integrate AI into your software."
+    reviews: "12K",
+    description: "Master DSA concepts, Big-O analysis, binary trees, dynamic programming and FAANG interviews."
   },
   {
     id: 6,
-    title: "Machine Learning Foundations",
-    image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=600&h=400&fit=crop",
-    isPremium: false,
-    price: 0,
-    language: "English",
-    rating: "4.6",
-    reviews: "25K+",
-    description: "A beginner-friendly guide to Machine Learning concepts, models, and Python implementation."
-  },
-  {
-    id: 7,
-    title: "Advanced Node.js & Microservices",
-    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&h=400&fit=crop",
+    title: "Node.js & Microservices",
+    image: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=600&h=400&fit=crop",
     isPremium: true,
     price: 799,
     language: "English",
-    rating: "4.7",
-    reviews: "18K+",
-    description: "Scale your backend architecture. Learn Docker, Kubernetes, and Node.js microservices."
+    rating: "4.8",
+    reviews: "4.9K",
+    description: "Build scalable backend REST APIs, authentication, and Docker microservices with Node.js."
+  },
+  {
+    id: 7,
+    title: "System Design Architecture",
+    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&h=400&fit=crop",
+    isPremium: true,
+    price: 999,
+    language: "English",
+    rating: "4.9",
+    reviews: "5.5K",
+    description: "Learn high-level system design, load balancing, caching, CDNs, and database sharding."
   },
   {
     id: 8,
-    title: "Fullstack Next.js 14",
-    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=400&fit=crop",
+    title: "Advanced Machine Learning",
+    image: "https://images.unsplash.com/photo-1555255707-c07966088b7b?w=600&h=400&fit=crop",
     isPremium: true,
-    price: 1299,
+    price: 1499,
     language: "English",
-    rating: "4.8",
-    reviews: "30K+",
-    description: "Build SEO-friendly, highly performant web applications using App Router and Server Actions."
+    rating: "4.9",
+    reviews: "3.2K",
+    description: "Dive deep into ML algorithms, regression, random forests, and PyTorch deep learning."
   },
   {
     id: 9,
-    title: "Web3 & Solidity Development",
-    image: "https://images.unsplash.com/photo-1621416894569-0f39ed31d247?w=600&h=400&fit=crop",
+    title: "Fullstack Next.js 14 Masterclass",
+    image: "https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=600&h=400&fit=crop",
     isPremium: true,
-    price: 1999,
+    price: 1299,
     language: "English",
-    rating: "4.5",
-    reviews: "8K+",
-    description: "Master blockchain development, smart contracts, and decentralized application (dApp) design."
+    rating: "4.9",
+    reviews: "7.1K",
+    description: "Master Next.js App Router, Server Components, Server Actions, and Vercel edge deployment."
   },
   {
     id: 10,
-    title: "Cloud Computing with AWS",
+    title: "Spring Boot Microservices",
+    image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&h=400&fit=crop",
+    isPremium: true,
+    price: 1199,
+    language: "English",
+    rating: "4.8",
+    reviews: "4.2K",
+    description: "Enterprise Java backend development with Spring Boot 3, Spring Security, and JPA Hibernate."
+  },
+  {
+    id: 11,
+    title: "Generative AI & LLM Engineering",
+    image: "https://images.unsplash.com/photo-1677442136019-21780efad99a?w=600&h=400&fit=crop",
+    isPremium: true,
+    price: 1999,
+    language: "English",
+    rating: "5.0",
+    reviews: "9.4K",
+    description: "Build AI agents, RAG pipelines, LangChain applications, and fine-tune open-source LLMs."
+  },
+  {
+    id: 12,
+    title: "AWS Cloud & DevOps Essentials",
     image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&h=400&fit=crop",
     isPremium: false,
     price: 0,
     language: "English",
-    rating: "4.7",
-    reviews: "55K+",
-    description: "Get certified. Learn EC2, S3, Lambda, and complete AWS infrastructure management."
+    rating: "4.8",
+    reviews: "6.8K",
+    description: "Master AWS EC2, S3 buckets, Lambda serverless, Docker containers, and Kubernetes CI/CD."
   },
   {
-    id: 11,
-    title: "Python for Data Science",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop",
+    id: 13,
+    title: "Web3 & Solidity Smart Contracts",
+    image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=600&h=400&fit=crop",
+    isPremium: true,
+    price: 1999,
+    language: "English",
+    rating: "4.7",
+    reviews: "2.9K",
+    description: "Develop Ethereum dApps, smart contracts in Solidity, Hardhat testing, and ERC-20 tokens."
+  },
+  {
+    id: 14,
+    title: "Cybersecurity & Ethical Hacking",
+    image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&h=400&fit=crop",
+    isPremium: true,
+    price: 1499,
+    language: "English",
+    rating: "4.9",
+    reviews: "5.1K",
+    description: "Learn network security, penetration testing, web vulnerability auditing, and defensive security."
+  },
+  {
+    id: 15,
+    title: "MongoDB & Database Systems",
+    image: "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=600&h=400&fit=crop",
+    isPremium: false,
+    price: 0,
+    language: "English",
+    rating: "4.8",
+    reviews: "3.4K",
+    description: "Master SQL & NoSQL databases, schema design, aggregation pipelines, and indexing optimization."
+  },
+  {
+    id: 16,
+    title: "React Native Mobile App Dev",
+    image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop",
     isPremium: true,
     price: 899,
     language: "English",
     rating: "4.8",
-    reviews: "60K+",
-    description: "Master Pandas, NumPy, Matplotlib, and data analysis techniques using Python."
-  },
-  {
-    id: 12,
-    title: "UI/UX Design Masterclass",
-    image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&h=400&fit=crop",
-    isPremium: true,
-    price: 699,
-    language: "English",
-    rating: "4.9",
-    reviews: "22K+",
-    description: "Learn Figma, design thinking, user research, and build stunning user interfaces."
+    reviews: "4.1K",
+    description: "Build cross-platform iOS and Android mobile apps with React Native, Expo, and Native APIs."
   }
 ];
 
@@ -177,8 +221,18 @@ export function AdminProvider({ children }) {
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   const [courses, setCourses] = useState(() => {
-    const local = localStorage.getItem('admin_courses');
-    return local ? JSON.parse(local) : initialCoursesData;
+    try {
+      const local = localStorage.getItem('admin_courses');
+      if (local) {
+        const parsed = JSON.parse(local);
+        if (Array.isArray(parsed) && parsed.length > 0 && (parsed[0].title === "Frontend System Design" || (parsed[0].id === 1 && parsed[0].title !== "JavaScript Fundamentals"))) {
+          localStorage.setItem('admin_courses', JSON.stringify(initialCoursesData));
+          return initialCoursesData;
+        }
+        return parsed;
+      }
+    } catch (e) {}
+    return initialCoursesData;
   });
   
   const [users, setUsers] = useState(() => {
@@ -334,7 +388,7 @@ export function AdminProvider({ children }) {
 
   const fetchCourseRequests = async () => {
     try {
-      const token = localStorage.getItem('skillsphere_token') || localStorage.getItem('token');
+      const token = localStorage.getItem('skillsphere_token') || localStorage.getItem('token') || localStorage.getItem('accessToken');
       const headers = {};
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
@@ -345,17 +399,32 @@ export function AdminProvider({ children }) {
           const normalized = data.requests.map(r => ({
             ...r,
             status: r.status.toLowerCase(),
-            studentName: r.username,
-            studentEmail: r.username + "@skillsphere.com",
+            studentName: r.username || r.studentName || "Student",
+            studentEmail: r.studentEmail || (r.username ? r.username + "@skillsphere.com" : "student@skillsphere.com"),
             courseId: r.courseId,
             courseTitle: r.courseTitle
           }));
-          setPendingCourseRequests(normalized);
+
+          const localReqs = JSON.parse(localStorage.getItem('skillsphere_pending_course_requests') || '[]');
+          const merged = [...normalized];
+          localReqs.forEach(lr => {
+            if (!merged.some(m => m.id === lr.id || (m.courseId === lr.courseId && m.studentEmail === lr.studentEmail))) {
+              merged.push(lr);
+            }
+          });
+
+          setPendingCourseRequests(merged);
+          return;
         }
       }
     } catch (err) {
-      console.error("Failed to fetch course requests:", err);
+      console.error("Failed to fetch course requests from backend, using local:", err);
     }
+
+    try {
+      const localReqs = JSON.parse(localStorage.getItem('skillsphere_pending_course_requests') || '[]');
+      if (localReqs.length > 0) setPendingCourseRequests(localReqs);
+    } catch {}
   };
 
   const fetchData = async () => {
@@ -588,11 +657,50 @@ export function AdminProvider({ children }) {
 
   // ── Approve / Reject Course Requests ──
   const approveCourseRequest = async (requestId) => {
-    setPendingCourseRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: 'approved' } : r));
+    let reqToApprove = null;
+
+    setPendingCourseRequests(prev => {
+      const updated = prev.map(r => {
+        if (r.id === requestId) {
+          reqToApprove = { ...r, status: 'approved' };
+          return reqToApprove;
+        }
+        return r;
+      });
+      localStorage.setItem('skillsphere_pending_course_requests', JSON.stringify(updated));
+      return updated;
+    });
+
+    if (reqToApprove) {
+      const studentEmail = reqToApprove.studentEmail || reqToApprove.studentName;
+      const courseIdStr = reqToApprove.courseId.toString();
+
+      // Automatically enroll student in localStorage so student view updates instantly
+      try {
+        const keys = [
+          `enrolledCourses_${studentEmail}`,
+          `skillsphere_enrolled_courses_${studentEmail}`,
+          'enrolledCourses_default',
+          'skillsphere_enrolled_courses_default',
+          'enrolledCourses_soumitriroy@gmail.com',
+          'skillsphere_enrolled_courses_soumitriroy@gmail.com'
+        ];
+        keys.forEach(k => {
+          const stored = JSON.parse(localStorage.getItem(k) || '[]');
+          if (!stored.includes(courseIdStr)) {
+            stored.push(courseIdStr);
+            localStorage.setItem(k, JSON.stringify(stored));
+          }
+        });
+      } catch (e) {
+        console.warn("Failed updating student enrolled storage on admin approval:", e);
+      }
+    }
+
     notifyStateChanged();
 
     try {
-      const token = localStorage.getItem('skillsphere_token') || localStorage.getItem('token');
+      const token = localStorage.getItem('skillsphere_token') || localStorage.getItem('token') || localStorage.getItem('accessToken');
       const headers = { "Content-Type": "application/json" };
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
@@ -610,11 +718,15 @@ export function AdminProvider({ children }) {
   };
 
   const rejectCourseRequest = async (requestId) => {
-    setPendingCourseRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: 'rejected' } : r));
+    setPendingCourseRequests(prev => {
+      const updated = prev.map(r => r.id === requestId ? { ...r, status: 'rejected' } : r);
+      localStorage.setItem('skillsphere_pending_course_requests', JSON.stringify(updated));
+      return updated;
+    });
     notifyStateChanged();
 
     try {
-      const token = localStorage.getItem('skillsphere_token') || localStorage.getItem('token');
+      const token = localStorage.getItem('skillsphere_token') || localStorage.getItem('token') || localStorage.getItem('accessToken');
       const headers = { "Content-Type": "application/json" };
       if (token) headers["Authorization"] = `Bearer ${token}`;
 

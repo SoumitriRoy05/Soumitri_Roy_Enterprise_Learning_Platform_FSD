@@ -78,6 +78,30 @@ export default function CoursesPage() {
   // Course Checkout Modal State
   const [selectedCheckoutCourse, setSelectedCheckoutCourse] = useState(null);
   const [isEnrolledToast, setIsEnrolledToast] = useState(false);
+  const [saveToast, setSaveToast] = useState(""); // "saved" | "removed" | ""
+
+  // ── Saved / Bookmarked Courses ──────────────────────────────────────────────
+  const [savedCourses, setSavedCourses] = useState(() => {
+    try {
+      const raw = localStorage.getItem(`skillsphere_saved_courses_${(user?.email || user?.username || "default")}`);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) { return []; }
+  });
+
+  const toggleSave = (courseId) => {
+    const idStr = courseId.toString();
+    setSavedCourses(prev => {
+      const isSaved = prev.includes(idStr);
+      const next = isSaved ? prev.filter(id => id !== idStr) : [...prev, idStr];
+      try {
+        const key = `skillsphere_saved_courses_${(user?.email || user?.username || "default")}`;
+        localStorage.setItem(key, JSON.stringify(next));
+      } catch (e) {}
+      setSaveToast(isSaved ? "removed" : "saved");
+      setTimeout(() => setSaveToast(""), 2000);
+      return next;
+    });
+  };
 
   const handleLogout = async () => {
     try {
@@ -455,14 +479,34 @@ export default function CoursesPage() {
     };
   });
 
-  const filteredCourses = courseList.filter((c) => {
-    if (filter === "all") return true;
-    if (filter === "in-progress") return c.status === "in-progress";
-    if (filter === "completed") return c.status === "completed";
-    if (filter === "saved") return c.status === "saved";
-    if (filter === "wishlist") return c.status === "saved" || c.status === "not-started" || c.status === "locked" || c.status === "pending-approval";
-    return true;
-  });
+  const filteredCourses = (() => {
+    const filtered = courseList.filter((c) => {
+      const isSaved = savedCourses.includes(c.id.toString());
+      if (filter === "all") return true;
+      if (filter === "in-progress") return c.status === "in-progress";
+      if (filter === "completed") return c.status === "completed";
+      if (filter === "saved") return isSaved;
+      return true;
+    });
+
+    // Apply sorting
+    const sorted = [...filtered];
+    if (sortBy === "progress") {
+      sorted.sort((a, b) => b.progress - a.progress);
+    } else if (sortBy === "rating") {
+      sorted.sort((a, b) => parseFloat(b.rating || 0) - parseFloat(a.rating || 0));
+    } else {
+      // "recent" — enrolled/in-progress courses first, then by id descending
+      const statusOrder = { "in-progress": 0, "pending-approval": 1, "completed": 2, "not-enrolled": 3 };
+      sorted.sort((a, b) => {
+        const sa = statusOrder[a.status] ?? 4;
+        const sb = statusOrder[b.status] ?? 4;
+        if (sa !== sb) return sa - sb;
+        return b.id - a.id;
+      });
+    }
+    return sorted;
+  })();
 
   const openCheckoutModal = (course) => {
     const courseToCheckout = course || {
@@ -476,63 +520,66 @@ export default function CoursesPage() {
     setSelectedCheckoutCourse(courseToCheckout);
   };
 
-  const handleCompleteEnrollment = () => {
+  const handleCompleteEnrollment = async () => {
     if (!selectedCheckoutCourse) return;
 
     const cidStr = selectedCheckoutCourse.id.toString();
-
-    // Immediately enroll course in AuthContext and localStorage
-    if (enrollCourse) {
-      enrollCourse(cidStr);
-    }
-
-    try {
-      const stored = JSON.parse(localStorage.getItem(`enrolledCourses_${userKey}`) || "[]");
-      if (!stored.includes(cidStr)) {
-        stored.push(cidStr);
-        localStorage.setItem(`enrolledCourses_${userKey}`, JSON.stringify(stored));
-      }
-    } catch (e) {}
 
     // Create a pending request for Admin record
     const newReq = {
       id: `REQ-${Date.now()}`,
       courseId: cidStr,
       courseTitle: selectedCheckoutCourse.title,
-      studentName: user?.username || user?.name || "Student User",
+      studentName: user?.full_name || user?.name || user?.username || "Student User",
       studentEmail: userKey,
       fee: selectedCheckoutCourse.price ? `₹${selectedCheckoutCourse.price}` : "₹4,999",
       requestDate: new Date().toLocaleString(),
-      status: "approved"
+      status: "pending"
     };
 
+    // Store in localStorage for instant sync across components
     const currentReqs = JSON.parse(localStorage.getItem("skillsphere_pending_course_requests") || "[]");
-    if (!currentReqs.some(r => r.courseId === cidStr && r.studentEmail === userKey)) {
+    if (!currentReqs.some(r => r.courseId === cidStr && r.studentEmail === userKey && r.status === "pending")) {
       currentReqs.unshift(newReq);
       localStorage.setItem("skillsphere_pending_course_requests", JSON.stringify(currentReqs));
-      try {
-        window.dispatchEvent(new CustomEvent("skillsphere_sync_event"));
-      } catch (e) {
-        console.warn("Sync dispatch error:", e);
+    }
+
+    // Call backend API if user token is present
+    try {
+      const token = localStorage.getItem("accessToken") || localStorage.getItem("skillsphere_token");
+      if (token && !token.startsWith("mock_token_")) {
+        const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+        await fetch(`${API_URL}/api/courses/request-enroll`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            courseId: cidStr,
+            courseTitle: selectedCheckoutCourse.title
+          })
+        });
       }
+    } catch (err) {
+      console.warn("Backend course request failed, fallback to local request:", err);
+    }
+
+    // Trigger sync event so Admin Dashboard updates immediately in real-time
+    try {
+      window.dispatchEvent(new CustomEvent("skillsphere_sync_event"));
+    } catch (e) {
+      console.warn("Sync dispatch error:", e);
     }
 
     if (earnXp) earnXp(100);
 
-    const targetCourse = selectedCheckoutCourse;
     setIsEnrolledToast(true);
     setSelectedCheckoutCourse(null);
 
     setTimeout(() => {
       setIsEnrolledToast(false);
-      navigate("/learning-paths", {
-        state: {
-          courseId: targetCourse.id,
-          courseTitle: targetCourse.title,
-          topicPrefix: targetCourse.topicPrefix
-        }
-      });
-    }, 1000);
+    }, 3000);
   };
 
   return (
@@ -540,11 +587,19 @@ export default function CoursesPage() {
       <Background />
       <PaperPlaneCursor />
 
-      {/* Toast Notification */}
+      {/* Enroll Toast Notification */}
       {isEnrolledToast && (
         <div className="mcEnrollSuccessToast">
           <FaCheckCircle color="#10B981" />
           <span>Payment Verified! Request Sent for Admin Approval in Admin Dashboard ⏳ (+100 XP)</span>
+        </div>
+      )}
+
+      {/* Save Toast Notification */}
+      {saveToast && (
+        <div className={`mcSaveToast ${saveToast}`}>
+          <FaBookmark color={saveToast === "saved" ? "#7E22CE" : "#64748B"} />
+          <span>{saveToast === "saved" ? "Course saved to your list! 🔖" : "Course removed from saved list"}</span>
         </div>
       )}
 
@@ -727,12 +782,6 @@ export default function CoursesPage() {
                   >
                     Saved
                   </button>
-                  <button
-                    className={`mcPill ${filter === "wishlist" ? "active" : ""}`}
-                    onClick={() => setFilter("wishlist")}
-                  >
-                    Wishlist
-                  </button>
                 </div>
 
                 <div className="mcSortSelectWrapper">
@@ -781,7 +830,15 @@ export default function CoursesPage() {
                         {c.logoText}
                       </div>
 
-                      <FaEllipsisH className="mcDotsMenu" style={{ zIndex: 3 }} />
+                      {/* Save / Bookmark Button */}
+                      <button
+                        className={`mcSaveBtn ${savedCourses.includes(c.id.toString()) ? "saved" : ""}`}
+                        style={{ zIndex: 3 }}
+                        onClick={(e) => { e.stopPropagation(); toggleSave(c.id); }}
+                        title={savedCourses.includes(c.id.toString()) ? "Remove from saved" : "Save course"}
+                      >
+                        <FaBookmark />
+                      </button>
 
                       <span className={`mcStatusBadge ${c.status}`} style={{ zIndex: 3 }}>
                         {c.statusText}
@@ -891,7 +948,7 @@ export default function CoursesPage() {
                   <div className="overviewBox">
                     <div className="boxIcon purple"><FaBookmark /></div>
                     <div className="boxValText">
-                      <strong>0</strong>
+                      <strong>{savedCourses.length}</strong>
                       <span>Saved</span>
                     </div>
                   </div>

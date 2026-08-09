@@ -726,6 +726,7 @@ export default function AdminDashboard() {
               updateCourse={updateCourse} 
               deleteCourse={deleteCourse} 
               pendingCourseRequests={pendingCourseRequests}
+              users={users}
               editingCourse={editingCourse}
               setEditingCourse={setEditingCourse}
               showAddCourse={showAddCourse}
@@ -1459,7 +1460,7 @@ function ProgressTrack({ name, pct, count, color }) {
 // Course Management Sub-Tab implementation
 function CourseManagement({ 
   courses, addCourse, updateCourse, deleteCourse,
-  pendingCourseRequests,
+  pendingCourseRequests, users = [],
   editingCourse, setEditingCourse, showAddCourse, setShowAddCourse 
 }) {
 
@@ -1527,15 +1528,61 @@ function CourseManagement({
           <tbody>
             {courses
               .map(course => {
-                const coursePending = pendingCourseRequests?.filter(r => r.courseId === course.id?.toString() && r.status === 'pending').length || 0;
-                const courseApproved = pendingCourseRequests?.filter(r => r.courseId === course.id?.toString() && r.status === 'approved').length || 0;
+                const courseIdStr = course.id?.toString();
+                const courseTitleLower = (course.title || '').toLowerCase().trim();
+
+                // 1. Pending requests for this course
+                const pendingCount = (pendingCourseRequests || []).filter(r => {
+                  if (r.status !== 'pending') return false;
+                  const matchId = r.courseId && r.courseId.toString() === courseIdStr;
+                  const matchTitle = r.courseTitle && (
+                    r.courseTitle.toLowerCase().trim() === courseTitleLower ||
+                    r.courseTitle.toLowerCase().includes(courseTitleLower) ||
+                    courseTitleLower.includes(r.courseTitle.toLowerCase().trim())
+                  );
+                  return matchId || matchTitle;
+                }).length;
+
+                // 2. Approved requests for this course
+                const approvedReqs = (pendingCourseRequests || []).filter(r => {
+                  if (r.status !== 'approved') return false;
+                  const matchId = r.courseId && r.courseId.toString() === courseIdStr;
+                  const matchTitle = r.courseTitle && (
+                    r.courseTitle.toLowerCase().trim() === courseTitleLower ||
+                    r.courseTitle.toLowerCase().includes(courseTitleLower) ||
+                    courseTitleLower.includes(r.courseTitle.toLowerCase().trim())
+                  );
+                  return matchId || matchTitle;
+                });
+
+                // 3. Registered students enrolled in this course
+                const studentEnrollments = (users || []).filter(u => {
+                  const uEmail = u.email || u.username;
+                  if (!uEmail) return false;
+                  try {
+                    const rawLocal = localStorage.getItem(`enrolledCourses_${uEmail}`) || localStorage.getItem(`skillsphere_enrolled_courses_${uEmail}`);
+                    if (rawLocal) {
+                      const parsed = JSON.parse(rawLocal);
+                      if (Array.isArray(parsed) && (parsed.includes(courseIdStr) || parsed.includes(course.id))) return true;
+                    }
+                  } catch (e) {}
+                  if (Array.isArray(u.enrolled_courses) && (u.enrolled_courses.includes(courseIdStr) || u.enrolled_courses.includes(course.id))) return true;
+                  return false;
+                });
+
+                const enrolledStudentSet = new Set();
+                approvedReqs.forEach(r => enrolledStudentSet.add(r.studentEmail || r.studentName || r.id));
+                studentEnrollments.forEach(u => enrolledStudentSet.add(u.email || u.id));
+
+                const totalEnrolled = enrolledStudentSet.size;
+
                 return (
                 <tr key={course.id} style={{ borderBottom: '1px solid #F3EBE1' }}>
                   <td style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '15px' }}>
-                    <img src={course.image} alt="" style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '6px' }} />
+                    <img src={course.image || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&h=400&fit=crop'} alt="" style={{ width: '60px', height: '40px', objectFit: 'cover', borderRadius: '6px' }} />
                     <div>
                       <div style={{ fontWeight: '750', color: '#1E1B18', fontSize: '13.5px' }}>{course.title}</div>
-                      <div style={{ fontSize: '11px', color: '#64748B', fontWeight: '500' }}>{course.language} • {course.rating} ⭐</div>
+                      <div style={{ fontSize: '11px', color: '#64748B', fontWeight: '500' }}>{course.language || 'English'} • {course.rating || '4.8'} ⭐</div>
                     </div>
                   </td>
                   <td style={{ padding: '16px 20px' }}>
@@ -1544,13 +1591,13 @@ function CourseManagement({
                       : <span style={{ background: '#ECFDF5', color: '#10B981', padding: '4px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: '750' }}>Free</span>}
                   </td>
                   <td style={{ padding: '16px 20px', color: '#F9572A', fontWeight: '800', fontSize: '14px' }}>
-                    {course.isPremium ? `₹${course.price}` : '-'}
+                    {course.isPremium ? `₹${course.price}` : 'Free'}
                   </td>
                   <td style={{ padding: '16px 20px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                      <span style={{ fontSize: '13px', fontWeight: '750', color: '#10B981' }}>{courseApproved} enrolled</span>
-                      {coursePending > 0 && (
-                        <span style={{ fontSize: '11px', fontWeight: '700', color: '#F59E0B' }}>{coursePending} pending</span>
+                      <span style={{ fontSize: '13.5px', fontWeight: '850', color: '#10B981' }}>{totalEnrolled} enrolled</span>
+                      {pendingCount > 0 && (
+                        <span style={{ fontSize: '11px', fontWeight: '750', color: '#F59E0B' }}>⏳ {pendingCount} pending approval</span>
                       )}
                     </div>
                   </td>

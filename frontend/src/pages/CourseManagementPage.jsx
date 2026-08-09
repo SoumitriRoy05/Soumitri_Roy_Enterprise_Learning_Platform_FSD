@@ -11,17 +11,23 @@ import {
 } from "react-icons/fa";
 import "../styles/studentDashboard.css";
 
+import { useAdmin } from "../context/AdminContext";
+
 export default function CourseManagementPage() {
   const { user, xp, logout, themeMode, toggleTheme } = useAuth();
+  const { courses: adminCourses, pendingCourseRequests, users } = useAdmin();
   const navigate = useNavigate();
   const isDarkMode = themeMode === "dark";
 
-  const [courses, setCourses] = useState([
+  const defaultCourses = [
     { id: 1, title: "JavaScript Fundamentals", category: "Development", lessons: 12, enrollments: 1420 },
     { id: 2, title: "React.js Development", category: "Development", lessons: 18, enrollments: 2450 },
     { id: 3, title: "Python for Beginners", category: "Data Science", lessons: 16, enrollments: 1890 },
     { id: 4, title: "UI/UX Design Essentials", category: "Design", lessons: 14, enrollments: 1250 }
-  ]);
+  ];
+
+  const [customCourses, setCustomCourses] = useState([]);
+  const courses = [...defaultCourses, ...customCourses];
 
   const [newTitle, setNewTitle] = useState("");
   const [newCategory, setNewCategory] = useState("Development");
@@ -180,19 +186,73 @@ export default function CourseManagementPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {courses.map((course) => (
+                      {courses.map((course) => {
+                        const courseIdStr = course.id?.toString();
+                        const courseTitleLower = (course.title || '').toLowerCase().trim();
+
+                        const pendingCount = (pendingCourseRequests || []).filter(r => {
+                          if (r.status !== 'pending') return false;
+                          const matchId = r.courseId && r.courseId.toString() === courseIdStr;
+                          const matchTitle = r.courseTitle && (
+                            r.courseTitle.toLowerCase().trim() === courseTitleLower ||
+                            r.courseTitle.toLowerCase().includes(courseTitleLower) ||
+                            courseTitleLower.includes(r.courseTitle.toLowerCase().trim())
+                          );
+                          return matchId || matchTitle;
+                        }).length;
+
+                        const approvedReqs = (pendingCourseRequests || []).filter(r => {
+                          if (r.status !== 'approved') return false;
+                          const matchId = r.courseId && r.courseId.toString() === courseIdStr;
+                          const matchTitle = r.courseTitle && (
+                            r.courseTitle.toLowerCase().trim() === courseTitleLower ||
+                            r.courseTitle.toLowerCase().includes(courseTitleLower) ||
+                            courseTitleLower.includes(r.courseTitle.toLowerCase().trim())
+                          );
+                          return matchId || matchTitle;
+                        });
+
+                        const studentEnrollments = (users || []).filter(u => {
+                          const uEmail = u.email || u.username;
+                          if (!uEmail) return false;
+                          try {
+                            const rawLocal = localStorage.getItem(`enrolledCourses_${uEmail}`) || localStorage.getItem(`skillsphere_enrolled_courses_${uEmail}`);
+                            if (rawLocal) {
+                              const parsed = JSON.parse(rawLocal);
+                              if (Array.isArray(parsed) && (parsed.includes(courseIdStr) || parsed.includes(course.id))) return true;
+                            }
+                          } catch (e) {}
+                          if (Array.isArray(u.enrolled_courses) && (u.enrolled_courses.includes(courseIdStr) || u.enrolled_courses.includes(course.id))) return true;
+                          return false;
+                        });
+
+                        const enrolledStudentSet = new Set();
+                        approvedReqs.forEach(r => enrolledStudentSet.add(r.studentEmail || r.studentName || r.id));
+                        studentEnrollments.forEach(u => enrolledStudentSet.add(u.email || u.id));
+
+                        const totalEnrolled = enrolledStudentSet.size;
+
+                        return (
                         <tr key={course.id} style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                           <td style={{ padding: "16px 12px", color: "var(--text-primary)", fontWeight: "bold" }}>{course.title}</td>
                           <td style={{ padding: "16px 12px", color: "var(--text-secondary)" }}>{course.category}</td>
                           <td style={{ padding: "16px 12px", color: "var(--text-primary)" }}>{course.lessons}</td>
-                          <td style={{ padding: "16px 12px", color: "var(--accent)", fontWeight: "bold" }}>{course.enrollments}</td>
+                          <td style={{ padding: "16px 12px" }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                              <span style={{ color: "#10B981", fontWeight: "bold" }}>{totalEnrolled} enrolled</span>
+                              {pendingCount > 0 && (
+                                <span style={{ fontSize: "11px", color: "#F59E0B", fontWeight: "bold" }}>⏳ {pendingCount} pending</span>
+                              )}
+                            </div>
+                          </td>
                           <td style={{ padding: "16px 12px", display: "flex", gap: "10px", justifyContent: "center" }}>
                             <button style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: "16px" }} onClick={() => handleDeleteCourse(course.id)}>
                               <FaTrash />
                             </button>
                           </td>
                         </tr>
-                      ))}
+                      );
+                      })}
                     </tbody>
                   </table>
                 </div>

@@ -74,6 +74,7 @@ export default function ResumeBuilderPage() {
   const [lastSavedTime, setLastSavedTime] = useState("Just now");
   const [isResumeAnalyzed, setIsResumeAnalyzed] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [showAllTemplatesModal, setShowAllTemplatesModal] = useState(false);
   const photoInputRef = useRef(null);
   const [lastSaved, setLastSaved] = useState("Just now");
 
@@ -1234,7 +1235,6 @@ export default function ResumeBuilderPage() {
               <span className="lastSavedTag" onClick={handleSaveChanges} style={{ cursor: "pointer" }} title="Click to Save Draft">
                 <FaCheckCircle color="#10B981" /> Last Saved: {lastSaved} ▾
               </span>
-              <div className="atsScorePill">ATS Score : {isResumeAnalyzed ? "96%" : "92%"}</div>
               <button className="btnNewResume" onClick={handleSaveChanges}>+ Save Resume ▾</button>
             </div>
           </div>
@@ -1250,7 +1250,7 @@ export default function ResumeBuilderPage() {
           <div className="rbpSectionBlock">
             <div className="sectionHeaderRow">
               <h3>Choose a Template</h3>
-              <span className="viewAllLink">View All Templates →</span>
+              <span className="viewAllLink" style={{ cursor: "pointer" }} onClick={() => setShowAllTemplatesModal(true)}>View All Templates →</span>
             </div>
 
             <div className="templatesGrid">
@@ -2137,6 +2137,113 @@ export default function ResumeBuilderPage() {
 
             <div className="modalFooterActions" style={{ justifyContent: "flex-end" }}>
               <button className="btnFloatOutline" onClick={() => setShowShareModal(false)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── VIEW ALL TEMPLATES MODAL ── */}
+      {showAllTemplatesModal && (
+        <div
+          className="resumePreviewModalOverlay"
+          onClick={() => setShowAllTemplatesModal(false)}
+        >
+          <div
+            className="resumePreviewModalContent"
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: "780px", width: "95%" }}
+          >
+            {/* Modal Header */}
+            <div className="modalHeaderRow" style={{ marginBottom: "4px" }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: "20px", fontWeight: 800 }}>📄 All Resume Templates</h3>
+                <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: "var(--sd-text-sub, #64748b)" }}>
+                  Choose a professional template. Click "Select" to apply it instantly.
+                </p>
+              </div>
+              <button className="btnCloseModal" onClick={() => setShowAllTemplatesModal(false)}>
+                <FaTimes />
+              </button>
+            </div>
+
+            {/* Templates Grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px", marginTop: "20px", maxHeight: "65vh", overflowY: "auto", padding: "4px 2px" }}>
+              {[
+                { id: "modern",       name: "Modern",       emoji: "🌑", desc: "Dark sidebar, two-column professional layout.",      accent: "#0F172A", badge: "Most Popular" },
+                { id: "ats-friendly", name: "ATS Friendly",  emoji: "📋", desc: "Single-column, recruiter-optimised ATS layout.",   accent: "#F9572A", badge: "Best for Jobs" },
+                { id: "minimal",      name: "Minimal",       emoji: "🪶", desc: "Clean timeline style with a top photo strip.",     accent: "#334155", badge: "Clean" },
+                { id: "creative",     name: "Creative",      emoji: "🎨", desc: "Beige header, overlapping avatar, left sidebar.",  accent: "#B45309", badge: "Unique" },
+                { id: "executive",    name: "Executive",     emoji: "👔", desc: "Pink accent bars, centred photo, formal style.",   accent: "#BE123C", badge: "Premium" }
+              ].map((tpl) => {
+                const isActive = selectedTemplate === tpl.id;
+                return (
+                  <div
+                    key={tpl.id}
+                    style={{
+                      background: isActive ? "rgba(249,87,42,0.06)" : "var(--sd-card-bg, #ffffff)",
+                      border: isActive ? "2px solid #F9572A" : "1.5px solid var(--sd-border, #E2E8F0)",
+                      borderRadius: "16px",
+                      padding: "18px 16px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "10px",
+                      position: "relative",
+                      transition: "box-shadow 0.2s ease, transform 0.2s ease",
+                      boxShadow: isActive ? "0 4px 16px rgba(249,87,42,0.15)" : "0 2px 8px rgba(0,0,0,0.04)"
+                    }}
+                  >
+                    {/* Badge */}
+                    <span style={{ position: "absolute", top: "12px", right: "12px", background: isActive ? "#F9572A" : tpl.accent, color: "#fff", fontSize: "10px", fontWeight: 800, padding: "2px 8px", borderRadius: "99px", letterSpacing: "0.3px" }}>
+                      {isActive ? "✓ Selected" : tpl.badge}
+                    </span>
+
+                    {/* Icon Preview Box */}
+                    <div style={{ width: "100%", height: "90px", borderRadius: "10px", background: tpl.accent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "36px", opacity: 0.9 }}>
+                      {tpl.emoji}
+                    </div>
+
+                    {/* Info */}
+                    <div>
+                      <strong style={{ fontSize: "14px", display: "block", marginBottom: "4px" }}>{tpl.name}</strong>
+                      <p style={{ fontSize: "12px", color: "var(--sd-text-sub, #64748b)", margin: 0, lineHeight: "1.4" }}>{tpl.desc}</p>
+                    </div>
+
+                    {/* Star Rating */}
+                    <div style={{ display: "flex", gap: "2px" }}>
+                      {[1,2,3,4,5].map(s => <FaStar key={s} size={12} color="#F59E0B" />)}
+                    </div>
+
+                    {/* Select Button */}
+                    <button
+                      onClick={() => {
+                        setSelectedTemplate(tpl.id);
+                        setShowAllTemplatesModal(false);
+                        setToastMessage(`✅ "${tpl.name}" template applied to your resume!`);
+                        setTimeout(() => setToastMessage(""), 3000);
+                      }}
+                      style={{
+                        marginTop: "4px",
+                        padding: "9px 0",
+                        borderRadius: "10px",
+                        border: "none",
+                        background: isActive ? "#10B981" : "#F9572A",
+                        color: "#fff",
+                        fontWeight: 700,
+                        fontSize: "13px",
+                        cursor: "pointer",
+                        transition: "opacity 0.2s ease",
+                        width: "100%"
+                      }}
+                    >
+                      {isActive ? "✓ Currently Active" : "Select Template"}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="modalFooterActions" style={{ justifyContent: "flex-end", marginTop: "16px" }}>
+              <button className="btnFloatOutline" onClick={() => setShowAllTemplatesModal(false)}>Close</button>
             </div>
           </div>
         </div>

@@ -1126,6 +1126,201 @@
   border-top-color: #212B3E;
 }
 
+  background: #182030;
+  color: #94A3B8;
+  border: 1px solid #212B3E;
+}
+
+/* Explore Learning Paths Banner */
+.mcCoursesWrapper.dark-theme .mcExplorePathsBanner,
+[data-theme="dark"] .mcExplorePathsBanner {
+  background: linear-gradient(135deg, #182030 0%, #131926 100%);
+  border-color: #212B3E;
+}
+
+.mcCoursesWrapper.dark-theme .bannerLeftInfo h3,
+[data-theme="dark"] .bannerLeftInfo h3 {
+  color: #FFFFFF;
+}
+
+.mcCoursesWrapper.dark-theme .bannerLeftInfo p,
+[data-theme="dark"] .bannerLeftInfo p {
+  color: #94A3B8;
+}
+
+.mcCoursesWrapper.dark-theme .btnBrowsePaths,
+[data-theme="dark"] .btnBrowsePaths {
+  background: rgba(249, 87, 42, 0.15);
+  color: #F9572A;
+  border-color: rgba(249, 87, 42, 0.3);
+}
+
+.mcCoursesWrapper.dark-theme .btnBrowsePaths:hover,
+[data-theme="dark"] .btnBrowsePaths:hover {
+  background: #F9572A;
+  color: #FFFFFF;
+}
+
+/* Right Sidebar Widgets */
+.mcCoursesWrapper.dark-theme .mcOverviewCard,
+[data-theme="dark"] .mcOverviewCard {
+  background: #131926;
+  border-color: #212B3E;
+  box-shadow: none;
+}
+
+.mcCoursesWrapper.dark-theme .mcOverviewCard h4,
+[data-theme="dark"] .mcOverviewCard h4 {
+  color: #FFFFFF;
+}
+
+.mcCoursesWrapper.dark-theme .overviewBox,
+[data-theme="dark"] .overviewBox {
+  background: #182030;
+  border-color: #212B3E;
+}
+
+.mcCoursesWrapper.dark-theme .boxValText strong,
+[data-theme="dark"] .boxValText strong {
+  color: #FFFFFF;
+}
+
+.mcCoursesWrapper.dark-theme .boxValText span,
+[data-theme="dark"] .boxValText span {
+  color: #94A3B8;
+}
+
+.mcCoursesWrapper.dark-theme .goalSubtext,
+[data-theme="dark"] .goalSubtext {
+  color: #94A3B8;
+}
+
+.mcCoursesWrapper.dark-theme .continueItem,
+[data-theme="dark"] .continueItem {
+  background: #182030;
+  border-color: #212B3E;
+}
+
+.mcCoursesWrapper.dark-theme .itemInfo h5,
+[data-theme="dark"] .itemInfo h5 {
+  color: #FFFFFF;
+}
+
+.mcCoursesWrapper.dark-theme .itemInfo span,
+[data-theme="dark"] .itemInfo span {
+  color: #94A3B8;
+}
+
+.mcCoursesWrapper.dark-theme .recCard,
+[data-theme="dark"] .recCard {
+  background: #182030;
+  border-color: #212B3E;
+}
+
+.mcCoursesWrapper.dark-theme .recCard h5,
+[data-theme="dark"] .recCard h5 {
+  color: #FFFFFF;
+}
+
+.mcCoursesWrapper.dark-theme .recRatingRow,
+[data-theme="dark"] .recRatingRow {
+  color: #94A3B8;
+}
+
+.mcCoursesWrapper.dark-theme .carouselArrow,
+[data-theme="dark"] .carouselArrow {
+  background: #182030;
+  border-color: #212B3E;
+  color: #94A3B8;
+}
+
+/* Course Checkout Modal Dark Theme Overrides (Image 1) */
+.mcCoursesWrapper.dark-theme .chkModalCard,
+[data-theme="dark"] .chkModalCard {
+  background: #111724;
+  border: 1px solid rgba(249, 87, 42, 0.4);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  color: #FFFFFF;
+}
+
+.mcCoursesWrapper.dark-theme .chkHeaderTitleRow h2,
+[data-theme="dark"] .chkHeaderTitleRow h2 {
+  color: #FFFFFF;
+}
+
+.mcCoursesWrapper.dark-theme .chkCloseBtn,
+[data-theme="dark"] .chkCloseBtn {
+  background: #182030;
+  border-color: #212B3E;
+  color: #94A3B8;
+}
+
+.mcCoursesWrapper.dark-theme .chkCloseBtn:hover,
+[data-theme="dark"] .chkCloseBtn:hover {
+  background: rgba(249, 87, 42, 0.2);
+  color: #F9572A;
+}
+
+.mcCoursesWrapper.dark-theme .chkCourseTextInfo h3,
+[data-theme="dark"] .chkCourseTextInfo h3 {
+  color: #FFFFFF;
+}
+
+.mcCoursesWrapper.dark-theme .chkCourseTextInfo p,
+[data-theme="dark"] .chkCourseTextInfo p {
+  color: #94A3B8;
+}
+
+.mcCoursesWrapper.dark-theme .chkBadgePill.orange,
+[data-theme="dark"] .chkBadgePill.orange {
+  background: rgba(249, 87, 42, 0.15);
+  color: #F9572A;
+  border: 1px solid rgba(249, 87, 42, 0.3);
+}
+
+.mcCoursesWrapper.dark-theme .chkBadgePill.rose,
+[data-theme="dark"] .chkBadgePill.rose {
+  background: rgba(225, 29, 72, 0.15);
+  color: #FB7185;
+  border: 1px solid rgba(225, 29, 72, 0.3);
+}
+
+.mcCoursesWrapper.dark-theme .chkPriceBreakdownBox,
+[data-theme="dark"] .chkPriceBreakdownBox {
+  background: #182030;
+  border-color: #212B3E;
+}
+
+.mcCoursesWrapper.dark-theme .chkPriceRow,
+[data-theme="dark"] .chkPriceRow {
+  color: #94A3B8;
+}
+
+.mcCoursesWrapper.dark-theme .chkPriceRow.total,
+[data-theme="dark"] .chkPriceRow.total {
+  color: #FFFFFF;
+}
+
+.mcCoursesWrapper.dark-theme .chkPriceRow.scholarship,
+[data-theme="dark"] .chkPriceRow.scholarship {
+  color: #10B981;
+}
+
+.mcCoursesWrapper.dark-theme .discountVal,
+[data-theme="dark"] .discountVal {
+  color: #10B981;
+}
+
+.mcCoursesWrapper.dark-theme .totalZeroVal,
+[data-theme="dark"] .totalZeroVal {
+  color: #F9572A;
+}
+
+.mcCoursesWrapper.dark-theme .chkDividerDashed,
+[data-theme="dark"] .chkDividerDashed {
+  border-top-color: #212B3E;
+}
+
 .mcCoursesWrapper.dark-theme .chkPerksRow,
 [data-theme="dark"] .chkPerksRow {
   color: #94A3B8;
@@ -1148,4 +1343,102 @@
   color: #64748B;
 }
 
+/* ── SAVE / BOOKMARK BUTTON ON COURSE CARD ─────────────────────────────── */
+.mcSaveBtn {
+  position: absolute;
+  top: 11px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
 
+.mcSaveBtn:hover {
+  background: rgba(249, 87, 42, 0.85);
+  color: #FFFFFF;
+  transform: scale(1.12);
+  box-shadow: 0 4px 14px rgba(249, 87, 42, 0.45);
+}
+
+.mcSaveBtn.saved {
+  background: linear-gradient(135deg, #F9572A, #EA580C);
+  color: #FFFFFF;
+  box-shadow: 0 4px 16px rgba(249, 87, 42, 0.5);
+  transform: scale(1.05);
+}
+
+.mcSaveBtn.saved:hover {
+  background: linear-gradient(135deg, #EA580C, #C2410C);
+  transform: scale(1.12);
+}
+
+/* ── SAVE TOAST ─────────────────────────────────────────────────────────── */
+.mcSaveToast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 20px;
+  border-radius: 14px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  z-index: 10001;
+  animation: mcSaveToastIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+}
+
+.mcSaveToast.saved {
+  background: linear-gradient(135deg, #FFF7F5, #FFF0EB);
+  color: #C2410C;
+  border: 1px solid #FAD6C8;
+}
+
+.mcSaveToast.removed {
+  background: #F8FAFC;
+  color: #475569;
+  border: 1px solid #E2E8F0;
+}
+
+@keyframes mcSaveToastIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.92); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);    }
+}
+
+/* dark-mode overrides for save button */
+.mcCoursesWrapper.dark-theme .mcSaveBtn,
+[data-theme="dark"] .mcSaveBtn {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.mcCoursesWrapper.dark-theme .mcSaveBtn.saved,
+[data-theme="dark"] .mcSaveBtn.saved {
+  background: linear-gradient(135deg, #F9572A, #EA580C);
+}
+
+.mcCoursesWrapper.dark-theme .mcSaveToast.saved,
+[data-theme="dark"] .mcSaveToast.saved {
+  background: linear-gradient(135deg, #3B1206, #4A1A08);
+  color: #FED7AA;
+  border-color: #9A3412;
+}
+
+.mcCoursesWrapper.dark-theme .mcSaveToast.removed,
+[data-theme="dark"] .mcSaveToast.removed {
+  background: #1E293B;
+  color: #94A3B8;
+  border-color: #334155;
+}

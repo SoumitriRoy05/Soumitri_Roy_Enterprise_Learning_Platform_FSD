@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Background from "../components/Background";
+import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
 import NotificationDropdown from "../components/NotificationDropdown";
 import UserAvatar from "../components/UserAvatar";
@@ -91,6 +92,7 @@ export default function TrackingDashboardPage() {
   return (
     <div className={`sdDashboardWrapper ${isDarkMode ? "dark-theme" : ""}`}>
       <Background />
+      <PaperPlaneCursor />
 
       <div className="sdMainContainer">
         {/* Left Sidebar */}

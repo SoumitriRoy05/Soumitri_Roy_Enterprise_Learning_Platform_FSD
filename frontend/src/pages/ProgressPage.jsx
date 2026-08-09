@@ -43,7 +43,8 @@ import {
   FaInfinity,
   FaInfoCircle,
   FaCheckCircle,
-  FaSignOutAlt
+  FaSignOutAlt,
+  FaTimes
 } from "react-icons/fa";
 
 import "../styles/studentDashboard.css";
@@ -146,6 +147,8 @@ export default function ProgressPage() {
   const [timeFilter, setTimeFilter] = useState("This Month");
   const [toastMessage, setToastMessage] = useState("");
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isTimeFilterOpen, setIsTimeFilterOpen] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const userName = user?.full_name || user?.username || "Learner";
   const currentXp = xp ?? 0;
@@ -357,9 +360,7 @@ export default function ProgressPage() {
   ];
 
   const handleShareProgress = () => {
-    navigator.clipboard.writeText(`Check out my SkillSphere Progress! Total XP: 6,450 XP, 48 Lessons Completed, 12 Day Streak! 🔥 https://skillsphere.edu/user/${userName}`);
-    setToastMessage("🔗 Progress summary link copied to clipboard!");
-    setTimeout(() => setToastMessage(""), 4000);
+    setShowShareModal(true);
   };
 
   return (
@@ -510,9 +511,45 @@ export default function ProgressPage() {
             </div>
 
             <div className="ppHeaderButtonsRow">
-              <div className="ppTimeDropdownBtn">
-                <FaCalendarAlt /> <span>{timeFilter}</span> <FaChevronDown className="arrow" />
+              {/* Time Filter Dropdown */}
+              <div style={{ position: "relative" }}>
+                <div
+                  className="ppTimeDropdownBtn"
+                  onClick={() => setIsTimeFilterOpen(prev => !prev)}
+                  style={{ cursor: "pointer", userSelect: "none" }}
+                >
+                  <FaCalendarAlt /> <span>{timeFilter}</span> <FaChevronDown className="arrow" style={{ transition: "transform 0.2s", transform: isTimeFilterOpen ? "rotate(180deg)" : "rotate(0deg)" }} />
+                </div>
+
+                {isTimeFilterOpen && (
+                  <div style={{
+                    position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 999,
+                    background: isDarkMode ? "#1E293B" : "#ffffff",
+                    border: "1px solid " + (isDarkMode ? "#334155" : "#E2E8F0"),
+                    borderRadius: "12px", overflow: "hidden",
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.12)", minWidth: "180px"
+                  }}>
+                    {["This Week", "This Month", "Last 3 Months", "This Year", "All Time"].map(option => (
+                      <div
+                        key={option}
+                        onClick={() => { setTimeFilter(option); setIsTimeFilterOpen(false); setToastMessage(`📅 Showing progress for: ${option}`); setTimeout(() => setToastMessage(""), 2500); }}
+                        style={{
+                          padding: "10px 16px", fontSize: "13px", fontWeight: timeFilter === option ? 700 : 500,
+                          cursor: "pointer", display: "flex", alignItems: "center", gap: "8px",
+                          background: timeFilter === option ? (isDarkMode ? "rgba(249,87,42,0.12)" : "#FFF7F5") : "transparent",
+                          color: timeFilter === option ? "#F9572A" : (isDarkMode ? "#CBD5E1" : "#334155"),
+                          borderLeft: timeFilter === option ? "3px solid #F9572A" : "3px solid transparent",
+                          transition: "all 0.15s ease"
+                        }}
+                      >
+                        {timeFilter === option && <span style={{ fontSize: "10px" }}>✔</span>}
+                        {option}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
+
               <button className="btnShareProgress" onClick={handleShareProgress}>
                 <FaShareAlt /> Share Progress
               </button>
@@ -526,39 +563,6 @@ export default function ProgressPage() {
             </div>
           )}
 
-          {/* Sub-Tabs Bar */}
-          <div className="ppSubTabsRow">
-            <button
-              className={`ppTab ${activeTab === "overview" ? "active" : ""}`}
-              onClick={() => setActiveTab("overview")}
-            >
-              Overview
-            </button>
-            <button
-              className={`ppTab ${activeTab === "courses" ? "active" : ""}`}
-              onClick={() => setActiveTab("courses")}
-            >
-              Courses
-            </button>
-            <button
-              className={`ppTab ${activeTab === "skills" ? "active" : ""}`}
-              onClick={() => setActiveTab("skills")}
-            >
-              Skills
-            </button>
-            <button
-              className={`ppTab ${activeTab === "achievements" ? "active" : ""}`}
-              onClick={() => setActiveTab("achievements")}
-            >
-              Achievements
-            </button>
-            <button
-              className={`ppTab ${activeTab === "goals" ? "active" : ""}`}
-              onClick={() => setActiveTab("goals")}
-            >
-              Goals
-            </button>
-          </div>
 
           {/* 5 STAT CARDS ROW */}
           <div className="ppStatCardsRow">
@@ -673,21 +677,23 @@ export default function ProgressPage() {
                       <circle cx="210" cy="50" r="5" fill="#F9572A" stroke="#FFFFFF" strokeWidth="2" />
                     </svg>
 
-                    {/* Floating Tooltip */}
+                    {/* Floating Tooltip - current month */}
                     <div className="waveTooltip">
-                      <span>May 20</span>
-                      <strong>1,250 XP</strong>
+                      <span>{new Date().toLocaleDateString([], { month: 'short', day: 'numeric' })}</span>
+                      <strong>{currentXp > 0 ? currentXp : 0} XP</strong>
                     </div>
 
-                    {/* X Labels */}
+                    {/* X Labels - real current month dates */}
                     <div className="xLabelsRow">
-                      <span>May 1</span>
-                      <span>May 5</span>
-                      <span>May 10</span>
-                      <span>May 15</span>
-                      <span>May 20</span>
-                      <span>May 25</span>
-                      <span>May 30</span>
+                      {(() => {
+                        const now = new Date();
+                        const monthName = now.toLocaleDateString([], { month: 'short' });
+                        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+                        const step = Math.floor(daysInMonth / 6);
+                        return [1, 1 + step, 1 + step * 2, 1 + step * 3, 1 + step * 4, 1 + step * 5, daysInMonth].map((d, i) => (
+                          <span key={i}>{monthName} {d}</span>
+                        ));
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -937,6 +943,101 @@ export default function ProgressPage() {
 
         </div>
       </div>
+
+      {/* ── SHARE PROGRESS MODAL ── */}
+      {showShareModal && (
+        <div
+          style={{ position: "fixed", inset: 0, background: "rgba(15,23,42,0.55)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999 }}
+          onClick={() => setShowShareModal(false)}
+        >
+          <div
+            style={{ background: isDarkMode ? "#1E293B" : "#ffffff", borderRadius: "20px", width: "90%", maxWidth: "480px", padding: "28px", boxShadow: "0 20px 50px rgba(0,0,0,0.2)", position: "relative" }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "20px" }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: "18px", fontWeight: 800, color: isDarkMode ? "#F1F5F9" : "#0F172A" }}>📊 Share Your Progress</h3>
+                <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: "#64748B" }}>Share your SkillSphere learning achievements!</p>
+              </div>
+              <button onClick={() => setShowShareModal(false)} style={{ background: "none", border: "none", fontSize: "16px", color: "#64748B", cursor: "pointer", padding: "4px" }}>
+                <FaTimes />
+              </button>
+            </div>
+
+            {/* Stats Preview Card */}
+            <div style={{ background: isDarkMode ? "#0F172A" : "#FFF7F5", borderRadius: "12px", padding: "16px", marginBottom: "20px", border: "1px solid " + (isDarkMode ? "#334155" : "#FFE5DC") }}>
+              <p style={{ margin: "0 0 10px 0", fontSize: "13px", fontWeight: 700, color: "#F9572A" }}>🎓 My SkillSphere Progress — {timeFilter}</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px" }}>
+                <div style={{ textAlign: "center" }}>
+                  <strong style={{ display: "block", fontSize: "20px", color: isDarkMode ? "#F1F5F9" : "#0F172A" }}>{currentXp}</strong>
+                  <span style={{ fontSize: "11px", color: "#64748B" }}>⚡ XP Earned</span>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <strong style={{ display: "block", fontSize: "20px", color: isDarkMode ? "#F1F5F9" : "#0F172A" }}>{completedTopics?.length || 0}</strong>
+                  <span style={{ fontSize: "11px", color: "#64748B" }}>📚 Lessons Done</span>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <strong style={{ display: "block", fontSize: "20px", color: isDarkMode ? "#F1F5F9" : "#0F172A" }}>{user?.streak || 0}</strong>
+                  <span style={{ fontSize: "11px", color: "#64748B" }}>🔥 Day Streak</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Copy Link Row */}
+            <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
+              <input
+                readOnly
+                value={`🎓 SkillSphere: ${currentXp} XP · ${completedTopics?.length || 0} Lessons · ${user?.streak || 0}-Day Streak — https://skillsphere.edu`}
+                style={{ flex: 1, padding: "10px 12px", borderRadius: "8px", border: "1px solid " + (isDarkMode ? "#334155" : "#CBD5E1"), fontSize: "12px", background: isDarkMode ? "#0F172A" : "#F8FAFC", color: isDarkMode ? "#CBD5E1" : "#334155", outline: "none" }}
+              />
+              <button
+                onClick={() => {
+                  const txt = `🎓 My SkillSphere Progress:\n⚡ ${currentXp} XP Earned\n📚 ${completedTopics?.length || 0} Lessons Completed\n🔥 ${user?.streak || 0}-Day Study Streak\n\nhttps://skillsphere.edu`;
+                  navigator.clipboard.writeText(txt).then(() => {
+                    setToastMessage("✓ Progress stats copied to clipboard!");
+                    setTimeout(() => setToastMessage(""), 3000);
+                  });
+                }}
+                style={{ padding: "10px 16px", borderRadius: "8px", border: "none", background: "#F9572A", color: "#fff", fontWeight: 700, fontSize: "13px", cursor: "pointer", whiteSpace: "nowrap" }}
+              >
+                Copy
+              </button>
+            </div>
+
+            {/* Social Share Buttons */}
+            <p style={{ margin: "0 0 10px 0", fontSize: "12px", fontWeight: 700, color: isDarkMode ? "#94A3B8" : "#64748B", textTransform: "uppercase", letterSpacing: "0.5px" }}>Share Directly</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+              <button
+                onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://skillsphere.edu")}&summary=${encodeURIComponent(`🎓 ${currentXp} XP · ${completedTopics?.length || 0} Lessons · ${user?.streak || 0}-Day Streak on SkillSphere!`)}`, "_blank")}
+                style={{ padding: "11px", borderRadius: "10px", border: "none", background: "#0A66C2", color: "#fff", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
+              >
+                💼 LinkedIn
+              </button>
+              <button
+                onClick={() => window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(`🎓 My SkillSphere Progress:\n⚡ ${currentXp} XP Earned | 📚 ${completedTopics?.length || 0} Lessons | 🔥 ${user?.streak || 0}-Day Streak\nhttps://skillsphere.edu`)}`, "_blank")}
+                style={{ padding: "11px", borderRadius: "10px", border: "none", background: "#25D366", color: "#fff", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
+              >
+                💬 WhatsApp
+              </button>
+              <button
+                onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`🎓 Just earned ${currentXp} XP on @SkillSphere! 📚 ${completedTopics?.length || 0} lessons done & 🔥 ${user?.streak || 0}-day streak! #SkillSphere #Learning`)}`, "_blank")}
+                style={{ padding: "11px", borderRadius: "10px", border: "none", background: "#000000", color: "#fff", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
+              >
+                ✕ Twitter / X
+              </button>
+              <button
+                onClick={() => window.open(`https://t.me/share/url?url=${encodeURIComponent("https://skillsphere.edu")}&text=${encodeURIComponent(`🎓 ${currentXp} XP · ${completedTopics?.length || 0} Lessons · ${user?.streak || 0}-Day Streak!`)}`, "_blank")}
+                style={{ padding: "11px", borderRadius: "10px", border: "none", background: "#229ED9", color: "#fff", fontWeight: 700, fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}
+              >
+                ✈️ Telegram
+              </button>
+            </div>
+
+            <button onClick={() => setShowShareModal(false)} style={{ marginTop: "18px", width: "100%", padding: "10px", borderRadius: "10px", border: "1.5px solid " + (isDarkMode ? "#334155" : "#E2E8F0"), background: "transparent", color: isDarkMode ? "#94A3B8" : "#64748B", fontWeight: 600, fontSize: "13px", cursor: "pointer" }}>Close</button>
+          </div>
+        </div>
+      )}
 
       <FloatingChatbot />
       <StudentFooter />

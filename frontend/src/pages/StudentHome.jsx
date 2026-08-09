@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Background from "../components/Background";
+import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
 import FloatingChatbot from "../components/FloatingChatbot";
 
@@ -271,6 +272,7 @@ export default function StudentHome() {
   return (
     <div className={`sdDashboardWrapper ${isDarkMode ? "dark-theme" : ""}`}>
       <Background />
+      <PaperPlaneCursor />
 
       {/* Main Grid Layout Container */}
       <div className="sdMainContainer">
