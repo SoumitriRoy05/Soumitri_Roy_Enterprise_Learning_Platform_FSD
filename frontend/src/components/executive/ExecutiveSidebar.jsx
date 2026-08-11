@@ -2,6 +2,7 @@ import React from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FaHome, FaChartBar, FaFileInvoice, FaSignOutAlt, FaShieldAlt } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
+import AppLogo from "../AppLogo";
 
 export default function ExecutiveSidebar() {
   const navigate = useNavigate();
@@ -39,8 +40,7 @@ export default function ExecutiveSidebar() {
       <div>
         {/* Brand Header */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "0 8px 24px 8px" }}>
-          <span style={{ fontSize: "24px", color: "#00C6FF" }}>⬢</span>
-          <span style={{ fontSize: "19px", fontWeight: "800", letterSpacing: "-0.5px" }}>SkillSphere</span>
+          <AppLogo height="36px" />
           <span
             style={{
               fontSize: "10px",

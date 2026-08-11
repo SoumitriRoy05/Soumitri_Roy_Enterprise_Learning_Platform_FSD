@@ -24,6 +24,8 @@ import darkWorkforcePortalImg from '../assets/dark_workforce_portal_illustration
 import '../styles/loginPage.css';
 import '../styles/registerPage.css';
 
+import AppLogo from "../components/AppLogo";
+
 export default function RegisterPage() {
   const { signupLocal, loginWithGoogle, logout, themeMode } = useAuth();
   const isDarkMode = themeMode === "dark";
@@ -145,9 +147,8 @@ export default function RegisterPage() {
 
       {/* Top Header Bar */}
       <header className="registerHeaderBar">
-        <Link to="/" className="registerLogoBrand">
-          <span className="logoIcon">⬢</span>
-          <span>SkillSphere</span>
+        <Link to="/" className="registerLogoBrand" style={{ display: "inline-flex", alignItems: "center" }}>
+          <AppLogo height="56px" />
         </Link>
 
         <button className="btnBackHome" onClick={() => navigate('/')}>

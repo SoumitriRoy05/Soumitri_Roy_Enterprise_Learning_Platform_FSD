@@ -6,6 +6,8 @@ import { FaEnvelope, FaLock, FaArrowLeft, FaShieldAlt } from "react-icons/fa";
 import "../styles/loginPage.css";
 import "../styles/registerPage.css";
 
+import AppLogo from "../components/AppLogo";
+
 export default function ForgotPasswordPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -59,9 +61,8 @@ export default function ForgotPasswordPage() {
 
       {/* Top Header Bar */}
       <header className="registerHeaderBar">
-        <Link to="/" className="registerLogoBrand">
-          <span className="logoIcon">⬢</span>
-          <span>SkillSphere</span>
+        <Link to="/" className="registerLogoBrand" style={{ display: "inline-flex", alignItems: "center" }}>
+          <AppLogo height="56px" />
         </Link>
 
         <button className="btnBackHome" onClick={() => navigate('/login')}>

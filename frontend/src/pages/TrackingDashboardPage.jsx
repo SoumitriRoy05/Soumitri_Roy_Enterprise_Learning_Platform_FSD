@@ -13,6 +13,8 @@ import {
 } from "react-icons/fa";
 import "../styles/studentDashboard.css";
 
+import AppLogo from "../components/AppLogo";
+
 export default function TrackingDashboardPage() {
   const { user, xp, logout, themeMode, toggleTheme, enrolledCourses, completedTopics } = useAuth();
   const navigate = useNavigate();
@@ -98,9 +100,8 @@ export default function TrackingDashboardPage() {
         {/* Left Sidebar */}
         <aside className="sdLeftSidebar">
           <div>
-            <Link to="/" className="sdBrandLogo">
-              <span className="logoHex">⬢</span>
-              <span>SkillSphere</span>
+            <Link to="/" className="sdBrandLogo" style={{ display: "inline-flex", alignItems: "center" }}>
+              <AppLogo height="58px" />
             </Link>
             <div className="sdSidebarHomeArchHeader">
               <div className="sdArchLine" />

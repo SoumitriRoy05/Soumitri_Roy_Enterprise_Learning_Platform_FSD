@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import "../styles/loginPage.css";
 
+import AppLogo from "../components/AppLogo";
+
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
@@ -67,10 +69,8 @@ export default function ResetPasswordPage() {
     <div className="login-page-wrapper">
       {/* Header Bar */}
       <header className="header-bar">
-        <Link to="/" className="logo-brand">
-          <span className="logo-icon" style={{ color: "#00E5FF", textShadow: "0 0 10px cyan" }}>⬢</span>
-          <span className="logo-text-skill">Skill</span>
-          <span className="logo-text-sphere" style={{ color: "#00E5FF" }}>Sphere</span>
+        <Link to="/" className="logo-brand" style={{ display: "inline-flex", alignItems: "center" }}>
+          <AppLogo height="56px" />
         </Link>
         <Link to="/login" className="back-btn">
           Back to Login

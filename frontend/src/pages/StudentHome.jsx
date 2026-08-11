@@ -58,6 +58,8 @@ import studentHeroImg from "../assets/student_dashboard_hero_illustration.png";
 import darkStudentHeroImg from "../assets/dark_student_dashboard_hero_illustration.png";
 import "../styles/studentDashboard.css";
 
+import AppLogo from "../components/AppLogo";
+
 export default function StudentHome() {
   const { user, xp, logout, themeMode, toggleTheme, enrolledCourses, completedTopics, refreshProfile } = useAuth();
   const navigate = useNavigate();
@@ -288,9 +290,8 @@ export default function StudentHome() {
         {/* ── LEFT SIDEBAR COLUMN ── */}
         <aside className="sdLeftSidebar">
           <div>
-            <Link to="/" className="sdBrandLogo">
-              <span className="logoHex">⬢</span>
-              <span>SkillSphere</span>
+            <Link to="/" className="sdBrandLogo" style={{ display: "inline-flex", alignItems: "center" }}>
+              <AppLogo height="58px" />
             </Link>
 
             

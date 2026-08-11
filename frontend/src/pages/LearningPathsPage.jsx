@@ -61,6 +61,8 @@ import jsBadgeImg from "../assets/js_shield_badge.svg";
 import reactLogoImg from "../assets/react.svg";
 import "../styles/learningPaths.css";
 
+import AppLogo from "../components/AppLogo";
+
 export default function LearningPathsPage() {
   const { user, xp, earnXp, completeTopic, themeMode, toggleTheme, enrolledCourses, completedTopics } = useAuth();
   const navigate = useNavigate();
@@ -1949,9 +1951,8 @@ function AnalyticsDashboard() {
         {/* ── LEFT SIDEBAR ── */}
         <aside className="lpLeftSidebar">
           <div>
-            <Link to="/" className="sdBrandLogo">
-              <span className="logoHex">⬢</span>
-              <span>SkillSphere</span>
+            <Link to="/" className="sdBrandLogo" style={{ display: "inline-flex", alignItems: "center" }}>
+              <AppLogo height="58px" />
             </Link>
 
             <div className="sdSidebarHomeArchHeader">

@@ -49,6 +49,8 @@ import {
 import "../styles/studentDashboard.css";
 import "../styles/opportunityFeedPage.css";
 
+import AppLogo from "../components/AppLogo";
+
 export default function OpportunityFeedPage() {
   const { user, xp, themeMode, toggleTheme } = useAuth();
   const navigate = useNavigate();
@@ -495,10 +497,9 @@ export default function OpportunityFeedPage() {
         
         {/* ── LEFT SIDEBAR ── */}
         <aside className="sdLeftSidebar">
-          <div className="sdBrandLogo">
-            <span className="logoSymbol">⬢</span>
-            <span className="logoText">SkillSphere</span>
-          </div>
+          <Link to="/" className="sdBrandLogo" style={{ display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
+            <AppLogo height="58px" />
+          </Link>
 
           <nav className="sdNavList">
             {navItems.map((item) => {

@@ -75,6 +75,8 @@ const orgToolsList = [
   }
 ];
 
+import AppLogo from "../components/AppLogo";
+
 export default function WorkforcePage() {
   const navigate = useNavigate();
   const { user, themeMode } = useAuth();
@@ -173,62 +175,102 @@ export default function WorkforcePage() {
 
           {/* Right Column: Performance Overview Widget Card */}
           <div className="whHeroRight">
-            <div className="perfWidgetCard">
-              <div className="perfWidgetHeader">
-                <h4>Performance Overview</h4>
+            <div className="perfWidgetCard" style={{ boxShadow: "0 10px 30px rgba(249, 87, 42, 0.08)", border: "1px solid var(--border-color, rgba(255, 255, 255, 0.12))", background: "var(--bg-card, rgba(255, 255, 255, 0.04))", borderRadius: "20px" }}>
+              <div className="perfWidgetHeader" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+                <h4 style={{ margin: 0, fontSize: "14px", fontWeight: "800", color: "var(--text-primary, #ffffff)" }}>Performance Overview</h4>
+                <span style={{ fontSize: "10px", fontWeight: "700", padding: "3px 8px", background: "#fef08a", color: "#854d0e", borderRadius: "12px" }}>
+                  ↑ 12.4% MoM
+                </span>
               </div>
 
-              {/* Visual Donut / Progress Bar Placeholder */}
-              <div style={{ textAlign: 'center', padding: '10px 0' }}>
+              {/* Dynamic SVG Donut Chart with glowing gradient stroke */}
+              <div style={{ textAlign: "center", padding: "6px 0", position: "relative" }}>
+                <svg width="120" height="120" viewBox="0 0 120 120" style={{ transform: "rotate(-90deg)", filter: "drop-shadow(0 4px 12px rgba(249, 87, 42, 0.18))" }}>
+                  <defs>
+                    <linearGradient id="gradCompleted" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#F9572A" />
+                      <stop offset="100%" stopColor="#FF7A59" />
+                    </linearGradient>
+                    <linearGradient id="gradProgress" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#FBBF24" />
+                      <stop offset="100%" stopColor="#FCD34D" />
+                    </linearGradient>
+                  </defs>
+
+                  {/* Background Track */}
+                  <circle cx="60" cy="60" r="44" fill="none" stroke="rgba(241, 245, 249, 0.15)" strokeWidth="14" />
+
+                  {/* Completed Segment 78% */}
+                  <circle
+                    cx="60" cy="60" r="44" fill="none"
+                    stroke="url(#gradCompleted)" strokeWidth="14"
+                    strokeDasharray="215 276" strokeDashoffset="0"
+                    strokeLinecap="round"
+                    style={{ transition: "stroke-dasharray 0.6s ease" }}
+                  />
+
+                  {/* In Progress Segment 16% */}
+                  <circle
+                    cx="60" cy="60" r="44" fill="none"
+                    stroke="url(#gradProgress)" strokeWidth="14"
+                    strokeDasharray="44 276" strokeDashoffset="-215"
+                    strokeLinecap="round"
+                    style={{ transition: "stroke-dasharray 0.6s ease" }}
+                  />
+
+                  {/* Not Started Segment 6% */}
+                  <circle
+                    cx="60" cy="60" r="44" fill="none"
+                    stroke="#CBD5E1" strokeWidth="14"
+                    strokeDasharray="17 276" strokeDashoffset="-259"
+                    strokeLinecap="round"
+                  />
+                </svg>
+
+                {/* Center Badge */}
                 <div style={{
-                  width: '90px',
-                  height: '90px',
-                  borderRadius: '50%',
-                  background: 'conic-gradient(#F9572A 0% 78%, #FBBF24 78% 94%, #E2E8F0 94% 100%)',
-                  margin: '0 auto',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 4px 12px rgba(249, 87, 42, 0.15)'
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center"
                 }}>
-                  <div style={{
-                    width: '64px',
-                    height: '64px',
-                    borderRadius: '50%',
-                    background: '#FFFFFF',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <strong style={{ fontSize: '15px', color: '#1E1B18' }}>78%</strong>
-                    <span style={{ fontSize: '8px', color: '#64748B' }}>Completed</span>
-                  </div>
+                  <strong style={{ fontSize: "20px", fontWeight: "800", color: "var(--text-primary, #ffffff)", lineHeight: 1 }}>78%</strong>
+                  <span style={{ fontSize: "9px", color: "var(--text-secondary, #94a3b8)", fontWeight: "700", marginTop: "2px" }}>Completed</span>
                 </div>
               </div>
 
-              <ul className="donutLegendList">
-                <li>
-                  <span><span className="legendDot" style={{ background: '#F9572A' }}></span> Completed</span>
-                  <strong>78%</strong>
+              {/* Enhanced Donut Legend */}
+              <ul className="donutLegendList" style={{ margin: "14px 0 0 0", gap: "8px" }}>
+                <li style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "11px", fontWeight: "600", color: "var(--text-secondary, #cbd5e1)" }}>
+                  <span><span className="legendDot" style={{ background: "#F9572A", width: "8px", height: "8px", borderRadius: "50%", display: "inline-block", marginRight: "6px" }}></span> Completed Tasks</span>
+                  <strong style={{ color: "var(--text-primary, #ffffff)", fontWeight: "800" }}>78% <span style={{ fontSize: "9px", color: "#4ade80" }}>(191)</span></strong>
                 </li>
-                <li>
-                  <span><span className="legendDot" style={{ background: '#FBBF24' }}></span> In Progress</span>
-                  <strong>16%</strong>
+                <li style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "11px", fontWeight: "600", color: "var(--text-secondary, #cbd5e1)" }}>
+                  <span><span className="legendDot" style={{ background: "#FBBF24", width: "8px", height: "8px", borderRadius: "50%", display: "inline-block", marginRight: "6px" }}></span> In Progress</span>
+                  <strong style={{ color: "var(--text-primary, #ffffff)", fontWeight: "800" }}>16% <span style={{ fontSize: "9px", color: "#fbbf24" }}>(39)</span></strong>
                 </li>
-                <li>
-                  <span><span className="legendDot" style={{ background: '#E2E8F0' }}></span> Not Started</span>
-                  <strong>6%</strong>
+                <li style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "11px", fontWeight: "600", color: "var(--text-secondary, #cbd5e1)" }}>
+                  <span><span className="legendDot" style={{ background: "#CBD5E1", width: "8px", height: "8px", borderRadius: "50%", display: "inline-block", marginRight: "6px" }}></span> Pending</span>
+                  <strong style={{ color: "var(--text-primary, #ffffff)", fontWeight: "800" }}>6% <span style={{ fontSize: "9px", color: "#94a3b8" }}>(15)</span></strong>
                 </li>
               </ul>
             </div>
 
-            <div className="completionRateWidget">
-              <h5>Completion Rate</h5>
-              <strong>78%</strong>
-              <span>All Teams</span>
-              <div className="compTrack">
-                <div className="compFill"></div>
+            <div className="completionRateWidget" style={{ background: "var(--bg-card, rgba(255, 255, 255, 0.04))", border: "1px solid var(--border-color, rgba(255, 255, 255, 0.12))", borderRadius: "18px", padding: "18px", boxShadow: "0 4px 14px rgba(0, 0, 0, 0.02)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                <h5 style={{ fontSize: "11px", fontWeight: "700", color: "var(--text-secondary, #cbd5e1)", margin: "0 0 4px 0" }}>Team Completion Benchmark</h5>
+                <strong style={{ fontSize: "16px", fontWeight: "800", color: "#F9572A" }}>78%</strong>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "10px", color: "var(--text-muted, #94a3b8)", marginBottom: "8px" }}>
+                <span>All Active Projects</span>
+                <span style={{ color: "var(--text-secondary, #cbd5e1)" }}>Target: 70% (+8% ahead)</span>
+              </div>
+              <div className="compTrack" style={{ height: "8px", background: "rgba(241, 245, 249, 0.15)", borderRadius: "99px", overflow: "hidden" }}>
+                <div className="compFill" style={{ width: "78%", height: "100%", background: "linear-gradient(90deg, #F9572A, #FBBF24)", borderRadius: "99px" }}></div>
               </div>
             </div>
           </div>
@@ -397,9 +439,8 @@ export default function WorkforcePage() {
           <div className="footerTopGrid" style={{ gridTemplateColumns: '2fr 1fr 1.2fr 1.2fr' }}>
             {/* Col 1: Brand */}
             <div className="footerBrandCol">
-              <Link to="/" className="footerLogo" onClick={handleScrollTop}>
-                <span className="logoIcon">⬢</span>
-                <span>SkillSphere</span>
+              <Link to="/" className="footerLogo" onClick={handleScrollTop} style={{ display: "inline-flex", alignItems: "center" }}>
+                <AppLogo height="56px" />
               </Link>
               <p className="footerBrandDesc">
                 Empowering organizations through smart learning, real-time analytics, and measurable results.

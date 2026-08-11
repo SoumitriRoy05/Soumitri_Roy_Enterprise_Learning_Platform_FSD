@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Background from "../components/Background";
 import PaperPlaneCursor from "../components/PaperPlaneCursor";
+import AppLogo from "../components/AppLogo";
 import StudentFooter from "../components/StudentFooter";
 import NotificationDropdown from "../components/NotificationDropdown";
 import UserAvatar from "../components/UserAvatar";
@@ -572,9 +573,8 @@ export default function CertificatesPage() {
         {/* ── LEFT SIDEBAR ── */}
         <aside className="cpLeftSidebar">
           <div>
-            <Link to="/" className="sdBrandLogo">
-              <span className="logoHex">⬢</span>
-              <span>SkillSphere</span>
+            <Link to="/" className="sdBrandLogo" style={{ display: "inline-flex", alignItems: "center" }}>
+              <AppLogo height="58px" />
             </Link>
 
             <div className="sdSidebarHomeArchHeader">
@@ -762,8 +762,7 @@ export default function CertificatesPage() {
 
                       {/* Header */}
                       <div className="certBrandHeader">
-                        <span className="hex">⬢</span>
-                        <strong>SkillSphere</strong>
+                        <AppLogo height="32px" />
                       </div>
 
                       <h2 className="certMainTitle">CERTIFICATE OF COMPLETION</h2>
@@ -1208,7 +1207,7 @@ export default function CertificatesPage() {
               {/* Certificate Image Preview Box */}
               <div style={{ borderRadius: "10px", overflow: "hidden", border: "3px solid #0A66C2", background: "#FFFDF9", padding: "24px", textAlign: "center", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}>
                 <div style={{ border: "2px dashed #FAD6C8", padding: "20px", borderRadius: "8px" }}>
-                  <div style={{ fontSize: "24px", color: "#F9572A", fontWeight: "bold" }}>⬢ SkillSphere Nexus</div>
+                  <div style={{ display: "flex", justifyContent: "center", marginBottom: "8px" }}><AppLogo height="36px" /></div>
                   <div style={{ fontSize: "18px", fontWeight: "bold", color: "#1E1B18", margin: "10px 0 4px 0", letterSpacing: "1px" }}>CERTIFICATE OF COMPLETION</div>
                   <div style={{ fontSize: "13px", color: "#64748B", fontStyle: "italic" }}>This is to certify that</div>
                   <div style={{ fontSize: "24px", fontWeight: "bold", color: "#78350F", margin: "6px 0", fontFamily: "Georgia, serif" }}>{userName}</div>

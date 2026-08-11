@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import AppLogo from "./AppLogo";
 import {
   FaFacebookF,
   FaTwitter,
@@ -34,9 +35,8 @@ export default function StudentFooter() {
         <div className="studentFooterGrid">
           {/* Col 1: Brand Info */}
           <div className="footerBrandCol">
-            <Link to="/student-home" className="footerLogo" onClick={handleScrollTop}>
-              <span className="logoIcon">⬢</span>
-              <span>SkillSphere</span>
+            <Link to="/student-home" className="footerLogo" onClick={handleScrollTop} style={{ display: "inline-flex", alignItems: "center" }}>
+              <AppLogo height="56px" />
             </Link>
             <p className="footerBrandDesc">
               Empowering student learning with interactive courses, AI study assistance, daily quests, and career readiness.

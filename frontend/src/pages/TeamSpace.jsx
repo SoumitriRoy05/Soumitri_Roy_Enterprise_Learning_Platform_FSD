@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
+import AppLogo from "../components/AppLogo";
 import Background from "../components/Background";
 import Footer from "../components/Footer";
 import "../styles/teamSpace.css";
@@ -96,11 +97,7 @@ export default function TeamSpace() {
         {/* ── Left: Channel List ── */}
         <aside className="ts-sidebar">
           <div className="ts-sidebar-header">
-            <div className="ts-workspace-logo">⬢</div>
-            <div>
-              <div className="ts-workspace-name">SkillSphere</div>
-              <div className="ts-workspace-sub">Team Space</div>
-            </div>
+            <AppLogo height="58px" />
           </div>
 
           <div className="ts-section-label">Channels</div>

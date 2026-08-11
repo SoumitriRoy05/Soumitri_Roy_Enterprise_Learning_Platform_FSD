@@ -186,6 +186,8 @@ const MASTER_PROBLEMS = [
   }
 ];
 
+import AppLogo from "../components/AppLogo";
+
 export default function CodeArenaPage() {
   const { user, xp, earnXp, themeMode, toggleTheme, authenticatedFetch, refreshProfile } = useAuth();
   const navigate = useNavigate();
@@ -602,9 +604,8 @@ export default function CodeArenaPage() {
         {/* ── LEFT SIDEBAR (MATCHING STUDENT DASHBOARD EXACTLY) ── */}
         <aside className="sdLeftSidebar">
           <div>
-            <Link to="/" className="sdBrandLogo">
-              <span className="logoHex">⬢</span>
-              <span>SkillSphere</span>
+            <Link to="/" className="sdBrandLogo" style={{ display: "inline-flex", alignItems: "center" }}>
+              <AppLogo height="58px" />
             </Link>
 
             {/* Connected Arch Line & Orange Circular Home Button Header */}

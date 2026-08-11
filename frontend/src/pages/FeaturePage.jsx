@@ -72,6 +72,8 @@ const platformCapabilities8 = [
   }
 ];
 
+import AppLogo from "../components/AppLogo";
+
 export default function FeaturePage() {
   const navigate = useNavigate();
   const { themeMode } = useAuth();
@@ -192,9 +194,8 @@ export default function FeaturePage() {
           <div className="footerTopGrid" style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr' }}>
             {/* Col 1: Brand */}
             <div className="footerBrandCol">
-              <Link to="/" className="footerLogo" onClick={handleScrollTop}>
-                <span className="logoIcon">⬢</span>
-                <span>SkillSphere</span>
+              <Link to="/" className="footerLogo" onClick={handleScrollTop} style={{ display: "inline-flex", alignItems: "center" }}>
+                <AppLogo height="56px" />
               </Link>
               <p className="footerBrandDesc">
                 Empowering students and organizations through gamified learning and workforce development.

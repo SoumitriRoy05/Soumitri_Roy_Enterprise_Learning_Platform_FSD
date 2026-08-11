@@ -47,6 +47,8 @@ import {
 
 import "../styles/questMapPage.css";
 
+import AppLogo from "../components/AppLogo";
+
 export default function QuestMapPage() {
   const { user, xp, themeMode, toggleTheme } = useAuth();
   const navigate = useNavigate();
@@ -87,9 +89,8 @@ export default function QuestMapPage() {
         {/* ── LEFT SIDEBAR ── */}
         <aside className="qmpLeftSidebar">
           <div>
-            <Link to="/" className="sdBrandLogo">
-              <span className="logoHex">⬢</span>
-              <span>SkillSphere</span>
+            <Link to="/" className="sdBrandLogo" style={{ display: "inline-flex", alignItems: "center" }}>
+              <AppLogo height="58px" />
             </Link>
 
             <div className="qmpSidebarHomeArchHeader">

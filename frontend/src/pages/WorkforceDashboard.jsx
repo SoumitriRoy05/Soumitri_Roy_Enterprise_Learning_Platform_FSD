@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useAdmin } from "../context/AdminContext";
 import { askGeminiAI, formatAiResponseText } from "../services/geminiService";
+import AppLogo from "../components/AppLogo";
 import NotificationDropdown from "../components/NotificationDropdown";
 import Background from "../components/Background";
 import {
@@ -191,6 +192,8 @@ export default function WorkforceDashboard() {
 
   // Performance Tab Filters
   const [perfTimeframe, setPerfTimeframe] = useState("Monthly");
+  const [hoveredPerfPoint, setHoveredPerfPoint] = useState(null);
+  const [hoveredDonutSegment, setHoveredDonutSegment] = useState(null);
 
   // Reports & Analytics Page State
   const [reportCatFilter, setReportCatFilter] = useState("All Reports");
@@ -952,11 +955,7 @@ export default function WorkforceDashboard() {
       {/* LEFT SIDEBAR */}
       <aside className={`wf-sidebar ${isSidebarOpen ? "open" : ""}`}>
         <div className="wf-sidebar-header">
-          <div className="wf-logo-icon">⬢</div>
-          <div className="wf-logo-text">
-            <span className="wf-brand-name">SkillSphere</span>
-            <span className="wf-brand-sub">Workforce</span>
-          </div>
+          <AppLogo height="54px" />
         </div>
 
         <nav className="wf-sidebar-nav">
@@ -1637,10 +1636,8 @@ export default function WorkforceDashboard() {
               <footer className="wf-footer-container" style={{ marginTop: "40px" }}>
                 <div className="wf-footer-main">
                   <div className="wf-footer-brand-col">
-                    <div className="wf-footer-logo">
-                      <span className="wf-logo-icon">⬢</span>
-                      <span className="wf-brand-name">SkillSphere</span>
-                      <span className="wf-brand-sub">Workforce</span>
+                    <div className="wf-footer-logo" style={{ display: "inline-flex", alignItems: "center" }}>
+                      <AppLogo height="56px" />
                     </div>
                     <p className="wf-footer-tagline">
                       Empowering organizations by building a skilled and engaged workforce.
@@ -3622,16 +3619,20 @@ export default function WorkforceDashboard() {
               </section>
 
               <section className="wf-middle-grid">
-                <div className="wf-card perf-card">
+                <div className="wf-card perf-card" style={{ position: "relative", overflow: "visible" }}>
                   <div className="wf-card-header">
-                    <h2 className="wf-card-title">Performance Trend</h2>
+                    <div>
+                      <h2 className="wf-card-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        Performance Trend <span style={{ fontSize: "11px", fontWeight: "600", padding: "2px 8px", background: "#f3e8de", color: "#8c5338", borderRadius: "12px" }}>Live Interactive</span>
+                      </h2>
+                    </div>
                     <div style={{ display: "flex", gap: "6px" }}>
-                      {["Monthly", "Quarterly"].map(t => (
+                      {["Monthly", "Quarterly", "Yearly"].map(t => (
                         <button
                           key={t}
                           className={`wf-filter-pill ${perfTimeframe === t ? "active" : ""}`}
-                          style={{ padding: "4px 10px", fontSize: "11px" }}
-                          onClick={() => setPerfTimeframe(t)}
+                          style={{ padding: "4px 12px", fontSize: "11px", borderRadius: "16px" }}
+                          onClick={() => { setPerfTimeframe(t); setHoveredPerfPoint(null); }}
                         >
                           {t}
                         </button>
@@ -3639,80 +3640,283 @@ export default function WorkforceDashboard() {
                     </div>
                   </div>
 
-                  <div className="wf-overview-chart-container">
-                    <svg className="wf-svg-line-chart" viewBox="0 0 440 190">
-                      <defs>
-                        <linearGradient id="perfGradEnhanced" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#8c5338" stopOpacity="0.4" />
-                          <stop offset="100%" stopColor="#8c5338" stopOpacity="0.0" />
-                        </linearGradient>
-                      </defs>
+                  {/* Dynamic Performance Chart */}
+                  {(() => {
+                    const perfDatasets = {
+                      Monthly: [
+                        { label: "Dec", score: 3.6, evaluated: 210, growth: "+2.1%", target: 3.5, x: 45, y: 110 },
+                        { label: "Jan", score: 3.8, evaluated: 224, growth: "+5.5%", target: 3.5, x: 118, y: 90 },
+                        { label: "Feb", score: 3.9, evaluated: 230, growth: "+2.6%", target: 3.8, x: 191, y: 80 },
+                        { label: "Mar", score: 4.0, evaluated: 238, growth: "+2.5%", target: 3.8, x: 264, y: 70 },
+                        { label: "Apr", score: 4.1, evaluated: 242, growth: "+2.5%", target: 4.0, x: 337, y: 60 },
+                        { label: "May", score: 4.2, evaluated: 248, growth: "+2.4%", target: 4.0, x: 410, y: 48 },
+                      ],
+                      Quarterly: [
+                        { label: "Q2 '24", score: 3.5, evaluated: 190, growth: "+3.0%", target: 3.5, x: 45, y: 120 },
+                        { label: "Q3 '24", score: 3.7, evaluated: 205, growth: "+5.7%", target: 3.5, x: 136, y: 100 },
+                        { label: "Q4 '24", score: 3.9, evaluated: 220, growth: "+5.4%", target: 3.8, x: 227, y: 80 },
+                        { label: "Q1 '25", score: 4.1, evaluated: 238, growth: "+5.1%", target: 4.0, x: 318, y: 60 },
+                        { label: "Q2 '25", score: 4.3, evaluated: 248, growth: "+4.8%", target: 4.0, x: 410, y: 38 },
+                      ],
+                      Yearly: [
+                        { label: "2021", score: 3.2, evaluated: 120, growth: "+4.0%", target: 3.0, x: 45, y: 145 },
+                        { label: "2022", score: 3.5, evaluated: 160, growth: "+9.3%", target: 3.2, x: 136, y: 120 },
+                        { label: "2023", score: 3.8, evaluated: 195, growth: "+8.5%", target: 3.5, x: 227, y: 90 },
+                        { label: "2024", score: 4.1, evaluated: 230, growth: "+7.8%", target: 3.8, x: 318, y: 60 },
+                        { label: "2025", score: 4.4, evaluated: 248, growth: "+7.3%", target: 4.0, x: 410, y: 28 },
+                      ]
+                    };
 
-                      <line x1="30" y1="20" x2="420" y2="20" stroke="#f2e8df" strokeWidth="1" />
-                      <line x1="30" y1="60" x2="420" y2="60" stroke="#f2e8df" strokeWidth="1" />
-                      <line x1="30" y1="100" x2="420" y2="100" stroke="#f2e8df" strokeWidth="1" />
-                      <line x1="30" y1="140" x2="420" y2="140" stroke="#f2e8df" strokeWidth="1" />
-                      <line x1="30" y1="165" x2="420" y2="165" stroke="#ebdcd0" strokeWidth="1.5" />
+                    const currentData = perfDatasets[perfTimeframe] || perfDatasets.Monthly;
+                    const pathD = currentData.reduce((acc, pt, idx) => {
+                      if (idx === 0) return `M ${pt.x} ${pt.y}`;
+                      const prev = currentData[idx - 1];
+                      const cpX1 = prev.x + (pt.x - prev.x) / 2;
+                      const cpX2 = prev.x + (pt.x - prev.x) / 2;
+                      return `${acc} C ${cpX1} ${prev.y}, ${cpX2} ${pt.y}, ${pt.x} ${pt.y}`;
+                    }, "");
 
-                      <text x="10" y="25" fill="#a39285" fontSize="10">5.0</text>
-                      <text x="10" y="65" fill="#a39285" fontSize="10">4.0</text>
-                      <text x="10" y="105" fill="#a39285" fontSize="10">3.0</text>
-                      <text x="10" y="145" fill="#a39285" fontSize="10">2.0</text>
-                      <text x="10" y="170" fill="#a39285" fontSize="10">1.0</text>
+                    const areaD = `${pathD} L ${currentData[currentData.length - 1].x} 165 L ${currentData[0].x} 165 Z`;
 
-                      <path d="M 40 100 Q 110 85, 180 75 T 320 60 T 400 50 L 400 165 L 40 165 Z" fill="url(#perfGradEnhanced)" />
-                      <path d="M 40 100 Q 110 85, 180 75 T 320 60 T 400 50" fill="none" stroke="#8c5338" strokeWidth="3.5" strokeLinecap="round" />
+                    return (
+                      <div className="wf-overview-chart-container" style={{ position: "relative" }}>
+                        <svg className="wf-svg-line-chart" viewBox="0 0 450 195" style={{ width: "100%", height: "auto" }}>
+                          <defs>
+                            <linearGradient id="perfGradEnhancedDynamic" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#f9572a" stopOpacity="0.45" />
+                              <stop offset="50%" stopColor="#8c5338" stopOpacity="0.15" />
+                              <stop offset="100%" stopColor="#8c5338" stopOpacity="0.0" />
+                            </linearGradient>
+                            <filter id="glowPoint" x="-50%" y="-50%" width="200%" height="200%">
+                              <feGaussianBlur stdDeviation="3" result="blur" />
+                              <feMerge>
+                                <feMergeNode in="blur" />
+                                <feMergeNode in="SourceGraphic" />
+                              </feMerge>
+                            </filter>
+                          </defs>
 
-                      <circle cx="40" cy="100" r="5" fill="#8c5338" stroke="#fff" strokeWidth="2" />
-                      <text x="40" y="88" textAnchor="middle" fill="#332219" fontSize="10" fontWeight="700">3.6</text>
+                          {/* Grid background lines */}
+                          <line x1="30" y1="20" x2="430" y2="20" stroke="#f2e8df" strokeWidth="1" strokeDasharray="3 3" />
+                          <line x1="30" y1="60" x2="430" y2="60" stroke="#f2e8df" strokeWidth="1" strokeDasharray="3 3" />
+                          <line x1="30" y1="100" x2="430" y2="100" stroke="#f2e8df" strokeWidth="1" strokeDasharray="3 3" />
+                          <line x1="30" y1="140" x2="430" y2="140" stroke="#f2e8df" strokeWidth="1" strokeDasharray="3 3" />
+                          <line x1="30" y1="165" x2="430" y2="165" stroke="#ebdcd0" strokeWidth="1.5" />
 
-                      <circle cx="115" cy="85" r="5" fill="#8c5338" stroke="#fff" strokeWidth="2" />
-                      <text x="115" y="73" textAnchor="middle" fill="#332219" fontSize="10" fontWeight="700">3.8</text>
+                          {/* Y-axis Labels */}
+                          <text x="12" y="24" fill="#a39285" fontSize="10" fontWeight="600">5.0</text>
+                          <text x="12" y="64" fill="#a39285" fontSize="10" fontWeight="600">4.0</text>
+                          <text x="12" y="104" fill="#a39285" fontSize="10" fontWeight="600">3.0</text>
+                          <text x="12" y="144" fill="#a39285" fontSize="10" fontWeight="600">2.0</text>
 
-                      <circle cx="190" cy="75" r="5" fill="#8c5338" stroke="#fff" strokeWidth="2" />
-                      <text x="190" y="63" textAnchor="middle" fill="#332219" fontSize="10" fontWeight="700">3.9</text>
+                          {/* Filled area below curve */}
+                          <path d={areaD} fill="url(#perfGradEnhancedDynamic)" style={{ transition: "all 0.4s ease" }} />
 
-                      <circle cx="265" cy="68" r="5" fill="#8c5338" stroke="#fff" strokeWidth="2" />
-                      <text x="265" y="56" textAnchor="middle" fill="#332219" fontSize="10" fontWeight="700">4.0</text>
+                          {/* Main smooth curve stroke */}
+                          <path d={pathD} fill="none" stroke="#f9572a" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "all 0.4s ease" }} />
 
-                      <circle cx="340" cy="58" r="5" fill="#8c5338" stroke="#fff" strokeWidth="2" />
-                      <text x="340" y="46" textAnchor="middle" fill="#332219" fontSize="10" fontWeight="700">4.1</text>
+                          {/* Target benchmark line */}
+                          <line x1="30" y1="60" x2="430" y2="60" stroke="#f59e0b" strokeWidth="1" strokeDasharray="5 5" opacity="0.6" />
 
-                      <circle cx="400" cy="50" r="6" fill="#5c2c19" stroke="#fff" strokeWidth="2.5" />
-                      <text x="400" y="36" textAnchor="middle" fill="#5c2c19" fontSize="11" fontWeight="800">4.2</text>
+                          {/* Data Nodes */}
+                          {currentData.map((pt, idx) => {
+                            const isHovered = hoveredPerfPoint === idx;
+                            return (
+                              <g key={pt.label} style={{ cursor: "pointer" }} onMouseEnter={() => setHoveredPerfPoint(idx)} onMouseLeave={() => setHoveredPerfPoint(null)}>
+                                {isHovered && (
+                                  <>
+                                    <line x1={pt.x} y1={pt.y} x2={pt.x} y2="165" stroke="#f9572a" strokeWidth="1.5" strokeDasharray="3 3" />
+                                    <circle cx={pt.x} cy={pt.y} r="10" fill="#f9572a" opacity="0.25" filter="url(#glowPoint)" />
+                                  </>
+                                )}
+                                <circle
+                                  cx={pt.x}
+                                  cy={pt.y}
+                                  r={isHovered ? 7 : 5}
+                                  fill={isHovered ? "#f9572a" : "#8c5338"}
+                                  stroke="#ffffff"
+                                  strokeWidth={isHovered ? 2.5 : 2}
+                                  style={{ transition: "all 0.2s ease" }}
+                                />
+                                <text
+                                  x={pt.x}
+                                  y={pt.y - 12}
+                                  textAnchor="middle"
+                                  fill={isHovered ? "#f9572a" : "#332219"}
+                                  fontSize={isHovered ? "12" : "10"}
+                                  fontWeight={isHovered ? "800" : "700"}
+                                >
+                                  {pt.score}
+                                </text>
 
-                      <text x="40" y="182" textAnchor="middle" fill="#a39285" fontSize="10" fontWeight="600">Dec</text>
-                      <text x="115" y="182" textAnchor="middle" fill="#a39285" fontSize="10" fontWeight="600">Jan</text>
-                      <text x="190" y="182" textAnchor="middle" fill="#a39285" fontSize="10" fontWeight="600">Feb</text>
-                      <text x="265" y="182" textAnchor="middle" fill="#a39285" fontSize="10" fontWeight="600">Mar</text>
-                      <text x="340" y="182" textAnchor="middle" fill="#a39285" fontSize="10" fontWeight="600">Apr</text>
-                      <text x="400" y="182" textAnchor="middle" fill="#a39285" fontSize="10" fontWeight="600">May</text>
-                    </svg>
-                  </div>
+                                {/* X-axis Label */}
+                                <text x={pt.x} y="184" textAnchor="middle" fill={isHovered ? "#f9572a" : "#a39285"} fontSize="11" fontWeight={isHovered ? "800" : "600"}>
+                                  {pt.label}
+                                </text>
+                              </g>
+                            );
+                          })}
+                        </svg>
+
+                        {/* Interactive Floating Tooltip */}
+                        {hoveredPerfPoint !== null && currentData[hoveredPerfPoint] && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: `${(currentData[hoveredPerfPoint].y / 195) * 100 - 32}%`,
+                              left: `${(currentData[hoveredPerfPoint].x / 450) * 100}%`,
+                              transform: "translate(-50%, -100%)",
+                              background: "#1E1B18",
+                              color: "#FFFFFF",
+                              padding: "8px 14px",
+                              borderRadius: "10px",
+                              boxShadow: "0 10px 25px rgba(0, 0, 0, 0.3)",
+                              fontSize: "12px",
+                              pointerEvents: "none",
+                              zIndex: 20,
+                              whiteSpace: "nowrap",
+                              border: "1px solid rgba(249, 87, 42, 0.4)",
+                              animation: "fadeIn 0.2s ease",
+                            }}
+                          >
+                            <div style={{ fontWeight: "800", color: "#F9572A", fontSize: "13px", marginBottom: "2px" }}>
+                              {currentData[hoveredPerfPoint].label} Rating: ★ {currentData[hoveredPerfPoint].score} / 5.0
+                            </div>
+                            <div style={{ color: "#cbd5e1", fontSize: "11px" }}>
+                              👥 Staff Evaluated: <strong>{currentData[hoveredPerfPoint].evaluated}</strong>
+                            </div>
+                            <div style={{ color: "#4ade80", fontSize: "11px", fontWeight: "700", marginTop: "2px" }}>
+                              📈 Growth Rate: {currentData[hoveredPerfPoint].growth}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Chart Summary Footer Bar */}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "12px", padding: "10px 14px", background: "#faf4ee", borderRadius: "10px", fontSize: "12px" }}>
+                          <div>
+                            <span style={{ color: "#8c5338", fontWeight: "600" }}>Current Average Rating: </span>
+                            <strong style={{ color: "#332219", fontSize: "14px" }}>4.2 / 5.0</strong>
+                          </div>
+                          <div>
+                            <span style={{ color: "#8c5338", fontWeight: "600" }}>Target Benchmark: </span>
+                            <span style={{ color: "#f59e0b", fontWeight: "700" }}>4.0 ⭐</span>
+                          </div>
+                          <div>
+                            <span style={{ color: "#16a34a", fontWeight: "700" }}>+14.2% YoY Improvement ↗</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
 
+                {/* Performance Distribution Donut Card */}
                 <div className="wf-card perf-card">
-                  <div className="wf-card-header"><h2 className="wf-card-title">Performance Distribution</h2></div>
-                  <div className="wf-skill-donut-wrapper">
-                    <div className="wf-donut-chart-box">
-                      <svg width="140" height="140" viewBox="0 0 140 140">
-                        <circle cx="70" cy="70" r="50" fill="none" stroke="#84cc16" strokeWidth="20" strokeDasharray="88 226" strokeDashoffset="0" />
-                        <circle cx="70" cy="70" r="50" fill="none" stroke="#3b82f6" strokeWidth="20" strokeDasharray="144 170" strokeDashoffset="-88" />
-                        <circle cx="70" cy="70" r="50" fill="none" stroke="#f59e0b" strokeWidth="20" strokeDasharray="56 258" strokeDashoffset="-232" />
-                        <circle cx="70" cy="70" r="50" fill="none" stroke="#ef4444" strokeWidth="20" strokeDasharray="26 288" strokeDashoffset="-288" />
+                  <div className="wf-card-header">
+                    <h2 className="wf-card-title">Performance Distribution</h2>
+                    <span style={{ fontSize: "11px", color: "var(--wf-text-muted)" }}>248 Total Employees</span>
+                  </div>
+                  <div className="wf-skill-donut-wrapper" style={{ marginTop: "8px" }}>
+                    <div className="wf-donut-chart-box" style={{ position: "relative" }}>
+                      <svg width="150" height="150" viewBox="0 0 150 150" style={{ transform: "rotate(-90deg)", filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.06))" }}>
+                        {/* Excellent 28% -> strokeDasharray 91 235 */}
+                        <circle
+                          cx="75" cy="75" r="52" fill="none" stroke="#84cc16"
+                          strokeWidth={hoveredDonutSegment === "excellent" ? "24" : "20"}
+                          strokeDasharray="91 235" strokeDashoffset="0"
+                          style={{ transition: "all 0.3s ease", cursor: "pointer" }}
+                          onMouseEnter={() => setHoveredDonutSegment("excellent")}
+                          onMouseLeave={() => setHoveredDonutSegment(null)}
+                        />
+                        {/* Good 46% -> strokeDasharray 150 176 */}
+                        <circle
+                          cx="75" cy="75" r="52" fill="none" stroke="#3b82f6"
+                          strokeWidth={hoveredDonutSegment === "good" ? "24" : "20"}
+                          strokeDasharray="150 176" strokeDashoffset="-91"
+                          style={{ transition: "all 0.3s ease", cursor: "pointer" }}
+                          onMouseEnter={() => setHoveredDonutSegment("good")}
+                          onMouseLeave={() => setHoveredDonutSegment(null)}
+                        />
+                        {/* Average 18% -> strokeDasharray 58 268 */}
+                        <circle
+                          cx="75" cy="75" r="52" fill="none" stroke="#f59e0b"
+                          strokeWidth={hoveredDonutSegment === "average" ? "24" : "20"}
+                          strokeDasharray="58 268" strokeDashoffset="-241"
+                          style={{ transition: "all 0.3s ease", cursor: "pointer" }}
+                          onMouseEnter={() => setHoveredDonutSegment("average")}
+                          onMouseLeave={() => setHoveredDonutSegment(null)}
+                        />
+                        {/* Needs Improvement 8% -> strokeDasharray 26 300 */}
+                        <circle
+                          cx="75" cy="75" r="52" fill="none" stroke="#ef4444"
+                          strokeWidth={hoveredDonutSegment === "improvement" ? "24" : "20"}
+                          strokeDasharray="26 300" strokeDashoffset="-299"
+                          style={{ transition: "all 0.3s ease", cursor: "pointer" }}
+                          onMouseEnter={() => setHoveredDonutSegment("improvement")}
+                          onMouseLeave={() => setHoveredDonutSegment(null)}
+                        />
                       </svg>
                       <div className="wf-donut-center-text">
-                        <span className="wf-donut-label">Total</span>
-                        <span className="wf-donut-number">248</span>
-                        <span className="wf-donut-label">Employees</span>
+                        <span className="wf-donut-label">
+                          {hoveredDonutSegment === "excellent" && "Excellent"}
+                          {hoveredDonutSegment === "good" && "Good"}
+                          {hoveredDonutSegment === "average" && "Average"}
+                          {hoveredDonutSegment === "improvement" && "Needs Imp."}
+                          {!hoveredDonutSegment && "Total"}
+                        </span>
+                        <span className="wf-donut-number">
+                          {hoveredDonutSegment === "excellent" && "69"}
+                          {hoveredDonutSegment === "good" && "114"}
+                          {hoveredDonutSegment === "average" && "45"}
+                          {hoveredDonutSegment === "improvement" && "20"}
+                          {!hoveredDonutSegment && "248"}
+                        </span>
+                        <span className="wf-donut-label">
+                          {hoveredDonutSegment ? "Staff" : "Employees"}
+                        </span>
                       </div>
                     </div>
 
                     <div className="wf-donut-legend-list">
-                      <div className="wf-donut-legend-row"><div className="wf-donut-category"><span className="wf-donut-dot" style={{ background: "#84cc16" }} /><span>Excellent (4.5 - 5.0)</span></div><span className="wf-donut-percent">28% (69)</span></div>
-                      <div className="wf-donut-legend-row"><div className="wf-donut-category"><span className="wf-donut-dot" style={{ background: "#3b82f6" }} /><span>Good (3.5 - 4.4)</span></div><span className="wf-donut-percent">46% (114)</span></div>
-                      <div className="wf-donut-legend-row"><div className="wf-donut-category"><span className="wf-donut-dot" style={{ background: "#f59e0b" }} /><span>Average (2.5 - 3.4)</span></div><span className="wf-donut-percent">18% (45)</span></div>
-                      <div className="wf-donut-legend-row"><div className="wf-donut-category"><span className="wf-donut-dot" style={{ background: "#ef4444" }} /><span>Needs Improvement (&lt;2.5)</span></div><span className="wf-donut-percent">8% (20)</span></div>
+                      <div
+                        className={`wf-donut-legend-row ${hoveredDonutSegment === "excellent" ? "active" : ""}`}
+                        style={{ padding: "6px 8px", borderRadius: "8px", background: hoveredDonutSegment === "excellent" ? "#f0fdf4" : "transparent", cursor: "pointer" }}
+                        onMouseEnter={() => setHoveredDonutSegment("excellent")}
+                        onMouseLeave={() => setHoveredDonutSegment(null)}
+                      >
+                        <div className="wf-donut-category"><span className="wf-donut-dot" style={{ background: "#84cc16" }} /><span>Excellent (4.5 - 5.0)</span></div>
+                        <span className="wf-donut-percent" style={{ fontWeight: "700", color: "#15803d" }}>28% (69)</span>
+                      </div>
+
+                      <div
+                        className={`wf-donut-legend-row ${hoveredDonutSegment === "good" ? "active" : ""}`}
+                        style={{ padding: "6px 8px", borderRadius: "8px", background: hoveredDonutSegment === "good" ? "#eff6ff" : "transparent", cursor: "pointer" }}
+                        onMouseEnter={() => setHoveredDonutSegment("good")}
+                        onMouseLeave={() => setHoveredDonutSegment(null)}
+                      >
+                        <div className="wf-donut-category"><span className="wf-donut-dot" style={{ background: "#3b82f6" }} /><span>Good (3.5 - 4.4)</span></div>
+                        <span className="wf-donut-percent" style={{ fontWeight: "700", color: "#1d4ed8" }}>46% (114)</span>
+                      </div>
+
+                      <div
+                        className={`wf-donut-legend-row ${hoveredDonutSegment === "average" ? "active" : ""}`}
+                        style={{ padding: "6px 8px", borderRadius: "8px", background: hoveredDonutSegment === "average" ? "#fffbeb" : "transparent", cursor: "pointer" }}
+                        onMouseEnter={() => setHoveredDonutSegment("average")}
+                        onMouseLeave={() => setHoveredDonutSegment(null)}
+                      >
+                        <div className="wf-donut-category"><span className="wf-donut-dot" style={{ background: "#f59e0b" }} /><span>Average (2.5 - 3.4)</span></div>
+                        <span className="wf-donut-percent" style={{ fontWeight: "700", color: "#b45309" }}>18% (45)</span>
+                      </div>
+
+                      <div
+                        className={`wf-donut-legend-row ${hoveredDonutSegment === "improvement" ? "active" : ""}`}
+                        style={{ padding: "6px 8px", borderRadius: "8px", background: hoveredDonutSegment === "improvement" ? "#fef2f2" : "transparent", cursor: "pointer" }}
+                        onMouseEnter={() => setHoveredDonutSegment("improvement")}
+                        onMouseLeave={() => setHoveredDonutSegment(null)}
+                      >
+                        <div className="wf-donut-category"><span className="wf-donut-dot" style={{ background: "#ef4444" }} /><span>Needs Imp. (&lt;2.5)</span></div>
+                        <span className="wf-donut-percent" style={{ fontWeight: "700", color: "#b91c1c" }}>8% (20)</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -4831,12 +5035,8 @@ export default function WorkforceDashboard() {
           <footer className="wf-dashboard-footer">
             <div className="wf-footer-top">
               <div className="wf-footer-brand">
-                <div className="wf-footer-brand-logo">
-                  <div className="wf-logo-icon" style={{ width: "32px", height: "32px", fontSize: "16px" }}>⬢</div>
-                  <div>
-                    <strong style={{ fontSize: "16px", color: "var(--wf-text-primary)" }}>SkillSphere</strong>
-                    <span style={{ fontSize: "11px", display: "block", color: "var(--wf-text-secondary)" }}>Workforce</span>
-                  </div>
+                <div className="wf-footer-brand-logo" style={{ display: "inline-flex", alignItems: "center" }}>
+                  <AppLogo height="56px" />
                 </div>
                 <p className="wf-footer-brand-desc">
                   Empowering organizations by building a skilled and engaged workforce.

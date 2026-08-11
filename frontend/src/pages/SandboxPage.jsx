@@ -105,6 +105,8 @@ const whySandboxList = [
   }
 ];
 
+import AppLogo from "../components/AppLogo";
+
 export default function SandboxPage() {
   const navigate = useNavigate();
   const { themeMode } = useAuth();
@@ -455,9 +457,8 @@ export default function SandboxPage() {
           <div className="footerTopGrid" style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr' }}>
             {/* Col 1: Brand */}
             <div className="footerBrandCol">
-              <Link to="/" className="footerLogo" onClick={handleScrollTop}>
-                <span className="logoIcon">⬢</span>
-                <span>SkillSphere</span>
+              <Link to="/" className="footerLogo" onClick={handleScrollTop} style={{ display: "inline-flex", alignItems: "center" }}>
+                <AppLogo height="56px" />
               </Link>
               <p className="footerBrandDesc">
                 Empowering learners and professionals through smart tools, real-time environments, and endless learning opportunities.

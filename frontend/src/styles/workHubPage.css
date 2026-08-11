@@ -201,18 +201,18 @@
 }
 
 .perfWidgetCard {
-  background: #FFFFFF;
-  border: 1px solid #F3EBE1;
+  background: var(--bg-card, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12));
   border-radius: 20px;
   padding: 22px;
-  box-shadow: 0 6px 20px rgba(249, 87, 42, 0.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
 .perfWidgetHeader h4 {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 800;
-  color: #1E1B18;
+  color: var(--text-primary, #ffffff);
   margin: 0 0 14px 0;
 }
 
@@ -231,7 +231,11 @@
   justify-content: space-between;
   font-size: 11px;
   font-weight: 600;
-  color: #64748B;
+  color: var(--text-secondary, #cbd5e1);
+}
+
+.donutLegendList li strong {
+  color: var(--text-primary, #ffffff);
 }
 
 .legendDot {
@@ -243,8 +247,8 @@
 }
 
 .completionRateWidget {
-  background: #FFFFFF;
-  border: 1px solid #F3EBE1;
+  background: var(--bg-card, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12));
   border-radius: 18px;
   padding: 18px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.02);
@@ -253,7 +257,7 @@
 .completionRateWidget h5 {
   font-size: 11px;
   font-weight: 700;
-  color: #64748B;
+  color: var(--text-secondary, #cbd5e1);
   margin: 0 0 4px 0;
 }
 
@@ -261,14 +265,14 @@
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 22px;
   font-weight: 800;
-  color: #1E1B18;
+  color: var(--text-primary, #ffffff);
   display: block;
 }
 
 .completionRateWidget span {
   font-size: 10px;
-  color: #94A3B8;
-  margin-bottom: 8px;
+  color: var(--text-muted, #94A3B8);
+}  margin-bottom: 8px;
   display: block;
 }
 

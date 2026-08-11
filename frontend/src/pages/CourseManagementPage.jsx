@@ -13,6 +13,8 @@ import "../styles/studentDashboard.css";
 
 import { useAdmin } from "../context/AdminContext";
 
+import AppLogo from "../components/AppLogo";
+
 export default function CourseManagementPage() {
   const { user, xp, logout, themeMode, toggleTheme } = useAuth();
   const { courses: adminCourses, pendingCourseRequests, users } = useAdmin();
@@ -92,9 +94,8 @@ export default function CourseManagementPage() {
         {/* Left Sidebar */}
         <aside className="sdLeftSidebar">
           <div>
-            <Link to="/" className="sdBrandLogo">
-              <span className="logoHex">⬢</span>
-              <span>SkillSphere</span>
+            <Link to="/" className="sdBrandLogo" style={{ display: "inline-flex", alignItems: "center" }}>
+              <AppLogo height="58px" />
             </Link>
             <div className="sdSidebarHomeArchHeader">
               <div className="sdArchLine" />

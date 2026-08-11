@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import AppLogo from "./AppLogo";
 import { FaFacebookF, FaTwitter, FaLinkedinIn, FaInstagram, FaYoutube } from "react-icons/fa";
 import "../styles/footer.css";
 
@@ -14,9 +15,8 @@ export default function Footer() {
         <div className="footerTopGrid">
           {/* Col 1: Brand */}
           <div className="footerBrandCol">
-            <Link to="/" className="footerLogo" onClick={handleScrollTop}>
-              <span className="logoIcon">⬢</span>
-              <span>SkillSphere</span>
+            <Link to="/" className="footerLogo" onClick={handleScrollTop} style={{ display: "inline-flex", alignItems: "center" }}>
+              <AppLogo height="56px" />
             </Link>
             <p className="footerBrandDesc">
               Empowering students and organizations through gamified learning and workforce development.

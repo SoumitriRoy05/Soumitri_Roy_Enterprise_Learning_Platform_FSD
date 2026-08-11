@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import AppLogo from "./AppLogo";
 import { FiMenu, FiLogOut, FiSun, FiMoon } from "react-icons/fi";
 import "../styles/navbar.css";
 
@@ -25,11 +26,9 @@ export default function Navbar({ toggleSidebar, isSidebarOpen, showSidebarToggle
         <Link
           to={user ? (user.role === "STUDENT" ? "/student-home" : "/workforce-home") : "/"}
           className="logo"
-          style={{ textDecoration: "none" }}
+          style={{ textDecoration: "none", display: "inline-flex", alignItems: "center" }}
         >
-          <div className="logoIcon">⬢</div>
-          <span className="skill">Skill</span>
-          <span className="sphere">Sphere</span>
+          <AppLogo height="54px" />
         </Link>
       </div>
 

@@ -17,6 +17,8 @@ import {
 import "../styles/studentDashboard.css";
 import "../styles/profileSettings.css";
 
+import AppLogo from "../components/AppLogo";
+
 export default function StudentProfilePage() {
   const { user, xp, logout, themeMode, toggleTheme, completedTopics, updateUserProfile, refreshProfile } = useAuth();
   const navigate = useNavigate();
@@ -303,9 +305,8 @@ export default function StudentProfilePage() {
         {/* Left Sidebar */}
         <aside className="sdLeftSidebar">
           <div>
-            <Link to="/" className="sdBrandLogo">
-              <span className="logoHex">⬢</span>
-              <span>SkillSphere</span>
+            <Link to="/" className="sdBrandLogo" style={{ display: "inline-flex", alignItems: "center" }}>
+              <AppLogo height="58px" />
             </Link>
             <div className="sdSidebarHomeArchHeader">
               <div className="sdArchLine" />

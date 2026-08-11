@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import AppLogo from "./AppLogo";
 import { FaBookOpen, FaStar, FaUsers, FaPaperPlane, FaMinus, FaTimes } from "react-icons/fa";
 import { askGeminiAI } from "../services/geminiService";
 import FormattedMessage from "./FormattedMessage";
@@ -177,7 +178,7 @@ export default function FloatingChatbot() {
           <div className="chat-window-header">
             <div className="chat-header-title">
               <div className="chat-status-dot"></div>
-              <div className="sphereLogoHex">⬢</div>
+              <AppLogo iconOnly height="26px" />
               <h4>
                 SphereAI <span className="subtitleText">Virtual Assistant</span>
               </h4>

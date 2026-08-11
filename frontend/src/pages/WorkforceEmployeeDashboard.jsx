@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import AppLogo from "../components/AppLogo";
 import Background from "../components/Background";
 import {
   FaHome,
@@ -429,11 +430,7 @@ export default function WorkforceEmployeeDashboard() {
       {/* SIDEBAR */}
       <aside className={`wf-sidebar open`} style={{ zIndex: 10 }}>
         <div className="wf-sidebar-header">
-          <div className="wf-logo-icon">⬢</div>
-          <div className="wf-logo-text">
-            <span className="wf-brand-name">SkillSphere</span>
-            <span className="wf-brand-sub">Employee Hub</span>
-          </div>
+          <AppLogo height="54px" />
         </div>
 
         <nav className="wf-sidebar-nav">
@@ -1270,7 +1267,7 @@ export default function WorkforceEmployeeDashboard() {
             </button>
 
             <div style={{ textAlign: "center", border: "2px solid rgba(140,83,56,0.2)", padding: "30px", background: "#faf8f5" }}>
-              <div style={{ fontSize: "36px", marginBottom: "10px" }}>⬢</div>
+              <div style={{ marginBottom: "10px" }}><AppLogo height="45px" /></div>
               <h2 style={{ fontFamily: "Georgia, serif", fontSize: "28px", color: "#8c5338", margin: "0 0 5px 0" }}>Certificate of Completion</h2>
               <span style={{ fontSize: "11px", letterSpacing: "2px", textTransform: "uppercase", color: "#a39285" }}>SkillSphere Verified Upskilling</span>
               

@@ -59,6 +59,8 @@ import {
 import "../styles/studentDashboard.css";
 import "../styles/badgesPage.css";
 
+import AppLogo from "../components/AppLogo";
+
 export default function BadgesPage() {
   const { user, xp, logout, themeMode, toggleTheme } = useAuth();
   const navigate = useNavigate();
@@ -187,9 +189,8 @@ export default function BadgesPage() {
         {/* ── LEFT SIDEBAR ── */}
         <aside className="bpLeftSidebar">
           <div>
-            <Link to="/" className="sdBrandLogo">
-              <span className="logoHex">⬢</span>
-              <span>SkillSphere</span>
+            <Link to="/" className="sdBrandLogo" style={{ display: "inline-flex", alignItems: "center" }}>
+              <AppLogo height="58px" />
             </Link>
 
             <div className="sdSidebarHomeArchHeader">

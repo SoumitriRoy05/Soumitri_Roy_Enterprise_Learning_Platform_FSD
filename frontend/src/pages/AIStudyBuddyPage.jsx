@@ -28,6 +28,8 @@ import { react20QuizQuestions, python20QuizQuestions } from "../data/quizData";
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+import AppLogo from "../components/AppLogo";
+
 export default function AIStudyBuddyPage() {
   const { user, xp, earnXp, themeMode, toggleTheme, authenticatedFetch } = useAuth();
   const navigate = useNavigate();
@@ -736,9 +738,8 @@ SELECT * FROM Students WHERE xp >= 1000;`
         {/* ── LEFT SIDEBAR ── */}
         <aside className="aisbpLeftSidebar">
           <div>
-            <Link to="/" className="sdBrandLogo">
-              <span className="logoHex">⬢</span>
-              <span>SkillSphere</span>
+            <Link to="/" className="sdBrandLogo" style={{ display: "inline-flex", alignItems: "center" }}>
+              <AppLogo height="58px" />
             </Link>
 
             <div className="aisbpSidebarHomeArchHeader">

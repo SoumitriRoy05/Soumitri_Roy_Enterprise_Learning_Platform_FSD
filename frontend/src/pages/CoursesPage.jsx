@@ -52,6 +52,8 @@ import {
 import "../styles/courses.css";
 import { useAdmin } from "../context/AdminContext";
 
+import AppLogo from "../components/AppLogo";
+
 export default function CoursesPage() {
   const { user, xp, logout, themeMode, toggleTheme, enrolledCourses, enrollCourse, completedTopics, earnXp } = useAuth();
   const { courses: adminCourses, pendingCourseRequests } = useAdmin();
@@ -609,9 +611,8 @@ export default function CoursesPage() {
         {/* ── LEFT SIDEBAR ── */}
         <aside className="mcLeftSidebar">
           <div>
-            <Link to="/" className="sdBrandLogo">
-              <span className="logoHex">⬢</span>
-              <span>SkillSphere</span>
+            <Link to="/" className="sdBrandLogo" style={{ display: "inline-flex", alignItems: "center" }}>
+              <AppLogo height="58px" />
             </Link>
 
             <div className="sdSidebarHomeArchHeader">

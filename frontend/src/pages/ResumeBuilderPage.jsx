@@ -60,6 +60,8 @@ import {
 import "../styles/studentDashboard.css";
 import "../styles/resumeBuilderPage.css";
 
+import AppLogo from "../components/AppLogo";
+
 export default function ResumeBuilderPage() {
   const { user, xp, logout, themeMode, toggleTheme, authenticatedFetch } = useAuth();
   const navigate = useNavigate();
@@ -1096,9 +1098,8 @@ export default function ResumeBuilderPage() {
         {/* ── LEFT SIDEBAR ── */}
         <aside className="rbpLeftSidebar">
           <div>
-            <Link to="/" className="sdBrandLogo">
-              <span className="logoHex">⬢</span>
-              <span>SkillSphere</span>
+            <Link to="/" className="sdBrandLogo" style={{ display: "inline-flex", alignItems: "center" }}>
+              <AppLogo height="58px" />
             </Link>
 
             <div className="sdSidebarHomeArchHeader">
