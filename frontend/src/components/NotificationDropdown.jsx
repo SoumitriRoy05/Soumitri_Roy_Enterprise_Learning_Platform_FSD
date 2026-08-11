@@ -1,10 +1,199 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaBell, FaCheckCircle, FaTimes, FaAward, FaHourglassHalf, FaBolt, FaRobot, FaBriefcase, FaUserCheck, FaChartLine } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 
 export default function NotificationDropdown({ type = "student" }) {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(4);
+  const [dbRequests, setDbRequests] = useState([]);
+  const [dbCerts, setDbCerts] = useState([]);
+
+  const userKey = user?.email || user?.username || "default";
+
+  const [readNotificationIds, setReadNotificationIds] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`skillsphere_read_notifications_${userKey}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  // Sync read status when user changes
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(`skillsphere_read_notifications_${userKey}`);
+      setReadNotificationIds(saved ? JSON.parse(saved) : []);
+    } catch (e) {}
+  }, [userKey]);
+
+  // Fetch real-time data from backend APIs
+  useEffect(() => {
+    if (!user || type !== "student") return;
+
+    const fetchRealTimeData = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        if (!token) return;
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+        // 1. Fetch course requests
+        const reqRes = await fetch(`${API_URL}/api/courses/my-requests`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const reqData = await reqRes.json();
+        if (reqRes.ok && reqData.requests) {
+          setDbRequests(reqData.requests);
+        }
+
+        // 2. Fetch earned certificates
+        const certRes = await fetch(`${API_URL}/api/certificates`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const certData = await certRes.json();
+        if (certRes.ok && certData.certificates) {
+          setDbCerts(certData.certificates);
+        }
+      } catch (err) {
+        console.error("Failed to fetch real-time notifications data:", err);
+      }
+    };
+
+    fetchRealTimeData();
+    // Refresh notifications every 20 seconds for real-time responsiveness
+    const interval = setInterval(fetchRealTimeData, 20000);
+    return () => clearInterval(interval);
+  }, [user, type]);
+
+  // Build dynamic notifications list
+  const notifications = React.useMemo(() => {
+    const list = [];
+
+    if (type === "student" && user) {
+      // 1. Add course requests from DB or localStorage
+      const localReqs = (() => {
+        try {
+          const all = JSON.parse(localStorage.getItem("skillsphere_pending_course_requests") || "[]");
+          return all.filter(r => r.studentEmail === userKey);
+        } catch (e) {
+          return [];
+        }
+      })();
+
+      // Merge backend and frontend local requests
+      const mergedReqs = [...dbRequests];
+      localReqs.forEach(lr => {
+        if (!mergedReqs.some(r => r.courseId === lr.courseId || r.id === lr.id)) {
+          mergedReqs.push(lr);
+        }
+      });
+
+      mergedReqs.forEach(req => {
+        if (req.status === "pending") {
+          list.push({
+            id: `req-pending-${req.id || req.courseId}`,
+            title: "Course Request Pending ⏳",
+            desc: `Your enrollment request for "${req.courseTitle}" is waiting for Admin approval.`,
+            time: req.requestDate ? req.requestDate.split(",")[0] : "Recently",
+            icon: <FaHourglassHalf color="#F59E0B" />,
+          });
+        } else if (req.status === "approved") {
+          list.push({
+            id: `req-approved-${req.id || req.courseId}`,
+            title: "Course Enrolled Successfully! 🏆",
+            desc: `Your request for "${req.courseTitle}" has been approved. Start learning now!`,
+            time: "Recently",
+            icon: <FaAward color="#10B981" />,
+          });
+        } else if (req.status === "rejected") {
+          list.push({
+            id: `req-rejected-${req.id || req.courseId}`,
+            title: "Course Request Denied ❌",
+            desc: `Your request for "${req.courseTitle}" was not approved. Please contact support.`,
+            time: "Recently",
+            icon: <FaTimes color="#EF4444" />,
+          });
+        }
+      });
+
+      // 2. Add certificates
+      dbCerts.forEach(cert => {
+        list.push({
+          id: `cert-${cert.id || cert.verificationCode}`,
+          title: "Certificate Issued 🏆",
+          desc: `Congratulations! Your certificate for "${cert.title}" has been issued. Ready for download.`,
+          time: cert.issuedAt ? cert.issuedAt.split("T")[0] : "Recently",
+          icon: <FaAward color="#F9572A" />,
+        });
+      });
+
+      // 3. Add study streak
+      if (user.streak > 1) {
+        list.push({
+          id: "streak-status",
+          title: "Study Streak Active! 🔥",
+          desc: `You are on a ${user.streak}-day learning streak! Keep pushing your limits.`,
+          time: "Daily",
+          icon: <FaBolt color="#F59E0B" />,
+        });
+      }
+
+      // 4. Add XP status
+      if (user.xp > 0) {
+        list.push({
+          id: "xp-status",
+          title: "XP Level Up! ⚡",
+          desc: `You have accumulated ${user.xp} XP. Keep up the amazing work!`,
+          time: "Real-time",
+          icon: <FaBolt color="#10B981" />,
+        });
+      }
+
+      // Default welcome notification if empty
+      if (list.length === 0) {
+        list.push({
+          id: "student-welcome",
+          title: "Welcome to SkillSphere Nexus! 🚀",
+          desc: "Browse our course catalog, enroll, and start building your career path.",
+          time: "Now",
+          icon: <FaRobot color="#38BDF8" />,
+        });
+      }
+    } else if (type === "workforce") {
+      // Admin/Workforce notifications
+      const pendingReqs = (() => {
+        try {
+          const all = JSON.parse(localStorage.getItem("skillsphere_pending_course_requests") || "[]");
+          return all.filter(r => r.status === "pending" || !r.status);
+        } catch (e) {
+          return [];
+        }
+      })();
+
+      pendingReqs.forEach(req => {
+        list.push({
+          id: `wf-req-${req.id}`,
+          title: "Pending Course Purchase ⏳",
+          desc: `Student ${req.studentName || "Learner"} requested "${req.courseTitle}" (${req.fee || "₹4,999"}).`,
+          time: req.requestDate ? req.requestDate.split(" ")[0] : "Recently",
+          icon: <FaHourglassHalf color="#F59E0B" />,
+        });
+      });
+
+      // Default workforce message
+      list.push({
+        id: "wf-welcome",
+        title: "Platform Monitor Active 🌐",
+        desc: "Monitoring all course enrollment requests, support tickets, and employee metrics.",
+        time: "Active",
+        icon: <FaChartLine color="#A855F7" />,
+      });
+    }
+
+    return list;
+  }, [type, user, dbRequests, dbCerts, userKey]);
+
+  const unreadCount = notifications.filter(n => !readNotificationIds.includes(n.id)).length;
 
   // Read theme mode safely from AuthContext
   let themeMode = "light";
@@ -19,80 +208,22 @@ export default function NotificationDropdown({ type = "student" }) {
 
   const isLight = themeMode === "light";
 
-  const studentNotifications = [
-    {
-      id: 1,
-      title: "Certificate Verified & Issued 🏆",
-      desc: "Your React Developer Path Certificate is ready for PNG download & LinkedIn sharing.",
-      time: "10 mins ago",
-      icon: <FaAward color="#F9572A" />,
-      read: false
-    },
-    {
-      id: 2,
-      title: "Course Payment Request ⏳",
-      desc: "Payment for Next.js 14 Masterclass received. Waiting for Admin Approval in Admin Dashboard.",
-      time: "45 mins ago",
-      icon: <FaHourglassHalf color="#F59E0B" />,
-      read: false
-    },
-    {
-      id: 3,
-      title: "+100 XP Quest Bonus ⚡",
-      desc: "Earned +100 XP for completing Daily Login & Quiz Streak!",
-      time: "2 hours ago",
-      icon: <FaBolt color="#10B981" />,
-      read: false
-    },
-    {
-      id: 4,
-      title: "AI Study Buddy Alert 🤖",
-      desc: "New practice quiz available for Data Structures & Algorithms.",
-      time: "5 hours ago",
-      icon: <FaRobot color="#38BDF8" />,
-      read: false
-    }
-  ];
-
-  const workforceNotifications = [
-    {
-      id: 101,
-      title: "Pending Course Purchase Approval ⏳",
-      desc: "Student Soumitri requested enrollment for React.js Development (Fee: ₹4,999).",
-      time: "15 mins ago",
-      icon: <FaHourglassHalf color="#F59E0B" />,
-      read: false
-    },
-    {
-      id: 102,
-      title: "Sprint Task Assignment 📋",
-      desc: "New task assigned: Refactor Microservices Authentication API in Node.js.",
-      time: "45 mins ago",
-      icon: <FaBriefcase color="#38BDF8" />,
-      read: false
-    },
-    {
-      id: 103,
-      title: "Employee Leave Request Pending 👥",
-      desc: "Employee Leave Request submitted by Alex for Aug 5 - Aug 7.",
-      time: "2 hours ago",
-      icon: <FaUserCheck color="#10B981" />,
-      read: false
-    },
-    {
-      id: 104,
-      title: "System Performance Report 📊",
-      desc: "System performance report generated with 99.9% platform uptime.",
-      time: "4 hours ago",
-      icon: <FaChartLine color="#A855F7" />,
-      read: false
-    }
-  ];
-
-  const notifications = type === "workforce" ? workforceNotifications : studentNotifications;
-
   const handleMarkAllRead = () => {
-    setUnreadCount(0);
+    const allIds = notifications.map(n => n.id);
+    const updated = [...new Set([...readNotificationIds, ...allIds])];
+    setReadNotificationIds(updated);
+    try {
+      localStorage.setItem(`skillsphere_read_notifications_${userKey}`, JSON.stringify(updated));
+    } catch (e) {}
+  };
+
+  const handleMarkSingleRead = (id, e) => {
+    if (e) e.stopPropagation();
+    const updated = [...new Set([...readNotificationIds, id])];
+    setReadNotificationIds(updated);
+    try {
+      localStorage.setItem(`skillsphere_read_notifications_${userKey}`, JSON.stringify(updated));
+    } catch (e) {}
   };
 
   return (
@@ -229,6 +360,7 @@ export default function NotificationDropdown({ type = "student" }) {
             {notifications.map((item) => (
               <div
                 key={item.id}
+                onClick={(e) => handleMarkSingleRead(item.id, e)}
                 style={{
                   padding: "12px 18px",
                   borderBottom: isLight ? "1px solid #F1F5F9" : "1px solid #1E293B",
@@ -237,7 +369,9 @@ export default function NotificationDropdown({ type = "student" }) {
                   alignItems: "flex-start",
                   transition: "background 0.2s ease",
                   cursor: "pointer",
-                  background: isLight ? "#FFFFFF" : "#0F172A"
+                  background: readNotificationIds.includes(item.id)
+                    ? (isLight ? "#FFFFFF" : "#0F172A")
+                    : (isLight ? "#FFF5F2" : "#1E1A29")
                 }}
               >
                 <div
@@ -257,7 +391,7 @@ export default function NotificationDropdown({ type = "student" }) {
                 </div>
 
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: "12px", fontWeight: 700, color: isLight ? "#0F172A" : "#F8FAFC", marginBottom: "2px" }}>
+                  <div style={{ fontSize: "12px", fontWeight: readNotificationIds.includes(item.id) ? 600 : 800, color: isLight ? "#0F172A" : "#F8FAFC", marginBottom: "2px" }}>
                     {item.title}
                   </div>
                   <div style={{ fontSize: "11px", color: isLight ? "#475569" : "#94A3B8", lineHeight: "1.4", marginBottom: "4px" }}>

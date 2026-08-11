@@ -69,7 +69,7 @@ export default function CourseManagementPage() {
     { id: "services-catalog", label: "Services & Catalog", icon: <FaBook /> },
     { id: "assessments", label: "Assessments", icon: <FaBolt /> },
     { id: "certification-tracking", label: "Cert Tracking", icon: <FaCertificate /> },
-    { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
+    
     { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
     { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },

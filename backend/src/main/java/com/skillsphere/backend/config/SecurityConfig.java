@@ -44,6 +44,7 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/h2-console/**"),
                                 new AntPathRequestMatcher("/api/admin/**")
                         ).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/executive/**")).hasRole("EXECUTIVE")
                         .anyRequest().authenticated()
                 )
                 // H2 Console frame options

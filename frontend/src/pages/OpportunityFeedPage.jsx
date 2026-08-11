@@ -99,7 +99,7 @@ export default function OpportunityFeedPage() {
     { id: "services-catalog", label: "Services & Catalog", icon: <FaBook /> },
     { id: "assessments", label: "Assessments", icon: <FaBolt /> },
     { id: "certification-tracking", label: "Cert Tracking", icon: <FaCertificate /> },
-    { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
+    
     { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
     { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
@@ -516,11 +516,12 @@ export default function OpportunityFeedPage() {
                     else if (item.id === "opportunity-feed") { setActiveTab("job-search"); navigate("/opportunity-feed"); }
                     else if (item.id === "daily-quests") navigate("/daily-quests");
                     else if (item.id === "badges") navigate("/badges");
-                    else if (item.id === "certificates") navigate("/certificates");
+                    else if (item.id === "certificates") navigate("/certificate");
                     else if (item.id === "progress") navigate("/progress");
                     else if (item.id === "resume") navigate("/resume-builder");
                     else if (item.id === "code-arena") navigate("/code-arena");
                     else if (item.id === "settings") navigate("/settings");
+                    else navigate(`/${item.id}`);
                   }}
                 >
                   <span className="navIcon">{item.icon}</span>

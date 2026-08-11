@@ -378,6 +378,7 @@ export default function StudentFeatures() {
                 <li><Link to="/courses" onClick={handleScrollTop}>Work Hub</Link></li>
                 <li><Link to="/sandbox" onClick={handleScrollTop}>Sandbox</Link></li>
                 <li><Link to="/admin-login" onClick={handleScrollTop}>Admin Portal</Link></li>
+                 <li><Link to="/executive/dashboard" onClick={handleScrollTop}>Executive Portal</Link></li>
               </ul>
             </div>
 

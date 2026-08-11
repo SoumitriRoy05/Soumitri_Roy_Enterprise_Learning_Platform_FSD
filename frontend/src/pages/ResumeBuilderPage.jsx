@@ -191,7 +191,7 @@ export default function ResumeBuilderPage() {
     { id: "services-catalog", label: "Services & Catalog", icon: <FaBook /> },
     { id: "assessments", label: "Assessments", icon: <FaBolt /> },
     { id: "certification-tracking", label: "Cert Tracking", icon: <FaCertificate /> },
-    { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
+    
     { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
     { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
@@ -1132,7 +1132,7 @@ export default function ResumeBuilderPage() {
                       else if (item.id === "progress") navigate("/progress");
                       else if (item.id === "code-arena") navigate("/code-arena");
                       else if (item.id === "settings") navigate("/settings");
-                      else navigate("/student-home");
+                      else navigate(`/${item.id}`);
                     }}
                   >
                     <span className="navIcon">{item.icon}</span>

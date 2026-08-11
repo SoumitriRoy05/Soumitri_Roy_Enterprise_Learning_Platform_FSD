@@ -77,7 +77,7 @@ export default function CertificatesPage() {
     { id: "services-catalog", label: "Services & Catalog", icon: <FaBook /> },
     { id: "assessments", label: "Assessments", icon: <FaBolt /> },
     { id: "certification-tracking", label: "Cert Tracking", icon: <FaCertificate /> },
-    { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
+    
     { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
     { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
@@ -293,7 +293,7 @@ export default function CertificatesPage() {
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   // Persistent storage for manually earned or unlocked certificates
-  const [earnedCertKeys, setEarnedCertKeys] = useState(["react_", "react", 1, "react_cert"]);
+  const [earnedCertKeys, setEarnedCertKeys] = useState([]);
 
   const fetchClaimedCertificates = async () => {
     try {
@@ -326,12 +326,21 @@ export default function CertificatesPage() {
   };
 
   React.useEffect(() => {
-    fetchClaimedCertificates();
-  }, [user]);
+    if (user) {
+      fetchClaimedCertificates();
+      const isDemo = userKey === "soumitriroy@gmail.com" || userKey === "soumitriroy" || userKey === "default" || user?.isDemo;
+      if (isDemo) {
+        setEarnedCertKeys(prev => [...new Set([...prev, "react_", "react", 1, "react_cert"])]);
+      }
+    } else {
+      setEarnedCertKeys([]);
+    }
+  }, [user, userKey]);
 
   const handleClaimCertificate = async (cert) => {
     const updated = [...new Set([...earnedCertKeys, cert.topicPrefix, cert.id, cert.topicPrefix.replace("_", "")])];
     setEarnedCertKeys(updated);
+    setSelectedCertId(cert.id);
 
     try {
       const token = localStorage.getItem('accessToken');
@@ -365,7 +374,30 @@ export default function CertificatesPage() {
     const prefix = cert.topicPrefix;
     const cleanPrefix = prefix.replace("_", "");
 
-    const topicsDone = userCompletedTopics.filter(t => t.startsWith(prefix)).length;
+    // Determine the database/completion prefix
+    let dbPrefix = prefix;
+    if (prefix === "js_") dbPrefix = "js-";
+    else if (prefix === "node_") dbPrefix = "node-";
+    else if (prefix === "python_") dbPrefix = "py-";
+    else if (prefix === "uiux_") dbPrefix = "ui-";
+    else if (prefix === "dsa_") dbPrefix = "dsa-";
+    else if (prefix === "springboot_") dbPrefix = "sb-";
+    else if (prefix === "aws_") dbPrefix = "aws-";
+    else if (prefix === "nextjs_") dbPrefix = "next-";
+    else if (prefix === "cyber_") dbPrefix = "cyber-";
+    else if (prefix === "web3_") dbPrefix = "web3-";
+    else if (prefix === "fsd_") dbPrefix = "fsd-";
+    else if (prefix === "ml_") dbPrefix = "ml-";
+    else if (prefix === "dbms_") dbPrefix = "dbms-";
+    else if (prefix === "reactnative_") dbPrefix = "reactnative-";
+
+    const topicsDone = userCompletedTopics.filter(t => 
+      t.startsWith(prefix) || t.startsWith(dbPrefix)
+    ).length;
+
+    let requiredTopics = 6;
+    if (cleanPrefix === "react") requiredTopics = 30;
+    else if (cleanPrefix === "python") requiredTopics = 7;
 
     // Check multiple completion signals across local storage
     const isQuizPassed = localStorage.getItem(`completed_quiz_${cleanPrefix}_${userKey}`) === "true";
@@ -377,14 +409,14 @@ export default function CertificatesPage() {
     let isReactCompleted = false;
     if (cleanPrefix === "react") {
       const reactSubCount = completedSubLessons.filter(id => !id.startsWith("py-") && !id.startsWith("node-") && !id.startsWith("ui-")).length;
-      if (reactSubCount >= 1 || completedSubLessons.length > 0 || isQuizPassed || isBadgeUnlocked || isCertSaved || isExplicitlyEarned) {
+      if (reactSubCount >= 30 || isQuizPassed || isBadgeUnlocked || isCertSaved || isExplicitlyEarned) {
         isReactCompleted = true;
       }
     }
 
-    const isEarned = isReactCompleted || isQuizPassed || isBadgeUnlocked || isCertSaved || isExplicitlyEarned || topicsDone >= 1;
+    const isEarned = isReactCompleted || isQuizPassed || isBadgeUnlocked || isCertSaved || isExplicitlyEarned;
 
-    const progress = isEarned ? 100 : Math.min(95, Math.round((topicsDone / 6) * 100));
+    const progress = isEarned ? 100 : Math.min(100, Math.round((topicsDone / requiredTopics) * 100));
 
     return {
       ...cert,
@@ -405,15 +437,20 @@ export default function CertificatesPage() {
   });
 
   const earnedCertificates = processedCerts.filter(c => c.isEarned);
-  const certificatesToEarn = processedCerts.filter(c => !c.isEarned);
+  const certificatesToEarn = processedCerts.filter(c => !c.isEarned && c.progress >= 100);
 
-  // Active Selected Certificate for Preview
-  const defaultCert = earnedCertificates[0] || certificatesToEarn[0] || processedCerts[0];
-  const [selectedCert, setSelectedCert] = useState(defaultCert);
+  // Active Selected Certificate ID for Preview
+  const [selectedCertId, setSelectedCertId] = useState(1);
+  const selectedCert = processedCerts.find(c => c.id === selectedCertId) || processedCerts[0];
 
   // PNG Certificate Download Generator using HTML5 Canvas
   const handleDownloadPNG = (certToDownload) => {
     const cert = certToDownload || selectedCert;
+    if (!cert?.isEarned) {
+      setToastMessage(`⚠️ You must complete the course and claim this certificate first!`);
+      setTimeout(() => setToastMessage(""), 4000);
+      return;
+    }
 
     const canvas = document.createElement("canvas");
     canvas.width = 1200;
@@ -500,6 +537,11 @@ export default function CertificatesPage() {
   // Share on LinkedIn Generator
   const handleShareLinkedIn = (certToShare) => {
     const cert = certToShare || selectedCert;
+    if (!cert?.isEarned) {
+      setToastMessage(`⚠️ You must complete the course and claim this certificate first!`);
+      setTimeout(() => setToastMessage(""), 4000);
+      return;
+    }
     setLinkedInCert(cert);
     setIsLinkedInModalOpen(true);
   };
@@ -507,6 +549,11 @@ export default function CertificatesPage() {
   // Copy Verification Link
   const handleShareLink = (certToShare) => {
     const cert = certToShare || selectedCert;
+    if (!cert?.isEarned) {
+      setToastMessage(`⚠️ You must complete the course and claim this certificate first!`);
+      setTimeout(() => setToastMessage(""), 4000);
+      return;
+    }
     const verifyUrl = `https://skillsphere.edu/verify/${cert.credentialId || "SS-25-05-NODE4-12345"}`;
     navigator.clipboard.writeText(verifyUrl);
 
@@ -562,7 +609,7 @@ export default function CertificatesPage() {
                       else if (item.id === "resume") navigate("/resume");
                       else if (item.id === "code-arena") navigate("/code-arena");
                       else if (item.id === "settings") navigate("/settings");
-                      else navigate("/student-home");
+                      else navigate(`/${item.id}`);
                     }}
                   >
                     <span className="navIcon">{item.icon}</span>
@@ -754,18 +801,33 @@ export default function CertificatesPage() {
                     <button
                       className="btnDownloadCert"
                       onClick={() => handleDownloadPNG(selectedCert)}
+                      disabled={!selectedCert?.isEarned}
+                      style={{
+                        opacity: selectedCert?.isEarned ? 1 : 0.5,
+                        cursor: selectedCert?.isEarned ? "pointer" : "not-allowed"
+                      }}
                     >
                       <FaDownload /> Download Certificate (PNG)
                     </button>
                     <button
                       className="btnShareLinkedIn"
                       onClick={() => handleShareLinkedIn(selectedCert)}
+                      disabled={!selectedCert?.isEarned}
+                      style={{
+                        opacity: selectedCert?.isEarned ? 1 : 0.5,
+                        cursor: selectedCert?.isEarned ? "pointer" : "not-allowed"
+                      }}
                     >
                       <FaLinkedin /> Share on LinkedIn
                     </button>
                     <button
                       className="btnShareOutline"
                       onClick={() => handleShareLink(selectedCert)}
+                      disabled={!selectedCert?.isEarned}
+                      style={{
+                        opacity: selectedCert?.isEarned ? 1 : 0.5,
+                        cursor: selectedCert?.isEarned ? "pointer" : "not-allowed"
+                      }}
                     >
                       <FaShareAlt /> Share
                     </button>
@@ -834,6 +896,31 @@ export default function CertificatesPage() {
                     </div>
                   </div>
 
+                  {selectedCert.progress >= 100 && !selectedCert.isEarned && (
+                    <button
+                      className="btnDownloadCert"
+                      style={{
+                        background: "linear-gradient(135deg, #10B981, #059669)",
+                        color: "#FFF",
+                        width: "100%",
+                        border: "none",
+                        marginTop: "16px",
+                        padding: "12px",
+                        borderRadius: "8px",
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px"
+                      }}
+                      onClick={() => handleClaimCertificate(selectedCert)}
+                    >
+                      🏆 Verify & Claim Certificate (+150 XP)
+                    </button>
+                  )}
+
                 </div>
 
               </div>
@@ -851,7 +938,7 @@ export default function CertificatesPage() {
                       <div
                         key={cert.id}
                         className={`earnedCertCard ${selectedCert.id === cert.id ? "activeSelected" : ""}`}
-                        onClick={() => setSelectedCert(cert)}
+                        onClick={() => setSelectedCertId(cert.id)}
                       >
                         <div
                           className="certCardIcon"
@@ -907,7 +994,7 @@ export default function CertificatesPage() {
                       <div
                         key={item.id}
                         className={`toEarnCard ${selectedCert.id === item.id ? "activeSelected" : ""}`}
-                        onClick={() => setSelectedCert(item)}
+                        onClick={() => setSelectedCertId(item.id)}
                       >
                         <div
                           className="toEarnIcon"
@@ -930,26 +1017,28 @@ export default function CertificatesPage() {
                             <div className="pTrack"><div className="pFill" style={{ width: `${item.progress}%` }}></div></div>
                             <span className="pctZero">{item.progress}%</span>
                           </div>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleClaimCertificate(item);
-                            }}
-                            style={{
-                              marginTop: "8px",
-                              padding: "4px 10px",
-                              fontSize: "11px",
-                              fontWeight: 700,
-                              background: "#FFF0EB",
-                              color: "#F9572A",
-                              border: "1px solid #FAD6C8",
-                              borderRadius: "99px",
-                              cursor: "pointer"
-                            }}
-                          >
-                            🏆 Verify & Claim Certificate
-                          </button>
+                          {item.progress >= 100 && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleClaimCertificate(item);
+                              }}
+                              style={{
+                                marginTop: "8px",
+                                padding: "4px 10px",
+                                fontSize: "11px",
+                                fontWeight: 700,
+                                background: "#FFF0EB",
+                                color: "#F9572A",
+                                border: "1px solid #FAD6C8",
+                                borderRadius: "99px",
+                                cursor: "pointer"
+                              }}
+                            >
+                              🏆 Verify & Claim Certificate
+                            </button>
+                          )}
                         </div>
 
                         <FaLock className="cardLockIcon" />

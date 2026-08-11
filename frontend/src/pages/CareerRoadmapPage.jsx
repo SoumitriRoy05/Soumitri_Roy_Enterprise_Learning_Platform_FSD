@@ -72,7 +72,7 @@ export default function CareerRoadmapPage() {
     { id: "services-catalog", label: "Services & Catalog", icon: <FaBook /> },
     { id: "assessments", label: "Assessments", icon: <FaBolt /> },
     { id: "certification-tracking", label: "Cert Tracking", icon: <FaCertificate /> },
-    { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
+    
     { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
     { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
@@ -130,7 +130,7 @@ export default function CareerRoadmapPage() {
                       else if (item.id === "services-catalog") navigate("/services-catalog");
                       else if (item.id === "assessments") navigate("/assessments");
                       else if (item.id === "certification-tracking") navigate("/certification-tracking");
-                      else if (item.id === "tracking-dashboard") navigate("/tracking-dashboard");
+                      
                       else if (item.id === "complaint-tracking") navigate("/complaint-tracking");
                       else if (item.id === "career-roadmap") navigate("/career-roadmap");
                       else if (item.id === "job-search") navigate("/job-search");

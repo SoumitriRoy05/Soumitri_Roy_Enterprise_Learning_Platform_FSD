@@ -444,6 +444,30 @@ export default function WorkforceDashboard() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages, isChatLoading]);
 
+  // Employer Talent Acquisition state
+  const [topStudents, setTopStudents] = useState([]);
+  const [loadingStudents, setLoadingStudents] = useState(true);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [offerForm, setOfferForm] = useState({ title: "Software Engineer - FSD", package: "$90,000 / year", type: "Remote", message: "" });
+  const [hiredStudents, setHiredStudents] = useState([]);
+  const [studentSearchTerm, setStudentSearchTerm] = useState("");
+  const [showOfferModal, setShowOfferModal] = useState(false);
+
+  const fetchTopStudents = async () => {
+    try {
+      setLoadingStudents(true);
+      const res = await authenticatedFetch(`${API_URL}/api/leaderboard`);
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setTopStudents(data.leaderboard || []);
+      }
+    } catch (e) {
+      console.error("Failed to fetch top performing students:", e);
+    } finally {
+      setLoadingStudents(false);
+    }
+  };
+
   const fetchEmployees = async () => {
     try {
       const res = await authenticatedFetch(`${API_URL}/api/workforce/employees`);
@@ -517,6 +541,7 @@ export default function WorkforceDashboard() {
     fetchReports();
     fetchSettings();
     fetchAssessmentsList();
+    fetchTopStudents();
   }, []);
 
   useEffect(() => {
@@ -832,6 +857,10 @@ export default function WorkforceDashboard() {
 
   const navItems = [
     { id: "Overview", label: "Overview", icon: <FaHome /> },
+    ...(user && user.role === "EMPLOYER" ? [
+      { id: "Hiring", label: "Talent Acquisition", icon: <FaBriefcase /> },
+      { id: "HiredList", label: "Hired Candidates", icon: <FaUserCheck /> }
+    ] : []),
     { id: "Employees", label: "Employees", icon: <FaUsers /> },
     { id: "Teams", label: "Teams", icon: <FaUserFriends /> },
     { id: "Skills", label: "Skills & Assessments", icon: <FaShieldAlt /> },
@@ -841,7 +870,6 @@ export default function WorkforceDashboard() {
     { id: "Attendance", label: "Attendance", icon: <FaClock /> },
     { id: "Engagement", label: "Engagement", icon: <FaHeart /> },
     { id: "Reports", label: "Reports & Analytics", icon: <FaChartBar /> },
-    { id: "ExecutiveDashboard", label: "Executive Dashboard", icon: <FaChartBar /> },
     { id: "AI Assistant", label: "SphereHR AI", icon: <FaRobot /> },
     { id: "Settings", label: "Workforce Settings", icon: <FaCog /> },
   ];
@@ -937,11 +965,7 @@ export default function WorkforceDashboard() {
               key={item.id}
               className={`wf-nav-item ${activeTab === item.id ? "active" : ""}`}
               onClick={() => {
-                if (item.id === "ExecutiveDashboard") {
-                  navigate("/executive-dashboard");
-                } else {
-                  setActiveTab(item.id);
-                }
+                setActiveTab(item.id);
               }}
             >
               <span className="wf-nav-icon">{item.icon}</span>
@@ -1054,6 +1078,191 @@ export default function WorkforceDashboard() {
 
         {/* CONTENT BODY */}
         <main className="wf-content-body">
+
+          {/* TAB: TALENT ACQUISITION (Hiring) */}
+          {activeTab === "Hiring" && (
+            <div className="wf-card" style={{ padding: "28px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+                <div>
+                  <h2 className="wf-card-title">Talent Acquisition Leaderboard</h2>
+                  <p style={{ fontSize: "13px", color: "var(--text-secondary)" }}>Hire top-performing students based on their actual learning classroom achievements and XP ratings.</p>
+                </div>
+                <div style={{ position: "relative", width: "250px" }}>
+                  <input
+                    type="text"
+                    placeholder="Search students..."
+                    value={studentSearchTerm}
+                    onChange={(e) => setStudentSearchTerm(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "8px 12px 8px 36px",
+                      borderRadius: "8px",
+                      border: "1px solid var(--border-color)",
+                      background: "var(--bg-secondary)",
+                      color: "var(--text-primary)",
+                      fontSize: "13px"
+                    }}
+                  />
+                  <FaSearch style={{ position: "absolute", left: "12px", top: "12px", color: "var(--text-secondary)", fontSize: "12px" }} />
+                </div>
+              </div>
+
+              {loadingStudents ? (
+                <div style={{ textAlign: "center", padding: "40px" }}>Loading students list...</div>
+              ) : topStudents.filter(s => {
+                const term = studentSearchTerm.toLowerCase();
+                return (
+                  (s.full_name && s.full_name.toLowerCase().includes(term)) ||
+                  (s.username && s.username.toLowerCase().includes(term)) ||
+                  (s.college && s.college.toLowerCase().includes(term)) ||
+                  (s.branch && s.branch.toLowerCase().includes(term)) ||
+                  (s.badge && s.badge.toLowerCase().includes(term))
+                );
+              }).length === 0 ? (
+                <div style={{ textAlign: "center", padding: "40px", color: "var(--text-secondary)" }}>No students found matching your search.</div>
+              ) : (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "20px" }}>
+                  {topStudents.filter(s => {
+                    const term = studentSearchTerm.toLowerCase();
+                    return (
+                      (s.full_name && s.full_name.toLowerCase().includes(term)) ||
+                      (s.username && s.username.toLowerCase().includes(term)) ||
+                      (s.college && s.college.toLowerCase().includes(term)) ||
+                      (s.branch && s.branch.toLowerCase().includes(term)) ||
+                      (s.badge && s.badge.toLowerCase().includes(term))
+                    );
+                  }).map(s => {
+                    const hired = hiredStudents.some(h => h.studentName.toLowerCase() === (s.full_name || s.username).toLowerCase());
+                    return (
+                      <div key={s.username} style={{
+                        padding: "24px",
+                        background: "var(--bg-primary)",
+                        borderRadius: "14px",
+                        border: "1px solid var(--border-color)",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between"
+                      }}>
+                        <div>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+                            <div>
+                              <span style={{ fontSize: "11px", background: "rgba(140,83,56,0.1)", color: "#8c5338", padding: "3px 8px", borderRadius: "6px", fontWeight: "bold" }}>
+                                Rank #{s.rank}
+                              </span>
+                            </div>
+                            <span style={{ fontSize: "12px", color: "#F59E0B", fontWeight: "bold" }}>🏆 {s.xp} XP</span>
+                          </div>
+
+                          <strong style={{ fontSize: "18px", display: "block" }}>{s.full_name}</strong>
+                          <span style={{ fontSize: "12px", color: "var(--text-secondary)", display: "block", marginTop: "2px" }}>@{s.username}</span>
+
+                          <div style={{ margin: "16px 0", fontSize: "13px" }}>
+                            <div style={{ marginBottom: "4px" }}>🎓 College: <strong>{s.college || "N/A"}</strong></div>
+                            <div>💻 Stream: <strong>{s.branch || "N/A"}</strong></div>
+                          </div>
+
+                          <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "20px" }}>
+                            <span style={{ fontSize: "11px", background: "#FEF3C7", color: "#D97706", padding: "3px 8px", borderRadius: "99px", fontWeight: "bold" }}>
+                              {s.badge}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div>
+                          {hired ? (
+                            <div style={{
+                              width: "100%",
+                              padding: "10px",
+                              textAlign: "center",
+                              background: "#E6F4EA",
+                              color: "#16A34A",
+                              borderRadius: "8px",
+                              fontWeight: "bold",
+                              fontSize: "13px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "6px"
+                            }}>
+                              <FaUserCheck /> Offer Extended
+                            </div>
+                          ) : (
+                            <button
+                              className="wf-btn-primary"
+                              style={{ width: "100%", padding: "10px", background: "#8c5338", border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer" }}
+                              onClick={() => {
+                                setSelectedStudent(s);
+                                setShowOfferModal(true);
+                              }}
+                            >
+                              Hire Student
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB: HIRED CANDIDATES (HiredList) */}
+          {activeTab === "HiredList" && (
+            <div className="wf-card" style={{ padding: "28px" }}>
+              <h2 className="wf-card-title">Hired Candidates Tracker</h2>
+              <p style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "24px" }}>Offers extended to students from the learning portal.</p>
+
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "13px" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "1px solid var(--border-color)", color: "var(--text-secondary)" }}>
+                      <th style={{ padding: "12px 8px" }}>Candidate Name</th>
+                      <th style={{ padding: "12px 8px" }}>Contact Email</th>
+                      <th style={{ padding: "12px 8px" }}>Job Offer Title</th>
+                      <th style={{ padding: "12px 8px" }}>Package Details</th>
+                      <th style={{ padding: "12px 8px" }}>Work Mode</th>
+                      <th style={{ padding: "12px 8px" }}>Date Hired</th>
+                      <th style={{ padding: "12px 8px" }}>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {hiredStudents.length === 0 ? (
+                      <tr>
+                        <td colSpan="7" style={{ padding: "30px 8px", textAlign: "center", color: "var(--text-secondary)" }}>No candidates hired yet.</td>
+                      </tr>
+                    ) : (
+                      hiredStudents.map(h => (
+                        <tr key={h.id} style={{ borderBottom: "1px solid var(--border-color)" }}>
+                          <td style={{ padding: "12px 8px", fontWeight: "bold" }}>{h.studentName}</td>
+                          <td style={{ padding: "12px 8px" }}>{h.studentEmail}</td>
+                          <td style={{ padding: "12px 8px" }}>{h.jobTitle}</td>
+                          <td style={{ padding: "12px 8px" }}>{h.package}</td>
+                          <td style={{ padding: "12px 8px" }}>{h.type}</td>
+                          <td style={{ padding: "12px 8px" }}>{h.hiredDate}</td>
+                          <td style={{ padding: "12px 8px" }}>
+                            <span style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "4px",
+                              padding: "2px 8px",
+                              borderRadius: "10px",
+                              fontSize: "11px",
+                              fontWeight: "bold",
+                              background: "#FEF7E0",
+                              color: "#B06000"
+                            }}>
+                              Pending Accept
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
           
           {/* TAB: CAREER PROMOTION (EXACT 1-TO-1 MATCH TO REFERENCE MOCKUP IMAGE 1) */}
           {activeTab === "CareerPromotion" && (
@@ -5780,6 +5989,81 @@ export default function WorkforceDashboard() {
               >
                 <FaPaperPlane style={{ fontSize: "12px" }} />
               </button>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* EXTEND OFFER MODAL FOR EMPLOYER ROLE */}
+      {showOfferModal && selectedStudent && (
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000 }}>
+          <div style={{ background: "var(--bg-secondary)", padding: "30px", borderRadius: "16px", width: "450px", border: "1px solid var(--border-color)" }}>
+            <h3 style={{ margin: "0 0 10px 0" }}>Extend Official Offer</h3>
+            <p style={{ fontSize: "12px", color: "var(--text-secondary)", marginBottom: "20px" }}>
+              Recruiting: <strong>{selectedStudent.full_name || selectedStudent.username}</strong>
+            </p>
+            
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const hiredRecord = {
+                id: Date.now(),
+                studentName: selectedStudent.full_name || selectedStudent.username,
+                studentEmail: `${selectedStudent.username.toLowerCase()}@skillsphere.edu`,
+                jobTitle: offerForm.title,
+                package: offerForm.package,
+                type: offerForm.type,
+                hiredDate: new Date().toISOString().split("T")[0]
+              };
+              setHiredStudents(prev => [hiredRecord, ...prev]);
+              setShowOfferModal(false);
+              alert(`🎉 Offer successfully extended to ${hiredRecord.studentName} for the role of ${hiredRecord.jobTitle}!`);
+            }}>
+              <div style={{ marginBottom: "14px" }}>
+                <label style={{ display: "block", fontSize: "12px", marginBottom: "6px" }}>Proposed Job Title</label>
+                <input
+                  type="text"
+                  value={offerForm.title}
+                  onChange={(e) => setOfferForm(prev => ({ ...prev, title: e.target.value }))}
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid var(--border-color)", background: "var(--bg-primary)", color: "var(--text-primary)" }}
+                  required
+                />
+              </div>
+              <div style={{ marginBottom: "14px" }}>
+                <label style={{ display: "block", fontSize: "12px", marginBottom: "6px" }}>Salary Package Details</label>
+                <input
+                  type="text"
+                  value={offerForm.package}
+                  onChange={(e) => setOfferForm(prev => ({ ...prev, package: e.target.value }))}
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid var(--border-color)", background: "var(--bg-primary)", color: "var(--text-primary)" }}
+                  required
+                />
+              </div>
+              <div style={{ marginBottom: "14px" }}>
+                <label style={{ display: "block", fontSize: "12px", marginBottom: "6px" }}>Workplace Setup</label>
+                <select
+                  value={offerForm.type}
+                  onChange={(e) => setOfferForm(prev => ({ ...prev, type: e.target.value }))}
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid var(--border-color)", background: "var(--bg-primary)", color: "var(--text-primary)" }}
+                >
+                  <option value="Remote">Remote</option>
+                  <option value="Hybrid">Hybrid</option>
+                  <option value="On-site">On-site</option>
+                </select>
+              </div>
+              <div style={{ marginBottom: "20px" }}>
+                <label style={{ display: "block", fontSize: "12px", marginBottom: "6px" }}>Personal Offer Message</label>
+                <textarea
+                  value={offerForm.message}
+                  onChange={(e) => setOfferForm(prev => ({ ...prev, message: e.target.value }))}
+                  placeholder="Hi candidate, we loved your learning nexus scores and would love to hire you!"
+                  style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid var(--border-color)", background: "var(--bg-primary)", color: "var(--text-primary)", height: "80px", resize: "none" }}
+                />
+              </div>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+                <button type="button" className="loginBtn" onClick={() => setShowOfferModal(false)}>Cancel</button>
+                <button type="submit" className="wf-btn-primary" style={{ background: "#8c5338", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                  <FaPaperPlane style={{ fontSize: "12px" }} /> Send Offer
+                </button>
+              </div>
             </form>
           </div>
         </div>

@@ -99,7 +99,10 @@ export default function LoginPage() {
   }, [loginWithGoogle]);
 
   if (user) {
-    return <Navigate to={user.role === 'EMPLOYEE' ? '/workforce-home' : '/student-home'} replace />;
+    if (user.role === 'EXECUTIVE') {
+      return <Navigate to="/executive/dashboard" replace />;
+    }
+    return <Navigate to={user.role === 'STUDENT' ? '/student-home' : '/workforce-home'} replace />;
   }
 
   const handleSubmit = async (e) => {
@@ -122,7 +125,9 @@ export default function LoginPage() {
           await logout();
           return;
         }
-        if (loggedUser.role === 'STUDENT') {
+        if (loggedUser.role === 'EXECUTIVE') {
+          navigate('/executive/dashboard');
+        } else if (loggedUser.role === 'STUDENT') {
           navigate('/student-home');
         } else {
           navigate('/workforce-home');
@@ -150,7 +155,9 @@ export default function LoginPage() {
           await logout();
           return;
         }
-        if (loggedUser.role === 'STUDENT') {
+        if (loggedUser.role === 'EXECUTIVE') {
+          navigate('/executive/dashboard');
+        } else if (loggedUser.role === 'STUDENT') {
           navigate('/student-home');
         } else {
           navigate('/workforce-home');

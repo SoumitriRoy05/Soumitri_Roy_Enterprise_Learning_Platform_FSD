@@ -423,6 +423,7 @@ export default function WorkforcePage() {
                 <li><Link to="/workforce" onClick={handleScrollTop} style={{ color: '#F9572A', fontWeight: '700' }}>Work Hub</Link></li>
                 <li><Link to="/sandbox" onClick={handleScrollTop}>Sandbox</Link></li>
                 <li><Link to="/admin-login" onClick={handleScrollTop}>Admin Portal</Link></li>
+                <li><Link to="/executive/dashboard" onClick={handleScrollTop}>Executive Portal</Link></li>
               </ul>
             </div>
 

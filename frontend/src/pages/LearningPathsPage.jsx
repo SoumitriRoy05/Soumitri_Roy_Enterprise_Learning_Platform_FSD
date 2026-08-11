@@ -240,7 +240,8 @@ export default function LearningPathsPage() {
     } catch (e) {}
     let dbList = Array.isArray(user?.enrolled_courses) ? user.enrolled_courses.map(id => id.toString()) : [];
     const combined = Array.from(new Set([...authList, ...localList, ...dbList]));
-    return combined.length > 0 ? combined : ["1", "2"];
+    const isDemoUser = userKey === "soumitriroy@gmail.com" || userKey === "soumitriroy" || userKey === "alex_morgan" || userKey === "default" || user?.isDemo;
+    return combined.length > 0 ? combined : (isDemoUser ? ["1", "2"] : []);
   };
 
   const activeEnrolledIds = getUnifiedEnrolledCourseIds();
@@ -1482,7 +1483,51 @@ function AnalyticsDashboard() {
     activePathData = allPathDataMap["React Developer Path"];
   }
 
-  const modulesListForActivePath = activePathData.modules;
+  const modulesListForActivePath = (activePathData.modules || []).map((mod, modIdx) => {
+    const hasVideo = (mod.lessons || []).some(l => l.type === "video");
+    if (hasVideo) return mod;
+
+    const cleanTitle = mod.title.replace("Module " + (modIdx + 1) + ": ", "").split(",")[0].split("&")[0].trim();
+    let videoUrl = "https://www.youtube.com/embed/bMknfKXIFA8?autoplay=1";
+    if (cleanTitle.toLowerCase().includes("javascript") || cleanTitle.toLowerCase().includes("js")) {
+      videoUrl = "https://www.youtube.com/embed/W6NZfCO5SIk?autoplay=1";
+    } else if (cleanTitle.toLowerCase().includes("scope") || cleanTitle.toLowerCase().includes("closure")) {
+      videoUrl = "https://www.youtube.com/embed/qikxEIxsXco?autoplay=1";
+    } else if (cleanTitle.toLowerCase().includes("react") || cleanTitle.toLowerCase().includes("hooks")) {
+      videoUrl = "https://www.youtube.com/embed/Ke90Tje7VS0?autoplay=1";
+    } else if (cleanTitle.toLowerCase().includes("python") || cleanTitle.toLowerCase().includes("numpy")) {
+      videoUrl = "https://www.youtube.com/embed/rfscVS0vtbw?autoplay=1";
+    } else if (cleanTitle.toLowerCase().includes("pandas") || cleanTitle.toLowerCase().includes("cleaning")) {
+      videoUrl = "https://www.youtube.com/embed/gpColJDGWUI?autoplay=1";
+    } else if (cleanTitle.toLowerCase().includes("node") || cleanTitle.toLowerCase().includes("express")) {
+      videoUrl = "https://www.youtube.com/embed/TlB_eWDSMt4?autoplay=1";
+    } else if (cleanTitle.toLowerCase().includes("figma") || cleanTitle.toLowerCase().includes("wireframe") || cleanTitle.toLowerCase().includes("ux")) {
+      videoUrl = "https://www.youtube.com/embed/c9Wg6Cb_YlU?autoplay=1";
+    } else if (cleanTitle.toLowerCase().includes("database") || cleanTitle.toLowerCase().includes("mongoose") || cleanTitle.toLowerCase().includes("mongodb")) {
+      videoUrl = "https://www.youtube.com/embed/ofme2o290Y4?autoplay=1";
+    } else if (cleanTitle.toLowerCase().includes("auth") || cleanTitle.toLowerCase().includes("jwt") || cleanTitle.toLowerCase().includes("security")) {
+      videoUrl = "https://www.youtube.com/embed/mbsmsi7l3r4?autoplay=1";
+    } else if (cleanTitle.toLowerCase().includes("socket") || cleanTitle.toLowerCase().includes("realtime")) {
+      videoUrl = "https://www.youtube.com/embed/UUcDyLAncRY?autoplay=1";
+    }
+
+    const videoLesson = {
+      id: `${mod.id || modIdx}-vid-auto`,
+      title: `${modIdx + 1}.${mod.lessons.length + 1} Video Walkthrough: ${cleanTitle}`,
+      type: "video",
+      duration: "15 min video",
+      source: "YouTube Academy",
+      heading: `${cleanTitle} Video Lecture`,
+      videoUrl: videoUrl,
+      description: `Watch a curated YouTube masterclass covering the core objectives of ${cleanTitle}.`,
+      keyPoints: ["Topic core lecture", "Visual walkthrough", "Real-world demonstrations"]
+    };
+
+    return {
+      ...mod,
+      lessons: [...(mod.lessons || []), videoLesson]
+    };
+  });
 
   const activeModule = modulesListForActivePath[activeModuleIndex] || modulesListForActivePath[0];
   const activeSubLesson = activeModule ? (activeModule.lessons[activeSubLessonIndex] || activeModule.lessons[0]) : null;
@@ -1716,7 +1761,7 @@ function AnalyticsDashboard() {
     { id: "services-catalog", label: "Services & Catalog", icon: <FaBook /> },
     { id: "assessments", label: "Assessments", icon: <FaBolt /> },
     { id: "certification-tracking", label: "Cert Tracking", icon: <FaCertificate /> },
-    { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
+    
     { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
     { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
@@ -1915,7 +1960,7 @@ function AnalyticsDashboard() {
                 className="sdHomeCircularBtn active"
                 onClick={() => {
                   setSelectedPathDetail(null);
-                  navigate("/student-home");
+                  navigate(user?.role === "EMPLOYEE" ? "/workforce-home" : "/student-home");
                 }}
                 title="Dashboard Overview"
               >
@@ -1929,12 +1974,12 @@ function AnalyticsDashboard() {
                   <button
                     className={`sdNavItem ${item.id === "learning-paths" ? "active" : ""}`}
                     onClick={() => {
-                      if (item.id === "dashboard") { setSelectedPathDetail(null); navigate("/student-home"); }
+                      if (item.id === "dashboard") { setSelectedPathDetail(null); navigate(user?.role === "EMPLOYEE" ? "/workforce-home" : "/student-home"); }
                       else if (item.id === "student-profile") navigate("/student-profile");
                       else if (item.id === "services-catalog") navigate("/services-catalog");
                       else if (item.id === "assessments") navigate("/assessments");
                       else if (item.id === "certification-tracking") navigate("/certification-tracking");
-                      else if (item.id === "tracking-dashboard") navigate("/tracking-dashboard");
+                      
                       else if (item.id === "complaint-tracking") navigate("/complaint-tracking");
                       else if (item.id === "career-roadmap") navigate("/career-roadmap");
                       else if (item.id === "job-search") navigate("/job-search");
@@ -1956,7 +2001,7 @@ function AnalyticsDashboard() {
                       else if (item.id === "settings") navigate("/settings");
                       else {
                         setSelectedPathDetail(null);
-                        navigate("/student-home");
+                        navigate(user?.role === "EMPLOYEE" ? "/workforce-home" : "/student-home");
                       }
                     }}
                   >
@@ -3602,7 +3647,7 @@ function AnalyticsDashboard() {
 
                     <div
                       className="lpAskAiBox"
-                      onClick={() => navigate("/student-home")}
+                      onClick={() => navigate(user?.role === "EMPLOYEE" ? "/workforce-home" : "/student-home")}
                     >
                       <div className="aiIconBox">🤖</div>
                       <div className="aiText">

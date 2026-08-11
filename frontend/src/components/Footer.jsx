@@ -48,6 +48,7 @@ export default function Footer() {
               <li><Link to="/workforce" onClick={handleScrollTop}>Why SkillSphere</Link></li>
               <li><Link to="/workforce-features" onClick={handleScrollTop}>Solutions</Link></li>
               <li><Link to="/admin-login" onClick={handleScrollTop}>Admin Portal</Link></li>
+              <li><Link to="/executive/dashboard" onClick={handleScrollTop}>Executive Portal</Link></li>
             </ul>
           </div>
         </div>

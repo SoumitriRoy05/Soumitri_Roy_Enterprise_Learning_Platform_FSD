@@ -59,12 +59,18 @@ import darkStudentHeroImg from "../assets/dark_student_dashboard_hero_illustrati
 import "../styles/studentDashboard.css";
 
 export default function StudentHome() {
-  const { user, xp, logout, themeMode, toggleTheme, enrolledCourses, completedTopics } = useAuth();
+  const { user, xp, logout, themeMode, toggleTheme, enrolledCourses, completedTopics, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
   const isDarkMode = themeMode === "dark";
   const [widgetChatInput, setWidgetChatInput] = useState("");
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (refreshProfile) {
+      refreshProfile().catch(err => console.error("Error refreshing profile on StudentHome mount:", err));
+    }
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -93,7 +99,7 @@ export default function StudentHome() {
     } catch (e) {}
     let dbList = Array.isArray(user?.enrolled_courses) ? user.enrolled_courses.map(id => id.toString()) : [];
     const combined = Array.from(new Set([...authList, ...localList, ...dbList]));
-    return combined.length > 0 ? combined : ["1", "2"];
+    return combined.length > 0 ? combined : (isDemoUser ? ["1", "2"] : []);
   };
 
   const activeEnrolledIds = getUnifiedEnrolledCourseIds();
@@ -129,14 +135,16 @@ export default function StudentHome() {
   }, [user, userKey, isDemoUser]);
 
   // Real Dynamic Badges Earned Count
-  const localEarnedBadges = (() => {
-    try {
-      const stored = localStorage.getItem(`skillsphere_earned_badges_${userKey}`);
-      return stored ? JSON.parse(stored) : (isDemoUser ? Array.from({ length: 18 }) : (user?.badges || []));
-    } catch (e) {
-      return isDemoUser ? Array.from({ length: 18 }) : (user?.badges || []);
-    }
-  })();
+  const localEarnedBadges = (user?.badges && user.badges.length > 0)
+    ? user.badges
+    : (() => {
+        try {
+          const stored = localStorage.getItem(`skillsphere_earned_badges_${userKey}`);
+          return stored ? JSON.parse(stored) : (isDemoUser ? Array.from({ length: 18 }) : []);
+        } catch (e) {
+          return isDemoUser ? Array.from({ length: 18 }) : [];
+        }
+      })();
   const earnedBadgesCount = localEarnedBadges.length;
 
   const userName = user?.full_name || user?.name || user?.username || "Learner";
@@ -254,7 +262,7 @@ export default function StudentHome() {
     { id: "services-catalog", label: "Services & Catalog", icon: <FaBook /> },
     { id: "assessments", label: "Assessments", icon: <FaBolt /> },
     { id: "certification-tracking", label: "Cert Tracking", icon: <FaCertificate /> },
-    { id: "tracking-dashboard", label: "Tracking Dashboard", icon: <FaChartLine /> },
+    
     { id: "complaint-tracking", label: "Complaint & Renewal", icon: <FaFileInvoice /> },
     { id: "career-roadmap", label: "Career Roadmap", icon: <FaCodeBranch /> },
     { id: "courses", label: "Courses", icon: <FaBook /> },
@@ -322,7 +330,7 @@ export default function StudentHome() {
                       else if (item.id === "services-catalog") navigate("/services-catalog");
                       else if (item.id === "assessments") navigate("/assessments");
                       else if (item.id === "certification-tracking") navigate("/certification-tracking");
-                      else if (item.id === "tracking-dashboard") navigate("/tracking-dashboard");
+                      
                       else if (item.id === "complaint-tracking") navigate("/complaint-tracking");
                       else if (item.id === "job-search") navigate("/job-search");
                       else setActiveTab(item.id);

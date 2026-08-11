@@ -65,6 +65,7 @@ export default function Navbar({ toggleSidebar, isSidebarOpen, showSidebarToggle
             <Link to="/student-features" className={location.pathname === "/student-features" || location.pathname === "/student-hub" ? "activeNav" : ""}>Students Hub</Link>
             <Link to="/workforce"         className={location.pathname === "/workforce" || location.pathname === "/work-hub" ? "activeNav" : ""}>Work Hub</Link>
             <Link to="/admin-login"       className="adminLink">Admin Portal</Link>
+            <Link to="/executive-login"   className="adminLink" style={{ marginLeft: '8px' }}>Executive Portal</Link>
           </>
         )}
       </nav>
