@@ -42,7 +42,8 @@ import {
   FaInfoCircle,
   FaHourglassHalf,
   FaLightbulb,
-  FaShieldAlt
+  FaShieldAlt,
+  FaSignOutAlt
 } from "react-icons/fa";
 
 import "../styles/studentDashboard.css";
@@ -51,9 +52,21 @@ import "../styles/dailyQuestsPage.css";
 import AppLogo from "../components/AppLogo";
 
 export default function DailyQuestsPage() {
-  const { user, xp, authenticatedFetch, themeMode, toggleTheme } = useAuth();
+  const { user, xp, authenticatedFetch, themeMode, toggleTheme, logout } = useAuth();
   const navigate = useNavigate();
   const isDarkMode = themeMode === "dark";
+
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      if (logout) await logout();
+      navigate("/");
+    } catch (err) {
+      console.error("Logout error:", err);
+      navigate("/");
+    }
+  };
   const [toastMessage, setToastMessage] = useState("");
   const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
 
@@ -279,13 +292,41 @@ export default function DailyQuestsPage() {
 
               <NotificationDropdown type="student" />
 
-              <div className="sdUserProfilePill" onClick={() => navigate("/settings")}>
-                <UserAvatar user={user} />
-                <div className="sdUserInfoText">
-                  <strong>{userName}</strong>
-                  <span>Student</span>
+              <button
+                className="sdLogoutHeaderBtn"
+                onClick={handleLogout}
+                title="Logout to Landing Page"
+              >
+                <FaSignOutAlt /> <span>Logout</span>
+              </button>
+
+              <div className="sdUserProfilePillWrapper">
+                <div className="sdUserProfilePill" onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}>
+                  <UserAvatar user={user} />
+                  <div className="sdUserInfoText">
+                    <strong>{userName}</strong>
+                    <span>Student</span>
+                  </div>
+                  <span className="dropdownArrow">▾</span>
                 </div>
-                <span className="dropdownArrow">▾</span>
+
+                {isUserMenuOpen && (
+                  <div className="sdUserMenuDropdown">
+                    <div className="dropdownHeader">
+                      <strong>{userName}</strong>
+                      <span>Student Account</span>
+                    </div>
+                    <div className="dropdownItem" onClick={() => { setIsUserMenuOpen(false); navigate("/student-profile"); }}>
+                      👤 Profile Settings
+                    </div>
+                    <div className="dropdownItem" onClick={() => { setIsUserMenuOpen(false); navigate("/certificate"); }}>
+                      📜 My Certificates
+                    </div>
+                    <div className="dropdownItem logout" onClick={handleLogout}>
+                      🚪 Logout
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </header>

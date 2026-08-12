@@ -639,11 +639,11 @@ export default function ProgressPage() {
                   <div className="waveChartContainer">
                     <svg className="waveSvg" viewBox="0 0 400 160">
                       {/* Y Grid Lines */}
-                      <line x1="30" y1="20" x2="380" y2="20" stroke="#F1F5F9" strokeWidth="1" />
-                      <line x1="30" y1="50" x2="380" y2="50" stroke="#F1F5F9" strokeWidth="1" />
-                      <line x1="30" y1="80" x2="380" y2="80" stroke="#F1F5F9" strokeWidth="1" />
-                      <line x1="30" y1="110" x2="380" y2="110" stroke="#F1F5F9" strokeWidth="1" />
-                      <line x1="30" y1="140" x2="380" y2="140" stroke="#F1F5F9" strokeWidth="1" />
+                      <line x1="30" y1="20" x2="380" y2="20" stroke={isDarkMode ? "#334155" : "#F1F5F9"} strokeWidth="1" />
+                      <line x1="30" y1="50" x2="380" y2="50" stroke={isDarkMode ? "#334155" : "#F1F5F9"} strokeWidth="1" />
+                      <line x1="30" y1="80" x2="380" y2="80" stroke={isDarkMode ? "#334155" : "#F1F5F9"} strokeWidth="1" />
+                      <line x1="30" y1="110" x2="380" y2="110" stroke={isDarkMode ? "#334155" : "#F1F5F9"} strokeWidth="1" />
+                      <line x1="30" y1="140" x2="380" y2="140" stroke={isDarkMode ? "#334155" : "#F1F5F9"} strokeWidth="1" />
 
                       {/* Y Labels */}
                       <text x="5" y="24" fill="#94A3B8" fontSize="9">2K</text>
@@ -834,7 +834,7 @@ export default function ProgressPage() {
               </div>
 
               {/* BOTTOM ROW: Recent Activity Horizontal Timeline */}
-              <div className="ppCardBlock ppRecentActivity" style={{ display: "none" }}>
+              <div className="ppCardBlock ppRecentActivity">
                 <div className="chartTitleRow">
                   <h4>⏱️ Recent Activity</h4>
                   <span className="viewAllLink" style={{ cursor: "pointer" }} onClick={() => navigate("/student-home")}>View All Activity</span>
@@ -864,7 +864,7 @@ export default function ProgressPage() {
             <div className="ppRightSidebar">
               
               {/* Monthly Goal Arch Gauge Widget */}
-              <div className="ppWidgetCard" style={{ display: "none" }}>
+              <div className="ppWidgetCard">
                 <div className="widgetTitleRow">
                   <h4>🎯 Monthly Goal</h4>
                   <span className="editGoalLink">Edit Goal</span>
@@ -919,7 +919,7 @@ export default function ProgressPage() {
               </div>
 
               {/* Next Milestone Trophy Widget */}
-              <div className="ppWidgetCard" style={{ display: "none" }}>
+              <div className="ppWidgetCard">
                 <div className="widgetTitleRow">
                   <h4>🚀 Next Milestone</h4>
                 </div>

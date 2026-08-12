@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../context/AdminContext';
 import { FaShieldAlt, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaArrowLeft } from 'react-icons/fa';
 import Background from '../../components/Background';
+import AppLogo from '../../components/AppLogo';
 import '../../styles/loginPage.css';
 
 export default function AdminLogin() {
@@ -30,6 +31,9 @@ export default function AdminLogin() {
         <div className="loginRightPanel" style={{ borderRadius: '28px', padding: '48px 40px' }}>
           
           <div className="portalTitleHeader">
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+              <AppLogo height="54px" />
+            </div>
             <div className="regHeaderIconBadge" style={{ width: '64px', height: '64px', fontSize: '28px' }}>
               <FaShieldAlt />
             </div>

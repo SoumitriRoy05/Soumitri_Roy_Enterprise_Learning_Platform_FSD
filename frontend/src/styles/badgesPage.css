@@ -1,4 +1,5 @@
-/* Badges Page Stylesheet - SkillSphere Theme (1-to-1 Exact Match) */
+/* Badges Page Stylesheet - SkillSphere Theme (1-to-1 Exact Match & High Contrast) */
+
 .bpWrapper {
   background: #FFFBF7;
   color: #1E1B18;
@@ -6,6 +7,7 @@
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   display: flex;
   flex-direction: column;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .bpMainContainer {
@@ -49,6 +51,7 @@
   align-self: flex-start;
   max-height: calc(100vh - 48px);
   overflow-y: auto;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .bpLeftSidebar::-webkit-scrollbar { display: none; }
@@ -98,6 +101,7 @@
   border: 1px solid #F3EBE1;
   border-radius: 20px;
   padding: 14px;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .levelHeaderRow {
@@ -108,7 +112,7 @@
 }
 
 .lvlTrophy { font-size: 20px; }
-.levelHeaderRow strong { display: block; font-size: 13px; font-weight: 800; }
+.levelHeaderRow strong { display: block; font-size: 13px; font-weight: 800; color: #1E1B18; }
 .levelHeaderRow span { font-size: 10px; color: #64748B; }
 
 .lvlBarTrack { height: 6px; background: #E2E8F0; border-radius: 99px; overflow: hidden; margin-bottom: 4px; }
@@ -141,7 +145,7 @@
   align-items: center;
 }
 
-.bpPageHeader h1 { font-size: 28px; font-weight: 800; margin: 0 0 4px 0; }
+.bpPageHeader h1 { font-size: 28px; font-weight: 800; color: #1E1B18; margin: 0 0 4px 0; }
 .bpPageHeader p { font-size: 14px; color: #64748B; margin: 0; }
 
 .btnHowBadgesWork {
@@ -157,6 +161,7 @@
   align-items: center;
   gap: 8px;
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 /* SUB TABS ROW */
@@ -203,15 +208,21 @@
   background: #FFFFFF;
   border: 1px solid #F3EBE1;
   border-radius: 24px;
-  padding: 16px;
+  padding: 18px;
   display: flex;
   align-items: flex-start;
   gap: 14px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease, border-color 0.3s ease;
+}
+
+.bpStatCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 .statIcon {
-  width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
+  width: 42px; height: 42px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;
 }
 .statIcon.orange { background: #FFF0EB; color: #F9572A; }
 .statIcon.blue { background: #E0F2FE; color: #0284C7; }
@@ -221,21 +232,21 @@
 .bpStatCard strong { display: block; font-size: 20px; font-weight: 800; color: #1E1B18; line-height: 1.1; }
 .bpStatCard span { font-size: 11px; color: #64748B; font-weight: 700; }
 
-.statBarTrack { height: 4px; background: #E2E8F0; border-radius: 99px; overflow: hidden; margin-top: 6px; }
+.statBarTrack { height: 5px; background: #E2E8F0; border-radius: 99px; overflow: hidden; margin-top: 6px; }
 .statBarFill { height: 100%; background: #F9572A; }
-.statSub { font-size: 9px; color: #94A3B8; margin-top: 2px; display: block; }
+.statSub { font-size: 9px; color: #94A3B8; margin-top: 4px; display: block; }
 .statSubText { font-size: 10px; color: #94A3B8; display: block; margin-top: 4px; }
 
 /* 2-COLUMN MAIN GRID */
 .bpGridContainer {
   display: grid;
-  grid-template-columns: 1fr 310px;
+  grid-template-columns: 1fr 320px;
   gap: 24px;
 }
 
 .bpSectionBlock { margin-bottom: 24px; }
-.sectionHeaderRow { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-.sectionHeaderRow h3 { font-size: 16px; font-weight: 800; margin: 0; }
+.sectionHeaderRow { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.sectionHeaderRow h3 { font-size: 16px; font-weight: 800; color: #1E1B18; margin: 0; }
 .viewAllLink { font-size: 11px; font-weight: 800; color: #F9572A; cursor: pointer; }
 
 /* EARNED BADGES GRID (6 COLS) */
@@ -254,9 +265,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.3s ease;
 }
 
 .badgeHexCard:hover { transform: translateY(-4px); border-color: #FAD6C8; }
@@ -282,43 +293,38 @@
 .hexIconBox.violet { background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%); }
 
 .badgeHexCard h4 { font-size: 11px; font-weight: 800; margin: 0 0 2px 0; color: #1E1B18; }
-.badgeHexCard p { font-size: 9px; color: #94A3B8; margin: 0 0 6px 0; line-height: 1.2; height: 22px; }
+.badgeHexCard p { font-size: 9px; color: #64748B; margin: 0 0 6px 0; line-height: 1.2; height: 22px; }
 .badgeHexCard .xpText { font-size: 10px; font-weight: 800; color: #10B981; display: block; margin-bottom: 2px; }
-.badgeHexCard .dateText { font-size: 8px; color: #CBD5E1; display: block; }
+.badgeHexCard .dateText { font-size: 8px; color: #94A3B8; display: block; }
 
 /* BOTTOM SPLIT ROW */
 .bpBottomSplitRow { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.bpProgressCol, .bpLockedCol { background: #FFFFFF; border: 1px solid #F3EBE1; border-radius: 24px; padding: 20px; }
+.bpProgressCol, .bpLockedCol { background: #FFFFFF; border: 1px solid #F3EBE1; border-radius: 24px; padding: 22px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03); transition: background 0.3s ease, border-color 0.3s ease; }
 
-/* Student dashboard: locked and rarity/recent badge widgets are currently disabled. */
-.bpBottomSplitRow { grid-template-columns: minmax(0, 1fr) !important; }
-.bpLockedCol,
-.bpRightSidebar .bpWidgetCard:nth-child(2),
-.bpRightSidebar .bpWidgetCard:nth-child(3) { display: none !important; }
-.progressCardsList { display: flex; flex-direction: column; gap: 12px; }
-.progressBadgeItem { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 16px; background: #FAF8F5; border: 1px solid #F3EBE1; cursor: pointer; }
-.pBadgeIcon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.progressCardsList { display: flex; flex-direction: column; gap: 14px; }
+.progressBadgeItem { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-radius: 18px; background: #FAF8F5; border: 1px solid #F3EBE1; cursor: pointer; transition: background 0.3s ease, border-color 0.3s ease; }
+.pBadgeIcon { width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
 .pBadgeIcon.yellow { background: #FEF08A; color: #CA8A04; }
 .pBadgeIcon.blue { background: #E0F2FE; color: #0284C7; }
 .pBadgeIcon.orange { background: #FFF0EB; color: #F9572A; }
 
 .pBadgeDetails { flex: 1; }
-.pBadgeDetails h5 { font-size: 12px; font-weight: 800; margin: 0 0 1px 0; }
-.pBadgeDetails span { font-size: 9px; color: #94A3B8; display: block; margin-bottom: 4px; }
-.pTrack { height: 5px; background: #E2E8F0; border-radius: 99px; overflow: hidden; margin-bottom: 2px; }
+.pBadgeDetails h5 { font-size: 13px; font-weight: 800; color: #1E1B18; margin: 0 0 2px 0; }
+.pBadgeDetails span { font-size: 10px; color: #64748B; display: block; margin-bottom: 6px; }
+.pTrack { height: 6px; background: #E2E8F0; border-radius: 99px; overflow: hidden; margin-bottom: 4px; }
 .pFill { height: 100%; background: #F9572A; }
-.pFraction { font-size: 9px; font-weight: 700; color: #64748B; text-align: right; display: block; }
+.pFraction { font-size: 10px; font-weight: 800; color: #1E1B18; text-align: right; display: block; }
 
-.lockedCardsList { display: flex; gap: 10px; }
-.lockedBadgeItem { flex: 1; background: #FAF8F5; border: 1px dashed #CBD5E1; border-radius: 16px; padding: 14px 10px; text-align: center; display: flex; flex-direction: column; align-items: center; opacity: 0.8; cursor: pointer; }
-.lockedHexIcon { width: 36px; height: 36px; border-radius: 10px; background: #E2E8F0; color: #64748B; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-bottom: 8px; }
-.lockedBadgeItem h5 { font-size: 11px; font-weight: 800; margin: 0 0 2px 0; }
-.lockedBadgeItem span { font-size: 9px; color: #94A3B8; }
+.lockedCardsList { display: flex; flex-direction: column; gap: 12px; }
+.lockedBadgeItem { background: #FAF8F5; border: 1px dashed #CBD5E1; border-radius: 18px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: background 0.3s ease, border-color 0.3s ease; }
+.lockedHexIcon { width: 36px; height: 36px; border-radius: 12px; background: #E2E8F0; color: #64748B; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+.lockedBadgeItem h5 { font-size: 12px; font-weight: 800; color: #1E1B18; margin: 0 0 2px 0; }
+.lockedBadgeItem span { font-size: 10px; color: #64748B; }
 
 /* RIGHT COLUMN SIDEBAR WIDGETS */
 .bpRightSidebar { display: flex; flex-direction: column; gap: 20px; }
-.bpWidgetCard { background: #FFFFFF; border: 1px solid #F3EBE1; border-radius: 24px; padding: 20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02); }
-.bpWidgetCard h4 { font-size: 14px; font-weight: 800; margin: 0 0 14px 0; }
+.bpWidgetCard { background: #FFFFFF; border: 1px solid #F3EBE1; border-radius: 24px; padding: 22px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03); transition: background 0.3s ease, border-color 0.3s ease; }
+.bpWidgetCard h4 { font-size: 15px; font-weight: 800; color: #1E1B18; margin: 0 0 16px 0; }
 
 .collectorGaugeContainer { position: relative; width: 130px; height: 130px; margin: 0 auto 12px auto; }
 .gaugeSvg { width: 100%; height: 100%; transform: rotate(-90deg); }
@@ -334,26 +340,26 @@
 .collectorFill { height: 100%; background: #F9572A; }
 .collectorSubtext { font-size: 10px; color: #94A3B8; text-align: center; margin: 0; }
 
-.rareBadgeCard { background: #FAF8F5; border: 1px solid #F3EBE1; border-radius: 18px; padding: 16px; text-align: center; display: flex; flex-direction: column; align-items: center; }
-.rareBadgeHex { width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 8px; }
-.rareBadgeCard h5 { font-size: 13px; font-weight: 800; margin: 0 0 2px 0; }
+.rareBadgeCard { background: #FAF8F5; border: 1px solid #F3EBE1; border-radius: 20px; padding: 18px; text-align: center; display: flex; flex-direction: column; align-items: center; transition: background 0.3s ease, border-color 0.3s ease; }
+.rareBadgeHex { width: 48px; height: 48px; border-radius: 16px; background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 8px; }
+.rareBadgeCard h5 { font-size: 13px; font-weight: 800; color: #1E1B18; margin: 0 0 2px 0; }
 .rareBadgeCard p { font-size: 10px; color: #64748B; margin: 0 0 12px 0; }
 
 .btnShareAchievement { background: #FFF0EB; color: #F9572A; border: 1px solid #FAD6C8; padding: 6px 14px; border-radius: 99px; font-size: 11px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; }
 
 .recentBadgeItem { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-.rBadgeHex { width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-.recentBadgeItem h5 { font-size: 12px; font-weight: 800; margin: 0 0 1px 0; }
-.recentBadgeItem span { font-size: 9px; color: #64748B; display: block; }
-.recentBadgeItem .dateSub { font-size: 8px; color: #CBD5E1; }
+.rBadgeHex { width: 40px; height: 40px; border-radius: 14px; background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.recentBadgeItem h5 { font-size: 12px; font-weight: 800; color: #1E1B18; margin: 0 0 1px 0; }
+.recentBadgeItem span { font-size: 10px; color: #64748B; display: block; }
+.recentBadgeItem .dateSub { font-size: 8px; color: #94A3B8; }
 .viewHistoryLink { font-size: 11px; font-weight: 800; color: #F9572A; display: block; text-align: center; cursor: pointer; }
 
-/* ── 1-TO-1 MORE BADGES VIEW (SCREENSHOT 2 MATCH) ── */
+/* ── 1-TO-1 MORE BADGES VIEW ── */
 .moreBadgesViewContainer { display: flex; flex-direction: column; gap: 20px; }
 
 .moreBadgesHeaderRow { display: flex; justify-content: space-between; align-items: flex-end; }
 .btnBackOverview { background: transparent; border: none; color: #F9572A; font-weight: 800; font-size: 12px; cursor: pointer; margin-bottom: 6px; padding: 0; }
-.moreTitle { font-size: 26px; font-weight: 800; margin: 0 0 4px 0; }
+.moreTitle { font-size: 26px; font-weight: 800; color: #1E1B18; margin: 0 0 4px 0; }
 .moreSub { font-size: 13px; color: #64748B; margin: 0; }
 
 .topTotalBadgesCard {
@@ -414,7 +420,7 @@
   position: relative;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
   cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.3s ease;
 }
 
 .moreBadgeCardItem:hover { transform: translateY(-4px); border-color: #FAD6C8; }
@@ -445,7 +451,7 @@
 .moreBadgeHexBox.darkpurple { background: linear-gradient(135deg, #5B21B6 0%, #3B0764 100%); }
 
 .moreBadgeCardItem h4 { font-size: 12px; font-weight: 800; margin: 0 0 4px 0; color: #1E1B18; }
-.moreBadgeCardItem p { font-size: 9px; color: #94A3B8; margin: 0 0 10px 0; line-height: 1.3; height: 26px; }
+.moreBadgeCardItem p { font-size: 9px; color: #64748B; margin: 0 0 10px 0; line-height: 1.3; height: 26px; }
 
 .badgeXpPill {
   background: #FFF0EB;
@@ -526,13 +532,14 @@
   .earnedBadgesGrid, .moreBadgesGrid24 { grid-template-columns: repeat(3, 1fr); }
   .bpStatCardsRow { grid-template-columns: repeat(2, 1fr); }
   .bpGridContainer { grid-template-columns: 1fr; }
+  .bpBottomSplitRow { grid-template-columns: 1fr; }
 }
 
-/* ── DARK THEME STYLES (Matching Reference Screenshot 1-to-1) ── */
+/* ── DARK THEME STYLES (PURE HIGH-CONTRAST DARK MODE) ── */
 .bpWrapper.dark-theme,
 [data-theme="dark"] .bpWrapper,
 .dark-theme .bpWrapper {
-  background: #090D16 !important;
+  background: #0F172A !important;
   color: #F8FAFC !important;
 }
 
@@ -540,23 +547,34 @@
 .bpWrapper.dark-theme .sdLeftSidebar,
 .bpWrapper.dark-theme .bpStatCard,
 .bpWrapper.dark-theme .badgeHexCard,
+.bpWrapper.dark-theme .bpProgressCol,
+.bpWrapper.dark-theme .bpLockedCol,
 .bpWrapper.dark-theme .bpWidgetCard,
+.bpWrapper.dark-theme .moreBadgeCardItem,
+.bpWrapper.dark-theme .moreBadgesBottomBanner,
+.bpWrapper.dark-theme .badgeModalContent,
+.bpWrapper.dark-theme .bpSidebarLevelWidget,
+[data-theme="dark"] .bpStatCard,
+[data-theme="dark"] .badgeHexCard,
+[data-theme="dark"] .bpProgressCol,
+[data-theme="dark"] .bpLockedCol,
+[data-theme="dark"] .bpWidgetCard {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
 .bpWrapper.dark-theme .progressBadgeItem,
 .bpWrapper.dark-theme .lockedBadgeItem,
 .bpWrapper.dark-theme .rareBadgeCard,
 .bpWrapper.dark-theme .recentBadgeItem,
-.bpWrapper.dark-theme .badgeModalContent,
-[data-theme="dark"] .bpStatCard,
-[data-theme="dark"] .badgeHexCard,
-[data-theme="dark"] .bpWidgetCard,
-[data-theme="dark"] .progressBadgeItem,
-[data-theme="dark"] .lockedBadgeItem,
-[data-theme="dark"] .rareBadgeCard,
-[data-theme="dark"] .recentBadgeItem {
+.bpWrapper.dark-theme .topTotalBadgesCard,
+.bpWrapper.dark-theme .modalStatusBox,
+.bpWrapper.dark-theme .tierItem {
   background: #0F172A !important;
-  border-color: #1E293B !important;
+  border-color: #334155 !important;
   color: #F8FAFC !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
 }
 
 .bpWrapper.dark-theme .bpPageHeader h1,
@@ -568,6 +586,12 @@
 .bpWrapper.dark-theme .lockedBadgeItem h5,
 .bpWrapper.dark-theme .rareBadgeCard h5,
 .bpWrapper.dark-theme .recentBadgeItem h5,
+.bpWrapper.dark-theme .moreBadgeCardItem h4,
+.bpWrapper.dark-theme .bannerText strong,
+.bpWrapper.dark-theme .topTotalBadgesCard strong,
+.bpWrapper.dark-theme .gaugeCenterText strong,
+.bpWrapper.dark-theme .pFraction,
+.bpWrapper.dark-theme .levelHeaderRow strong,
 [data-theme="dark"] .bpPageHeader h1,
 [data-theme="dark"] .sectionHeaderRow h3,
 [data-theme="dark"] .bpStatCard strong,
@@ -583,15 +607,29 @@
 .bpWrapper.dark-theme .lockedBadgeItem span,
 .bpWrapper.dark-theme .rareBadgeCard p,
 .bpWrapper.dark-theme .collectorSubtext,
+.bpWrapper.dark-theme .collectorPctSub,
+.bpWrapper.dark-theme .moreBadgeCardItem p,
+.bpWrapper.dark-theme .bannerText p,
+.bpWrapper.dark-theme .levelHeaderRow span,
+.bpWrapper.dark-theme .statSub,
+.bpWrapper.dark-theme .statSubText,
 [data-theme="dark"] .badgeHexCard p {
   color: #94A3B8 !important;
 }
 
 .bpWrapper.dark-theme .btnHowBadgesWork,
+.bpWrapper.dark-theme .btnViewRewards,
+.bpWrapper.dark-theme .btnShareAchievement,
+.bpWrapper.dark-theme .btnCloseModal,
 [data-theme="dark"] .btnHowBadgesWork {
-  background: #1E293B !important;
+  background: #0F172A !important;
   color: #F8FAFC !important;
-  border: 1px solid #334155 !important;
+  border-color: #334155 !important;
+}
+
+.bpWrapper.dark-theme .chkBadge {
+  background: #1E293B !important;
+  color: #10B981 !important;
 }
 
 .bpWrapper.dark-theme .bpTab,
@@ -607,7 +645,7 @@
 
 .bpWrapper.dark-theme .gaugeBg,
 [data-theme="dark"] .gaugeBg {
-  stroke: #1E293B !important;
+  stroke: #334155 !important;
 }
 
 .bpWrapper.dark-theme .gaugeFill,
@@ -615,3 +653,9 @@
   stroke: #F9572A !important;
 }
 
+.bpWrapper.dark-theme .statBarTrack,
+.bpWrapper.dark-theme .lvlBarTrack,
+.bpWrapper.dark-theme .pTrack,
+.bpWrapper.dark-theme .collectorTrack {
+  background: #334155 !important;
+}

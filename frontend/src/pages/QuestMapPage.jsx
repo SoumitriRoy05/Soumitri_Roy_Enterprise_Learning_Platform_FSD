@@ -6,6 +6,7 @@ import PaperPlaneCursor from "../components/PaperPlaneCursor";
 import StudentFooter from "../components/StudentFooter";
 import FloatingChatbot from "../components/FloatingChatbot";
 import UserAvatar from "../components/UserAvatar";
+import NotificationDropdown from "../components/NotificationDropdown";
 
 import {
   FaHome,
@@ -24,9 +25,9 @@ import {
   FaBell,
   FaRobot,
   FaRocket,
-  FaMapMarkedAlt,
+  FaStar,
   FaMapSigns,
-  FaCheckCircle,
+  FaMapMarkedAlt,
   FaSun,
   FaMoon,
   FaArrowLeft,
@@ -42,7 +43,8 @@ import {
   FaCompass,
   FaFlag,
   FaCheck,
-  FaMedal
+  FaMedal,
+  FaSignOutAlt
 } from "react-icons/fa";
 
 import "../styles/questMapPage.css";
@@ -50,9 +52,21 @@ import "../styles/questMapPage.css";
 import AppLogo from "../components/AppLogo";
 
 export default function QuestMapPage() {
-  const { user, xp, themeMode, toggleTheme } = useAuth();
+  const { user, xp, themeMode, toggleTheme, logout } = useAuth();
   const navigate = useNavigate();
   const isDarkMode = themeMode === "dark";
+
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      if (logout) await logout();
+      navigate("/");
+    } catch (err) {
+      console.error("Logout error:", err);
+      navigate("/");
+    }
+  };
 
   const userName = user?.full_name || user?.username || "Learner";
   const currentXp = xp ?? 0;
@@ -187,20 +201,43 @@ export default function QuestMapPage() {
                 <FaBolt color="#F9572A" /> <span>{currentXp} XP</span>
               </div>
 
-              <div className="sdNotificationBtnWrapper">
-                <button className="sdNotificationBtn">
-                  <FaBell />
-                  {3 > 0 && <span className="sdNotifBadge">3</span>}
-                </button>
-              </div>
+              <NotificationDropdown type="student" />
 
-              <div className="sdUserProfilePill" onClick={() => navigate("/settings")}>
-                <UserAvatar user={user} />
-                <div className="sdUserInfoText">
-                  <strong>{userName}</strong>
-                  <span>Student</span>
+              <button
+                className="sdLogoutHeaderBtn"
+                onClick={handleLogout}
+                title="Logout to Landing Page"
+              >
+                <FaSignOutAlt /> <span>Logout</span>
+              </button>
+
+              <div className="sdUserProfilePillWrapper">
+                <div className="sdUserProfilePill" onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}>
+                  <UserAvatar user={user} />
+                  <div className="sdUserInfoText">
+                    <strong>{userName}</strong>
+                    <span>Student</span>
+                  </div>
+                  <span className="dropdownArrow">▾</span>
                 </div>
-                <span className="dropdownArrow">▾</span>
+
+                {isUserMenuOpen && (
+                  <div className="sdUserMenuDropdown">
+                    <div className="dropdownHeader">
+                      <strong>{userName}</strong>
+                      <span>Student Account</span>
+                    </div>
+                    <div className="dropdownItem" onClick={() => { setIsUserMenuOpen(false); navigate("/student-profile"); }}>
+                      👤 Profile Settings
+                    </div>
+                    <div className="dropdownItem" onClick={() => { setIsUserMenuOpen(false); navigate("/certificate"); }}>
+                      📜 My Certificates
+                    </div>
+                    <div className="dropdownItem logout" onClick={handleLogout}>
+                      🚪 Logout
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </header>

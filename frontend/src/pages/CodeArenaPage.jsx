@@ -44,7 +44,8 @@ import {
   FaFire,
   FaBullseye,
   FaSun,
-  FaMoon
+  FaMoon,
+  FaSignOutAlt
 } from "react-icons/fa";
 
 import studentHeroImg from "../assets/student_dashboard_hero_illustration.png";
@@ -189,10 +190,22 @@ const MASTER_PROBLEMS = [
 import AppLogo from "../components/AppLogo";
 
 export default function CodeArenaPage() {
-  const { user, xp, earnXp, themeMode, toggleTheme, authenticatedFetch, refreshProfile } = useAuth();
+  const { user, xp, earnXp, themeMode, toggleTheme, authenticatedFetch, refreshProfile, logout } = useAuth();
   const navigate = useNavigate();
   const isDarkMode = themeMode === "dark";
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      if (logout) await logout();
+      navigate("/");
+    } catch (err) {
+      console.error("Logout error:", err);
+      navigate("/");
+    }
+  };
 
   const userName = user?.full_name || user?.username || "Riya Sharma";
   const userXp = xp ?? 16250;
@@ -698,12 +711,44 @@ export default function CodeArenaPage() {
                 <FaStar color="#F59E0B" /> <span>{userXp.toLocaleString()} XP</span>
               </div>
               <NotificationDropdown type="student" />
-              <div className="caUserProfilePill">
-                <UserAvatar user={user} className="avatarCircle" />
-                <div className="userText">
-                  <strong>{userName}</strong>
-                  <span>Level {userLevel}</span>
+
+              {/* Header Bar Logout Button */}
+              <button
+                className="sdLogoutHeaderBtn"
+                onClick={handleLogout}
+                title="Logout to Landing Page"
+              >
+                <FaSignOutAlt /> <span>Logout</span>
+              </button>
+
+              {/* User Profile Pill with Dropdown */}
+              <div className="sdUserProfilePillWrapper">
+                <div className="caUserProfilePill" onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} style={{ cursor: "pointer" }}>
+                  <UserAvatar user={user} className="avatarCircle" />
+                  <div className="userText">
+                    <strong>{userName}</strong>
+                    <span>Level {userLevel}</span>
+                  </div>
+                  <span className="dropdownArrow" style={{ marginLeft: "4px", fontSize: "11px", color: "#64748B" }}>▾</span>
                 </div>
+
+                {isUserMenuOpen && (
+                  <div className="sdUserMenuDropdown">
+                    <div className="dropdownHeader">
+                      <strong>{userName}</strong>
+                      <span>Student Account</span>
+                    </div>
+                    <div className="dropdownItem" onClick={() => { setIsUserMenuOpen(false); navigate("/student-profile"); }}>
+                      👤 Profile Settings
+                    </div>
+                    <div className="dropdownItem" onClick={() => { setIsUserMenuOpen(false); navigate("/certificate"); }}>
+                      📜 My Certificates
+                    </div>
+                    <div className="dropdownItem logout" onClick={handleLogout}>
+                      🚪 Logout
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </header>

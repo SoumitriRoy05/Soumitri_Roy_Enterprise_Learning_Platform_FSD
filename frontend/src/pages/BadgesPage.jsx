@@ -498,7 +498,7 @@ export default function BadgesPage() {
                     </div>
 
                     {/* Locked Badges */}
-                    <div className="bpLockedCol" style={{ display: "none" }}>
+                    <div className="bpLockedCol">
                       <div className="sectionHeaderRow">
                         <h3>Locked Badges (21)</h3>
                         <span className="viewAllLink" onClick={() => setViewMode("more-badges")}>
@@ -559,7 +559,7 @@ export default function BadgesPage() {
                   </div>
 
                   {/* Rarest Badge Earned Widget */}
-                  <div className="bpWidgetCard" style={{ display: "none" }}>
+                  <div className="bpWidgetCard">
                     <h4>Rarest Badge Earned</h4>
 
                     <div className="rareBadgeCard">
@@ -577,7 +577,7 @@ export default function BadgesPage() {
                   </div>
 
                   {/* Recent Badge Earned Widget */}
-                  <div className="bpWidgetCard" style={{ display: "none" }}>
+                  <div className="bpWidgetCard">
                     <h4>Recent Badge Earned</h4>
 
                     <div className="recentBadgeItem">

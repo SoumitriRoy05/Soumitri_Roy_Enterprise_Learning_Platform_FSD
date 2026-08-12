@@ -43,7 +43,8 @@ import {
   FaGraduationCap,
   FaComments,
   FaNetworkWired,
-  FaClock
+  FaClock,
+  FaSignOutAlt
 } from "react-icons/fa";
 
 import "../styles/studentDashboard.css";
@@ -52,9 +53,21 @@ import "../styles/opportunityFeedPage.css";
 import AppLogo from "../components/AppLogo";
 
 export default function OpportunityFeedPage() {
-  const { user, xp, themeMode, toggleTheme } = useAuth();
+  const { user, xp, themeMode, toggleTheme, logout } = useAuth();
   const navigate = useNavigate();
   const isDarkMode = themeMode === "dark";
+
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      if (logout) await logout();
+      navigate("/");
+    } catch (err) {
+      console.error("Logout error:", err);
+      navigate("/");
+    }
+  };
 
   // Search & Multi-Filters State
   const [searchQuery, setSearchQuery] = useState("");
@@ -571,13 +584,41 @@ export default function OpportunityFeedPage() {
 
               <NotificationDropdown type="student" />
 
-              <div className="sdUserProfilePill" onClick={() => navigate("/settings")}>
-                <UserAvatar user={user} />
-                <div className="sdUserInfoText">
-                  <strong>{userName}</strong>
-                  <span>Student</span>
+              <button
+                className="sdLogoutHeaderBtn"
+                onClick={handleLogout}
+                title="Logout to Landing Page"
+              >
+                <FaSignOutAlt /> <span>Logout</span>
+              </button>
+
+              <div className="sdUserProfilePillWrapper">
+                <div className="sdUserProfilePill" onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}>
+                  <UserAvatar user={user} />
+                  <div className="sdUserInfoText">
+                    <strong>{userName}</strong>
+                    <span>Student</span>
+                  </div>
+                  <span className="dropdownArrow">▾</span>
                 </div>
-                <span className="dropdownArrow">▾</span>
+
+                {isUserMenuOpen && (
+                  <div className="sdUserMenuDropdown">
+                    <div className="dropdownHeader">
+                      <strong>{userName}</strong>
+                      <span>Student Account</span>
+                    </div>
+                    <div className="dropdownItem" onClick={() => { setIsUserMenuOpen(false); navigate("/student-profile"); }}>
+                      👤 Profile Settings
+                    </div>
+                    <div className="dropdownItem" onClick={() => { setIsUserMenuOpen(false); navigate("/certificate"); }}>
+                      📜 My Certificates
+                    </div>
+                    <div className="dropdownItem logout" onClick={handleLogout}>
+                      🚪 Logout
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </header>

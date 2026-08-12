@@ -17,7 +17,7 @@ import {
   FaHistory, FaThumbsUp, FaThumbsDown, FaCopy, FaCheck, FaShareAlt,
   FaStickyNote, FaLayerGroup, FaTerminal, FaCrown, FaTimes, FaPlay,
   FaRedo, FaYoutube, FaLink, FaUpload, FaMagic, FaInfoCircle, FaLock,
-  FaChevronDown, FaBuilding, FaUser, FaCheckCircle, FaSpinner, FaMinus
+  FaChevronDown, FaBuilding, FaUser, FaCheckCircle, FaSpinner, FaMinus, FaSignOutAlt
 } from "react-icons/fa";
 
 import { askGeminiAI, getGeminiApiKey, setGeminiApiKey } from "../services/geminiService";
@@ -31,9 +31,21 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 import AppLogo from "../components/AppLogo";
 
 export default function AIStudyBuddyPage() {
-  const { user, xp, earnXp, themeMode, toggleTheme, authenticatedFetch } = useAuth();
+  const { user, xp, earnXp, themeMode, toggleTheme, authenticatedFetch, logout } = useAuth();
   const navigate = useNavigate();
   const isDarkMode = themeMode === "dark";
+
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      if (logout) await logout();
+      navigate("/");
+    } catch (err) {
+      console.error("Logout error:", err);
+      navigate("/");
+    }
+  };
 
   const userName = user?.full_name || user?.username || "Learner";
   const currentXp = xp ?? 0;
@@ -822,13 +834,41 @@ SELECT * FROM Students WHERE xp >= 1000;`
 
               <NotificationDropdown type="student" />
 
-              <div className="sdUserProfilePill" onClick={() => navigate("/settings")}>
-                <UserAvatar user={user} />
-                <div className="sdUserInfoText">
-                  <strong>{userName}</strong>
-                  <span>Student</span>
+              <button
+                className="sdLogoutHeaderBtn"
+                onClick={handleLogout}
+                title="Logout to Landing Page"
+              >
+                <FaSignOutAlt /> <span>Logout</span>
+              </button>
+
+              <div className="sdUserProfilePillWrapper">
+                <div className="sdUserProfilePill" onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}>
+                  <UserAvatar user={user} />
+                  <div className="sdUserInfoText">
+                    <strong>{userName}</strong>
+                    <span>Student</span>
+                  </div>
+                  <span className="dropdownArrow">▾</span>
                 </div>
-                <span className="dropdownArrow">▾</span>
+
+                {isUserMenuOpen && (
+                  <div className="sdUserMenuDropdown">
+                    <div className="dropdownHeader">
+                      <strong>{userName}</strong>
+                      <span>Student Account</span>
+                    </div>
+                    <div className="dropdownItem" onClick={() => { setIsUserMenuOpen(false); navigate("/student-profile"); }}>
+                      👤 Profile Settings
+                    </div>
+                    <div className="dropdownItem" onClick={() => { setIsUserMenuOpen(false); navigate("/certificate"); }}>
+                      📜 My Certificates
+                    </div>
+                    <div className="dropdownItem logout" onClick={handleLogout}>
+                      🚪 Logout
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </header>

@@ -7,6 +7,7 @@ import {
   FiCalendar, FiAward, FiGrid, FiMoreVertical, FiActivity, FiUserPlus, FiPlusCircle, FiFileText, FiClock, FiRefreshCw
 } from 'react-icons/fi';
 import Background from '../../components/Background';
+import AppLogo from '../../components/AppLogo';
 import '../../styles/dashboard.css';
 
 export default function AdminDashboard() {
@@ -148,15 +149,8 @@ export default function AdminDashboard() {
         boxShadow: '0 8px 30px rgba(0,0,0,0.01)'
       }}>
         {/* Logo and Brand */}
-        <div style={{ padding: '24px 20px', borderBottom: '1px solid #F3EBE1', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {/* Hexagon SVG logo matching brand image */}
-          <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <polygon 
-              points="17,2 31,9.5 31,24.5 17,32 3,24.5 3,9.5" 
-              fill="#F9572A" 
-            />
-          </svg>
-          <h2 style={{ margin: 0, fontSize: '18px', color: '#1E1B18', fontWeight: '800', letterSpacing: '-0.3px', lineHeight: '1' }}>SkillSphere</h2>
+        <div style={{ padding: '18px 20px', borderBottom: '1px solid #F3EBE1', display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => setActiveTab('dashboard')}>
+          <AppLogo height="48px" />
         </div>
         
         {/* Navigation Items */}
@@ -165,7 +159,6 @@ export default function AdminDashboard() {
           <SidebarBtn icon={<FiUsers />} label="Student Management" hasChevron active={activeTab === 'students'} onClick={() => setActiveTab('students')} />
           <SidebarBtn icon={<FiBriefcase />} label="Workforce Management" hasChevron active={activeTab === 'workforce'} onClick={() => setActiveTab('workforce')} />
           <SidebarBtn icon={<FiBook />} label="Courses (Admin)" active={activeTab === 'courses'} onClick={() => setActiveTab('courses')} />
-          <SidebarBtn icon={<FiBook />} label="Course Creator Page" active={false} onClick={() => navigate("/course-management")} />
           <SidebarBtn 
             icon={<FiClock />} 
             label="Course Approvals" 
