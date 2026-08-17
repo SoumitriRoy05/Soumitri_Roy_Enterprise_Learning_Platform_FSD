@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚀 SkillSphere Learning Nexus
+# 🚀 Enterprise Learning Platform
 
 ### Empowering Students • Connecting Talent • Transforming Careers
 
