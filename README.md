@@ -72,32 +72,25 @@ Enterprise Learning Platform helps students become industry-ready while providin
 ## 💼 Workforce Portal
 
 - Workforce Dashboard
-- Recruiter Portal
-- Job Posting
-- Candidate Management
-- Applicant Tracking
-- Recruitment Analytics
-- Hiring Workflow
-- Team Management
-- Executive Dashboard
-- Service Catalog
-- Talent Management
-- Candidate Evaluation
+- Assessments
+- Certificates
+- Promotion Flowchart
+- Leaves and Attendance
+- AI Career Coach
 
 ---
 
 ## 👨‍💼 Admin Panel
 
 - Admin Dashboard
-- User Management
+- Student Management
+- Workforce Management
 - Course Management
+- Course Approval
+- Leave Approval
+- Service Booking
 - Complaint Tracking
 - Certification Management
-- Analytics Dashboard
-- Platform Monitoring
-- Role Management
-- System Management
-- Reports and Insights
 
 ---
 
@@ -340,57 +333,7 @@ SkillSphere-Learning-Nexus
 
 ---
 
-# 📚 Application Modules
 
-## 🎓 Student Modules
-
-- Login & Registration
-- Student Dashboard
-- Learning Portal
-- AI Study Buddy
-- Coding Arena
-- Flashcards
-- Learning Paths
-- Resume Builder
-- Progress Tracking
-- Career Roadmap
-- Job Search
-- Opportunity Feed
-- Certificates
-- Assessments
-- Skill Analytics
-- Team Collaboration
-
----
-
-## 💼 Workforce Modules
-
-- Recruiter Dashboard
-- Workforce Dashboard
-- Hiring Portal
-- Job Posting
-- Applicant Tracking
-- Candidate Management
-- Team Management
-- Recruitment Analytics
-- Executive Dashboard
-- Services Catalog
-
----
-
-## 👨‍💼 Admin Modules
-
-- Admin Dashboard
-- User Management
-- Course Management
-- Complaint Tracking
-- Certification Tracking
-- Analytics
-- Reports
-- Platform Monitoring
-- Role Management
-
----
 
 # 👥 User Roles
 
