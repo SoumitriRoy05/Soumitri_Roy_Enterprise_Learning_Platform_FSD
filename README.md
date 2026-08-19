@@ -795,8 +795,7 @@ Create a Pull Request describing your changes.
 
 ### 🎨 Frontend Development
 
-**Soumitri Roy**
-**Tanu Kashyap**
+**Tanu Kashyap ,** **Soumitri Roy**
 
 - React.js Development
 - UI/UX Design
@@ -833,7 +832,7 @@ Create a Pull Request describing your changes.
 
 ### 🗄️ Database Development
 
-**Sneha Lahudkar**
+**Sneha Lahudkar,**
 **Trisha D**
 
 - MySQL Database
@@ -895,7 +894,6 @@ Create a Pull Request describing your changes.
 | 🗄️ MySQL & Hibernate | **Sneha Lahudkar**, **Trisha D** |
 | ☁️ Cloud Database Integration | **Sneha Lahudkar**, **Trisha D** |
 | 🎯 UI/UX Design | **Soumitri Roy**, **Tanu Kashyap** |
-| ▶️ YouTube API Integration | **Development Team** |
 | 🤖 Gemini AI Integration | **Soumitri Roy**, **Shabira Begum** |
 
 ---
