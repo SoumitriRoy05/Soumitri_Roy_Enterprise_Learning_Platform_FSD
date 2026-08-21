@@ -1,10 +1,10 @@
 <div align="center">
 
-# 🚀 SkillSphere Learning Nexus
+# 🚀 Enterprise Learning Platform
 
 ### Empowering Students • Connecting Talent • Transforming Careers
 
-**SkillSphere Learning Nexus** is an AI-powered full-stack learning and workforce platform designed to bridge the gap between education and industry.
+**Enterprise Learning Platform** is an AI-powered full-stack learning and workforce platform designed to bridge the gap between education and industry.
 
 It brings together **personalized learning, coding practice, AI assistance, career guidance, recruitment, workforce management, and administrative operations** into one unified ecosystem.
 
@@ -27,7 +27,7 @@ It brings together **personalized learning, coding practice, AI assistance, care
 
 # 📖 About
 
-**SkillSphere Learning Nexus** is a comprehensive full-stack platform developed to create an integrated digital ecosystem for **students, recruiters, workforce teams, and administrators**.
+**Enterprise Learning Platform** is a comprehensive full-stack platform developed to create an integrated digital ecosystem for **students, recruiters, workforce teams, and administrators**.
 
 The platform combines learning, skill development, career preparation, AI assistance, recruitment, and workforce management into a single application.
 
@@ -37,7 +37,7 @@ Instead of using separate platforms for learning, coding practice, career prepar
 
 > **Learn → Build Skills → Practice → Prepare → Connect → Get Hired**
 
-SkillSphere helps students become industry-ready while providing organizations and recruiters with tools to discover, evaluate, and manage talent efficiently.
+Enterprise Learning Platform helps students become industry-ready while providing organizations and recruiters with tools to discover, evaluate, and manage talent efficiently.
 
 ---
 
@@ -72,6 +72,7 @@ SkillSphere helps students become industry-ready while providing organizations a
 ## 💼 Workforce Portal
 
 - Workforce Dashboard
+<<<<<<< HEAD
 - Recruiter Portal
 - Job Posting
 - Candidate Management
@@ -82,27 +83,33 @@ SkillSphere helps students become industry-ready while providing organizations a
 - Service Catalog
 - Talent Management
 - Candidate Evaluation
+=======
+- Assessments
+- Certificates
+- Promotion Flowchart
+- Leaves and Attendance
+- AI Career Coach
+>>>>>>> 3053f30175176ab6205beb144ba38fb430d99ace
 
 ---
 
 ## 👨‍💼 Admin Panel
 
 - Admin Dashboard
-- User Management
+- Student Management
+- Workforce Management
 - Course Management
+- Course Approval
+- Leave Approval
+- Service Booking
 - Complaint Tracking
 - Certification Management
-- Analytics Dashboard
-- Platform Monitoring
-- Role Management
-- System Management
-- Reports and Insights
 
 ---
 
 # 🤖 AI Features
 
-SkillSphere integrates **Google Gemini AI** to provide intelligent learning and career assistance.
+Our platform integrates **Google Gemini AI** to provide intelligent learning and career assistance.
 
 ### AI Capabilities
 
@@ -208,7 +215,7 @@ Cloud Clever Database
 
 # 🔐 Authentication & Security
 
-SkillSphere implements secure authentication and authorization using:
+Our project implements secure authentication and authorization using:
 
 ### JWT Authentication
 
@@ -339,8 +346,8 @@ SkillSphere-Learning-Nexus
 
 ---
 
-# 📚 Application Modules
 
+<<<<<<< HEAD
 ## 🎓 Student Modules
 
 - Login & Registration
@@ -389,6 +396,8 @@ SkillSphere-Learning-Nexus
 - Role Management
 
 ---
+=======
+>>>>>>> 3053f30175176ab6205beb144ba38fb430d99ace
 
 # 👥 User Roles
 
@@ -678,7 +687,7 @@ YOUTUBE_API_KEY=your_youtube_api_key
 
 # 🤖 AI Chatbot Workflow
 
-SkillSphere's AI Study Buddy follows a secure API-based workflow:
+Enterprise Learning Platform's AI Study Buddy follows a secure API-based workflow:
 
 ```text
 ┌─────────────────┐
@@ -723,7 +732,7 @@ This architecture keeps the AI integration behind the backend instead of exposin
 
 # 🌟 Future Scope
 
-SkillSphere can be further enhanced with:
+Our project can be further enhanced with:
 
 - 🤖 AI Mock Interviews
 - 🎥 AI Video Interview Analysis
@@ -793,8 +802,7 @@ Create a Pull Request describing your changes.
 
 ### 🎨 Frontend Development
 
-**Soumitri Roy**
-**Tanu Kashyap**
+**Tanu Kashyap ,** **Soumitri Roy**
 
 - React.js Development
 - UI/UX Design
@@ -831,7 +839,7 @@ Create a Pull Request describing your changes.
 
 ### 🗄️ Database Development
 
-**Sneha Lahudkar**
+**Sneha Lahudkar,**
 **Trisha D**
 
 - MySQL Database
@@ -893,7 +901,6 @@ Create a Pull Request describing your changes.
 | 🗄️ MySQL & Hibernate | **Sneha Lahudkar**, **Trisha D** |
 | ☁️ Cloud Database Integration | **Sneha Lahudkar**, **Trisha D** |
 | 🎯 UI/UX Design | **Soumitri Roy**, **Tanu Kashyap** |
-| ▶️ YouTube API Integration | **Development Team** |
 | 🤖 Gemini AI Integration | **Soumitri Roy**, **Shabira Begum** |
 
 ---
@@ -971,7 +978,7 @@ This project is licensed under the **MIT License**.
 
 <div align="center">
 
-# ⭐ SkillSphere Learning Nexus
+# ⭐ Enterprise Learning Platform
 
 ### Learn • Build • Practice • Grow • Get Hired 🚀
 
@@ -979,6 +986,6 @@ This project is licensed under the **MIT License**.
 
 <br>
 
-⭐ **If you find SkillSphere useful, consider giving this repository a Star!**
+⭐ **If you find Enterprise Learning Platform useful, consider giving this repository a Star!**
 
 </div>
