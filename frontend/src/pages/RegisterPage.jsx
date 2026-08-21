@@ -283,7 +283,12 @@ export default function RegisterPage() {
                   <FaLock className="fieldPrefixIcon" />
                   <input
                     id="reg-password"
+                    name="reg_sec_code"
                     type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    data-lpignore="true"
+                    data-1p-ignore="true"
+                    data-form-type="other"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -313,21 +318,6 @@ export default function RegisterPage() {
               {/* Sign up with Google */}
               <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '8px 0' }}>
                 <div ref={googleBtnRef} style={{ width: '100%' }}></div>
-              </div>
-
-              {/* Mock Dev Mode Bypass Box */}
-              <div className="mockDevModeBox">
-                <div className="mockDevHeader">
-                  <FaShieldAlt /> Mock Dev Mode Bypass for Google Signup:
-                </div>
-                <button
-                  type="button"
-                  className="btnDevBypass"
-                  style={{ width: '100%', marginTop: '6px' }}
-                  onClick={handleDevBypass}
-                >
-                  Bypass Google Sign-Up (Uses Email field above)
-                </button>
               </div>
 
               <button

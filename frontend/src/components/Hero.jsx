@@ -81,16 +81,8 @@ export default function Hero() {
     };
   }, []);
 
-  const handleDevBypassClick = async () => {
-    const email = window.prompt("⚠️ Running in Mock Dev Mode. Enter email to bypass Google auth:", "student@skillsphere.com");
-    if (email) {
-      try {
-        await loginWithGoogle(`mock_google_token_${email}`);
-        navigate('/');
-      } catch (err) {
-        alert(err.message || 'Developer bypass login failed');
-      }
-    }
+  const handleGoogleClick = () => {
+    navigate('/login');
   };
 
   return (
@@ -129,7 +121,7 @@ export default function Hero() {
         </div>
 
         {showDevBypass ? (
-          <button className="googleBtn" onClick={handleDevBypassClick}>
+          <button className="googleBtn" onClick={handleGoogleClick}>
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg"
               alt="Google logo"

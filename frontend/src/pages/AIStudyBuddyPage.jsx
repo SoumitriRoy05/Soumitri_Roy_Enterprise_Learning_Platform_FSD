@@ -587,7 +587,7 @@ SELECT * FROM Students WHERE xp >= 1000;`
     }]);
 
     try {
-      const aiResult = await askGeminiAI(text, { activeContext: activeCourseContext });
+      const aiResult = await askGeminiAI(text, { user, activeContext: activeCourseContext });
       const botMsgText = aiResult.text || `Here is a clear breakdown for "${text}":\n\n1. Focus on core principles.\n2. Apply modular design and test with edge cases.`;
       
       const botMsg = {

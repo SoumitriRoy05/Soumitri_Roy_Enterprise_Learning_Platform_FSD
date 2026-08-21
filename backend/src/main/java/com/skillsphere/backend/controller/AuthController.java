@@ -84,7 +84,7 @@ public class AuthController {
         }
 
         // Validate and set role
-        String targetRole = Arrays.asList("STUDENT", "EMPLOYEE", "MANAGER", "ADMIN", "EXECUTIVE").contains(role) ? role : "STUDENT";
+        String targetRole = Arrays.asList("STUDENT", "EMPLOYEE", "MANAGER", "ADMIN").contains(role) ? role : "STUDENT";
 
         User user = new User();
         user.setUsername(username);
@@ -245,7 +245,7 @@ public class AuthController {
                         suffix++;
                     }
 
-                    String targetRole = Arrays.asList("STUDENT", "EMPLOYEE", "MANAGER", "ADMIN", "EXECUTIVE").contains(role) ? role : "STUDENT";
+                    String targetRole = Arrays.asList("STUDENT", "EMPLOYEE", "MANAGER", "ADMIN").contains(role) ? role : "STUDENT";
 
                     user = new User();
                     user.setUsername(username);

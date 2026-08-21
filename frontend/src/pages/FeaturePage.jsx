@@ -218,8 +218,7 @@ export default function FeaturePage() {
                 <li><Link to="/student-features" onClick={handleScrollTop}>Students Hub</Link></li>
                 <li><Link to="/workforce" onClick={handleScrollTop}>Work Hub</Link></li>
                 <li><Link to="/sandbox" onClick={handleScrollTop}>Sandbox</Link></li>
-                 <li><Link to="/admin-login" onClick={handleScrollTop}>Admin Portal</Link></li>
-                  <li><Link to="/executive/dashboard" onClick={handleScrollTop}>Executive Portal</Link></li>
+                <li><Link to="/admin-login" onClick={handleScrollTop}>Admin Portal</Link></li>
               </ul>
             </div>
 

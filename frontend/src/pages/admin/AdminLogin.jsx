@@ -47,7 +47,7 @@ export default function AdminLogin() {
 
           {error && <div className="errorMessageCard">{error}</div>}
 
-          <form onSubmit={handleLogin} className="loginFormContent">
+          <form onSubmit={handleLogin} className="loginFormContent" autoComplete="off" data-lpignore="true" data-1p-ignore="true">
             <div className="inputFieldGroup">
               <label htmlFor="admin-email">Admin Email</label>
               <div className="inputWithIconWrapper">
@@ -55,6 +55,9 @@ export default function AdminLogin() {
                 <input
                   id="admin-email"
                   type="email"
+                  name="admin_user_email"
+                  autoComplete="off"
+                  data-lpignore="true"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -69,7 +72,12 @@ export default function AdminLogin() {
                 <FaLock className="fieldPrefixIcon" />
                 <input
                   id="admin-password"
+                  name="admin_sec_code"
                   type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  data-lpignore="true"
+                  data-1p-ignore="true"
+                  data-form-type="other"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

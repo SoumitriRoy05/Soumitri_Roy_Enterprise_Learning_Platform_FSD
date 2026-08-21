@@ -482,7 +482,6 @@ export default function SandboxPage() {
                 <li><Link to="/courses" onClick={handleScrollTop}>Work Hub</Link></li>
                 <li><Link to="/sandbox" onClick={handleScrollTop} style={{ color: '#F9572A', fontWeight: '700' }}>Sandbox</Link></li>
                 <li><Link to="/admin-login" onClick={handleScrollTop}>Admin Portal</Link></li>
-                <li><Link to="/executive/dashboard" onClick={handleScrollTop}>Executive Portal</Link></li>
               </ul>
             </div>
 

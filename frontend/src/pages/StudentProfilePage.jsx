@@ -923,17 +923,17 @@ export default function StudentProfilePage() {
 
             <div className="inputGroup">
               <label>Current Password</label>
-              <input type="password" placeholder="Enter current password" />
+              <input type="password" autoComplete="current-password" data-lpignore="true" data-1p-ignore="true" data-form-type="other" placeholder="Enter current password" />
             </div>
 
             <div className="inputGroup">
               <label>New Password</label>
-              <input type="password" placeholder="Enter new password" />
+              <input type="password" autoComplete="new-password" data-lpignore="true" data-1p-ignore="true" data-form-type="other" placeholder="Enter new password" />
             </div>
 
             <div className="inputGroup">
               <label>Confirm New Password</label>
-              <input type="password" placeholder="Confirm new password" />
+              <input type="password" autoComplete="new-password" data-lpignore="true" data-1p-ignore="true" data-form-type="other" placeholder="Confirm new password" />
             </div>
 
             <div className="modalBtnRow">

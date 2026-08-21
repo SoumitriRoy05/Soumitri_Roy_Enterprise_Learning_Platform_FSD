@@ -173,18 +173,6 @@ export default function SignupModal({ isOpen, onClose }) {
         <div className="googleButtonWrapper">
           <div ref={googleBtnRef} id="googleSignUpButton"></div>
         </div>
-
-        {showDevBypass && (
-          <div style={{ marginTop: '15px', textAlign: 'left' }}>
-            <p style={{ fontSize: '11px', color: '#fbbf24', margin: '10px 0 5px 0' }}>⚠️ Mock Dev Mode Bypass for Google Signup:</p>
-            <button
-              onClick={handleDevBypass}
-              style={{ width: '100%', padding: '10px', background: '#4f46e5', border: 'none', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}
-            >
-              Bypass Google Sign-Up (Uses Email field + Role selection)
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

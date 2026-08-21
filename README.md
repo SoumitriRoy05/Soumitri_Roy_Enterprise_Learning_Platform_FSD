@@ -79,7 +79,6 @@ SkillSphere helps students become industry-ready while providing organizations a
 - Recruitment Analytics
 - Hiring Workflow
 - Team Management
-- Executive Dashboard
 - Service Catalog
 - Talent Management
 - Candidate Evaluation
@@ -373,7 +372,6 @@ SkillSphere-Learning-Nexus
 - Candidate Management
 - Team Management
 - Recruitment Analytics
-- Executive Dashboard
 - Services Catalog
 
 ---

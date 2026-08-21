@@ -45,7 +45,6 @@ import CertificationTrackingPage from "./pages/CertificationTrackingPage";
 import CourseManagementPage from "./pages/CourseManagementPage";
 import TrackingDashboardPage from "./pages/TrackingDashboardPage";
 import ComplaintRenewalTrackingPage from "./pages/ComplaintRenewalTrackingPage";
-import ExecutiveDashboardPage from "./pages/ExecutiveDashboardPage";
 import JobSearchPage from "./pages/JobSearchPage";
 
 
@@ -154,7 +153,6 @@ function App() {
         <Route path="/course-management" element={<ProtectedRoute><CourseManagementPage /></ProtectedRoute>} />
         <Route path="/tracking-dashboard" element={<ProtectedRoute><TrackingDashboardPage /></ProtectedRoute>} />
         <Route path="/complaint-tracking" element={<ProtectedRoute><ComplaintRenewalTrackingPage /></ProtectedRoute>} />
-        <Route path="/executive-dashboard" element={<ProtectedRoute><ExecutiveDashboardPage /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/student-home" replace />} />
 
       </Routes>

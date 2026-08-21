@@ -101,9 +101,6 @@ export default function LoginPage() {
   }, [loginWithGoogle]);
 
   if (user) {
-    if (user.role === 'EXECUTIVE') {
-      return <Navigate to="/executive/dashboard" replace />;
-    }
     return <Navigate to={user.role === 'STUDENT' ? '/student-home' : '/workforce-home'} replace />;
   }
 
@@ -127,9 +124,7 @@ export default function LoginPage() {
           await logout();
           return;
         }
-        if (loggedUser.role === 'EXECUTIVE') {
-          navigate('/executive/dashboard');
-        } else if (loggedUser.role === 'STUDENT') {
+        if (loggedUser.role === 'STUDENT') {
           navigate('/student-home');
         } else {
           navigate('/workforce-home');
@@ -157,9 +152,7 @@ export default function LoginPage() {
           await logout();
           return;
         }
-        if (loggedUser.role === 'EXECUTIVE') {
-          navigate('/executive/dashboard');
-        } else if (loggedUser.role === 'STUDENT') {
+        if (loggedUser.role === 'STUDENT') {
           navigate('/student-home');
         } else {
           navigate('/workforce-home');
@@ -247,7 +240,7 @@ export default function LoginPage() {
           {error && <div className="errorMessageCard">{error}</div>}
 
           {/* Form Content */}
-          <form onSubmit={handleSubmit} className="loginFormContent">
+          <form onSubmit={handleSubmit} className="loginFormContent" autoComplete="off" data-lpignore="true" data-1p-ignore="true">
             {/* Email Field */}
             <div className="inputFieldGroup">
               <label htmlFor="login-email">Email Address</label>
@@ -256,6 +249,9 @@ export default function LoginPage() {
                 <input
                   id="login-email"
                   type="email"
+                  name="user_email_address"
+                  autoComplete="off"
+                  data-lpignore="true"
                   placeholder={role === 'STUDENT' ? "student@gmail.com" : "workforce@company.com"}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -271,7 +267,12 @@ export default function LoginPage() {
                 <FaLock className="fieldPrefixIcon" />
                 <input
                   id="login-password"
+                  name="user_sec_token"
                   type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  data-lpignore="true"
+                  data-1p-ignore="true"
+                  data-form-type="other"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -317,39 +318,17 @@ export default function LoginPage() {
             <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '8px 0' }}>
               <div ref={googleBtnRef} style={{ width: '100%' }}></div>
             </div>
-
-            {/* Mock Dev Mode Box */}
-            <div className="mockDevModeBox">
-              <div className="mockDevHeader">
-                <FaShieldAlt /> Mock Dev Mode
-              </div>
-              <div className="mockDevSubtext">
-                Enter email to bypass Google ({role === 'STUDENT' ? 'STUDENT' : 'WORKFORCE'})
-              </div>
-              <div className="mockDevFormRow">
-                <input
-                  type="email"
-                  className="mockDevInput"
-                  placeholder={role === 'STUDENT' ? "student@skillsphere.com" : "workforce@company.com"}
-                  value={devEmail}
-                  onChange={(e) => setDevEmail(e.target.value)}
-                />
-                <button type="button" className="btnDevBypass" onClick={handleDevBypass}>
-                  Bypass
-                </button>
-              </div>
-            </div>
-
-            {/* Bottom Signup Text */}
-            <div className="bottomAuthText">
-              Don't have an account?{" "}
-              {role === 'STUDENT' ? (
-                <Link to="/register" state={{ role: 'STUDENT' }}>Sign up here</Link>
-              ) : (
-                <Link to="/register" state={{ role: 'EMPLOYEE' }}>Contact Admin</Link>
-              )}
-            </div>
           </form>
+
+          {/* Bottom Signup Text */}
+          <div className="bottomAuthText" style={{ marginTop: '16px' }}>
+            Don't have an account?{" "}
+            {role === 'STUDENT' ? (
+              <Link to="/register" state={{ role: 'STUDENT' }}>Sign up here</Link>
+            ) : (
+              <Link to="/register" state={{ role: 'EMPLOYEE' }}>Contact Admin</Link>
+            )}
+          </div>
         </div>
       </div>
     </div>

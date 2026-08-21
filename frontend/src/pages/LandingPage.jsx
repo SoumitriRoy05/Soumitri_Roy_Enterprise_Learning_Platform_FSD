@@ -20,9 +20,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     if (user) {
-      if (user.role === 'EXECUTIVE') {
-        navigate('/executive/dashboard');
-      } else if (user.role === 'STUDENT') {
+      if (user.role === 'STUDENT') {
         navigate('/student-home');
       } else {
         navigate('/workforce-home');
